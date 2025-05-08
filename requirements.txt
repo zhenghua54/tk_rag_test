@@ -1,0 +1,28 @@
+# 基础包
+# numpy>=1.24.0 # 安装pytorch 时自动安装
+# faiss-cpu>=1.7.4  # 或 faiss-gpu 如果使用 GPU
+
+# 文档处理
+# langchain>=0.1.0
+langchain-community>=0.0.10
+mammoth>=1.6.0
+magic-pdf>=0.1.0  # 如果使用 PDF 处理功能
+
+# 文本处理
+sentence-transformers>=2.2.2
+transformers>=4.36.0
+# auto-gptq>=0.5.0  # 如果使用量化模型
+
+# 向量数据库
+pymilvus>=2.3.0  # 如果使用 Milvus
+
+# 工具包
+# psutil>=5.9.0
+requests>=2.31.0
+# tqdm>=4.66.0
+
+# 开发工具
+# pytest>=7.4.0
+# black>=23.0.0
+# isort>=5.12.0
+# flake8>=6.1.0
