@@ -1,28 +1,98 @@
-# 基础包
-# numpy>=1.24.0 # 安装pytorch 时自动安装
-# faiss-cpu>=1.7.4  # 或 faiss-gpu 如果使用 GPU
-
-# 文档处理
-# langchain>=0.1.0
-langchain-community>=0.0.10
-mammoth>=1.6.0
-magic-pdf>=0.1.0  # 如果使用 PDF 处理功能
-
-# 文本处理
-sentence-transformers>=2.2.2
-transformers>=4.36.0
-# auto-gptq>=0.5.0  # 如果使用量化模型
-
-# 向量数据库
-pymilvus>=2.3.0  # 如果使用 Milvus
-
-# 工具包
-# psutil>=5.9.0
-requests>=2.31.0
-# tqdm>=4.66.0
-
-# 开发工具
-# pytest>=7.4.0
-# black>=23.0.0
-# isort>=5.12.0
-# flake8>=6.1.0
+aiohappyeyeballs==2.6.1
+aiohttp==3.11.18
+aiosignal==1.3.2
+annotated-types==0.7.0
+anyio==4.9.0
+async-timeout==4.0.3
+attrs==25.3.0
+cachetools==5.5.2
+certifi==2025.4.26
+charset-normalizer==3.4.2
+dataclasses-json==0.6.7
+distro==1.9.0
+docx2txt==0.9
+exceptiongroup==1.2.2
+filelock==3.18.0
+frozenlist==1.6.0
+fsspec==2025.3.2
+grpcio==1.67.1
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+httpx-sse==0.4.0
+huggingface-hub==0.30.2
+idna==3.10
+jieba==0.42.1
+Jinja2==3.1.6
+jiter==0.9.0
+joblib==1.5.0
+jsonpatch==1.33
+jsonpointer==3.0.0
+langchain==0.3.25
+langchain-community==0.3.23
+langchain-core==0.3.59
+langchain-huggingface==0.1.2
+langchain-milvus==0.1.10
+langchain-openai==0.3.16
+langchain-text-splitters==0.3.8
+langsmith==0.3.42
+lxml==5.4.0
+markdown-it-py==3.0.0
+MarkupSafe==3.0.2
+marshmallow==3.26.1
+mdurl==0.1.2
+milvus-lite==2.4.12
+mpmath==1.3.0
+multidict==6.4.3
+mypy_extensions==1.1.0
+networkx==3.4.2
+numpy==2.2.5
+openai==1.78.0
+orjson==3.10.18
+packaging==24.2
+pandas==2.2.3
+pillow==11.2.1
+propcache==0.3.1
+protobuf==6.30.2
+pydantic==2.11.4
+pydantic-settings==2.9.1
+pydantic_core==2.33.2
+Pygments==2.19.1
+PyJWT==2.8.0
+pymilvus==2.5.8
+python-dateutil==2.9.0.post0
+python-docx==1.1.2
+python-dotenv==1.1.0
+pytz==2025.2
+PyYAML==6.0.2
+rank-bm25==0.2.2
+regex==2024.11.6
+requests==2.32.3
+requests-toolbelt==1.0.0
+rich==14.0.0
+safetensors==0.5.3
+scikit-learn==1.6.1
+scipy==1.15.2
+sentence-transformers==4.1.0
+six==1.17.0
+sniffio==1.3.1
+SQLAlchemy==2.0.40
+sympy==1.14.0
+tenacity==9.1.2
+threadpoolctl==3.6.0
+tiktoken==0.9.0
+tokenizers==0.21.1
+torch==2.7.0
+torchaudio==2.7.0
+torchvision==0.22.0
+tqdm==4.67.1
+transformers==4.51.3
+typing-inspect==0.9.0
+typing-inspection==0.4.0
+typing_extensions==4.13.2
+tzdata==2025.2
+ujson==5.10.0
+urllib3==2.4.0
+yarl==1.20.0
+zhipuai==2.1.5.20250421
+zstandard==0.23.0
