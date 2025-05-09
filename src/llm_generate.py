@@ -1,7 +1,7 @@
 """使用 langchain+LLM 完成 RAG 生成内容"""
 
-import sys
 import os
+import sys
 from typing import List
 
 # Langchain 框架
@@ -18,7 +18,6 @@ sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 from config import Config, logger
 from src.query_process import search_documents, init_bm25_retriever
 from src.database.build_milvus_db import MilvusDB
-
 
 # 初始化 LLM_API
 api_key = os.getenv("ZHIPU_API_KEY")
@@ -60,6 +59,11 @@ class CustomRetriever(BaseRetriever):
 
         # 只保留向量检索分数 >= 阈值的文档
         filtered_docs = [doc for doc, score in search_results if score >= score_threshold]
+
+        if not filtered_docs:
+            logger.info("检索结果为空，返回空文档防止死循环")
+            return []
+
         return filtered_docs
 
 
@@ -68,8 +72,14 @@ def create_llm_chain():
     logger.info("初始化 LLM 模型...")
 
     # 创建问题重写模板
+    logger.info("初始化 RAG prompt 模板...")
     condense_question_prompt = PromptTemplate(
-        template="""基于以下对话历史和当前问题,重写为独立问题,只输出问题.
+        template="""你是一个企业问答助手，任务是帮助用户整理清晰的问题。
+
+请遵循：
+1. 如果对话历史为空，直接使用当前问题。
+2. 如果历史里有相关内容，仅提炼与当前问题最相关的内容，不要重复完整历史。
+3. 输出尽量简短清晰的问题
 
 对话历史:
 {chat_history}
@@ -82,6 +92,7 @@ def create_llm_chain():
     )
 
     # 使用langchain集成智谱 AI,可更换为其他模型
+    logger.info("初始化 LLM 模型...")
     llm = ChatOpenAI(
         temperature=0.7,
         model='glm-4-plus',
@@ -89,19 +100,44 @@ def create_llm_chain():
         openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
     )
 
+    logger.info("初始化问题改写 prompt 模板...")
     chat_prompt = PromptTemplate(
         input_variables=["context", "chat_history", "question"],
-        template="""你是一个专业的企业知识问答助手。基于以下信息回答问题, 如果无法从信息中找到答案，请直接回答"抱歉，未检索到相关信息。"
+        #         template="""你是一个专业的企业知识问答助手。基于以下信息回答问题, 如果无法从信息中找到答案，请直接回答"抱歉，未检索到相关信息。"
 
-当前检索到的信息:
+        # 当前检索到的信息:
+        # {context}
+
+        # 历史对话:
+        # {chat_history}
+
+        # 最新问题: {question}
+
+        # 回答:"""
+        #     )
+        template="""你是一个专业且严谨的企业知识问答助手。
+
+你的任务是基于企业知识库中的信息，准确并清晰地回答用户提出的问题。  
+请遵循以下规则：
+
+1. 只依据提供的知识内容 {context} 作答，不要编造信息。
+2. 如果 {context} 中没有足够信息，请直接回答：「抱歉，知识库中没有找到相关信息」。
+3. 结合上下文历史对话 {chat_history}，理解用户当前问题 {question}，保持回答简洁明了。
+4. 回答中如涉及多个要点，可使用项目符号 (•) 或编号分点表达。
+
+---  
+【知识库信息】  
 {context}
 
-历史对话:
+---  
+【历史对话】  
 {chat_history}
 
-最新问题: {question}
+---  
+【用户问题】  
+{question}
 
-回答:"""
+请给出你的专业回答："""
     )
 
     memory = ConversationBufferWindowMemory(
@@ -194,7 +230,7 @@ def main():
         combine_docs_chain_kwargs={
             "prompt": chat_prompt,
         },
-        condense_question_prompt=condense_question_prompt,  # query 重写模板
+        # condense_question_prompt=condense_question_prompt,  # query 重写模板
         return_source_documents=True,
         verbose=True,  # 设置日志为 False,避免日志过多
     )
