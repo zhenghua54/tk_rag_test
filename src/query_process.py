@@ -4,6 +4,7 @@ import sys
 
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
+from rich import print
 from sentence_transformers import CrossEncoder
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
@@ -54,7 +55,9 @@ def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: B
     vector_results = vectorstore.similarity_search_with_score(query=query, k=k, filter={"partment": "",  # 可以根据需要添加过滤条件
                                                                                         "role": ""  # 可以根据需要添加过滤条件
                                                                                         })
-    logger.info(f"向量检索完成,获取到 {len(vector_results)} 条结果")
+    # 1.1 获取检索到的文档的相似度分数
+    vector_results_score_list = [result[-1] for result in vector_results]
+    logger.info(f"向量检索完成,获取到 {len(vector_results)} 条结果, 文档分数: {vector_results_score_list}")
 
     # 2. BM25 检索(仅召回)
     logger.info(f"开始 BM25 检索...")

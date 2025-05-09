@@ -7,6 +7,8 @@ import torch
 配置类：用于初始化项目的路径配置、模型路径与模型加载设置等。
 """
 
+# 禁用 HuggingFace 警告:fork 后 tokenizer 的多进程是风险操作,huggingface 会自动禁用 tokenizer 内部的多进程
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Config:
     # ---------- ENV Config ----------
@@ -28,9 +30,9 @@ class Config:
 
     # ---------- Model Config ----------
     MODEL_PATHS = {
-        "embedding": os.path.join(MODEL_BASE, "Sentence_models/BAAI/bge-m3"),
+        "embedding": os.path.join(MODEL_BASE, "BAAI/bge-m3"),
         # "llm": os.path.join(MODEL_BASE, "LLM/Qwen/Qwen2.5-1.5B"),
-        "llm": os.path.join(MODEL_BASE, "LLM/Qwen/Qwen2.5-7B"),
+        "llm": os.path.join(MODEL_BASE, "Qwen/Qwen2.5-7B"),
         "rerank": os.path.join(MODEL_BASE, "BAAI/bge-reranker-v2-m3")
     }
 
