@@ -20,9 +20,9 @@ from src.query_process import search_documents, init_bm25_retriever
 from src.database.build_milvus_db import MilvusDB
 
 # 初始化 LLM_API
-api_key = os.getenv("ZHIPU_API_KEY")
+api_key = os.getenv("HUNYUAN_API_KEY")
 if not api_key:
-    raise ValueError("ZHIPU_API_KEY 环境变量未设置，请先配置 API key")
+    raise ValueError("HUNYUAN_API_KEY 环境变量未设置，请先配置 API key")
 
 
 # 构建混合检索器
@@ -69,52 +69,34 @@ class CustomRetriever(BaseRetriever):
 
 def create_llm_chain():
     """初始化 LLM、记忆和提示模板"""
-    logger.info("初始化 LLM 模型...")
 
     # 创建问题重写模板
     logger.info("初始化 RAG prompt 模板...")
-    condense_question_prompt = PromptTemplate(
-        template="""你是一个企业问答助手，任务是帮助用户整理清晰的问题。
-
-请遵循：
-1. 如果对话历史为空，直接使用当前问题。
-2. 如果历史里有相关内容，仅提炼与当前问题最相关的内容，不要重复完整历史。
-3. 输出尽量简短清晰的问题
-
-对话历史:
-{chat_history}
-
-当前问题:
-{question}
-
-重写后的问题:""",
-        input_variables=["chat_history", "question"]
-    )
 
     # 使用langchain集成智谱 AI,可更换为其他模型
     logger.info("初始化 LLM 模型...")
+    # 智谱 AI
+    # llm = ChatOpenAI(
+    #     temperature=0.7,
+    #     model='glm-4-plus',
+    #     openai_api_key=os.getenv("ZHIPU_API_KEY"),
+    #     openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
+    # )
+
+    # 混元 API
     llm = ChatOpenAI(
         temperature=0.7,
-        model='glm-4-plus',
-        openai_api_key=os.getenv("ZHIPU_API_KEY"),
-        openai_api_base="https://open.bigmodel.cn/api/paas/v4/"
+        model='hunyuan-turbos-latest',
+        openai_api_key=os.getenv("HUNYUAN_API_KEY"),
+        openai_api_base="https://api.hunyuan.cloud.tencent.com/v1",
+        extra_body={
+            "enable_enhancement": True,
+        }
     )
 
     logger.info("初始化问题改写 prompt 模板...")
     chat_prompt = PromptTemplate(
         input_variables=["context", "chat_history", "question"],
-        #         template="""你是一个专业的企业知识问答助手。基于以下信息回答问题, 如果无法从信息中找到答案，请直接回答"抱歉，未检索到相关信息。"
-
-        # 当前检索到的信息:
-        # {context}
-
-        # 历史对话:
-        # {chat_history}
-
-        # 最新问题: {question}
-
-        # 回答:"""
-        #     )
         template="""你是一个专业且严谨的企业知识问答助手。
 
 你的任务是基于企业知识库中的信息，准确并清晰地回答用户提出的问题。  
@@ -146,11 +128,11 @@ def create_llm_chain():
         input_key="question",
         output_key="answer",
         k=5,
-        # human_prefix="用户",
-        # ai_prefix="助手",
+        human_prefix="用户",
+        ai_prefix="助手",
     )
 
-    return llm, memory, chat_prompt, condense_question_prompt
+    return llm, memory, chat_prompt
 
 
 def process_query(query: str, chain):
@@ -220,7 +202,7 @@ def main():
     logger.info("混合检索器初始化完成")
 
     # 初始化 LLM 对话链
-    llm, memory, chat_prompt, condense_question_prompt = create_llm_chain()
+    llm, memory, chat_prompt = create_llm_chain()
 
     # 创建 langchain 对话链
     chain = ConversationalRetrievalChain.from_llm(
@@ -230,7 +212,6 @@ def main():
         combine_docs_chain_kwargs={
             "prompt": chat_prompt,
         },
-        # condense_question_prompt=condense_question_prompt,  # query 重写模板
         return_source_documents=True,
         verbose=True,  # 设置日志为 False,避免日志过多
     )
