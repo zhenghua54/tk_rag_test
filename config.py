@@ -31,7 +31,6 @@ class Config:
     # ---------- Model Config ----------
     MODEL_PATHS = {
         "embedding": os.path.join(MODEL_BASE, "BAAI/bge-m3"),
-        # "llm": os.path.join(MODEL_BASE, "LLM/Qwen/Qwen2.5-1.5B"),
         "llm": os.path.join(MODEL_BASE, "Qwen/Qwen2.5-7B"),
         "rerank": os.path.join(MODEL_BASE, "BAAI/bge-reranker-v2-m3")
     }
@@ -62,8 +61,10 @@ class Config:
 
     # ---------- Database Config ----------
     MILVUS_CONFIG = {
-        "uri": "http://10.211.55.3:19530/",
-        "host": "10.211.55.3",
+        # "uri": "http://10.211.55.3:19530/",
+        # "host": "10.211.55.3",
+        "uri": "http://milvus.wumingxing.xyz:19530/",
+        "host": "milvus.wumingxing.xyz",
         "port": 19530,
         "token": "root:Milvus",
         "db_name": "tk_db",

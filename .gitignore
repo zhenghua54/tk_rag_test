@@ -19,6 +19,9 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.pytest_cache/
+.coverage
+htmlcov/
 
 # IDE
 .cursor/
@@ -26,7 +29,8 @@ wheels/
 .vscode/
 *.swp
 *.swo
-
+*.sublime-workspace
+*.sublime-project
 
 # OS
 .DS_Store
@@ -38,11 +42,37 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-delete/
-build/
-src/api/
-src/utils/
-tests/
-*.log
+datas/origin_data/*
+datas/output_data/*
+!datas/origin_data/.gitkeep
+!datas/output_data/.gitkeep
+logs/*
+!logs/.gitkeep
 .env
-.env.local 
+.env.local
+.env.*
+!.env.example
+config.local.py
+*.log
+*.sqlite3
+*.db
+*.index
+*.faiss
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+.conda/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Distribution
+dist/
+build/
+*.tar.gz
+*.whl
