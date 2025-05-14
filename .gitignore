@@ -21,10 +21,12 @@ wheels/
 *.egg
 
 # IDE
+.cursor/
 .idea/
 .vscode/
 *.swp
 *.swo
+
 
 # OS
 .DS_Store
@@ -37,6 +39,10 @@ Thumbs.db
 
 # Project specific
 delete/
+build/
+src/api/
+src/utils/
+tests/
 *.log
 .env
 .env.local 
