@@ -4,7 +4,6 @@ import sys
 
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
-from rich import print
 from sentence_transformers import CrossEncoder
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
@@ -13,7 +12,7 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from typing import List, Tuple, Any
 # 项目配置
 from config import Config, logger
-from src.database.build_milvus_db import MilvusDB
+from src.database.milvus_connect import MilvusDB
 
 
 def init_bm25_retriever(db: MilvusDB):
@@ -223,7 +222,6 @@ if __name__ == "__main__":
     # 执行主函数
     main(user_query,vectorstore, bm25_retriever)
 
-    from rich import print
     # print(dir(bm25_retriever))
     # print(db.collection.schema)
     # print(Config.MODEL_PATHS["rerank"]) # /Users/jason/models/BAAI/bge-reranker-v2-m3

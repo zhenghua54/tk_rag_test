@@ -2,15 +2,13 @@
 将处理后的数据插入到 Milvus 中
 """
 
-import os
 import sys
 
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
+sys.path.append("/")
 from rich import print
-import pandas as pd
 from sentence_transformers import SentenceTransformer
-from src.database.build_milvus_db import create_milvus_db
-from src.database.file_chunk import process_directory
+from src.database.milvus_connect import create_milvus_db
+from src.utils.file_chunk import process_directory
 
 from config import Config
 

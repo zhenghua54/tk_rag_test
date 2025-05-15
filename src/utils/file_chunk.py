@@ -2,20 +2,18 @@
 
 import sys
 
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
+sys.path.append("/")
 
 import os
 import pandas as pd
-from pymilvus import MilvusClient
 from typing import List, Dict, Any
 import hashlib
 import uuid
-from src.database.build_milvus_db import MilvusDB
+from src.database.milvus_connect import MilvusDB
 
 # 使用 langchain 的文本分块器
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
-    MarkdownTextSplitter,
     CharacterTextSplitter
 )
 from langchain_community.document_loaders import (
