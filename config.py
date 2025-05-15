@@ -61,8 +61,6 @@ class Config:
 
     # ---------- Database Config ----------
     MILVUS_CONFIG = {
-        # "uri": "http://10.211.55.3:19530/",
-        # "host": "10.211.55.3",
         "uri": "http://milvus.wumingxing.xyz:19530/",
         "host": "milvus.wumingxing.xyz",
         "port": 19530,
@@ -91,6 +89,11 @@ class Config:
             "role": {"datatype": "VARCHAR", "max_length": 10000},
             "doc_id": {"datatype": "VARCHAR", "max_length": 10000}
         }
+    }
+
+    # ---------- MySQL Config ----------
+    MYSQL_CONFIG = {
+
     }
 
     # ---------- Ensure Directories ----------
