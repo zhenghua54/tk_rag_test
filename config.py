@@ -1,6 +1,4 @@
-import logging
 import os
-
 import torch
 
 """
@@ -9,6 +7,7 @@ import torch
 
 # 禁用 HuggingFace 警告:fork 后 tokenizer 的多进程是风险操作,huggingface 会自动禁用 tokenizer 内部的多进程
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 class Config:
     # ---------- ENV Config ----------
@@ -93,7 +92,18 @@ class Config:
 
     # ---------- MySQL Config ----------
     MYSQL_CONFIG = {
-
+        "host": "localhost",
+        "user": "root",
+        "password": "Nihao123!",
+        "charset": "utf8mb4",
+        "database": "rag_db",
+        "fields": ["doc_id",  # 使用 SHA256 哈希值作为 doc_id，确保文档唯一性
+                   "source_document_name",  # 文件名通常不超过 255 个字符
+                   "source_document_type",  # 文档类型
+                   "source_document_path",  # 文档路径
+                   "source_document_json_path",  # 文档 json 路径
+                   "source_document_markdown_path",  # 文档 markdown 路径
+                   "source_document_images_path"]  # 文档图片路径
     }
 
     # ---------- Ensure Directories ----------
@@ -103,72 +113,6 @@ class Config:
         for _, path in cls.PATHS.items():
             os.makedirs(path, exist_ok=True)
 
-    # ---------- Logging Config ----------
-    @classmethod
-    def get_logger(cls):
-        """配置全局日志"""
-        LOG_FILE_PATH = os.path.join(cls.PATHS["logs_dir"], "rag_project.log")
-
-        logger = logging.getLogger("RAGProject")
-        logger.setLevel(logging.DEBUG)
-
-        if not logger.handlers:  # 避免重复添加 handler
-            # 控制台 handle (INFO 级别)
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(logging.INFO)
-            console_formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S")
-            console_handler.setFormatter(console_formatter)
-
-            # 文件 handler (DEBUG 级别)
-            file_handler = logging.FileHandler(LOG_FILE_PATH, encoding="utf-8")
-            file_handler.setLevel(logging.DEBUG)
-            file_formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(filename)s:%(lineno)d - %(message)s",
-                                               "%Y-%m-%d %H:%M:%S")
-            file_handler.setFormatter(file_formatter)
-
-            # 添加 handler 到 logger
-            logger.addHandler(console_handler)
-            logger.addHandler(file_handler)
-
-        # 启动提示
-        logger.info("Config 初始化完成,日志已配置")
-        return logger
-
-    def get_doc_output_dir(config: object, doc_path: str, ) -> dict:
-        """
-        获取文档的输出目录
-
-        Args:
-            doc_path (str): 文档的完整路径
-            config (Config): 配置文件
-
-        Returns:
-            dict: 包含以下字段的字典：
-                - output_path (str): 文档的输出目录（包含 markdown 文件和图片子目录）
-                - output_markdown_path (str): 转换生成的 markdown 文件路径
-                - output_image_path (str): markdown 文件中图片资源的存储路径
-                - output_jsonl_path (str): markdown 文件语义切块后保存的 jsonl 文件路径
-        """
-        # 提取文档名（去除扩展名）
-        doc_name = os.path.splitext(os.path.basename(doc_path))[0]
-
-        # 构建输出目录路径
-        output_data_dir = Config.PATHS["processed_data"]
-
-        # 构建输出路径
-        output_path = os.path.join(output_data_dir, doc_name)
-        output_markdown_path = os.path.join(output_path, f"{doc_name}.md")  # 输出 markdown 文件路径
-        output_image_path = os.path.join(output_path, "images")  # 输出 markdown 内的图片路径
-        output_jsonl_path = os.path.join(output_path, f"{doc_name}.jsonl")  # markdown 文件切块后保存的 jsonl 文件
-
-        return {
-            "output_path": output_path,
-            "output_markdown_path": output_markdown_path,
-            "output_image_path": output_image_path,
-            "output_jsonl_path": output_jsonl_path,
-        }
-
 
 # 初始化配置 (目录和日志)
 Config.ensure_dirs()
-logger = Config.get_logger()

@@ -17,7 +17,7 @@ from langchain_openai import ChatOpenAI
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 from config import Config, logger
 from src.query_process import search_documents, init_bm25_retriever
-from src.database.build_milvus_db import MilvusDB
+from src.database.milvus_connect import MilvusDB
 
 # 初始化 LLM_API
 api_key = os.getenv("HUNYUAN_API_KEY")

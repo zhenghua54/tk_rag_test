@@ -1,22 +1,20 @@
 """使用 streamlit web 框架部署 RAG 问答系统"""
 
-import os
 import sys
-from typing import List, Dict, Any
+from typing import List, Any
 
 # 引入 Streamlit 框架(Web UI)
 import streamlit as st
 # 引入 Langchain 组件
 from langchain.chains import ConversationalRetrievalChain
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain.schema import AIMessage
 from langchain_milvus import Milvus
 
 # 加载项目模块
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 from config import Config, logger
-from src.database.build_milvus_db import MilvusDB
-from src.llm_generate import process_query, CustomRetriever, create_llm_chain
+from src.database.milvus_connect import MilvusDB
+from src.llm_generate import CustomRetriever, create_llm_chain
 from src.query_process import init_bm25_retriever
 
 # Streamlit 页面配置
