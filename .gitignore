@@ -57,6 +57,8 @@ config.local.py
 *.db
 *.index
 *.faiss
+Dockerfile
+download_models.py
 
 # Virtual Environment
 venv/
