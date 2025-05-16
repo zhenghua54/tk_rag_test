@@ -42,7 +42,9 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-datas/processed_data/*
+datas/processed/*
+datas/translated/*
+datas/raw/*
 tests/
 logs/*
 !logs/.gitkeep
