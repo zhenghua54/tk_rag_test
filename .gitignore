@@ -42,11 +42,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-datas/origin_data/*
-datas/output_data/*
+datas/processed_data/*
 tests/
-!datas/origin_data/.gitkeep
-!datas/output_data/.gitkeep
 logs/*
 !logs/.gitkeep
 .env
@@ -73,7 +70,5 @@ ENV/
 *.ipynb
 
 # Distribution
-dist/
-build/
 *.tar.gz
 *.whl

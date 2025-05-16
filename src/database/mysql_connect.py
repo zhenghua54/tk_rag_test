@@ -1,12 +1,14 @@
 """MySQL 数据库的初始化和连接配置文件"""
 import sys
 from contextlib import contextmanager
-from typing import Dict, Any
+from typing import Dict, Any, List
 
-sys.path.append("/")
+sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
 import pymysql
-from config import Config, logger
+from pymysql.cursors import DictCursor
+from config import Config
+from src.utils.get_logger import logger
 
 
 class MySQLConnect:
@@ -31,7 +33,7 @@ class MySQLConnect:
         """上下文管理器,用于获取数据库连接和游标"""
         try:
             # 使用字典游标
-            cursor = self.connection.cursor(pymysql.cursors.DictCursor)
+            cursor = self.connection.cursor(DictCursor)
             try:
                 yield cursor
             except Exception as e:
@@ -41,7 +43,6 @@ class MySQLConnect:
                 raise e
             else:
                 # 提交事务
-                logger.info(f"mysql 执行成功,提交事务")
                 self.connection.commit()
             finally:
                 # 关闭游标
@@ -72,7 +73,7 @@ class MySQLConnect:
             self.connection.select_db(self.database)
             logger.info(f"创建并切换数据库 {self.database} 成功!")
 
-    def create_table(self, table_name='tk_table'):
+    def create_table(self, table_name: str):
         """创建表
         Args:
             table_name: 表名
@@ -85,6 +86,7 @@ class MySQLConnect:
                 source_document_name VARCHAR(255),
                 source_document_type VARCHAR(100),
                 source_document_path VARCHAR(512),
+                source_document_pdf_path VARCHAR(512),
                 source_document_json_path VARCHAR(512),
                 source_document_markdown_path VARCHAR(512),
                 source_document_images_path VARCHAR(512),
@@ -92,11 +94,13 @@ class MySQLConnect:
                 )""")
         logger.info(f"表 {table_name} 创建成功!")
 
-    def insert_data(self, data: Dict[str, Any], table_name: str = 'tk_table'):
+    def insert_data(self, data: Dict[str, Any], table_name: str) -> bool:
         """插入数据
         Args:
             data: 数据(字典格式)
             table_name: 表名
+        Returns:
+            bool: 插入是否成功
         """
         with self.get_connection() as cursor:
             try:
@@ -105,7 +109,7 @@ class MySQLConnect:
                 placeholders = ', '.join(['%s'] * len(data))
                 query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
                 cursor.execute(query, list(data.values()))
-                logger.info(f"数据插入成功!")
+                return True
             except Exception as e:
                 if "Duplicate entry" in str(e):
                     logger.error(f"数据已存在: {e}")
@@ -113,7 +117,7 @@ class MySQLConnect:
                     logger.error(f"数据插入失败: {e}")
                 raise e
 
-    def delete_data(self, data: Dict[str, Any], table_name: str = 'tk_table'):
+    def delete_data(self, data: Dict[str, Any], table_name: str):
         """删除数据
         Args:
             data: 数据(字典格式)
@@ -126,34 +130,29 @@ class MySQLConnect:
             cursor.execute(query, list(data.values()))
         logger.info(f"数据删除成功!")
 
-    def update_data(self, data: Dict[str, Any], condition: Dict[str, Any], table_name: str = 'tk_table'):
+    def update_data(self, sql, args=None):
         """更新数据
         Args:
-            data: 要更新的数据(字典格式)
-            condition: 更新条件(字典格式)
-            table_name: 表名
+            sql: 更新语句
+            args: 更新参数
         """
         with self.get_connection() as cursor:
-            # 构建 SET 子句
-            set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
-            # 构建 WHERE 子句
-            where_clause = ' AND '.join([f"{k} = %s" for k in condition.keys()])
-            query = f"UPDATE {table_name} SET {set_clause} WHERE {where_clause}"
-            cursor.execute(query, list(data.values()) + list(condition.values()))
-        logger.info(f"数据更新成功!")
-        
-    def select_data(self, table_name: str, condition: Dict[str, Any]):
+            cursor.execute(sql, args)
+
+    def select_data(self, sql, args=None) -> list:
         """查询数据
         Args:
-            table_name: 表名
-            condition: 查询条件(字典格式)
+            sql: 查询语句
+            args: 查询参数
+
+        Returns:
+            list: 查询结果列表，每个元素是一个字典
         """
         with self.get_connection() as cursor:
-            # 构建 WHERE 子句
-            where_clause = ' AND '.join([f"{k} = %s" for k in condition.keys()])
-            query = f"SELECT * FROM {table_name} WHERE {where_clause}"
-            cursor.execute(query, list(condition.values()))
-            return cursor.fetchall()
+            # 构建基础查询
+            cursor.execute(sql, args)
+            result = cursor.fetchall()
+            return list(result) if result is not None else []
 
     def close(self):
         """关闭数据库连接"""
@@ -190,22 +189,22 @@ def test_connect_mysql():
 
 if __name__ == '__main__':
     # 测试数据
-    test_data = {
-        'doc_id': 'c96f45c0bfb92a5071d02a6e0bc287d53ffba4b3b77294a28cf70e459b859a08',
-        'source_document_name': 'doc1.pdf',
-        'source_document_type': 'pdf',
-        'source_document_path': '/path/to/doc1.pdf',
-        'source_document_json_path': '/path/to/doc1.json',
-        'source_document_markdown_path': '/path/to/doc1.md',
-        'source_document_images_path': '/path/to/doc1/images/'
-    }
+    # test_data = {
+    #     'doc_id': 'c96f45c0bfb92a5071d02a6e0bc287d53ffba4b3b77294a28cf70e459b859a08',
+    #     'source_document_name': 'doc1.pdf',
+    #     'source_document_type': 'pdf',
+    #     'source_document_path': '/path/to/doc1.pdf',
+    #     'source_document_json_path': '/path/to/doc1.json',
+    #     'source_document_markdown_path': '/path/to/doc1.md',
+    #     'source_document_images_path': '/path/to/doc1/images/'
+    # }
 
     try:
         # 运行测试
         mysql = connect_mysql()
         mysql.use_db()
-        mysql.create_table()
-        mysql.insert_data(test_data)
+        mysql.create_table(table_name='file_info')
+        # mysql.insert_data(test_data, table_name='file_info')
     except Exception as e:
         logger.error(f"测试执行失败: {e}")
     finally:

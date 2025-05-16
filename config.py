@@ -1,4 +1,5 @@
 import os
+
 import torch
 
 """
@@ -23,6 +24,7 @@ class Config:
     PATHS = {
         "origin_data": os.path.join(BASE_DIR, "datas/raw"),
         "processed_data": os.path.join(BASE_DIR, "datas/processed"),
+        "translated_data": os.path.join(BASE_DIR, "datas/translated"),
         "model_base": MODEL_BASE,
         "logs_dir": os.path.join(BASE_DIR, "logs")
     }
@@ -52,6 +54,7 @@ class Config:
     }
 
     SUPPORTED_FILE_TYPES = {  # 支持的文件类型映射（用于文件分类）
+        "all": ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp', '.pdf'],
         "pdf": [".pdf"],
         "office": [".doc", ".docx", ".ppt", ".pptx"]
     }
@@ -101,6 +104,7 @@ class Config:
                    "source_document_name",  # 文件名通常不超过 255 个字符
                    "source_document_type",  # 文档类型
                    "source_document_path",  # 文档路径
+                   "source_document_pdf_path"   # 文档转换为 PDF 的路径
                    "source_document_json_path",  # 文档 json 路径
                    "source_document_markdown_path",  # 文档 markdown 路径
                    "source_document_images_path"]  # 文档图片路径
@@ -112,6 +116,7 @@ class Config:
         """确保目录存在"""
         for _, path in cls.PATHS.items():
             os.makedirs(path, exist_ok=True)
+
 
 
 # 初始化配置 (目录和日志)
