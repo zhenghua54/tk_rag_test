@@ -45,7 +45,6 @@ Thumbs.db
 datas/processed/*
 datas/translated/*
 datas/raw/*
-tests/
 logs/*
 !logs/.gitkeep
 .env
