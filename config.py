@@ -1,5 +1,4 @@
 import os
-
 import torch
 
 """
@@ -16,8 +15,6 @@ class Config:
 
     # ---------- Project Paths ----------
     if ENV == "dev":
-        # BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        # MODEL_PATH = os.path.join(BASE_DIR, "models")
         BASE_DIR = "/Users/jason/PycharmProjects/tk_rag"  # 临时指定项目根目录
         MODEL_BASE = "/Users/jason/models"  # 临时指定模型根目录
 
@@ -25,6 +22,7 @@ class Config:
         "origin_data": os.path.join(BASE_DIR, "datas/raw"),
         "processed_data": os.path.join(BASE_DIR, "datas/processed"),
         "translated_data": os.path.join(BASE_DIR, "datas/translated"),
+        "output_data": os.path.join(BASE_DIR, "datas/output_data"),
         "model_base": MODEL_BASE,
         "logs_dir": os.path.join(BASE_DIR, "logs")
     }
@@ -55,9 +53,8 @@ class Config:
 
     SUPPORTED_FILE_TYPES = {  # 支持的文件类型映射（用于文件分类）
         "all": ['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.odt', '.ods', '.odp', '.pdf'],
-        "pdf": [".pdf"],
-        "office": [".doc", ".docx", ".ppt", ".pptx"]
     }
+
     # ---------- System Config ----------
     DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
 
@@ -116,7 +113,6 @@ class Config:
         """确保目录存在"""
         for _, path in cls.PATHS.items():
             os.makedirs(path, exist_ok=True)
-
 
 
 # 初始化配置 (目录和日志)

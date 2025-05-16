@@ -10,6 +10,12 @@
   - 提供 Markdown、Layout 和 JSON 格式输出
   - RESTful API 接口
 
+- 文件处理服务
+  - 支持多种格式文件上传和存储
+  - 自动转换为 PDF 格式
+  - 文件信息数据库管理
+  - 批量处理能力
+
 - RAG 问答系统
   - 文档向量化和索引构建
   - 智能文本分块
@@ -21,6 +27,8 @@
 - Miniconda 3
 - Python 3.10
 - Apple M 系列芯片（仅使用 CPU）
+- MySQL 数据库
+- LibreOffice（用于文件格式转换）
 
 ## 项目结构
 
@@ -36,14 +44,22 @@
 │   ├── llm_generate.py     # LLM 生成相关代码
 │   ├── query_process.py    # 查询处理相关代码
 │   ├── api/                # API 相关代码
+│   │   ├── libreoffice_api.py  # LibreOffice 转换接口
+│   │   └── mineru_api.py       # MinerU 解析接口
 │   ├── database/           # 数据库相关代码
+|   |   └── milvus_connect.py    # Milvus 连接管理
+│   │   └── mysql_connect.py    # MySQL 连接管理
 │   └── utils/              # 工具函数
-├── tests/                   # 测试代码
+│       ├── file_parse.py       # 文件解析工具
+│       ├── file_translate.py   # 文件转换工具
+│       ├── file_upload.py      # 文件上传工具
+│       └── get_logger.py       # 日志工具
 ├── docs/                    # 文档目录
 ├── logs/                    # 日志文件目录
 └── datas/                   # 数据目录
-    ├── origin_data/        # 原始数据
-    └── output_data/        # 输出数据
+    ├── raw/                # 原始数据
+    ├── translated/         # 转换后的 PDF 文件
+    └── output_data/        # 解析后的输出数据
 ```
 
 ## 快速开始
@@ -68,15 +84,40 @@ conda activate tk_rag
 pip install -r requirements.txt
 ```
 
+3. 安装 LibreOffice：
+
+```bash
+# macOS
+brew install libreoffice
+
+# Ubuntu
+sudo apt-get install libreoffice
+```
+
+4. 配置 MySQL 数据库：
+
+```sql
+CREATE DATABASE rag_db;
+```
+
 ## 配置说明
 
-在 `codes/config.py` 中配置以下参数：
+在 `config.py` 中配置以下参数：
 
-### 数据处理配置
-- `DATA_DIR`: 数据目录路径
-- `RAW_DATA_DIR`: 原始数据目录
-- `PROCESSED_DATA_DIR`: 处理后的数据目录
-- `VECTOR_DATA_DIR`: 向量数据目录
+### 数据库配置
+- `MYSQL_CONFIG`: MySQL 连接配置
+  - `host`: 数据库主机
+  - `user`: 用户名
+  - `password`: 密码
+  - `charset`: 字符集
+  - `database`: 数据库名
+
+### 文件处理配置
+- `SUPPORTED_FILE_TYPES`: 支持的文件类型
+- `PATHS`: 文件路径配置
+  - `origin_data`: 原始数据目录
+  - `translated`: 转换后的 PDF 目录
+  - `output_data`: 输出数据目录
 
 ### 模型配置
 - `MODEL_NAME`: 使用的模型名称
@@ -91,29 +132,45 @@ pip install -r requirements.txt
 - `LOG_LEVEL`: 日志级别
 - `LOG_DIR`: 日志目录
 
-## 开发指南
+## 使用说明
 
-1. 代码风格遵循 PEP 8 规范
-2. 所有新功能都需要编写对应的单元测试
-3. 提交代码前请运行完整的测试套件
-4. 保持文档的及时更新
+### 文件上传和转换
 
-## 注意事项
+1. 上传文件：
+```python
+from src.utils.file_upload import upload_files, upload_file_to_db
 
-1. 本项目针对 Apple M 系列芯片优化，仅使用 CPU 进行计算
-2. 建议使用 Miniconda 管理 Python 环境
-3. 确保系统有足够的内存用于向量检索
+# 上传文件到数据库
+file_infos = upload_files("/path/to/files")
+upload_file_to_db(file_infos)
+```
 
+2. 转换为 PDF：
+```python
+from src.utils.file_translate import update_file_path_to_db
 
+# 转换文件并更新数据库
+update_file_path_to_db()
+```
+
+3. 解析文件：
+```python
+from src.utils.file_parse import parse_file_to_db
+
+# 解析文件并更新数据库
+parse_file_to_db()
+```
 
 ### 文件访问
 
-处理后的文件可以通过以下 URL 访问：
+处理后的文件可以通过以下路径访问：
 
-- Markdown: `/output/{文档名}/{文档名}.md`
-- Layout: `/output/{文档名}/{文档名}_layout.pdf`
-- JSON: `/output/{文档名}/{文档名}_middle.json`
-
+- 原始文件：`datas/origin_data/{文件名}`
+- PDF 文件：`datas/translated/{文件名}.pdf`
+- 解析结果：`datas/output_data/{文件名}/`
+  - Markdown：`{文件名}.md`
+  - JSON：`{文件名}_content_list.json`
+  - 图片：`images/`
 
 ## 注意事项
 
@@ -121,8 +178,7 @@ pip install -r requirements.txt
 2. 建议使用 Miniconda 管理 Python 环境
 3. 确保系统有足够的内存用于向量检索
 4. 建议使用 SSD 存储以提高性能
-
-1. 确保 `datas` 目录有足够的写入权限
-2. 上传的文件会保存在 `datas/origin_data` 目录
-3. 处理结果会保存在 `datas/output_data/{文档名}` 目录
-4. 建议使用 HTTPS 在生产环境中部署 
+5. 确保 `datas` 目录有足够的写入权限
+6. 上传的文件会保存在 `datas/origin_data` 目录
+7. 处理结果会保存在 `datas/output_data/{文档名}` 目录
+8. 建议使用 HTTPS 在生产环境中部署 
