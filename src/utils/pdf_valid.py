@@ -6,11 +6,17 @@ PDF 文件合法性检查, 避免 MinerU 解析崩溃
 4. 使用 pdfcpu 检查 pdf 文件结构
 """
 
+import sys
+sys.path.append("/Users/jason/PycharmProjects/tk_rag")
+
+from src.utils.get_logger import logger
 import os
 import subprocess
 
 import fitz  # PyMuPDF
 from pdfminer.high_level import extract_text
+
+
 
 
 def is_pdf_valid(path: str, check_pdfcpu: bool = True) -> tuple[bool, str]:
@@ -24,6 +30,10 @@ def is_pdf_valid(path: str, check_pdfcpu: bool = True) -> tuple[bool, str]:
     返回:
         (bool, str): 是否合法, 原因或 OK
     """
+
+    logger.info(f"检查文件 {path} 的合法性")
+
+    logger.info("检查文件是否存在且为 PDF 文件...")
     # 0. 检查路径存在且为 PDF 文件
     if not os.path.isfile(path):
         return False, "File not found"
@@ -32,6 +42,7 @@ def is_pdf_valid(path: str, check_pdfcpu: bool = True) -> tuple[bool, str]:
         return False, "File extension not .pdf"
 
     # 1. 文件头检查
+    logger.info("检查文件头...")
     try:
         with open(path, "rb") as f:
             header = f.read(5)
@@ -41,6 +52,7 @@ def is_pdf_valid(path: str, check_pdfcpu: bool = True) -> tuple[bool, str]:
         return False, f"Header read error: {e}"
 
     # 2. 使用 fitz 尝试打开（结构性检查）
+    logger.info("检查文件结构...")
     try:
         with fitz.open(path) as doc:
             _ = doc.page_count  # 触发内部结构检查
@@ -48,12 +60,14 @@ def is_pdf_valid(path: str, check_pdfcpu: bool = True) -> tuple[bool, str]:
         return False, f"fitz.open() failed: {e}"
 
     # 3. 使用 pdfminer 测试可读性（逻辑容错解析）
+    logger.info("检查文件可读性...")
     try:
         _ = extract_text(path, maxpages=1)
     except Exception as e:
         return False, f"pdfminer extract failed: {e}"
 
     # 4. 系统 pdfcpu 结构检查（需要已安装 pdfcpu）
+    logger.info("再次检查文件结构...")
     if check_pdfcpu:
         try:
             result = subprocess.run(
