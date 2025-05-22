@@ -7,8 +7,6 @@
 5. 更新解析后的文件路径到 mysql 记录
 """
 
-import sys
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
 from src.api.mineru_api import parse_pdf
 from src.database.mysql_connect import connect_mysql

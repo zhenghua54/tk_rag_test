@@ -10,13 +10,9 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 class Config:
-    # ---------- ENV Config ----------
-    ENV = "dev"
-
     # ---------- Project Paths ----------
-    if ENV == "dev":
-        BASE_DIR = "/Users/jason/PycharmProjects/tk_rag"  # 临时指定项目根目录
-        MODEL_BASE = "/Users/jason/models"  # 临时指定模型根目录
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    MODEL_BASE = "/data/models"  # 临时指定模型根目录
 
     PATHS = {
         "origin_data": os.path.join(BASE_DIR, "datas/raw"),
@@ -60,12 +56,12 @@ class Config:
 
     # ---------- Database Config ----------
     MILVUS_CONFIG = {
-        "uri": "http://milvus.wumingxing.xyz:19530/",
-        "host": "milvus.wumingxing.xyz",
+        "uri": "http://localhost:19530/",
+        "host": "localhost",
         "port": 19530,
         "token": "root:Milvus",
-        "db_name": "tk_db",
-        "collection_name": "enterprise_doc_vectors",
+        "db_name": "default",
+        "collection_name": "tk_rag",
         "vector_field": "vector",  # 向量字段名
         "vector_dim": 1024,  # 向量维度
         "output_fields": ["title", "document_source", "partment", "role", "doc_id"],  # 检索结果输出字段
@@ -94,17 +90,9 @@ class Config:
     MYSQL_CONFIG = {
         "host": "localhost",
         "user": "root",
-        "password": "Nihao123!",
+        "password": "Tk@654321",
         "charset": "utf8mb4",
         "database": "rag_db",
-        "fields": ["doc_id",  # 使用 SHA256 哈希值作为 doc_id，确保文档唯一性
-                   "source_document_name",  # 文件名通常不超过 255 个字符
-                   "source_document_type",  # 文档类型
-                   "source_document_path",  # 文档路径
-                   "source_document_pdf_path"   # 文档转换为 PDF 的路径
-                   "source_document_json_path",  # 文档 json 路径
-                   "source_document_markdown_path",  # 文档 markdown 路径
-                   "source_document_images_path"]  # 文档图片路径
     }
 
     # ---------- Ensure Directories ----------
@@ -117,3 +105,6 @@ class Config:
 
 # 初始化配置 (目录和日志)
 Config.ensure_dirs()
+
+if __name__ == "__main__":
+    print(Config.DEVICE)
