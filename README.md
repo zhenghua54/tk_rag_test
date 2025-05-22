@@ -64,6 +64,9 @@
 
 ## 快速开始
 
+前置: 安装 conda, 推荐使用 miniconda
+- 官方连接: https://www.anaconda.com/docs/getting-started/miniconda/install#linux-terminal-installer
+
 1. 克隆项目：
 
 ```bash

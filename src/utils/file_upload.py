@@ -11,9 +11,8 @@ import sys
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
 import hashlib
-from rich import print
 from src.utils.get_logger import logger
-from src.database.mysql_connect import connect_mysql
+from src.database.mysql_connect import connect_mysql,check_table_exists
 from config import Config
 
 
@@ -100,10 +99,12 @@ def upload_file_to_db(file_paths: list[dict], debug: bool = False):
 
     success_count = 0
     fail_count = 0
-    
     try:
         mysql = connect_mysql()
         mysql.use_db()
+        if not check_table_exists(mysql,'file_info'):
+            logger.error("数据库表 'file_info' 不存在, 退出流程")
+            return
         for file_path in file_paths:
             try:
                 if mysql.insert_data(file_path, 'file_info'):
@@ -111,7 +112,6 @@ def upload_file_to_db(file_paths: list[dict], debug: bool = False):
                     if debug:
                         # 查询并打印刚插入的数据
                         data = mysql.select_data(sql='select * from file_info where doc_id = %s', args=(file_path['doc_id'],))
-                        print(data)
             except Exception as e:
                 logger.error(f"插入文件 {file_path.get('source_document_name', 'unknown')} 失败: {str(e)}")
                 fail_count += 1
@@ -127,7 +127,9 @@ def upload_file_to_db(file_paths: list[dict], debug: bool = False):
 
 if __name__ == '__main__':
     # raw_data_path = Config.PATHS['origin_data']
-    raw_data_path = '/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业'
+    # raw_data_path = '/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业'
+    raw_data_path = '/Users/jason/Library/CloudStorage/OneDrive-个人/项目/内部企业知识库/文档资料'
+
 
     # 上传文件
     file_infos = upload_files(raw_data_path)

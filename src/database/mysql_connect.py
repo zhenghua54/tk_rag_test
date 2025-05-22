@@ -78,9 +78,7 @@ class MySQLConnect:
         Args:
             table_name: 表名
         """
-        with self.get_connection() as cursor:
-            cursor.execute(
-                f"""CREATE TABLE IF NOT EXISTS {table_name} (
+        file_info_sql = f"""CREATE TABLE IF NOT EXISTS {table_name} (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 doc_id VARCHAR(64) NOT NULL,
                 source_document_name VARCHAR(255),
@@ -91,7 +89,10 @@ class MySQLConnect:
                 source_document_markdown_path VARCHAR(512),
                 source_document_images_path VARCHAR(512),
                 UNIQUE(doc_id)
-                )""")
+                )"""
+
+        with self.get_connection() as cursor:
+            cursor.execute(file_info_sql)
         logger.info(f"表 {table_name} 创建成功!")
 
     def insert_data(self, data: Dict[str, Any], table_name: str) -> bool:
@@ -185,6 +186,12 @@ def test_connect_mysql():
     except Exception as e:
         logger.error(f"数据库连接测试失败: {e}")
         raise e
+
+def check_table_exists(mysql, table_name: str) -> bool:
+    """检查数据库中指定的表是否存在"""
+    query = f"SHOW TABLES LIKE '{table_name}'"
+    result = mysql.select_data(query)
+    return len(result) > 0
 
 
 if __name__ == '__main__':
