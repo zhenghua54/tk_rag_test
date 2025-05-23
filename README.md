@@ -1,76 +1,68 @@
-# TK RAG Demo
+# TK RAG 项目
 
-这是一个基于 RAG (Retrieval-Augmented Generation) 的智能文档处理系统，集成了文档解析和问答功能。
-
-## 主要功能
-
-- 文档解析服务
-  - 支持 PDF、Word、Excel、PowerPoint 等格式文档解析
-  - 自动检测文档类型
-  - 提供 Markdown、Layout 和 JSON 格式输出
-  - RESTful API 接口
-
-- 文件处理服务
-  - 支持多种格式文件上传和存储
-  - 自动转换为 PDF 格式
-  - 文件信息数据库管理
-  - 批量处理能力
-
-- RAG 问答系统
-  - 文档向量化和索引构建
-  - 智能文本分块
-  - 基于 Faiss 的向量检索
-  - 支持多种 LLM 模型集成
-
-## 环境要求
-
-- Miniconda 3
-- Python 3.10
-- Apple M 系列芯片（仅使用 CPU）
-- MySQL 数据库
-- LibreOffice（用于文件格式转换）
+基于 RAG (Retrieval-Augmented Generation) 技术构建的企业知识库问答系统。
 
 ## 项目结构
 
 ```
-.
-├── README.md                 # 项目说明文档
-├── requirements.txt          # 项目依赖
-├── setup.sh                 # 环境配置脚本
-├── config.py                # 配置文件
-├── app_streamlit.py         # Streamlit 应用入口
-├── src/                     # 核心代码目录
-│   ├── __init__.py         # 包初始化文件
-│   ├── llm_generate.py     # LLM 生成相关代码
-│   ├── query_process.py    # 查询处理相关代码
-│   ├── api/                # API 相关代码
-│   │   ├── libreoffice_api.py  # LibreOffice 转换接口
-│   │   └── mineru_api.py       # MinerU 解析接口
-│   ├── database/           # 数据库相关代码
-|   |   └── milvus_connect.py    # Milvus 连接管理
-│   │   └── mysql_connect.py    # MySQL 连接管理
-│   └── utils/              # 工具函数
-│       ├── file_parse.py       # 文件解析工具
-│       ├── file_translate.py   # 文件转换工具
-│       ├── file_upload.py      # 文件上传工具
-│       └── get_logger.py       # 日志工具
-├── docs/                    # 文档目录
-├── logs/                    # 日志文件目录
-└── datas/                   # 数据目录
-    ├── raw/                # 原始数据
-    ├── translated/         # 转换后的 PDF 文件
-    └── output_data/        # 解析后的输出数据
+tk_rag/
+├── src/                          # 源代码目录
+│   ├── api/                      # API 接口
+│   │   ├── libreoffice_api.py    # 文档转换 API
+│   │   └── mineru_api.py         # PDF 解析 API
+│   ├── core/                     # 核心业务逻辑
+│   │   ├── document/             # 文档处理
+│   │   ├── llm/                  # 大语言模型
+│   │   └── rag/                  # RAG 实现
+│   ├── database/                 # 数据库操作
+│   │   ├── mysql/                # MySQL 相关
+│   │   └── milvus/               # Milvus 向量数据库
+│   └── utils/                    # 工具函数
+│       ├── common/               # 通用工具
+│       ├── file/                 # 文件操作
+│       └── logger/               # 日志工具
+├── tests/                        # 测试代码
+├── datas/                        # 数据目录
+│   ├── raw/                      # 原始文档
+│   ├── processed/                # 处理后的文档
+│   └── translated/               # 转换后的文档
+├── models/                       # 模型目录
+├── logs/                         # 日志目录
+├── config.py                     # 配置文件
+├── requirements.txt              # 依赖包
+└── README.md                     # 项目文档
 ```
+
+## 功能特性
+
+1. 文档处理
+   - 支持多种格式文档（PDF、Word、Excel、PowerPoint）
+   - 自动转换为 PDF 格式
+   - PDF 文档解析和结构化
+
+2. 向量存储
+   - 使用 Milvus 向量数据库
+   - 支持文档分块和向量化
+   - 高效的相似度检索
+
+3. 问答系统
+   - 基于 RAG 的问答生成
+   - 支持上下文理解和多轮对话
+   - 答案来源可追溯
+
+## 环境要求
+
+- Python 3.10
+- MySQL 8.0+
+- Milvus 2.5.10
+- LibreOffice（用于文档转换）
+- Miniconda 3
 
 ## 快速开始
 
-前置: 安装 conda, 推荐使用 miniconda
-- 官方连接: https://www.anaconda.com/docs/getting-started/miniconda/install#linux-terminal-installer
-
-1. 克隆项目：
-
+1. 克隆项目
 ```bash
-git clone [项目地址]
+git clone http://192.168.31.71:18080/wumingxing/tk_rag.git
 cd tk_rag
 ```
 
@@ -87,101 +79,87 @@ conda activate tk_rag
 pip install -r requirements.txt
 ```
 
-3. 安装 LibreOffice：
+3. 配置数据库
+```python
+# config.py
+MYSQL_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "your_password",
+    "charset": "utf8mb4",
+    "database": "rag_db",
+}
 
+MILVUS_CONFIG = {
+    "uri": "http://localhost:19530/",
+    "host": "localhost",
+    "port": 19530,
+    "token": "your_token",
+    "db_name": "default",
+    "collection_name": "tk_rag",
+}
+```
+
+4. 下载模型
 ```bash
-# macOS
-brew install libreoffice
+python download_models.py
+```
 
-# Ubuntu
+5. 安装 Libreoffice
+```bash
 sudo apt-get install libreoffice
 ```
 
-4. 配置 MySQL 数据库：
-
-```sql
-CREATE DATABASE rag_db;
-```
-
-## 配置说明
-
-在 `config.py` 中配置以下参数：
-
-### 数据库配置
-- `MYSQL_CONFIG`: MySQL 连接配置
-  - `host`: 数据库主机
-  - `user`: 用户名
-  - `password`: 密码
-  - `charset`: 字符集
-  - `database`: 数据库名
-
-### 文件处理配置
-- `SUPPORTED_FILE_TYPES`: 支持的文件类型
-- `PATHS`: 文件路径配置
-  - `origin_data`: 原始数据目录
-  - `translated`: 转换后的 PDF 目录
-  - `output_data`: 输出数据目录
-
-### 模型配置
-- `MODEL_NAME`: 使用的模型名称
-- `EMBEDDING_DIM`: 嵌入向量维度
-- `MAX_SEQ_LENGTH`: 最大序列长度
-
-### 向量检索配置
-- `FAISS_INDEX_TYPE`: Faiss 索引类型
-- `TOP_K`: 检索返回的最大结果数
-
-### 日志配置
-- `LOG_LEVEL`: 日志级别
-- `LOG_DIR`: 日志目录
-
 ## 使用说明
 
-### 文件上传和转换
-
-1. 上传文件：
+1. 文档上传
 ```python
-from src.utils.file_upload import upload_files, upload_file_to_db
+from src.utils.file_toolkit _upload import upload_files
 
-# 上传文件到数据库
-file_infos = upload_files("/path/to/files")
-upload_file_to_db(file_infos)
+# 上传文档
+file_infos = upload_files("/path/to/your/documents")
 ```
 
-2. 转换为 PDF：
+2. 文档处理
 ```python
-from src.utils.file_translate import update_file_path_to_db
+from src.utils.file_toolkit _translate import translate_file
+from src.utils.file_toolkit _parse import parse_file_to_db
 
-# 转换文件并更新数据库
-update_file_path_to_db()
-```
+# 转换为 PDF
+translate_file()
 
-3. 解析文件：
-```python
-from src.utils.file_parse import parse_file_to_db
-
-# 解析文件并更新数据库
+# 解析文档
 parse_file_to_db()
 ```
 
-### 文件访问
+3. 启动服务
+```bash
+streamlit run app_streamlit.py
+```
 
-处理后的文件可以通过以下路径访问：
+## 常见问题
 
-- 原始文件：`datas/origin_data/{文件名}`
-- PDF 文件：`datas/translated/{文件名}.pdf`
-- 解析结果：`datas/output_data/{文件名}/`
-  - Markdown：`{文件名}.md`
-  - JSON：`{文件名}_content_list.json`
-  - 图片：`images/`
+1. 模型下载失败
+   - 检查网络连接
+   - 确认模型路径配置
+   - 尝试手动下载
 
-## 注意事项
+2. 数据库连接错误
+   - 检查数据库配置
+   - 确认数据库服务运行状态
+   - 验证用户权限
 
-1. 本项目针对 Apple M 系列芯片优化，仅使用 CPU 进行计算
-2. 建议使用 Miniconda 管理 Python 环境
-3. 确保系统有足够的内存用于向量检索
-4. 建议使用 SSD 存储以提高性能
-5. 确保 `datas` 目录有足够的写入权限
-6. 上传的文件会保存在 `datas/origin_data` 目录
-7. 处理结果会保存在 `datas/output_data/{文档名}` 目录
-8. 建议使用 HTTPS 在生产环境中部署 
+## 更新日志
+
+### v0.1.0 (2024-03-xx)
+- 初始版本发布
+- 基础文档处理功能
+- RAG 问答系统实现
+
+
+
+
+## 联系方式
+
+- 项目维护者：[Your Name]
+- 邮箱：[your.email@example.com] 

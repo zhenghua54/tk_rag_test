@@ -1,20 +1,15 @@
 """
 MinerU 官方 API 修改, 调整输出可选项和路径(备份)
 """
-
-import os
-
 from magic_pdf.config.enums import SupportedPdfParseMethod
 from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
 from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 
-import sys
-sys.path.append('/Users/jason/PycharmProjects/tk_rag')
-from src.utils.get_logger import logger
+from src.utils.common.logger import logger
 from src.utils.pdf_valid import is_pdf_valid
-from src.utils.get_doc_dir import get_doc_output_dir
+from src.utils.document_path import get_doc_output_path
 
 
 # args: 初始化参数
@@ -27,7 +22,7 @@ if not valid_res:
     logger.error(f"文件 {pdf_file_name} 结构不合法, {valid_content}")
     exit()
 
-output_path = get_doc_output_dir(pdf_file_name)
+output_path = get_doc_output_path(pdf_file_name)
 output_path, output_image_path, doc_name = output_path["output_path"], output_path["output_image_path"], output_path["doc_name"]
 
 

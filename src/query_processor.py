@@ -1,18 +1,16 @@
 """使用 langchain 框架处理用户 query"""
 
-import sys
+from typing import List, Tuple, Any
 
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
-
-from sentence_transformers import CrossEncoder
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
-from langchain_milvus import Milvus
 from langchain_huggingface import HuggingFaceEmbeddings
-from typing import List, Tuple, Any
+from langchain_milvus import Milvus
+from sentence_transformers import CrossEncoder
+
 # 项目配置
 from config import Config, logger
-from src.database.milvus_connect import MilvusDB
+from src.utils.database.milvus_connect import MilvusDB
 
 
 def init_bm25_retriever(db: MilvusDB):
@@ -175,7 +173,6 @@ def main(user_query: str, vectorstore: Milvus, bm25_retriever: BM25Retriever):
         bm25_retriever: BM25 检索器实例
     """
 
-
     # 执行检索
     results = search_documents(query=user_query, vectorstore=vectorstore, bm25_retriever=bm25_retriever, k=50, top_k=5)
 
@@ -190,7 +187,7 @@ def main(user_query: str, vectorstore: Milvus, bm25_retriever: BM25Retriever):
 if __name__ == "__main__":
     logger.info("初始化检索系统...")
 
-        # 假设用户的提问
+    # 假设用户的提问
     user_query = "天宽是谁?"
 
     # 初始化数据库连接
@@ -220,7 +217,7 @@ if __name__ == "__main__":
     bm25_retriever = init_bm25_retriever(db)
 
     # 执行主函数
-    main(user_query,vectorstore, bm25_retriever)
+    main(user_query, vectorstore, bm25_retriever)
 
     # print(dir(bm25_retriever))
     # print(db.collection.schema)

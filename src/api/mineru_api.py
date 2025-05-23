@@ -10,11 +10,9 @@ from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 
-import sys
-sys.path.append('/Users/jason/PycharmProjects/tk_rag')
-from src.utils.get_logger import logger
-from src.utils.pdf_valid import is_pdf_valid
-from src.utils.get_doc_dir import get_doc_output_dir
+from src.utils.common.logger import logger
+from src.utils.common.pdf_validator import is_pdf_valid
+from src.utils.document_path import get_doc_output_path
 
 
 
@@ -38,7 +36,7 @@ def parse_pdf(pdf_file_name: str) -> dict:
         exit()
 
     # 2. 获取输出路径
-    output_path = get_doc_output_dir(pdf_file_name)
+    output_path = get_doc_output_path(pdf_file_name)
     output_path, output_image_path, doc_name = output_path["output_path"], output_path["output_image_path"], output_path["doc_name"]
 
 
