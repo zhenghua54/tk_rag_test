@@ -22,6 +22,7 @@ wheels/
 .pytest_cache/
 .coverage
 htmlcov/
+.env
 
 # IDE
 .cursor/
@@ -57,8 +58,6 @@ config.local.py
 *.db
 *.index
 *.faiss
-Dockerfile
-download_models.py
 
 # Virtual Environment
 venv/

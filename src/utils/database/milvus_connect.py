@@ -1,12 +1,9 @@
 """ Milvus 数据库操作工具 """
 
-import os
-import sys
+from typing import List, Dict, Any
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-
-from typing import Optional, List, Dict, Any
 from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType, Collection, connections
+
 from config import Config, logger
 
 
@@ -51,7 +48,7 @@ class MilvusDB:
             logger.info(f"集合 {self.collection_name} 不存在，正在创建...")
             self._create_collection()
         # else:
-            # logger.info(f"集合 {self.collection_name} 已存在，跳过创建")
+        # logger.info(f"集合 {self.collection_name} 已存在，跳过创建")
 
         # 初始化完成后设置 collection 实例
         self.collection = Collection(self.collection_name)
@@ -130,7 +127,6 @@ class MilvusDB:
         except Exception as e:
             logger.info(f"插入数据时出错: {str(e)}")
             raise
-
 
     def drop_collection(self, force: bool = False) -> None:
         """删除集合

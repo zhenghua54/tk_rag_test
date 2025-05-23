@@ -1,14 +1,11 @@
 """json 文件内容解析"""
-import sys
-
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 
 import json
 import os
 from tqdm import tqdm
 from rich import print
 
-from tests.table_body_format import html_table_to_dataframe
+from src.utils.table_body_format import html_table_to_dataframe
 
 json_file_path = "/Users/jason/PycharmProjects/tk_rag/datas/processed"
 

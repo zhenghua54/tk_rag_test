@@ -6,30 +6,32 @@
 """
 
 import os
-import sys
-
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
-
 import hashlib
-from src.utils.get_logger import logger
-from src.database.mysql_connect import connect_mysql,check_table_exists
+from src.utils.common.logger import logger
 from config import Config
+from src.utils.database.file_db import insert_file_info
 
 
-# 获取文件的哈希值
-def get_file_hash(file: str):
+def get_file_hash(file: str) -> str:
     """获取文件的哈希值
+
     Args:
-        file: 文件
+        file (str): 文件路径
+
+    Returns:
+        str: 文件的 SHA256 哈希值
     """
     return hashlib.sha256(open(file, 'rb').read()).hexdigest()
 
 
-# 上传文件接口
-def get_file_info(file: str):
-    """上传文件
+def get_file_info(file: str) -> dict:
+    """获取文件信息
+
     Args:
-        file: 文件
+        file (str): 文件路径
+
+    Returns:
+        dict: 文件信息，包含 doc_id、source_document_name、source_document_type 等
     """
     # 获取文件基础名称
     file_base = os.path.basename(file)
@@ -44,7 +46,7 @@ def get_file_info(file: str):
     file_sha256 = get_file_hash(file)
 
     # 构建文件信息数据
-    # PDF 文件 直接更新 PDF 文件路径
+    # PDF 文件直接更新 PDF 文件路径
     if file_type == '.pdf':
         file_info = {
             'doc_id': file_sha256,
@@ -58,16 +60,19 @@ def get_file_info(file: str):
             'source_document_name': file_name,
             'source_document_type': file_type,
             'source_document_path': file_path,
-    }
+        }
 
     return file_info
 
 
-# 遍历文件上传
-def upload_files(path: str):
-    """遍历文件上传
+def file_filter(path: str) -> list[dict]:
+    """文档过滤, 去除系统文件和配置文件中未指定的文件格式
+
     Args:
-        path: 源文件路径
+        path (str): 源文件路径
+
+    Returns:
+        list[dict]: 文件信息列表
     """
     file_infos = []
     for root, dirs, files in os.walk(path):
@@ -82,57 +87,29 @@ def upload_files(path: str):
             file_infos.append(file_info)
         if len(dirs) > 0:
             for dir in dirs:
-                upload_files(os.path.join(root, dir))
+                file_filter(os.path.join(root, dir))
     return file_infos
 
 
-def upload_file_to_db(file_paths: list[dict], debug: bool = False):
-    """
-    上传文件信息到数据库
-    Args:
-        file_paths: 文件路径列表
-        debug: 是否开启调试模式，开启后会打印插入的数据信息
-    """
-    if not file_paths:
-        logger.info("没有需要上传的文件")
-        return
+def update_file_records_in_db(file_paths: list[dict], debug: bool = False) -> None:
+    """上传文件信息到数据库
 
-    success_count = 0
-    fail_count = 0
-    try:
-        mysql = connect_mysql()
-        mysql.use_db()
-        if not check_table_exists(mysql,'file_info'):
-            logger.error("数据库表 'file_info' 不存在, 退出流程")
-            return
-        for file_path in file_paths:
-            try:
-                if mysql.insert_data(file_path, 'file_info'):
-                    success_count += 1
-                    if debug:
-                        # 查询并打印刚插入的数据
-                        data = mysql.select_data(sql='select * from file_info where doc_id = %s', args=(file_path['doc_id'],))
-            except Exception as e:
-                logger.error(f"插入文件 {file_path.get('source_document_name', 'unknown')} 失败: {str(e)}")
-                fail_count += 1
-    except Exception as e:
-        logger.error(f"数据库操作失败: {e}")
-    finally:
-        if 'mysql' in locals():
-            mysql.close()
-            
+    Args:
+        file_paths (list[dict]): 文件路径列表
+        debug (bool): 是否开启调试模式，开启后会打印插入的数据信息
+    """
+    success_count, fail_count = insert_file_info(file_paths, debug)
+
     if success_count > 0 or fail_count > 0:
         logger.info(f"批量插入完成: 成功 {success_count} 条, 失败 {fail_count} 条")
 
 
 if __name__ == '__main__':
-    # raw_data_path = Config.PATHS['origin_data']
-    # raw_data_path = '/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业'
     raw_data_path = '/Users/jason/Library/CloudStorage/OneDrive-个人/项目/内部企业知识库/文档资料'
-
 
     # 上传文件
     file_infos = upload_files(raw_data_path)
-    
+    print(file_infos)
+
     # 将文件信息存储到数据库中，开启调试模式查看插入的数据
-    upload_file_to_db(file_infos, debug=True)
+    update_file_records_in_db(file_infos, debug=True)

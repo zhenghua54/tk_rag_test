@@ -1,15 +1,11 @@
 """ 文件分块 """
 
-import sys
-
-sys.path.append("/")
-
 import os
 import pandas as pd
 from typing import List, Dict, Any
 import hashlib
 import uuid
-from src.database.milvus_connect import MilvusDB
+from src.utils.database.milvus_connect import MilvusDB
 
 # 使用 langchain 的文本分块器
 from langchain.text_splitter import (

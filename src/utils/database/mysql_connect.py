@@ -1,14 +1,12 @@
 """MySQL 数据库的初始化和连接配置文件"""
-import sys
 from contextlib import contextmanager
-from typing import Dict, Any, List
-
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
+from typing import Dict, Any
 
 import pymysql
 from pymysql.cursors import DictCursor
+
 from config import Config
-from src.utils.get_logger import logger
+from src.utils.common.logger import logger
 
 
 class MySQLConnect:
@@ -186,6 +184,7 @@ def test_connect_mysql():
     except Exception as e:
         logger.error(f"数据库连接测试失败: {e}")
         raise e
+
 
 def check_table_exists(mysql, table_name: str) -> bool:
     """检查数据库中指定的表是否存在"""

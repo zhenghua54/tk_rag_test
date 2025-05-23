@@ -1,16 +1,12 @@
 """
 将处理后的数据插入到 Milvus 中
 """
-
-import sys
-
-sys.path.append("/")
 from rich import print
 from sentence_transformers import SentenceTransformer
-from src.database.milvus_connect import create_milvus_db
-from src.utils.file_chunk import process_directory
 
 from config import Config
+from src.utils.database.milvus_connect import create_milvus_db
+from src.utils.file_toolkit .file_chunk import process_directory
 
 # 创建数据库实例:初始化数据库
 db = create_milvus_db()

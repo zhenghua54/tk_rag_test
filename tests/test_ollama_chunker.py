@@ -1,25 +1,9 @@
-import logging
 import re
-import os
-import sys
 import psutil
 import time
 import torch
 import requests
-
-# 日志配置
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# 添加项目根目录到 Python 路径
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(current_dir))
-print(project_root)
-if project_root not in sys.path:
-    sys.path.append(project_root)
+from src.utils.common.logger import logger
 
 
 def print_memory_usage():

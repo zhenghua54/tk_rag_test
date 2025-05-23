@@ -12,10 +12,11 @@ from langchain_milvus import Milvus
 
 # 加载项目模块
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
-from config import Config, logger
-from src.database.milvus_connect import MilvusDB
-from src.llm_generate import CustomRetriever, create_llm_chain
-from src.query_process import init_bm25_retriever
+from config import Config
+from src.utils.common.logger import logger
+from src.utils.database.milvus_connect import MilvusDB
+from src.utils.llm_generate import CustomRetriever, create_llm_chain
+from src.utils.query_process import init_bm25_retriever
 
 # Streamlit 页面配置
 st.set_page_config(
@@ -23,10 +24,6 @@ st.set_page_config(
     page_icon="http://www.xinchan.cn/file/upload/202110/16/1731354666.png",
     layout="wide",
 )
-
-
-
-
 
 @st.cache_resource
 def init_rag_chain():

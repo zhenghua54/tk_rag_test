@@ -1,7 +1,6 @@
 """使用 langchain+LLM 完成 RAG 生成内容"""
 
 import os
-import sys
 from typing import List
 
 # Langchain 框架
@@ -14,10 +13,9 @@ from langchain_milvus import Milvus
 from langchain_openai import ChatOpenAI
 
 # 项目包
-sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 from config import Config, logger
-from src.query_process import search_documents, init_bm25_retriever
-from src.database.milvus_connect import MilvusDB
+from src.utils.query_process import search_documents, init_bm25_retriever
+from src.utils.database.milvus_connect import MilvusDB
 
 # 初始化 LLM_API
 api_key = os.getenv("HUNYUAN_API_KEY")
