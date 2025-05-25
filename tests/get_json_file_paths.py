@@ -5,7 +5,7 @@ import os
 from tqdm import tqdm
 from rich import print
 
-from src.utils.table_body_format import html_table_to_dataframe
+from src.utils.table_body_format import format_html_table
 
 json_file_path = "/Users/jason/PycharmProjects/tk_rag/datas/processed"
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         for span in tqdm(data):
             # 如果是表格,做表格内容清晰
             if span['type'] == 'table':
-                span['table_body'] = html_table_to_dataframe(span['table_body'])['table_format_str']
+                span['table_body'] = format_html_table(span['table_body'])['table_format_str']
 
     # print(len(data))
     for row in tqdm(data):

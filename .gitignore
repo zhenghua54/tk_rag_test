@@ -43,9 +43,18 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-datas/processed/*
-datas/translated/*
-datas/raw/*
+datas/*.json
+datas/*.pdf
+datas/*.pptx
+datas/*.md
+datas/*.jpg
+datas/*.png
+datas/*.jpeg
+datas/*.docx
+datas/*.doc
+datas/*.xlsx
+datas/*.xls
+datas/*.csv
 logs/*
 !logs/.gitkeep
 .env
@@ -58,6 +67,8 @@ config.local.py
 *.db
 *.index
 *.faiss
+
+
 
 # Virtual Environment
 venv/

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from rich import print
 
 
-def html_table_to_dataframe(table_body_html: str) -> dict:
+def format_html_table(table_body_html: str) -> dict:
     """解析 html 格式的表格内容,方便摘要提取和规则处理
 
     Args:
