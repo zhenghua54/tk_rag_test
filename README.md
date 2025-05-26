@@ -76,7 +76,7 @@ conda create -n tk_rag python=3.10
 conda activate tk_rag
 
 # 安装依赖
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
 3. 配置数据库

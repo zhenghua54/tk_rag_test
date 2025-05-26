@@ -1,7 +1,7 @@
 # 基础依赖
 python-dotenv==1.1.0
 PyYAML==6.0.2
-rich==14.0.0
+rich
 
 # 数据库
 PyMySQL==1.1.1
