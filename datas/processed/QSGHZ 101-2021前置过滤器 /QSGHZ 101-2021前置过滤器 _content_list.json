@@ -1,0 +1,853 @@
+[
+    {
+        "type": "text",
+        "text": "/SGHZ ",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "杭 州 新 界 科 技 有 限 公 司 企 业 标 准",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Q/SGHZ 101—2021 ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/834d1240839bc3d4dc4133d0d1830abb7b38f8b1e927a66dfda0ceac46961d61.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "杭州新界科技有限公司 发 布",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "前 言",
+        "text_level": 1,
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件按照GB/T 1.1—2020《标准化工作导则  第1部分：标准化文件的结构和起草规则》的规定起草。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件参照GB/T 30307-2013《家用和类似用途饮用水处理装置》、QB/T 4695-2014《家用和类似用途前置过滤器》、市政自来水经过处理后即获得符合《生活饮用水水质处理器卫生安全与功能评价规范——一般水质处理器》（2001）要求的饮用水、GB 5749-2006《生活饮用水卫生标准》等，并结合本公司前置过滤器的产品特点而制定的。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件由杭州新界科技有限公司提出。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件起草单位：杭州新界科技有限公司。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件主要起草人：葛杰、任兵、卓成者。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "本文件首次发布。",
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/a361e809052073929fa30641c2bbd50ef42e8a6d88023b22c1f3bf2f56ef01c2.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/31af762f651771c94a24e28e86b7bf2b57601c603430016af66edcf801ccc8c9.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "1 范围",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "本文件规定了用于去除自来水中颗粒状物质的家用和类似用途过滤装置的术语和定义、产品分类与命名、要求、试验方法、检验规则、标志、包装、运输和贮存。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "本文件适用于以市政自来水或其他集中式供水为原水，以过滤网或者叠片为主要过滤手段，供家庭和类似场所使用的前置过滤器。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2 规范性引用文件",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "下列文件中的内容通过文中的规范性引用而构成本文件必不可少的条款。其中，注日期的引用文件，仅该日期对应的版本适用于本文件；不注日期的引用文件，其最新版本（包括所有的修改单）适用于本文件。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "GB/T 191 包装储运图  \nGB/T 1019 家用和类似用途电器包装通则  \nGB/T 2828.1 计数抽样检验程序第1 部分：按接收质量限（AQL）检索的逐批检验抽样计划  \nGB/T 2829 周期检验计数抽样程序及表（适用于对过程稳定性的检验）  \nGB 4706.1 家用和类似用途电器的安全第一部分：通用要求  \nGB 5749 生活饮用水卫生标准  \nGB/T 10125 人造气氛腐蚀试验 盐雾试验  \nGB/T 17219 生活饮用水输配水设备及防护材料的安全性评价标准  \nISO 2591-1 筛分试验第一部：用编织金属网及穿孔金属板的筛分试验方法  \n卫生部《生活饮用水输配水设备及防护材料卫生安全评价规范》（2001）《生活饮用水水质处理器卫生安全与功能评价规范--一般水质处理器》（2001）",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 术语和定义 ",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "下列术语和定义适用于本文件。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.1 ",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器 Pre-filter",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "一种机械过滤器，以滤网或者叠片为过滤元件，用于过滤市政自来水或者其他集中式供水中的颗粒状杂质，一般独立安装于水设备前端。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2 ",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "前置反冲过滤器 Backwashing pre-filter",
+        "text_level": 1,
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "具有反冲洗功能的前置过滤器。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.3公称尺寸 Nominal size前置过滤器的进出口尺寸，用 $\\mathsf { D N } +$ 数值表示。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.4控制方式 Control mode调节冲洗或反冲洗旋钮的方式，分为手动或自动。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.5前置过滤器正常使用时的进水口压力，以MPa 表示。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.6截留率 Retention rate前置过滤器所能截留的厂家标称孔径的颗粒物的效率。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.7压力降 Pressure drop前置过滤器工作时，进水口压力与净化水出口压力之差，以kPa表示。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.8额定净水流量  Purified water flow rate在0.2MPa 的进水压力下，单位时间的产水量，单位为L/h。注：运行过程中按制造商说明的方法进行清洗、反冲洗等恢复通量操作。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.9 ",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "额定总净水量 Rated total net water",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "滤芯使用一定时间后，经过冲洗无法恢复通量或者无法达到应有的过滤精度时，已经过滤水的总量。单位为立方米。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4 产品分类与命名",
+        "text_level": 1,
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.1 产品分类 ",
+        "text_level": 1,
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "根据不同的规格，前置过滤器分为以下几类：— 滤芯类型",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "不锈钢滤网：用字母BW表示；塑料滤网：用字母SW表示；不锈钢叠片式：用字母BP表示；塑料叠片式：用字母SP表示。冲洗控制方式：顺冲洗：用字母S表示；反冲洗：用字母F表示。",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.2 型号命名",
+        "text_level": 1,
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "型号由大写字母和阿拉伯数字等组成，表示方法如下：",
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/fb8ddcac826a5d8dc963ca6dfbf7f569b9ddf914f1e78b87f9195da999b56aa8.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "设计代码：用数字或大写英文字母表示  \n冲洗控制方式，用英文字母表示  \n公称尺寸：用数字表示  \n滤芯类型：用英文字母表示  \n产品名称代号：以汉字“前置”拼音首字母表示",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5 要求",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1 正常使用条件",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1.1 进水要求",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "进水要求应符合下列要求：",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "a) 以符合GB 5749 的市政自来水或其他集中式供水为原水；  \nb) 水温： $5 ^ { \\circ } \\mathrm { C } \\sim 3 8 ^ { \\circ } \\mathrm { C }$ ；  \nc) 压力： $0 . \\ 1 \\mathrm { { M P a } \\{ \\sim 0 . \\ 4 \\mathrm { { M P a } } } $ ，具体型号的进水压要求见产品说明。",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1.2 环境条件",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "a) $4 ^ { \\circ } \\mathrm { C } \\sim 4 0 ^ { \\circ } \\mathrm { C }$   \nb) 避免阳光直射；  \nc) 相对湿度：不大于 $9 0 \\%$ （ $2 5 \\mathrm { { ^ \\circ C } }$ 时）",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.2 外观 ",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "外观应保持清洁、整齐、无锈蚀、无毛刺。",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.3 结构",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.3.1 进行静压力试验，前置过滤器应没有泄露或者永久形变。  \n5.3.2 在制水或反冲洗状态下，进行循环压强试验，前置过滤器应没有泄露或者永久形变。  \n5.3.3 进行爆破压强试验，前置过滤器应没有泄露或者永久形变。带有塑料筒体的前置过滤器，应能承受最大工作压力 4 倍的静压力或2.76MPa 之间的较大者。",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.4 使用性能",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.4.1 净水流量",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "实际净水流量不应小于标称的额定水流量。",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.4.2 截留率",
+        "text_level": 1,
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "截留率不应低于 $9 0 \\%$ 。",
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.4.3 压力降 ",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "在额定工作流量下，全新的前置反冲洗过滤器操作压力降不得超过 $5 0 \\mathrm { { k P a } }$ ，水流量不得低于下表1的规定。",
+        "page_idx": 5
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/9118ab35fa68033c4be260586d198ba874f73451e00b1790ae206accd12bddc6.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/4d83a80519a723504ce43800e64fc6dce63d57fc561e7853f8eb90ea1bd10468.jpg",
+        "table_caption": [
+            "表1 水流量与公称尺寸的对应关系"
+        ],
+        "table_footnote": [
+            "注：这些对应于流量的流速约为 2m/s。"
+        ],
+        "table_body": "\n\n<html><body><table><tr><td>公称尺寸 DN</td><td>15</td><td>V20</td><td>25</td><td>32</td><td>40</td><td>50</td><td>65</td><td>80</td><td>100</td></tr><tr><td>流量Q/ (m² /h)</td><td></td><td>2.27</td><td>3.6</td><td>5.8</td><td>9. 1</td><td>14</td><td>24</td><td>36</td><td>53</td></tr></table></body></html>\n\n",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.4.4 额定总净水量",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "正常工作条件下，前置过滤器在达到额定总净水量之前，其使用性能应满足5.4.1、5.4.2的要求。",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.5 卫生安全要求",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "使用材料应当符合GB/T 17219及卫生部《生活饮用水输配水设备及防护材料卫生安全评价规范》（2001）的规定。",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.6 防腐蚀零部件的耐腐蚀能力",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "应符合GB/T 10125的要求。",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.7 电气安全",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "应符合GB 4706.1的要求。",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "6 试验方法",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "6.1 试验条件",
+        "text_level": 1,
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "除特殊规定外，试验应在下列条件下进行：",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "a) 实验室环境温度在 $2 5 ^ { \\circ } C { \\pm } 5 ^ { \\circ } C$ 范围内可调；  \nb) 试验用水温度为： $2 5 ^ { \\circ } \\mathrm { C } { \\pm } 1 ^ { \\circ } \\mathrm { C }$ ；  \nc) 试验进水压力： $0 . \\ 2 \\mathrm { { M P a } \\pm 0 . \\ 0 2 \\ \\mathrm { { M P a } } ; }$ ；  \nd) 相对湿度为： $4 5 \\% \\sim 7 5 \\%$ ；  \ne) 试验用水水质要求符合表2。",
+        "page_idx": 5
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/d85d14acbcc9f26d394fade5d49beca7ab712945d44c583fae673ba540fff42d.jpg",
+        "table_caption": [
+            "表2 试验用水水质要求"
+        ],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>项目</td><td>指标</td></tr><tr><td>pH</td><td>6. 5~8. 5</td></tr><tr><td>浑浊度，NTU</td><td>≤1</td></tr><tr><td>耗氧量（以O2计），mg/L</td><td>≤3</td></tr><tr><td>菌落总数，CFU/mL</td><td>≤100</td></tr></table></body></html>\n\n",
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "6.2 外观测试",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "视检。",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.3 结构",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.3.1 静压力试验 ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器的静压力测试应采用3倍最大工作压强或者2.07MPa间的较大者进行，持续15min。将前置过滤器安装在如图1所示的管路上，5min之内压力提高到指定值，并保持压力 15min以上",
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/7617fd4d77433ce95c46526f17b23ce6a99185711a11ad70bcbd6966e98f4440.jpg",
+        "img_caption": [
+            "图1 静压强度及密封性试验装置"
+        ],
+        "img_footnote": [],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.3.2 循环压力测试 ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器循环测试的起始压强为 $1 5 0 \\mathrm { { k P a } }$ ，终止压强为1.5倍最大工作压强或者1.04MPa中的较大者，循环次数为10万次，频率为每分钟15次 $\\cdot { \\pm } 2$ 次。",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "将前置过滤器安装在如图1所示的装置中，压力增加时间应大于1s，在开始另一次循环时，压力应降到150kPa 以下。",
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/a59def8f40b90e8e1ccf746e96d5494c377592c0d4a91ca41106c33e812f38f2.jpg",
+        "img_caption": [
+            "图2 动态压力测试"
+        ],
+        "img_footnote": [],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.3.3 爆破压力试验 ",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "将前置过滤器安装在图1所示的装置中，按照升压速度小于0.69MPa/s进行，70s内达到要求压力，持续5s后泄压。",
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.4 使用性能",
+        "text_level": 1,
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.4.1 净水流量试验 ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "在6.1要求的实验条件下，按说明书要求安装前置过滤器，正常运行5分钟后，在出水取样口接取60s±1s的水，称重，并计算水流量，单位L/h。",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.4.2 截留率测试 ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.4.2.1 试验准备 ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "测试所用标准颗粒物及需要量分别为≤DN25使用1g，DN32使用 $\\mathrm { 2 g }$ ，DN40使用 $3 \\mathrm { g }$ ，超过DN40的使用 $4 \\mathrm { g }$ ，所选择的颗粒DN50尺寸应与宣称截留粒径相对应。颗粒粒径为正态分布，最大粒径与最小粒径之差应小于 $3 0 \\mu \\mathrm { m }$ 。测试装置如图3所示。测试用水通过预过滤器（过滤精度为 $5 \\mu \\mathrm { m }$ ）后，进入水箱，水箱内加入需要测试的颗粒物质，搅拌混匀至少10min。",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.4.2.2 截留率测试步骤 ",
+        "text_level": 1,
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "测试步骤按下列进行：",
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "（1）将混合充分的加标水通入待测前置过滤器，于出口处接取全部净化水；（2）净化水经孔径小于 $5 \\mu \\mathrm { m }$ 的过滤膜进行过滤，称量残留于过滤膜上的颗粒物质量m。按照ISO2591-1 的相关规定采用称重法测试截留性能。（3）空白测试：按照上述流程测试，系统中不安装被测试过滤器，测试取样口出水中颗粒物质量M。（4）计算：空白测试的结果应视为代表 $100 \\%$ 的颗粒计数，每一次测试都应以空白测试作为基数。进行三次空白试验和过滤试验。收集各个部分后，更换独立过滤器或反冲洗过滤器的部分组件。三次试验的结果偏差应不超过± 5％。截留率η计算方法：",
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/c6c23612f4480c55576258af56bd1a13dabca3cf156e9346694fa4f257581a24.jpg",
+        "img_caption": [
+            "图3 滤  芯过滤性能测试装置"
+        ],
+        "img_footnote": [],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.4.3 压降试验 ",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "测试装置如图4所示。按照制造商提供的说明在两个压力传感器之间连接前置过滤器（5），并连接压力表（4）以进行压力的测量，通过调节安在过滤器下游的调节阀（1）来调整水流量。两个压力测试传感器读数之差为压力降a。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "为了确定该过滤器自身的压降值，在没有安装过滤器的系统中重复上述步骤得到空白压力降（b）。该过滤器压力降值由a减去b获得。",
+        "page_idx": 8
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/a1415372c32a6289899b3b594475f199f434aeb321eace986cdd943885c9c84b.jpg",
+        "img_caption": [
+            "图4 流量/压力损失测试装置"
+        ],
+        "img_footnote": [],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6.4.4 额定总净水量试验 ",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "在6.1要求的实验条件下，按说明书要求安装前置过滤器，在正常的工作状态下，以不低于申报的水流量，将市政自来水通过前置过滤器，测试过程中，按照说明书要求进行冲洗。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "根据产品说明书标称额定产水总量，将全程分为4段，并在每个节点采样检测，即于正式通入水样之初(第一次采样)，产水量为标称额定产水总量四分之一时(第二次采样)，产水量为标称额定产水总量四分之二时(第三次采样)，产水量为标称额定产水总量四分之三时(第四次采样)，产水量为标称额定产水总量时(第五次采样)，通入加标水样并采样检验，共采集5批水样，按6.4.2方法进行样品分析。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6.5 卫生安全要求",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "符合《生活饮用水水质处理器卫生安全与功能评价规范 —一般水质处理器》（2001）要求。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6.6 防腐蚀零部件的耐腐蚀能力测试",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "试验前，将试件清洗去油，试验方法按GB/T 10125的规定进行，试验时间为24 h。试验后，取出试样，用蘸有清水的洁布将残留在试样上的盐份擦净后进行检查。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6.7 电气安全试验",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "按照GB 4706.1进行检测。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7 检测规则 ",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "检验分为出厂检验和型式检验。",
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7.1 出厂检验 ",
+        "text_level": 1,
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "7.1.1 出厂检验应逐台检验，检验合格后才能出厂。  \n7.1.2 出厂检验项目、要求、检验方法、检验形式及不合格分类见表3。  \n7.1.3 出厂检验抽样按GB/T 2828.1，抽样方案由制造商与采购方协商确定。",
+        "page_idx": 9
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/8c15cb6b643a1192bed6209541a83752998e201e8139b56282454207f42c3263.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "表3 出厂检验项目",
+        "text_level": 1,
+        "page_idx": 9
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/1abb42ac43be6e7546b2846ad22fd476e407854cdca6f3ad2e6179809c80713f.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">检验项目</td><td rowspan=\"2\">一要求</td><td rowspan=\"2\">检验方法</td><td rowspan=\"2\">检验型式</td><td colspan=\"3\">不合格分类</td></tr><tr><td>A</td><td>B</td><td>C</td></tr><tr><td>外观</td><td>5.2</td><td>视检</td><td>全检</td><td></td><td></td><td><</td></tr><tr><td>结构</td><td>5.3.1</td><td>$02 6.3.1</td><td>抽检</td><td></td><td><</td><td></td></tr><tr><td>净水流量</td><td>5.4.1</td><td>Z16.4.1</td><td>抽检</td><td></td><td><</td><td></td></tr><tr><td>电气安全</td><td>GB 4706. 1</td><td>GB 4706.1 </td><td>抽检</td><td>V</td><td></td><td></td></tr><tr><td colspan=\"7\">°电气安全试验只针对用电前置过滤器。 723</td></tr></table></body></html>\n\n",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "7.2 型式检验 ",
+        "text_level": 1,
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "7.2.1 型式检验每年进行一次。下列情况之一时，亦应进行型式检验：",
+        "page_idx": 9
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/f064e28705ab4fea27f9db6c923dcc032f8d6319d635662f3675f97791b8efcd.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "a) 新产品定型鉴定时；  \nb) 更改主要原材料、零部件或更改工艺设计时；  \nc) 停产半年后，恢复生产时；  \nd) 国家质量监督机构或卫生监督机构要求检验时。",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "7.2.2 型式检验的项目见表4。",
+        "page_idx": 9
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/931964b55f6c520d494fa92d4b023d7b20152575d4afed6523dbb24e176d4f1e.jpg",
+        "table_caption": [
+            "表4 型式检验项目"
+        ],
+        "table_footnote": [
+            "7.2.3 周期性的型式检验样本应从出厂检验合格的样品中随机抽取，抽样按GB/T 2829 进行。采用判别水平 I 的一次抽样方案，其样本大小、不合格质量水平，判定数组见表 5。"
+        ],
+        "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">检验项目</td><td rowspan=\"2\">要求 2</td><td rowspan=\"2\">检验方法</td><td colspan=\"3\">不合格分类</td></tr><tr><td>A</td><td>B</td><td>C</td></tr><tr><td>外观</td><td>5. 2<02</td><td>视检</td><td></td><td></td><td></td></tr><tr><td>结构</td><td>5.3</td><td>6.3 年11</td><td></td><td>√</td><td></td></tr><tr><td>净水流量</td><td>5.4.1</td><td>6.4.1</td><td></td><td><</td><td></td></tr><tr><td>截留率</td><td>5.4.2</td><td>6. 4.2</td><td></td><td></td><td></td></tr><tr><td>压力降</td><td>5.4.3</td><td>6.4.3</td><td></td><td></td><td></td></tr><tr><td>额定总净水量</td><td>5. 4. 4 </td><td>6. 4. 4 </td><td>不55</td><td></td><td></td></tr><tr><td>卫生安全</td><td>5.5</td><td>6.5</td><td></td><td></td><td></td></tr><tr><td>电气安全</td><td>GB 4706.1</td><td>GB 4706.1</td><td><</td><td></td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "表5 抽样方案",
+        "text_level": 1,
+        "page_idx": 9
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/QSGHZ 101-2021前置过滤器 /images/1fe924a5cacb830c09a0fc955201d590a5bdb0572633ea4b1bb1d4b14f434bc3.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">判别水平</td><td rowspan=\"2\">抽样方案</td><td rowspan=\"2\">样本大小</td><td colspan=\"6\">不合格质量水平</td></tr><tr><td colspan=\"2\">A类（RQL=30）</td><td colspan=\"2\">B类（RQL=65）</td><td colspan=\"2\">C类（RQL=100)</td></tr><tr><td></td><td></td><td></td><td>Ac</td><td>Re</td><td>Ac</td><td>Re</td><td>Ac</td><td>Re</td></tr><tr><td>I</td><td>1次</td><td>n=3</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>3</td></tr></table></body></html>\n\n",
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "7.2.4 型式检验的卫生安全和电气安全应 $1 0 0 \\%$ 合格。如有一项不合格，即判该周期产品不合格。  \n7.2.5 型式检验的样品一律不得作为合格品交付用户。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8 标志、包装、运输和贮存 ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.1 标志",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.1.1 前置过滤器应在明显位置设铭牌。铭牌上至少应清晰标明下列内容：",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "a) 产品名称、规格型号；  \nb) 制造商名称；  \nc) 产品编号或制造日期；  \nd) 净水流量、额定总净水量、工作压力；  \ne) 卫生行政许可批准文号，执行标准号。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.1.2 水流流向容易引起混淆的前置过滤器应有进水、出水方向的标志。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.2 包装",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.2.1 包装储运图示标志应符合GB/T 191。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.2.2 过滤器滤芯的包装应采用必要的密封措施并符合 GB/T 1019 的规定。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.2.3 产品包装箱外表面至少应清晰标明下述内容:",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "a) 产品名称、规格型号；b) c) 制造商名称、地址； 毛重； d) 包装箱外形尺寸（长 $\\times$ 宽×高）",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.2.4 包装箱内应附有下列技术文件：",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "a) 装箱单；  \nb) 使用说明书（含保修卡）；  \nc) 产品合格证。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.3 运输 ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器运输过程中应固定牢靠，避免碰撞、跌落，防雨防潮，不得重压或倒置，不得与有毒、有害物品混运。",
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.4 贮存 ",
+        "text_level": 1,
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "前置过滤器应贮存在干燥通风、无有毒、有害物品的地方。不得重压或倒置，避免阳光长期直射。",
+        "page_idx": 10
+    }
+]

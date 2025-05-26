@@ -10,7 +10,7 @@ def get_doc_output_path(doc_path: str) -> dict:
     获取文档的输出目录
 
     Args:
-        doc_path (str): 文档的路径
+        doc_path (str): 源文档的路径
 
     Returns:
         dict: 包含以下字段的字典：

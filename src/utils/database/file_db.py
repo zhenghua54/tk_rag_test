@@ -14,13 +14,13 @@ def get_non_pdf_files() -> list[dict]:
     """获取所有非 PDF 格式的文件信息
 
     Returns:
-        non_pdf_file_paths (list[dict]): 非 PDF 文件地址列表，每个元素包含 doc_id 和 source_document_path
+        non_pdf_file_paths (list[dict]): 非 PDF 文件地址列表，每个元素包含 doc_id, source_document_name, source_document_path
     """
     try:
         mysql = connect_mysql()
         mysql.use_db()
         sql = (
-            'select doc_id, source_document_path from file_info '
+            'select doc_id, source_document_name, source_document_path from file_info '
             'where source_document_pdf_path is null'
         )
         non_pdf_file_paths = mysql.select_data(sql)
@@ -219,3 +219,23 @@ def insert_file_info(file_paths: list[dict], debug: bool = False) -> tuple[int, 
                     pass
 
     return success_count, fail_count
+
+def search_file_info(doc_id: str) -> dict:
+    """查询文件信息
+
+    Args:
+        doc_id (str): 文件 ID
+
+    Returns:
+        file_info(dict): 文件信息
+    """
+    try:
+        mysql = connect_mysql()
+        mysql.use_db()
+        sql = 'select * from file_info where doc_id = %s'
+        data = mysql.select_data(sql, (doc_id,))
+        file_info = data[0] if data else None
+        return file_info
+    except Exception as e:
+        logger.error(f"查询文件信息失败: {e}")
+        return None

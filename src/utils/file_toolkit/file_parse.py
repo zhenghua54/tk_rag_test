@@ -7,7 +7,7 @@
 5. 更新解析后的文件路径到 mysql 记录
 """
 
-from src.api.mineru_api import parse_pdf
+from src.api.mineru_parse import parse_pdf
 from src.utils.common.logger import logger
 from src.utils.database.file_db import update_parse_paths
 from src.utils.common.pdf_validator import is_pdf_valid

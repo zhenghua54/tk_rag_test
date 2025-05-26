@@ -1,0 +1,156 @@
+[
+    {
+        "type": "text",
+        "text": "技 术 协 议 书",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "甲方：新界泵业（浙江）有限公司",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "乙方：",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "甲乙双方本着互利互惠，共同发展的原则，为确保产品能达到技术要求，特签订本协议。",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "一、乙方提供的产品",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.1 产品名称：焊锡丝 ",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.2 型号规格：",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.3 材质要求：",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.4 技术标准：GB/T 2828.1 计数抽样检验程序 第 1 部分：按接受质量限（AQL）检索的逐批检验抽样计划GB/T 3131 锡铅钎料GB/T 10574 锡铅焊料化学分析方法GB/T 6418 铜基钎料",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.5 检测报告：每批送货附检测报告，每一年提供一次型式试验报告",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1.6 认证要求：RoHS 认证 (根据甲方要求)",
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "二、主要技术要求",
+        "text_level": 1,
+        "page_idx": 0
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/焊锡丝技术协议  /images/066a7eef5d46eb4bd3bd80f40183a205aa863ad5027f96734d52e8168888713e.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>序号</td><td>项目</td><td>标准参数和测试方法</td></tr><tr><td>1</td><td>包装外观</td><td>①、来料包装表面应有制造厂名、检验合格印记、生产日期，厂名标志可 以是标志识别线或者是制造厂名或商标的重复标志，材料牌号应清晰可 见。 ②、包装上应明确标识焊锡丝或焊条的产品型号、含锡量、产品名称及牌 号、规格及批号。如果是无铅焊锡丝或焊条，包装上应有“不含铅\"的标</td></tr><tr><td>2</td><td>焊锡丝外观 、色泽</td><td>识。 ①、焊锡丝应光滑、有光泽、无裂纹、无氧化、发黑现象。 ②、表面不可有油污、水渍及其它污渍，由运输材料引起而且能够被空气</td></tr></table></body></html>\n\n",
+        "page_idx": 0
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/焊锡丝技术协议  /images/f4cac838160217519652ba285f587336424d533be457bed567ced1b7deb80cc9.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td></td><td></td><td>吹走的灰尘是可接受的。</td></tr><tr><td>3</td><td>外形尺寸</td><td>①、焊锡丝：用卡尺测量的直径应符合GB/3131的要求；直径Φ0.3一 Φ0.8的允许尺寸偏差为±0.03，直径Φ0.8一Φ2.5的允许尺寸偏差为 ±0.05，直径Φ2.5一Φ6的允许尺寸偏差为±0.1。 ②、焊条：直径Φ2.0允许尺寸偏差为±0.05；长度500的允许尺寸偏差为 ±0.1或由双方协定。</td></tr></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/焊锡丝技术协议  /images/1665bd53cdcf5cdfebf27e754c4048c4d8b3b8ee77ca27b833cadd41b51288c7.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>序号</td><td>项目</td><td>标准参数和测试方法</td></tr><tr><td>4</td><td>可用性实验</td><td>①、焊锡丝：将恒温烙铁的温度调节到指定的温度（含铅焊锡丝： 245±10℃，无铅焊锡丝：270±10℃），待恒温烙铁达到指定温度时， 焊锡丝应能融化，焊锡丝熔融时无大量烟雾产生；试焊接，焊点应光 滑，无假焊、虚焊现象。 ②、焊条：将锡炉温度调节到 270±10℃，达到指定温度时，焊条应能融</td></tr><tr><td>5</td><td>化学成分要求</td><td>化，融化后的熔汤应有光泽，无杂质。 ①、铜基钎料BCu93P-B：磷P=6.6～7.4%；铜Cu=余量 ②、锡铅焊料 S-Sn55PbB：Sn=54～ 56%；Sb≤0.3%；Cu≤0.05%; Bi<0.08% ；As≤0.03% ；Fe≤0.02% ；Zn≤0.002% ；Al≤0.005% ; Cd≤0.005%；S≤0.0015%；除Sb、Bi、Cu以外的杂质总和≤0.08%；</td></tr><tr><td>6</td><td>检验结果的判定</td><td>Pb=余量。 化学成分及特性不合格时按批量不合格。表面质量、外形尺寸和均匀性不合 格时，按件判定不合格。</td></tr><tr><td>7</td><td>钎剂含量的测定 方法</td><td>按GB/T3131附录A的规定进行测量。</td></tr><tr><td>8</td><td>物理性能要求</td><td>应满足GB/T3131附录B的规定。</td></tr><tr><td>9</td><td>环保要求 （根据甲方要 求）</td><td>要求每年提供该产品的SGS报告证明并在产品正式供货之前，与我公司签 订有害物质声明书。</td></tr><tr><td>10</td><td>其它参数项</td><td>未列出参数项应符合相关的国家、行业标准的规定。</td></tr></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "三、交收检验要求",
+        "text_level": 1,
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.1 交收检验项目按GB/T2828.1《计数抽样检验程序 第1 部分：按接受质量限（AQL）检索的逐批检验抽样计划》，一次正常随机抽样；",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.2 交收检验项目为：主要技术要求参数(1)～（10）；",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.3 交收检验项目为：（1）、（2）、（3）抽样水平按（Ⅱ）级 $A Q L = 4 . 0$ ；",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.4 交收检验项目为：(4)、（5）、（6）、（9）每批抽检数量3 件，有1 件不合格拒收；",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.5 交收检验项目为：（7）、（8）、（10）每3 个月对批次抽检数量5 件，有1 件不合格拒收。",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "四、其他",
+        "text_level": 1,
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "4.1 本协议未尽事宜，由双方共同协商解决。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.2 本协议自双方盖章后生效。本协议作为甲乙双方     年     月    日签订的合同编号为                的《              》（简称“主合同”）的附件，为主合同不可分割的组成部分，与主合同同时执行。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.3 本协议在双方签订新的技术协议书之前有效。",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "甲方代表：（签名） 乙方代表：（签名）",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "甲方单位：（盖章） 乙方单位：（盖章）",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "年     月     日 年     月     日",
+        "page_idx": 2
+    }
+]

@@ -1,0 +1,42 @@
+[
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/组织过程资产平台字段模板/images/f555ce0251da02a71a70e631df10db1410da3bbe8e1c4737acbb966a9dca4051.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>选择</td><td>标准子体系</td><td>体系序号</td><td>标准编号</td></tr><tr><td>未勾选</td><td>规划计划</td><td>A0101-001</td><td>Q/SG A0101001-2024</td></tr></table></body></html>\n\n",
+        "page_idx": 0
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/组织过程资产平台字段模板/images/3cb951e805ba431ff7045276ec4d74d711ebda8a7e27226ff1830b680878d84a.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>标准名称</td><td>实施日期</td><td>标准分类</td><td>产品型号/系列范围</td><td>产品系列/简称</td></tr><tr><td>2024年企业发展规划</td><td>2024-1-1</td><td></td><td></td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/组织过程资产平台字段模板/images/bee5de5e83eafb44b56500fa97f3ac86796dcf2d9cffb61c799cb633a8159582.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>产品线</td><td>归属部门</td><td>适用体系</td><td>文件级别</td><td>标准状态</td><td>作废日期</td><td>生产切换时间</td></tr><tr><td></td><td>总裁办</td><td></td><td></td><td>现行</td><td></td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/组织过程资产平台字段模板/images/96f4b7d53b315cc12b392ff779e6c259c04c1c9a09c500f34ea4c7987d0460ad.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>标准类型</td><td>采用或对应国际国外标准号</td><td>被代替或作废标准号</td><td>是否强制性</td></tr><tr><td>企业标准</td><td></td><td></td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 3
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/组织过程资产平台字段模板/images/47e22b5aa070f6ca3e3d3c2223732b669651ec0e01f437ad204c17c85bbd090f.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>备注</td><td>创建人</td><td>创建时间</td><td>修改人</td><td>修改时间</td></tr><tr><td></td><td>郭萍</td><td>2020-6-2 16:36</td><td>林成波</td><td>2025-4-3 15:41</td></tr></table></body></html>\n\n",
+        "page_idx": 4
+    }
+]

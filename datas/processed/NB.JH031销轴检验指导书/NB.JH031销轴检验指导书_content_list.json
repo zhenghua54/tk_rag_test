@@ -1,0 +1,125 @@
+[
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/31ad583e0b5795efb4f442ce3e6346c2baa71a50c826701169a352a8b9456a8d.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\" colspan=\"2\">SHIMGE 新界泵业</td><td colspan=\"3\" rowspan=\"2\">新界泵业(浙江)有限公司 检验指导书</td><td colspan=\"2\">文件编号</td><td colspan=\"3\">SG/NB-JH031</td></tr><tr><td colspan=\"2\">外购外协件检验</td><td colspan=\"2\">版次</td><td colspan=\"2\">A/1</td></tr><tr><td colspan=\"2\">SHIMGE PUMPINDUSTRY</td><td colspan=\"3\">物资名称</td><td colspan=\"2\">页码</td><td colspan=\"2\">第1页；共3页 物资类别 C</td></tr><tr><td>序号</td><td>检验项目</td><td colspan=\"3\">质量特性要求 产品包装箱、盒、袋等外表应有</td><td colspan=\"2\">销轴 检验方法</td><td>检测 手段</td><td>重要度</td><td>抽样 方案</td></tr><tr><td>1</td><td>标志与包装</td><td colspan=\"3\">标志或标贴；标志内容应有制造 者（或经销者）名称；产品名称 (全称或简称)；产品数量或净 重。标志应正确、清晰、齐全、</td><td colspan=\"2\">按抽样方案对产品包装情 况进行目视检查。</td><td>目视</td><td>[C]</td><td>5件/规 格/每批</td></tr><tr><td>2</td><td>外观质量</td><td colspan=\"3\">牢固。内货与标志一致。 产品表面应光滑，不允许有裂缝 和影响使用的毛刺。</td><td colspan=\"2\">目视检查试样。</td><td>目视</td><td>[B]</td><td>5件/规 格/每批</td></tr><tr><td>3</td><td>硬度</td><td colspan=\"3\">硬度：125HV~245HV。</td><td colspan=\"2\">将试样使用维氏硬度计检 测其硬度值。</td><td>维氏硬 度计</td><td>[A]</td><td>按厂家/ 材质/1 个月</td></tr><tr><td>4</td><td>规格尺寸</td><td colspan=\"3\">应符合表1规定。</td><td colspan=\"2\">将试样使用游标卡尺或千 分尺对其结构尺寸进行测 量。</td><td>游标卡 尺、千分 尺</td><td>[A]</td><td>3件/规 格/每批</td></tr><tr><td>5</td><td>材质 *</td><td colspan=\"3\">Q235A普通碳素钢应符合平键检 验指导书中，钢的牌号及化学成 分应符合表2 的规定；成分允许 偏差应符合表3的规定。</td><td colspan=\"2\">使用碳硫分析仪和可见分 光光度仪，按照操作规程 和相应的试验方法，进行 试验。</td><td>化学分 析</td><td>[A]</td><td>按厂家/ 材质/6 个月</td></tr></table></body></html>\n\n",
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/28e392d8e8414da6f0d9555d1ffb63f09b4121cc868c61035c28d63569ecb427.jpg",
+        "img_caption": [],
+        "img_footnote": [],
+        "page_idx": 0
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/a18214ff9ef2b6443852214e25502feb3a1b5b9e4d32eb79a7ad4ac97cee858a.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td colspan=\"2\">新界泵业(浙江)有限公司 检验指导书</td><td colspan=\"2\">文件编号</td><td colspan=\"2\">SG/NB-JH031</td></tr><tr><td rowspan=\"2\">标题：</td><td rowspan=\"2\">外购外协件检验</td><td colspan=\"2\">版次</td><td colspan=\"2\">A/1</td></tr><tr><td colspan=\"2\">页码</td><td colspan=\"2\">第2页；共3页</td></tr><tr><td>物资名称</td><td colspan=\"2\">销轴</td><td colspan=\"2\">物资类别</td><td>C</td></tr></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/ca4bd6ede83c4bc81238ff763d3692f811821de67f6cad21aab9153b9fa9132c.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">新界泵业 HIMGE PUMPINDUSTRY</td><td colspan=\"2\"></td><td colspan=\"4\">外购外协件检验</td><td colspan=\"2\">页码</td><td colspan=\"2\">第2页；共</td><td colspan=\"2\"></td></tr><tr><td colspan=\"2\">物资名称</td><td colspan=\"5\">销轴</td><td colspan=\"2\"></td><td colspan=\"3\">物资类别</td></tr><tr><td colspan=\"3\"></td><td colspan=\"6\">表1</td><td colspan=\"4\">单位为毫米</td></tr><tr><td colspan=\"3\">d</td><td>3</td><td>4</td><td>5</td><td>6</td><td>8</td><td>10</td><td>12</td><td>14</td><td>16</td><td>18</td></tr><tr><td colspan=\"3\">d</td><td>5</td><td>6</td><td>8</td><td>10</td><td>14</td><td>18</td><td>20</td><td>22</td><td>25</td><td>28</td></tr><tr><td colspan=\"3\">d</td><td>0.8</td><td>1</td><td>1.2</td><td>1. 6</td><td>2</td><td>3.2</td><td>3.2</td><td>4</td><td>4</td><td>5</td></tr><tr><td colspan=\"3\"></td><td>1</td><td>1</td><td>2</td><td>2</td><td>2</td><td>2</td><td>3</td><td>3</td><td>3</td><td>3</td></tr><tr><td colspan=\"3\"></td><td>0.5</td><td>0.5</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1. 6</td><td>1. 6</td><td>1. 6</td><td>1. 6</td></tr><tr><td colspan=\"3\"></td><td>1</td><td>1</td><td>1.6</td><td>2</td><td>3</td><td>4</td><td></td><td></td><td></td><td></td></tr><tr><td colspan=\"3\">L。</td><td>1. 6</td><td>2. 2</td><td></td><td></td><td>3.5</td><td>4. 5</td><td>4</td><td>4</td><td>4. 5</td><td>5</td></tr><tr><td colspan=\"3\"></td><td>0.6</td><td>0.6</td><td>2. 9 0. 6</td><td>3. 2 0. 6</td><td>0.6</td><td>0.6</td><td>5.5 0.6</td><td>6 0.6</td><td>6 0.6</td><td>7 1</td></tr><tr><td colspan=\"3\"></td><td colspan=\"9\"></td></tr><tr><td>公称</td><td>min</td><td>max</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>6</td><td>5.75</td><td>6.25</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>8</td><td>7. 75</td><td>8.25</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>10</td><td>9.75</td><td>10.25</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>12</td><td>11.5</td><td>12.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>14</td><td>13.5</td><td>14.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>16</td><td>15.5</td><td>16. 5</td><td></td><td>商</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>18</td><td>17.5</td><td>18.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>20</td><td>19.5</td><td>20.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>22</td><td>21.5</td><td>22.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>24</td><td>23.5</td><td>24.5</td><td></td><td></td><td></td><td>品</td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>26</td><td>25.5</td><td>26.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>28</td><td>27.5</td><td>28.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>30</td><td>29.5</td><td>30.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>32</td><td>31.5</td><td>32.5</td><td></td><td></td><td></td><td></td><td>长</td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>35</td><td>34.5</td><td>35.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>40</td><td>39.5</td><td>40.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>45</td><td>44. 5</td><td>45.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>50</td><td>49.5</td><td>50.5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>55</td><td>54.25</td><td>55.75</td><td></td><td></td><td></td><td></td><td></td><td>度</td><td></td><td></td><td></td><td></td></tr><tr><td>60</td><td>59.25</td><td>60.75</td></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "注：产品的其他未注明检验项目按照相应国标、行标或企标进行试验。同样是验收标准的依据。带\\*号表示为样品评审试验项目或间隔 6 个月周期实验。其它为日常供货每批进行检验。带▲号表示为实验室完成检测项目；其它为进货检验站检测项目。",
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/e06b0ad874add0065c9cbe3795e288d4ed8bf2a3e40bf551739606278fc18d2e.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td></td><td></td><td colspan=\"2\"></td><td></td><td></td><td></td><td></td><td colspan=\"2\"></td><td colspan=\"2\"></td><td></td><td></td></tr><tr><td>标记</td><td>处数</td><td colspan=\"2\">更改文件号</td><td></td><td colspan=\"2\">签字日期</td><td>标记</td><td>处数</td><td colspan=\"2\">更改文件号</td><td colspan=\"2\">签字</td><td>日期</td></tr><tr><td>编制/日 期</td><td colspan=\"2\">陈贝 2023/5/12</td><td>审核/日 期</td><td colspan=\"2\">见 SG/NB-JH031销轴检 验指导书OA审核</td><td>会签/日 期</td><td colspan=\"2\">见 SG/NB-JH031销轴检验 指导书OA会签</td><td colspan=\"2\">批准/日 期</td><td colspan=\"2\">江峰2023/5/15</td></tr></table></body></html>\n\n",
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/457c727d689593dee6bc562fa7a073a91c0460b2091f93d7c345654eb7c9e8f5.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td colspan=\"2\">新界泵业(浙江)有限公司 检验指导书</td><td colspan=\"2\">文件编号</td><td colspan=\"2\">SG/NB-JH031</td></tr><tr><td rowspan=\"2\">标题：</td><td rowspan=\"2\">外购外协件检验</td><td colspan=\"2\">版次</td><td colspan=\"2\">A/1</td></tr><tr><td colspan=\"2\">页码</td><td colspan=\"2\">第3页；共3页</td></tr><tr><td>物资名称</td><td colspan=\"2\">销轴</td><td colspan=\"2\">物资类别</td><td>C</td></tr></table></body></html>\n\n",
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/639cd0ca4e2efc7fa79b19ebf71462368152aabc6909e368a8a385762bb7d15a.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>200</td><td></td><td></td><td>140</td><td>120</td><td>100</td><td>6</td><td></td><td></td><td></td><td>2</td><td>2</td><td></td><td>9</td><td></td><td></td><td></td><td>公称</td><td></td><td rowspan=\"3\">7</td><td rowspan=\"3\"></td><td rowspan=\"3\"></td><td colspan=\"3\" rowspan=\"2\"></td><td rowspan=\"3\">P</td><td colspan=\"2\"></td></tr><tr><td>199.25</td><td>179.25</td><td></td><td>159.25 139.25</td><td>119.25</td><td>99.25</td><td>94.25</td><td>89.25</td><td>84.25</td><td>79.25</td><td>74.25</td><td>69.25</td><td>64.25</td><td>59.25</td><td>54.25</td><td>49.5</td><td>44.5 39.5</td><td>min</td><td></td></tr><tr><td>200.7</td><td>180.7</td><td>160.7</td><td>140.7 2</td><td>120.7 2</td><td>100.7</td><td>95.75</td><td></td><td></td><td>80.7 2</td><td></td><td></td><td>2</td><td>60.</td><td></td><td></td><td></td><td>max</td><td></td><td>min</td><td></td><td></td><td>max</td><td>H13b h14</td><td>hll*</td></tr><tr><td>75</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>8</td><td></td><td></td><td></td><td></td><td>2</td><td>杨员名标</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>8</td><td>5.5</td><td></td><td>2</td><td>C</td><td></td><td>2</td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>职</td><td></td><td></td><td></td><td></td><td></td><td></td><td>6</td><td>9</td><td>2</td><td></td><td>6.3</td><td></td><td></td><td>￥ 1(续）</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>6</td><td></td><td></td><td></td><td>6.3</td><td></td><td></td><td>销</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>10</td><td></td><td>8</td><td>2</td><td>8</td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>【 10</td><td>8</td><td></td><td></td><td>8</td><td></td><td>6</td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>8</td><td></td><td></td><td>8</td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>10</td><td>8</td><td>2</td><td></td><td>8</td><td></td><td>40</td><td>单位为毫米</td></tr><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "注：产品的其他未注明检验项目按照相应国标、行标或企标进行试验。同样是验收标准的依据。带\\*号表示为样品评审试验项目或间隔 6 个月周期实验。其它为日常供货每批进行检验。带▲号表示为实验室完成检测项目；其它为进货检验站检测项目。",
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/0ced4f7098aa24ec2b9231a39e04f9ee8f6d67d93335eef165a83f65eb958953.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td colspan=\"2\"></td><td colspan=\"2\"></td><td></td></tr><tr><td>标记</td><td>处数</td><td>更改文件号</td><td></td><td>签字</td><td>日期</td><td>标记</td><td>处数</td><td colspan=\"2\">更改文件号</td><td>签字</td><td>日期</td></tr><tr><td>编制/目</td><td colspan=\"2\">2023/5/12</td><td colspan=\"2\">审核/日 见SGINB-H031 轴检</td><td>会签日</td><td colspan=\"2\">见SGINB-H031销轴检验</td><td colspan=\"2\">批准/日</td><td>江峰2023/5/15</td><td></td></tr></table></body></html>\n\n",
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "/Users/jason/PycharmProjects/tk_rag/datas/processed/NB.JH031销轴检验指导书/images/c23848c4e1ec3dfe4656fbb1611f1e8e14f1c9c68782877304fd76fe292231fe.jpg",
+        "table_caption": [
+            "修订/审批页"
+        ],
+        "table_footnote": [],
+        "table_body": "\n\n<html><body><table><tr><td>文件编号：</td><td>/</td><td>文件名称：</td><td>检验指导书</td></tr><tr><td>修订版本号</td><td colspan=\"2\">编制/修订说明</td><td>编制/修订人</td></tr><tr><td rowspan=\"2\"></td><td colspan=\"2\" rowspan=\"2\">根据会议评审结果，对检验指导书送检频次进行了 修订调整。</td><td>陈贝</td></tr><tr><td>编制/修订时间</td></tr><tr><td rowspan=\"4\">相关附件</td><td colspan=\"2\">检验指导书1.rar</td><td rowspan=\"8\">2023-05-12 11. 9M 11. 7M 9. 3M 4. 8M</td></tr><tr><td colspan=\"2\">检验指导书2.rar 检验指导书3.rar 检验指导书4.rar</td></tr><tr><td>全部下载 孔臻豪 谢渊博 丁俊</td><td></td></tr><tr><td>指定的会签人员：</td><td colspan=\"2\"></td></tr></table></body></html>\n\n",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "谢渊博谢渊博孔臻豪",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "page_idx": 3
+    }
+]
