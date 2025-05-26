@@ -1,52 +1,11 @@
-"""处理被分页截断的表格
-
-数据格式:
-{
-    "page_idx": 1,
-    "content": [
-        {
-    'type': 'table',
-    'img_path': '/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印
-版)_20250225/images/1c140aec973ca598f712bd8c341772cd9dad83c72b2bafec65f797c8edd58c3a.jpg',
-    'table_caption': [],
-    'table_footnote': [],
-    'table_body': '\n\n<html><body><table><tr><td rowspan="2">文件名称</td><td colspan="3" 
-rowspan="2">服务作业指导书</td><td>文件编号</td><td>QES-002-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td></td><td></td><td></td><td></td><td>实施日期</td><td>2025年
-01月24日
-</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>批准</td><td>卢晓飞</td></tr></table></body></html>\n\n',
-    'page_idx': 30
-},
-]
-
-处理步骤:
-1. 从page_idx = 1开始,遍历所有page_idx, 判断当前页面的第一个元素是否为表格
-2. 判断该表格是否有 table_caption 字段
-3. 若没有,则判断该表格是否为多列,且通过 BeautifulSoup + lxml 判断首行是否为合并单元格
-4. 若为合并单元格,则将该表格第一行的文本作为表格标题,并更新表格数据
-5. 若不是合并单元格,则判断上一个页面的最后一个元素是否为表格
-6. 若为表格,则将两个表格转为 dataframe 结构,判断标题行是否重复(去除空格统一大小写后,通过余弦相似度判断),重复移除,不重复则合并
-7. 如果 DataFrame 结构不匹配或合并失败，建议记录 warning 日志并跳过，而非 raise exception，避免中断整体流程。   
-8. 合并后再转换为 html 格式,更新上一个page_idx中的 type 为"merged_table","table_body"为合并后的表格 html 内容,同时追加新字段"metadata",其值为两个表格的 table_body 字段和原始页码及索引,如:
-{"metadata":{
-    source_table_1: {
-        page_idx: 1,
-        table_body: 
-    },
-    source_table_2: {
-        page_idx: 2,
-        table_body: 
-    }
-}}
-9. 从 json 中移除当前页面的表格
-"""
-
 """处理被分页截断的表格"""
+
 from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
 from src.utils.common.similar_count import SimilarCount
 from src.utils.common.logger import logger
-from src.utils.json_toolkit.table_formatter import extract_key_fields
+from src.utils.table_toolkit.table_formatter import extract_key_fields
 
 class TableMerge:
     def __init__(self):
@@ -90,36 +49,40 @@ class TableMerge:
         header1 = table1_df.iloc[0].astype(str).str.lower().str.strip()
         header2 = table2_df.iloc[0].astype(str).str.lower().str.strip()
         
-        # 计算标题行相似度
-        similarity = self.similar_count.get_similarity_to_others(
-            " ".join(header1), 
-            [" ".join(header2)]
-        )[0]
-        
-        # 相似度大于阈值则移除重复标题
-        if similarity > 0.95:
-            table2_df = table2_df.iloc[1:].copy()
+        # 列数一致且标题内容相似,判断为重复标题
+        if len(header1) == len(header2):
+            similarity = self.similar_count.get_similarity_to_others(" ".join(header1), [" ".join(header2)])[0]
+            if similarity > 0.98:
+                table2_df = table2_df.iloc[1:].copy()
             
-        # 合并表格前确保所有列的类型一致
-        for col in table1_df.columns:
-            if col in table2_df.columns:
-                # 使用 .loc 进行赋值
-                table1_df.loc[:, col] = table1_df[col].astype(str)
-                table2_df.loc[:, col] = table2_df[col].astype(str)
+        
+        # 确保两表结构一致后再合并
+        common_cols = table1_df.columns.intersection(table2_df.columns)
+        for col in common_cols:
+            table1_df.loc[:, col] = table1_df[col].astype(str)
+            table2_df.loc[:, col] = table2_df[col].astype(str)
             
         # 合并表格
         return pd.concat([table1_df, table2_df], ignore_index=True)
-        
-    def process_tables(self, content_list: list) -> list:
+    
+    
+    def merge_cross_page_tables(self, content_list: list) -> list:
         """处理分页表格
         
         Args:
-            content_list: 内容列表
+            content_list: json格式的文档内容列表
             
         Returns:
-            处理后的内容列表
+            list: 处理完跨页表格后的内容列表
         """
         i = 0
+        logger.info(f"开始处理跨页表格...")
+        
+        # 记录跨页表格信息
+        cross_page_tables = []  # 存储跨页表格的页码信息
+        success_merges = []     # 记录成功合并的页码
+        failed_merges = []      # 记录合并失败的页码
+        
         while i < len(content_list):
             # 检查当前页是否有内容
             if not content_list[i].get('content'):
@@ -133,6 +96,9 @@ class TableMerge:
             if item['type'] != 'table':
                 i += 1
                 continue
+            
+            # 去除表格前后空格
+            item['table_body'] = item['table_body'].strip()
                 
             # 检查是否有标题
             if not item.get('table_caption'):
@@ -143,50 +109,98 @@ class TableMerge:
                     if title:
                         item['table_caption'] = [title]
                 else:
-                    if i > 0 and content_list[i-1].get('content'):
-                        # 获取上一页的最后一个元素
-                        last_item = content_list[i-1]['content'][-1]
-                        # 检查上一页最后一个元素是否为表格
-                        if last_item['type'] == 'table':
-                            try:
-                                # 转换为DataFrame
-                                soup1 = BeautifulSoup(last_item['table_body'], 'lxml')
-                                soup2 = BeautifulSoup(item['table_body'], 'lxml')
+                    # 向前查找可合并的表格
+                    merge_target = None
+                    merge_target_idx = None
+                    
+                    # 从当前页向前查找
+                    for j in range(i-1, -1, -1):
+                        if not content_list[j].get('content'):
+                            continue
+                            
+                        last_item = content_list[j]['content'][-1]
+                        if last_item['type'] in ['table', 'merged_table']:
+                            merge_target = last_item
+                            merge_target_idx = j
+                            # 记录跨页表格信息
+                            if j not in cross_page_tables:
+                                cross_page_tables.append(j)
+                            if i not in cross_page_tables:
+                                cross_page_tables.append(i)
+                            break
+                    
+                    if merge_target:
+                        try:
+                            # 转换为DataFrame
+                            soup1 = BeautifulSoup(merge_target['table_body'], 'lxml')
+                            soup2 = BeautifulSoup(item['table_body'], 'lxml')
+                            
+                            # 使用 StringIO 包装 HTML 字符串
+                            df1 = pd.read_html(StringIO(str(soup1)))[0]
+                            df2 = pd.read_html(StringIO(str(soup2)))[0]
+                            
+                            # 合并表格
+                            merged_df = self._merge_tables(df1, df2)
+                            
+                            # 转换为HTML
+                            merged_html = merged_df.to_html(index=False)
+                            merged_html = f"<html><body>{merged_html}</body></html>"
+                            
+                            # 更新目标表格的内容
+                            if merge_target['type'] == 'merged_table':
+                                # 如果是已合并的表格,添加新的源表格信息
+                                source_tables = merge_target['metadata'].get('source_tables', [])
                                 
-                                # 使用 StringIO 包装 HTML 字符串
-                                df1 = pd.read_html(StringIO(str(soup1)))[0]
-                                df2 = pd.read_html(StringIO(str(soup2)))[0]
+                                # 更新源表格页码信息
+                                item['page_idx'] = i
+                                source_tables.append(item)
+                                merge_target['metadata']['source_tables'] = source_tables
+                            else:
+                                # 如果是新合并的表格,创建新的metadata
+                                item['page_idx'] = i
+                                last_item['page_idx'] = i
                                 
-                                # 合并表格
-                                merged_df = self._merge_tables(df1, df2)
-                                
-                                # 转换为HTML
-                                merged_html = merged_df.to_html(index=False)
-                                
-                                # 更新上一页最后一个元素的内容
-                                last_item.update({
+                                merge_target.update({
                                     'type': 'merged_table',
-                                    'table_body': merged_html,
+                                    'img_path': "",
                                     'metadata': {
-                                        'source_table_1': {
-                                            'page_idx': last_item.get('page_idx'),
-                                            'table_body': last_item['table_body']
-                                        },
-                                        'source_table_2': {
-                                            'page_idx': item.get('page_idx'),
-                                            'table_body': item['table_body']
-                                        }
+                                        'source_tables': [
+                                            merge_target,
+                                            item
+                                        ]
                                     }
                                 })
                                 
-                                # 移除当前表格
-                                content_list[i]['content'].pop(0)
-                                continue
-                                
-                            except Exception as e:
-                                logger.warning(f"合并表格失败: {str(e)}")
+                            # 更新表格脚注
+                            merge_target['table_footnote'] += [footnote['table_footnote'] for footnote in merge_target['metadata']['source_tables'] if footnote.get('table_footnote')]
+                            
+                            # 更新表格内容
+                            merge_target['table_body'] = merged_html
+                            
+                            # 记录成功合并的页码
+                            if merge_target_idx not in success_merges:
+                                success_merges.append(merge_target_idx)
+                            if i not in success_merges:
+                                success_merges.append(i)
+                            
+                            # 移除当前页面的当前表格(第一个元素)
+                            content_list[i]['content'].pop(0)
+                            continue
+                            
+                        except Exception as e:
+                            logger.warning(f"合并表格失败: {str(e)}")
+                            # 记录合并失败的页码
+                            if merge_target_idx not in failed_merges:
+                                failed_merges.append(merge_target_idx)
+                            if i not in failed_merges:
+                                failed_merges.append(i)
                             
             i += 1
+        
+        # 输出跨页表格处理结果
+        logger.info(f"发现跨页表格 {len(cross_page_tables)} 页: {sorted(cross_page_tables)}")
+        logger.info(f"成功合并 {len(success_merges)} 页: {sorted(success_merges)}")
+        logger.info(f"合并失败 {len(failed_merges)} 页: {sorted(failed_merges)}")
             
         return content_list
 

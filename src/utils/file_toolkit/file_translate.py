@@ -1,7 +1,7 @@
 """从数据库读取无 PDF 格式的文档,统一转换为 PDF 格式"""
 
 from src.utils.common.logger import logger
-from src.api.libreoffice_api import convert_to_pdf
+from src.api.libreoffice_convert import convert_to_pdf
 from src.utils.document_path import get_translated_doc_output_path
 from src.utils.database.file_db import update_pdf_paths
 import shutil

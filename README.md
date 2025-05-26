@@ -6,31 +6,31 @@
 
 ```
 tk_rag/
-├── src/                          # 源代码目录
-│   ├── api/                      # API 接口
-│   │   ├── libreoffice_api.py    # 文档转换 API
-│   │   └── mineru_api.py         # PDF 解析 API
-│   ├── core/                     # 核心业务逻辑
-│   │   ├── document/             # 文档处理
-│   │   ├── llm/                  # 大语言模型
-│   │   └── rag/                  # RAG 实现
-│   ├── database/                 # 数据库操作
-│   │   ├── mysql/                # MySQL 相关
-│   │   └── milvus/               # Milvus 向量数据库
-│   └── utils/                    # 工具函数
-│       ├── common/               # 通用工具
-│       ├── file/                 # 文件操作
-│       └── logger/               # 日志工具
-├── tests/                        # 测试代码
-├── datas/                        # 数据目录
-│   ├── raw/                      # 原始文档
-│   ├── processed/                # 处理后的文档
-│   └── translated/               # 转换后的文档
-├── models/                       # 模型目录
-├── logs/                         # 日志目录
-├── config.py                     # 配置文件
-├── requirements.txt              # 依赖包
-└── README.md                     # 项目文档
+├── src/                               # 源代码目录
+│   ├── api/                           # API 接口
+│   │   ├── libreoffice_convert.py     # 文档转换 API
+│   │   └── mineru_api.py              # PDF 解析 API
+│   ├── core/                          # 核心业务逻辑
+│   │   ├── document/                  # 文档处理
+│   │   ├── llm/                       # 大语言模型
+│   │   └── rag/                       # RAG 实现
+│   ├── database/                      # 数据库操作
+│   │   ├── mysql/                     # MySQL 相关
+│   │   └── milvus/                    # Milvus 向量数据库
+│   └── utils/                         # 工具函数
+│       ├── common/                    # 通用工具
+│       ├── file/                      # 文件操作
+│       └── logger/                    # 日志工具
+├── tests/                             # 测试代码
+├── datas/                             # 数据目录
+│   ├── raw/                           # 原始文档
+│   ├── processed/                     # 处理后的文档
+│   └── translated/                    # 转换后的文档
+├── models/                            # 模型目录
+├── logs/                              # 日志目录
+├── config.py                          # 配置文件
+├── requirements.txt                   # 依赖包
+└── README.md                          # 项目文档
 ```
 
 ## 功能特性
