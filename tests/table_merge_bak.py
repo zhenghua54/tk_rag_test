@@ -1,4 +1,4 @@
-"""处理被分页截断的表格"""
+"""处理被分页截断的表格,备份暂时不用"""
 
 from bs4 import BeautifulSoup
 import pandas as pd
@@ -49,12 +49,13 @@ class TableMerge:
         header1 = table1_df.iloc[0].astype(str).str.lower().str.strip()
         header2 = table2_df.iloc[0].astype(str).str.lower().str.strip()
         
+        
         # 列数一致且标题内容相似,判断为重复标题
         if len(header1) == len(header2):
             similarity = self.similar_count.get_similarity_to_others(" ".join(header1), [" ".join(header2)])[0]
-            if similarity > 0.98:
+            if similarity > 0.999:
+                # 保留第一个表格的标题行，删除第二个表格的标题行
                 table2_df = table2_df.iloc[1:].copy()
-            
         
         # 确保两表结构一致后再合并
         common_cols = table1_df.columns.intersection(table2_df.columns)
@@ -62,11 +63,11 @@ class TableMerge:
             table1_df.loc[:, col] = table1_df[col].astype(str)
             table2_df.loc[:, col] = table2_df[col].astype(str)
             
-        # 合并表格
-        return pd.concat([table1_df, table2_df], ignore_index=True)
+        # 合并表格，保持原始列名
+        return pd.concat([table1_df, table2_df], ignore_index=False)
     
     
-    def merge_cross_page_tables(self, content_list: list) -> list:
+    # def merge_cross_page_tables(self, content_list: list) -> list:
         """处理分页表格
         
         Args:
@@ -151,10 +152,13 @@ class TableMerge:
                                 # 如果是已合并的表格,添加新的源表格信息
                                 source_tables = merge_target['metadata'].get('source_tables', [])
                                 
-                                # 更新源表格页码信息
+                                # 源表格增加页码信息
                                 item['page_idx'] = i
                                 source_tables.append(item)
                                 merge_target['metadata']['source_tables'] = source_tables
+                                
+                                # 追加当前页的表格图片路径
+                                merge_target['img_path'].append(item['img_path'])
                             else:
                                 # 如果是新合并的表格,创建新的metadata
                                 item['page_idx'] = i
@@ -162,7 +166,7 @@ class TableMerge:
                                 
                                 merge_target.update({
                                     'type': 'merged_table',
-                                    'img_path': "",
+                                    'img_path': [],
                                     'metadata': {
                                         'source_tables': [
                                             merge_target,
@@ -170,6 +174,10 @@ class TableMerge:
                                         ]
                                     }
                                 })
+                                # 保存所有表格的原始图片路径
+                                merge_target['img_path'].append(last_item['img_path'])
+                                merge_target['img_path'].append(item['img_path'])
+                                # 移除原有的
                                 
                             # 更新表格脚注
                             merge_target['table_footnote'] += [footnote['table_footnote'] for footnote in merge_target['metadata']['source_tables'] if footnote.get('table_footnote')]

@@ -60,106 +60,40 @@ tk_rag/
 
 ## 快速开始
 
-1. 克隆项目
-```bash
-git clone http://192.168.31.71:18080/wumingxing/tk_rag.git
-cd tk_rag
-```
-
-2. 创建并激活 Conda 环境：
+1. 创建并激活 Conda 环境：
 
 ```bash
+# 安装 Miniconda
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash ~/Miniconda3-latest-Linux-x86_64.sh
+source ~/.bashrc
+
 # 创建环境
 conda create -n tk_rag python=3.10
 
 # 激活环境
 conda activate tk_rag
-
-# 安装依赖
-pip install -r requirements.txt -i https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
 ```
 
-3. 配置数据库
-```python
-# config.py
-MYSQL_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "your_password",
-    "charset": "utf8mb4",
-    "database": "rag_db",
-}
+2. 安装软件包
 
-MILVUS_CONFIG = {
-    "uri": "http://localhost:19530/",
-    "host": "localhost",
-    "port": 19530,
-    "token": "your_token",
-    "db_name": "default",
-    "collection_name": "tk_rag",
-}
-```
-
-4. 下载模型
 ```bash
+# 安装 pytorch
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# 安装 MinerU-GPU 版本
+# 安装 应用
+pip install -U magic-pdf[full] -i https://mirrors.aliyun.com/pypi/simple
+# 从 ModelScope 下载模型
+pip install modelscope
+wget https://gcore.jsdelivr.net/gh/opendatalab/MinerU@master/scripts/download_models.py -O download_models.py
 python download_models.py
-```
 
-5. 安装 Libreoffice
-```bash
+官方安装文档: https://github.com/opendatalab/MinerU/blob/master/docs/README_Ubuntu_CUDA_Acceleration_zh_CN.md
+
+# 进入项目文件夹安装依赖
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 安装 Libreoffice
 sudo apt-get install libreoffice
 ```
-
-## 使用说明
-
-1. 文档上传
-```python
-from src.utils.file_toolkit _upload import upload_files
-
-# 上传文档
-file_infos = upload_files("/path/to/your/documents")
-```
-
-2. 文档处理
-```python
-from src.utils.file_toolkit _translate import translate_file
-from src.utils.file_toolkit _parse import parse_file_to_db
-
-# 转换为 PDF
-translate_file()
-
-# 解析文档
-parse_file_to_db()
-```
-
-3. 启动服务
-```bash
-streamlit run app_streamlit.py
-```
-
-## 常见问题
-
-1. 模型下载失败
-   - 检查网络连接
-   - 确认模型路径配置
-   - 尝试手动下载
-
-2. 数据库连接错误
-   - 检查数据库配置
-   - 确认数据库服务运行状态
-   - 验证用户权限
-
-## 更新日志
-
-### v0.1.0 (2024-03-xx)
-- 初始版本发布
-- 基础文档处理功能
-- RAG 问答系统实现
-
-
-
-
-## 联系方式
-
-- 项目维护者：[Your Name]
-- 邮箱：[your.email@example.com] 

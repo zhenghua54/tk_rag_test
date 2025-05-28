@@ -7,53 +7,6 @@ from bs4 import BeautifulSoup
 from rich import print
 
 
-def format_html_table(table_body_html: str) -> dict:
-    """解析 html 格式的表格内容,方便摘要提取和规则处理
-
-    Args:
-        table_body_html (str): html 格式的 table 内容
-
-    Returns:
-        table_body_dict:
-            table_df: DataFrame 对象
-            table_md: Markdown 格式
-            table_format_str: 结构化提取格式
-    """
-
-    # 使用 beautifulsoup 解析
-    soup = BeautifulSoup(table_body_html, 'lxml')
-    table = soup.find('table')
-
-    # 解析表格为二维数组
-    data = []
-    for row in table.find_all('tr'):
-        row_data = []
-        for cell in row.find_all(['td', 'th']):
-            # 获取单元格横向合并数量
-            colspan = int(cell.get('colspan', 1))
-            # 清除前后空白
-            text = cell.get_text(strip=True)
-            # 若 colspan >1, 则横向展开多列
-            row_data.extend([text] * colspan)
-        data.append(row_data)
-
-    # 转换为dataframne
-    table_df = pd.DataFrame(data)
-    # 转换为markdown格式,方便 LLM 使用
-    table_markdown = table_df.to_markdown(index=False)
-    # 提取结构化文本,方便概要提取
-    table_format_str = "\n".join([f"{row[0]}：{row[1]}" for _, row in table_df.iterrows() if len(row) > 1])
-
-    # 合并字典
-    table_body_dict = {
-        "table_df": table_df,
-        "table_md": table_markdown,
-        "table_format_str": table_format_str,
-    }
-
-    return table_body_dict
-
-
 def extract_key_fields(segment):
     """从 HTML 表格中提取关键字段
     
@@ -74,6 +27,129 @@ def extract_key_fields(segment):
     texts = [t for t in texts if t]
     
     return ' '.join(texts)
+
+
+def format_table_to_df(table_body_html: str) -> pd.DataFrame:
+    """解析 html 格式的表格内容,方便摘要提取和规则处理
+
+    Args:
+        table_body_html (str): html 格式的 table 内容
+
+    Returns:
+        table_df: DataFrame 对象
+    """
+
+    # 使用 beautifulsoup 解析
+    soup = BeautifulSoup(table_body_html, 'lxml')
+    table = soup.find('table')
+
+    # 解析表格为二维数组
+    data = []
+    for row in table.find_all('tr'):
+        row_data = []
+        for cell in row.find_all(['td', 'th']):
+            # 获取单元格横向合并数量
+            colspan = int(cell.get('colspan', 1))
+            # 清除前后空白
+            text = cell.get_text(strip=True)
+            # 若 colspan >1, 则横向展开多列
+            row_data.extend([text] * colspan)
+        data.append(row_data)
+
+    # 转换为 DataFrame
+    if len(data) > 0:
+        table_df = pd.DataFrame(data)
+    else:
+        table_df = pd.DataFrame()
+    
+    # 转换为markdown，不显示索引
+    table_markdown = table_df.to_markdown(index=False)
+    
+    # 提取结构化文本,方便概要提取
+    # 过滤掉标题和内容都为空的列
+    valid_rows = []
+    for _, row in table_df.iterrows():
+        if len(row) > 1:
+            # 检查标题和内容是否都为空
+            title = str(row.iloc[0]).strip()
+            content = str(row.iloc[1]).strip()
+            if title and content and title != 'NaN' and content != 'NaN':
+                valid_rows.append(f"{title}：{content}")
+    
+
+    return table_df
+
+
+def format_table_to_str(table_html: str) -> str:
+    """
+    将HTML表格格式化为适合embedding的字符串格式
+    
+    Args:
+        table_html (str): HTML格式的表格内容
+        
+    Returns:
+        str: 格式化后的表格字符串
+    """
+    try:
+        # 使用 BeautifulSoup 解析 HTML
+        soup = BeautifulSoup(table_html, 'lxml')
+        table = soup.find('table')
+        
+        if not table:
+            return ""
+            
+        # 获取表头
+        headers = []
+        header_row = table.find('tr')
+        if header_row:
+            for cell in header_row.find_all(['td', 'th']):
+                # 处理合并单元格
+                colspan = int(cell.get('colspan', 1))
+                text = cell.get_text(strip=True)
+                if text:
+                    headers.extend([text] * colspan)
+                else:
+                    headers.extend([f"列{len(headers)+1}"] * colspan)
+        
+        # 处理数据行
+        formatted_rows = []
+        for row in table.find_all('tr')[1:]:  # 跳过表头行
+            row_items = []
+            col_idx = 0
+            
+            for cell in row.find_all(['td', 'th']):
+                # 处理合并单元格
+                colspan = int(cell.get('colspan', 1))
+                text = cell.get_text(strip=True)
+                
+                if text:
+                    header_name = headers[col_idx] if col_idx < len(headers) else f"列{col_idx+1}"
+                    row_items.append(f"{header_name}:{text}")
+                
+                col_idx += colspan
+            
+            if row_items:  # 只添加非空行
+                formatted_rows.append(" | ".join(row_items))
+        
+        # 组合结果
+        result_lines = []
+        if headers:
+            result_lines.append("表格标题: " + " | ".join(headers))
+            result_lines.append("---")
+        
+        # 数据行
+        for i, row_content in enumerate(formatted_rows, 1):
+            result_lines.append(f"第{i}行: {row_content}")
+        
+        return "\n".join(result_lines)
+        
+    except Exception as e:
+        print(f"表格格式化出错: {e}")
+        return ""
+    
+    return ""
+
+
 
 if __name__ == '__main__':
     # 测试提取表格内容后相似度计算

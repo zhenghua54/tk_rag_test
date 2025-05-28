@@ -1,12 +1,11 @@
-""" 文件分块 """
+""" 文件分块 - langchain 实现 备份"""
 
 import os
+import uuid
+import hashlib
 import pandas as pd
 from typing import List, Dict, Any
-import hashlib
-import uuid
 from src.utils.database.milvus_connect import MilvusDB
-
 # 使用 langchain 的文本分块器
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
@@ -18,28 +17,35 @@ from langchain_community.document_loaders import (
     TextLoader
 )
 
-# 初始化数据库连接
-db = MilvusDB()
-db.init_database()
+from src.utils.common.logger import logger
 
-# 加载集合
-try:
-    db.client.load_collection(db.collection_name)
-    print(f"成功加载集合: {db.collection_name}")
-except Exception as e:
-    print(f"加载集合时出错: {str(e)}")
+
+
 
 
 def generate_doc_id(text: str) -> str:
-    """根据文本内容生成唯一的 UUID"""
+    """根据文本内容生成唯一的哈希值
+    
+    Args:
+        text: 文本内容
+
+    Returns:
+        doc_id: 64位哈希值
+    """
     # 使用 SHA-256 生成哈希值
-    hash_object = hashlib.sha256(text.encode('utf-8'))
-    # 使用哈希值的前 16 字节生成 UUID
-    return str(uuid.UUID(bytes=hash_object.digest()[:16]))
+    doc_id = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    return doc_id
 
 
 def get_file_content(file_path: str) -> str:
-    """根据文件类型加载文件内容"""
+    """根据文件类型加载文件内容
+    
+    Args:
+        file_path: 文件路径
+
+    Returns:
+        content: 文件内容
+    """
     file_ext = os.path.splitext(file_path)[1].lower()
 
     try:
@@ -61,7 +67,14 @@ def get_file_content(file_path: str) -> str:
 
 
 def get_text_splitter(file_path: str) -> Any:
-    """根据文件类型返回对应的分块器"""
+    """根据文件类型返回对应的分块器
+    
+    Args:
+        file_path: 文件路径
+
+    Returns:
+        text_splitter: 分块器
+    """
     file_ext = os.path.splitext(file_path)[1].lower()
 
     if file_ext == '.pdf':
@@ -97,11 +110,18 @@ def get_text_splitter(file_path: str) -> Any:
         )
 
 
-def get_current_max_id() -> int:
-    """获取当前数据库中的最大 ID"""
+def get_current_max_id(milvus_db: MilvusDB) -> int:
+    """获取当前数据库中的最大 ID
+    
+    Args:
+        milvus_db: 向量库连接
+
+    Returns:
+        current_id: 当前最大 ID
+    """
     try:
-        result = db.client.query(
-            collection_name=db.collection_name,
+        result = milvus_db.client.query(
+            collection_name=milvus_db.collection_name,
             filter="id >= 0",
             output_fields=["id"],
             limit=1,
@@ -109,13 +129,19 @@ def get_current_max_id() -> int:
         )
         return result[0]["id"] if result else -1
     except Exception as e:
-        print(f"获取最大 ID 时出错: {str(e)}")
+        logger.error(f"获取最大 ID 时出错: {str(e)}")
         return -1
 
 
 def process_file(file_path: str) -> List[Dict[str, Any]]:
-    """处理单个文件并返回分块结果"""
-    print(f"正在处理文件: {file_path}")
+    """处理单个文件并返回分块结果
+    
+    Args:
+        file_path: 文件路径
+
+    Returns:
+        results: 分块结果
+    """
 
     # 获取文件内容
     content = get_file_content(file_path)
@@ -151,8 +177,15 @@ def process_file(file_path: str) -> List[Dict[str, Any]]:
     return results
 
 
-def process_directory(directory_path: str) -> pd.DataFrame:
-    """处理目录下的所有支持的文件"""
+def process_directory(directory_path: str) -> List[Dict[str, Any]]:
+    """处理目录下的所有支持的文件
+    
+    Args:
+        directory_path: 目录路径
+
+    Returns:
+        all_results: 所有分块结果
+    """
     all_results = []
     supported_extensions = {'.pdf', '.docx', '.txt'}
 
@@ -163,15 +196,28 @@ def process_directory(directory_path: str) -> pd.DataFrame:
                 results = process_file(file_path)
                 all_results.extend(results)
 
-    # 转换为 DataFrame
-    df = pd.DataFrame(all_results)
-    return df
+    return all_results
 
 
 if __name__ == "__main__":
+    
+    # 初始化向量库连接
+    milvus_db = MilvusDB()
+    milvus_db.init_database()
+
+    # 加载集合 （如果已经加载过，则不需要加载）
+    try:
+        milvus_db.client.load_collection(milvus_db.collection_name)
+        print(f"成功加载集合: {milvus_db.collection_name}")
+    except Exception as e:
+        print(f"加载集合时出错: {str(e)}")
+    
+    
     # 示例用法
     directory_path = "/Users/jason/PycharmProjects/tk_rag/data/raw"
-    df = process_directory(directory_path)
+    all_results = process_directory(directory_path)
+    print(all_results)
+    exit()
 
     # 保存结果
     output_path = "processed_chunks.csv"

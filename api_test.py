@@ -9,6 +9,7 @@ API 测试模块
 """
 import os
 import sys
+import json
 from pathlib import Path
 from rich import print
 
@@ -21,6 +22,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
+from config import Config
 from src.utils.common.logger import logger
 
 # 1. 测试文件处理流程
@@ -35,18 +37,29 @@ from src.utils.file_toolkit import (
 from src.utils.database.file_db import get_non_pdf_files, get_pdf_files,search_file_info
 
 # 2. 测试跨页表格合并
-from src.utils.json_toolkit.parser import parse_json_file
-from src.utils.table_toolkit.table_merge import TableMerge
+from src.utils.json_parser import parse_json_file
+# from src.utils.table_toolkit.table_merge import TableMerge
+from src.utils.table_toolkit.table_metadata_update import update_cross_page_table_metadata
 
 # 3. 测试图片标题提取
-from src.utils.image_toolkit.image_title import extract_image_title
+from src.utils.image_title_fill import extract_image_title
 
 # 4. 测试文档内容清洗
 from src.utils.content_cleaner import clean_content
 from src.utils.document_path import get_doc_output_path
 
+# from src.utils.chunk_toolkit.fixed_chunk import process_directory
 
-def test_parse_file(pdf_file_paths: list[dict]):
+from src.utils.database.milvus_connect import MilvusDB
+
+# 测试元素切割
+from src.utils.chunk_toolkit.fixed_chunk import segment_content
+from src.utils.table_toolkit.table_formatter import format_table_to_df, format_table_to_str
+
+
+
+
+def test_parse_file(pdf_file_paths: list[dict] = None):
     """测试文件解析
     
     Args:
@@ -123,8 +136,10 @@ def clean_content_test(doc_id: str):
     content_list = parse_json_file(json_file_path)
     
     # 跨页表格合并
-    table_merge = TableMerge()
-    merged_content_list = table_merge.merge_cross_page_tables(content_list)
+    # table_merge = TableMerge()
+    # merged_content_list = table_merge.merge_cross_page_tables(content_list)
+    # 更新跨页表格的表格标题和脚注
+    merged_content_list = update_cross_page_table_metadata(content_list)
     
     # 图片标题处理
     merged_content_list = extract_image_title(merged_content_list)
@@ -133,28 +148,60 @@ def clean_content_test(doc_id: str):
     content_text = clean_content(merged_content_list)
     
     # 保存清洗后的文档内容
-    with open(os.path.join(output_path,  f"{file_name}_cleaned.txt"), "w", encoding="utf-8") as f:
+    output_path = os.path.join(output_path,  f"{file_name}_cleaned.txt")
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(content_text)
-    logger.info(f"文档内容清洗完成,保存到: {output_path}")
+    
+    return output_path
 
 
 
 if __name__ == "__main__":
     # 测试文件转换
-    file_dir = "/home/wumingxing/tk_rag/datas/raw"
-    test_files_translate(file_dir)
+    # file_dir = "/home/wumingxing/tk_rag/datas/raw"
+    # test_files_translate(file_dir)
     
     # 测试文件解析
-    file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"
-    test_parse_file([file_path])
+    # file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"
+    # test_parse_file([{'source_document_pdf_path': file_path,'source_document_name':'天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225'}])
     
     # 测试文件清洗
     doc_id = "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
-    clean_content_test(doc_id)
+    output_cleaned_path = clean_content_test(doc_id)
+    # print(f"文档内容清洗完成,保存到: {output_cleaned_path}")
     
-
+    # 测试文本分块
+    with open(output_cleaned_path, "r", encoding="utf-8") as f:
+        file_content = f.read()
+    chunks = segment_content(file_content)
+    # 保存分块内容到目标文件
+    chunk_filename = os.path.basename(output_cleaned_path).replace(".txt", "_chunks.json")
+    output_chunks_path = os.path.join(Config.PATHS['processed_data'], "天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225",chunk_filename)
+    with open(output_chunks_path, "w", encoding="utf-8") as f:
+        json.dump(chunks, f, ensure_ascii=False, indent=4)
+    # print(f"文本分块完成,保存到: {output_chunks_path}, 共计{len(chunks['chunks'])}个文本块")
+    # 最长文本块
+    max_chunk_len = max(len(chunk['content']) for chunk in chunks['chunks'])
+    # 最长文本块内容
+    max_chunk_content = max(chunks['chunks'], key=lambda x: len(x['content']))['content']
+    print(f"最长文本块长度: {max_chunk_len}")
+    print(f"最长文本块内容: {max_chunk_content}")
     
-
+    # 提取表格文本内容后计算长度
+    # table_body_df = format_html_table(max_chunk_content)['table_df']
+    # 使用新的表格格式化函数
+    formatted_table = format_table_to_str(max_chunk_content)
+    print(f"\n=== 格式化后的表格内容 ===")
+    print(formatted_table)
+    print(f"\n格式化后表格长度: {len(formatted_table)}")
+    
+    # 保存格式化后的表格内容
+    with open("formatted_table_for_embedding.txt", "w", encoding="utf-8") as f:
+        f.write(formatted_table)
+    print("格式化表格已保存到 formatted_table_for_embedding.txt")
+    
+    
+    
 
     # 检查文档内容中的所有元素类型
     # type_set = {}
@@ -177,3 +224,31 @@ if __name__ == "__main__":
     #                 print(item)
     #                 print(f'下一个元素内容:{page["content"][idx+1] if idx+1 < len(page["content"]) else "None"}')
     #                 print("-" * 50)
+    
+    
+    # 测试文本分块
+    # 初始化向量库连接
+    # milvus_db = MilvusDB()
+    # milvus_db.init_database()
+
+    # # 加载集合 （如果已经加载过，则不需要加载）
+    # try:
+    #     milvus_db.client.load_collection(milvus_db.collection_name)
+    #     logger.info(f"成功加载集合: {milvus_db.collection_name}")
+    # except Exception as e:
+    #     logger.error(f"加载集合时出错: {str(e)}")
+    
+    
+    # # 获取切块源文件路径
+    # file_path = "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225_cleaned.txt"
+    # directory_path = Config.PATHS['origin_data']
+    # all_results = process_directory(directory_path)
+    # print(all_results)
+    # exit()
+
+    # # 保存结果
+    # output_path = "processed_chunks.csv"
+    # df.to_csv(output_path, index=False)
+    # print(f"处理完成，结果已保存到 {output_path}")
+    # print(f"总共处理了 {len(df)} 个文本块")
+    # print(f"唯一文档数量：{df['doc_id'].nunique()}")

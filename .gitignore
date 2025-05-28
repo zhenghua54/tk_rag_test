@@ -43,18 +43,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-datas/*.json
-datas/*.pdf
-datas/*.pptx
-datas/*.md
-datas/*.jpg
-datas/*.png
-datas/*.jpeg
-datas/*.docx
-datas/*.doc
-datas/*.xlsx
-datas/*.xls
-datas/*.csv
+datas/*
+!datas/.gitkeep
 logs/*
 !logs/.gitkeep
 .env

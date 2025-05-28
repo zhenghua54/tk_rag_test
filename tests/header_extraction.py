@@ -1,5 +1,5 @@
 """页眉提取"""
-from src.utils.json_toolkit.parser import parse_json_content
+from src.utils.json_parser import parse_json_content
 from src.utils.common.table_formatter import extract_key_fields
 from src.utils.common.similar_count import SimilarCount
 
