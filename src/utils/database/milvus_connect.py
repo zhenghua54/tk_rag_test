@@ -1,10 +1,10 @@
 """ Milvus 数据库操作工具 """
 
 from typing import List, Dict, Any
-
 from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType, Collection, connections
 
-from config import Config, logger
+from config import Config
+from src.utils.common.logger import logger
 
 
 class MilvusDB:
