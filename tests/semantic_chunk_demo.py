@@ -19,7 +19,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from langchain.prompts import PromptTemplate
 import torch
 
-from src.config.settings import Config
+from config.settings import Config
 
 
 model_path = "/data/models/Qwen/Qwen2.5-14B-DeepSeek-R1-1M"

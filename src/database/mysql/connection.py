@@ -5,7 +5,7 @@ from typing import Dict, Any
 import pymysql
 from pymysql.cursors import DictCursor
 
-from src.config.settings import Config
+from config.settings import Config
 from src.utils.common.logger import logger
 
 
@@ -71,27 +71,6 @@ class MySQLConnect:
             self.connection.select_db(self.database)
             logger.info(f"创建并切换数据库 {self.database} 成功!")
 
-    def create_table(self, table_name: str):
-        """创建表
-        Args:
-            table_name: 表名
-        """
-        file_info_sql = f"""CREATE TABLE IF NOT EXISTS {table_name} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                doc_id VARCHAR(64) NOT NULL,
-                source_document_name VARCHAR(255),
-                source_document_type VARCHAR(100),
-                source_document_path VARCHAR(512),
-                source_document_pdf_path VARCHAR(512),
-                source_document_json_path VARCHAR(512),
-                source_document_markdown_path VARCHAR(512),
-                source_document_images_path VARCHAR(512),
-                UNIQUE(doc_id)
-                )"""
-
-        with self.get_connection() as cursor:
-            cursor.execute(file_info_sql)
-        logger.info(f"表 {table_name} 创建成功!")
 
     def insert_data(self, data: Dict[str, Any], table_name: str) -> bool:
         """插入数据
@@ -179,11 +158,10 @@ def test_connect_mysql():
         # 测试连接
         with mysql.get_connection() as cursor:
             cursor.execute("SELECT 1")
-            logger.info('数据库连接成功!')
-        return mysql
+        return True
     except Exception as e:
         logger.error(f"数据库连接测试失败: {e}")
-        raise e
+        return False
 
 
 def check_table_exists(mysql, table_name: str) -> bool:
@@ -209,8 +187,6 @@ if __name__ == '__main__':
         # 运行测试
         mysql = connect_mysql()
         mysql.use_db()
-        mysql.create_table(table_name='file_info')
-        # mysql.insert_data(test_data, table_name='file_info')
     except Exception as e:
         logger.error(f"测试执行失败: {e}")
     finally:

@@ -60,7 +60,7 @@ tk_rag/
 
 ## 快速开始
 
-1. 创建并激活 Conda 环境：
+### 1. 创建并激活 Conda 环境：
 
 ```bash
 # 安装 Miniconda
@@ -75,7 +75,7 @@ conda create -n tk_rag python=3.10
 conda activate tk_rag
 ```
 
-2. 安装软件包
+### 2. 安装软件包
 
 ```bash
 # 安装 pytorch
@@ -97,3 +97,45 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 # 安装 Libreoffice
 sudo apt-get install libreoffice
 ```
+
+### 3. 数据库准备
+
+1. MySQL 数据库
+   - 确保 MySQL 服务已启动
+   - 默认配置：
+     - 主机：localhost
+     - 用户：root
+     - 密码：Tk@654321
+     - 数据库：rag_db
+
+2. Milvus 数据库
+   - 确保 Milvus 服务已启动
+   - 默认配置：
+     - 主机：localhost
+     - 端口：19530
+     - 数据库：default
+     - 集合：tk_rag
+
+### 4. 初始化项目
+
+运行初始化脚本：
+```bash
+python scripts/init_project.py
+```
+
+该脚本将：
+1. 创建必要的目录结构
+2. 初始化 MySQL 数据库（包括表结构）
+3. 初始化 Milvus 数据库（包括集合和索引）
+
+### 5. 验证初始化
+
+1. 检查 MySQL 数据库：
+   ```bash
+   python src/database/mysql/connection.py
+   ```
+
+2. 检查 Milvus 数据库：
+   ```bash
+   python src/database/milvus/connection.py
+   ```

@@ -22,7 +22,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
-from src.config.settings import Config
+from config.settings import Config
 from src.utils.common.logger import logger
 
 # 1. 测试文件处理流程
@@ -34,7 +34,7 @@ from src.utils.file.file_toolkit import (
     parse_pdf_file,
     update_parse_file_records_in_db
 )
-from src..database.mysql.operations import select_non_pdf_files, select_pdf_files, select_file_info
+from src.database.mysql.operations import select_non_pdf_files, select_pdf_files, select_file_info
 
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
@@ -49,7 +49,7 @@ from src.utils.text.content_cleaner import clean_content
 from src.utils.file.doc_path import get_doc_output_path
 
 
-from src..database.milvus.connection import MilvusDB
+from src.database.milvus.connection import MilvusDB
 
 # 测试元素切割
 from src.core.document.chunker import segment_content

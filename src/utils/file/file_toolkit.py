@@ -3,7 +3,7 @@
 import os
 import hashlib
 from src.utils.common.logger import logger
-from src.config.settings import Config
+from config.settings import Config
 
 
 def file_filter(path: str) -> list[dict]:

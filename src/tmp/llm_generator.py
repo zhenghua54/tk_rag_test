@@ -13,9 +13,9 @@ from langchain_milvus import Milvus
 from langchain_openai import ChatOpenAI
 
 # 项目包
-from src.config.settings import Config, logger
+from config.settings import Config, logger
 from src.utils.query_process import search_documents, init_bm25_retriever
-from src..database.milvus.connection import MilvusDB
+from src.database.milvus.connection import MilvusDB
 
 # 初始化 LLM_API
 api_key = os.getenv("HUNYUAN_API_KEY")

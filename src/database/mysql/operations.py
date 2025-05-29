@@ -1,7 +1,7 @@
 """数据库操作"""
 
 from src.utils.common.logger import logger
-from src..database.mysql.connection import connect_mysql, check_table_exists
+from src.database.mysql.connection import connect_mysql, check_table_exists
 
 FILE_INFO_TABLE = 'file_info'
 

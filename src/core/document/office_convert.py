@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 from pathvalidate import sanitize_filename
 
 from src.utils.common.logger import logger
-from src.config.settings import Config
+from config.settings import Config
 
 
 def check_system_requirements() -> Tuple[bool, str]:

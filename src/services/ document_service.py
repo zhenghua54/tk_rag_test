@@ -1,9 +1,13 @@
+import sys
 import os
-from src.core.document.parser import parse_pdf_file, parse_office_file
-from src.config.settings import Config
-from src.utils.common.logger import logger
-from src..database.mysql.operations import update_file_info
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(root_path)
 
+from src.core.document.parser import parse_pdf_file, parse_office_file
+from config.settings import Config
+from src.utils.common.logger import logger
+from src.database.mysql.operations import update_file_info
+from src.database.mysql.connection import connect_mysql
 async def process_document(file_path: str) -> dict:
     """处理文档主流程
     
@@ -66,3 +70,15 @@ async def process_document(file_path: str) -> dict:
     })
     
     return {"doc_id": doc_id, "content": markdown_content}
+
+if __name__ == "__main__":
+    # 测试数据库连接
+    try:
+        # 运行测试
+        mysql = connect_mysql()
+        mysql.use_db()
+    except Exception as e:
+        logger.error(f"测试执行失败: {e}")
+    finally:
+        if 'mysql' in locals():
+            mysql.close()
