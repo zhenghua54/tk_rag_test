@@ -14,7 +14,7 @@ from langchain_milvus import Milvus
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
 from src.config.settings import Config
 from src.utils.common.logger import logger
-from src.utils.database.milvus.connection import MilvusDB
+from src..database.milvus.connection import MilvusDB
 from src.utils.llm_generate import CustomRetriever, create_llm_chain
 from src.utils.query_process import init_bm25_retriever
 

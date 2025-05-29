@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from src.utils.database.faiss_db import FaissDB
+from src..database.faiss_db import FaissDB
 
 
 def test_faiss_db():

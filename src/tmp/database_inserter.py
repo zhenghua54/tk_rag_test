@@ -5,7 +5,7 @@ from rich import print
 from sentence_transformers import SentenceTransformer
 
 from src.config.settings import Config
-from src.utils.database.milvus.connection import create_milvus_db
+from src..database.milvus.connection import create_milvus_db
 from src.utils.file.file_toolkit import process_directory
 
 # 创建数据库实例:初始化数据库

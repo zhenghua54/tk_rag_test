@@ -2,7 +2,7 @@ import os
 from src.core.document.parser import parse_pdf_file, parse_office_file
 from src.config.settings import Config
 from src.utils.common.logger import logger
-from src.utils.database.mysql.operations import update_file_records_in_db
+from src..database.mysql.operations import update_file_info
 
 async def process_document(file_path: str) -> dict:
     """处理文档主流程

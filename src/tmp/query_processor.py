@@ -10,7 +10,7 @@ from sentence_transformers import CrossEncoder
 
 # 项目配置
 from src.config.settings import Config, logger
-from src.utils.database.milvus.connection import MilvusDB
+from src..database.milvus.connection import MilvusDB
 
 
 def init_bm25_retriever(db: MilvusDB):
