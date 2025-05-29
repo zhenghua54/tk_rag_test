@@ -22,11 +22,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
-from config import Config
+from src.config.settings import Config
 from src.utils.common.logger import logger
 
 # 1. 测试文件处理流程
-from src.utils.file_toolkit import (
+from src.utils.file.file_toolkit import (
     file_filter,
     update_file_records_in_db,
     translate_file,
@@ -34,27 +34,27 @@ from src.utils.file_toolkit import (
     parse_pdf_file,
     update_parse_file_records_in_db
 )
-from src.utils.database.file_db import get_non_pdf_files, get_pdf_files,search_file_info
+from src.utils.database.mysql.operations import select_non_pdf_files, select_pdf_files, select_file_info
 
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
 # from src.utils.table_toolkit.table_merge import TableMerge
-from src.utils.table_toolkit.table_metadata_update import update_cross_page_table_metadata
+from src.core.document.processor import process_tables
 
 # 3. 测试图片标题提取
-from src.utils.image_title_fill import extract_image_title
+from src.core.document.processor import process_images
 
 # 4. 测试文档内容清洗
 from src.utils.content_cleaner import clean_content
-from src.utils.document_path import get_doc_output_path
+from src.utils.file.doc_path import get_doc_output_path
 
 # from src.utils.chunk_toolkit.fixed_chunk import process_directory
 
-from src.utils.database.milvus_connect import MilvusDB
+from src.utils.database.milvus.connection import MilvusDB
 
 # 测试元素切割
 from src.utils.chunk_toolkit.fixed_chunk import segment_content
-from src.utils.table_toolkit.table_formatter import format_table_to_df, format_table_to_str
+from src.core.document.processor import format_html_table_to_markdown
 
 
 
@@ -66,8 +66,6 @@ def test_parse_file(pdf_file_paths: list[dict] = None):
         pdf_file_paths (list[dict]): 文件路径列表
     """
     
-    if pdf_file_paths is None:
-        pdf_file_paths = get_pdf_files()
         
     # 测试文件解析
     output_paths = parse_pdf_file(pdf_file_paths)
@@ -91,7 +89,7 @@ def files_translate_test(file_path: str):
     update_file_records_in_db(file_infos)
 
     # 1.2 获取非 PDF 文件
-    non_pdf_file_paths = get_non_pdf_files()
+    non_pdf_file_paths = select_non_pdf_files()
     # 测试文件转换
     pdf_file_paths = translate_file(non_pdf_file_paths)
     # 更新转换后的文件信息到数据库中
@@ -108,7 +106,7 @@ def clean_content_test(doc_id: str):
     
     # 获取文档信息
     logger.info(f"查询文档: {doc_id}")
-    file_info = search_file_info(doc_id)
+    file_info = select_file_info(doc_id)
     
     if file_info is None:
         logger.error(f"未查询到文档信息")
@@ -139,10 +137,10 @@ def clean_content_test(doc_id: str):
     # table_merge = TableMerge()
     # merged_content_list = table_merge.merge_cross_page_tables(content_list)
     # 更新跨页表格的表格标题和脚注
-    merged_content_list = update_cross_page_table_metadata(content_list)
+    merged_content_list = process_tables(content_list)
     
     # 图片标题处理
-    merged_content_list = extract_image_title(merged_content_list)
+    merged_content_list = process_images(merged_content_list)
     
     # 文档内容提取格式化
     content_text = clean_content(merged_content_list)

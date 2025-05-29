@@ -9,7 +9,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from config import Config
+from src.config.settings import Config
 
 # 创建日志目录
 os.makedirs(Config.PATHS['log_dir'], exist_ok=True)

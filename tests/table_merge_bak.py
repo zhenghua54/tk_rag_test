@@ -5,7 +5,7 @@ import pandas as pd
 from io import StringIO
 from src.utils.common.similar_count import SimilarCount
 from src.utils.common.logger import logger
-from src.utils.table_toolkit.table_formatter import extract_key_fields
+from src.utils.table_toolkit.table_format import extract_key_fields
 
 class TableMerge:
     def __init__(self):
