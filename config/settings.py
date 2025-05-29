@@ -58,7 +58,7 @@ class Config:
         "collection_name": "tk_rag",
         "vector_field": "vector",
         "vector_dim": 1024,
-        "output_fields": ["title", "document_source", "partment", "role", "doc_id"],
+        "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids","metadata"],
         "index_params": {
             "field_name": "vector",
             "index_type": "IVF_FLAT",
@@ -67,16 +67,6 @@ class Config:
         },
         "search_params": {
             "nprobe": 10
-        },
-        "fields": {
-            "id": {"datatype": "INT64", "is_primary": True},
-            "vector": {"datatype": "FLOAT_VECTOR", "dim": 1024},
-            "text_chunk": {"datatype": "VARCHAR", "max_length": 10000},
-            "title": {"datatype": "VARCHAR", "max_length": 10000},
-            "document_source": {"datatype": "VARCHAR", "max_length": 10000},
-            "partment": {"datatype": "VARCHAR", "max_length": 10000},
-            "role": {"datatype": "VARCHAR", "max_length": 10000},
-            "doc_id": {"datatype": "VARCHAR", "max_length": 10000}
         }
     }
     
@@ -88,15 +78,6 @@ class Config:
         "database": "rag_db",
     }
     
-    @classmethod
-    def ensure_dirs(cls) -> None:
-        """确保必要的目录存在"""
-        for _, path in cls.PATHS.items():
-            os.makedirs(path, exist_ok=True)
-
-
-# 初始化配置
-Config.ensure_dirs()
 
 if __name__ == "__main__":
     # 打印当前配置

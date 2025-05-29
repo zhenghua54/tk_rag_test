@@ -3,7 +3,7 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
 import numpy as np
-from src.config.settings import Config
+from config.settings import Config
 
 
 

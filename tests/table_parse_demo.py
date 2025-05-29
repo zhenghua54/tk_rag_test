@@ -137,7 +137,7 @@ if __name__ == '__main__':
         ]
 
     
-    from src.config.settings import Config
+    from config.settings import Config
     # 加载本地模型
     model = SentenceTransformer(Config.MODEL_PATHS['embedding'])
 

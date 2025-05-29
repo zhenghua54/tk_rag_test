@@ -41,3 +41,5 @@ langchain==0.3.25
 langchain_community
 # 设备映射
 accelerate
+
+pathvalidate==3.2

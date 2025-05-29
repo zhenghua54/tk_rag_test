@@ -2,7 +2,7 @@
 
 from sentence_transformers import SentenceTransformer
 
-from src.config.settings import Config
+from config.settings import Config
 
 def init_embedding_model() -> SentenceTransformer:
     """初始化向量化模型"""

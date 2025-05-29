@@ -2,7 +2,7 @@
 
 import os
 
-from src.config.settings import Config
+from config.settings import Config
 
 
 def get_doc_output_path(doc_path: str) -> dict:

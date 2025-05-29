@@ -3,7 +3,7 @@
 from typing import List, Dict, Any
 from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType, Collection, connections
 
-from src.config.settings import Config
+from config.settings import Config
 from src.utils.common.logger import logger
 
 
