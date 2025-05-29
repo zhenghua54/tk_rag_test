@@ -57,8 +57,9 @@ config.local.py
 *.db
 *.index
 *.faiss
-
-
+download_models.py
+models/*
+!models/.gitkeep
 
 # Virtual Environment
 venv/

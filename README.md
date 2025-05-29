@@ -8,7 +8,7 @@
 tk_rag/
 ├── src/                               # 源代码目录
 │   ├── api/                           # API 接口
-│   │   ├── libreoffice_convert.py     # 文档转换 API
+│   │   ├── office_convert.py     # 文档转换 API
 │   │   └── mineru_api.py              # PDF 解析 API
 │   ├── core/                          # 核心业务逻辑
 │   │   ├── document/                  # 文档处理
