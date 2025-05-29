@@ -34,7 +34,7 @@ from src.utils.file.file_toolkit import (
     parse_pdf_file,
     update_parse_file_records_in_db
 )
-from src.utils.database.mysql.operations import select_non_pdf_files, select_pdf_files, select_file_info
+from src..database.mysql.operations import select_non_pdf_files, select_pdf_files, select_file_info
 
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
@@ -45,15 +45,14 @@ from src.core.document.processor import process_tables
 from src.core.document.processor import process_images
 
 # 4. 测试文档内容清洗
-from src.utils.content_cleaner import clean_content
+from src.utils.text.content_cleaner import clean_content
 from src.utils.file.doc_path import get_doc_output_path
 
-# from src.utils.chunk_toolkit.fixed_chunk import process_directory
 
-from src.utils.database.milvus.connection import MilvusDB
+from src..database.milvus.connection import MilvusDB
 
 # 测试元素切割
-from src.utils.chunk_toolkit.fixed_chunk import segment_content
+from src.core.document.chunker import segment_content
 from src.core.document.processor import format_html_table_to_markdown
 
 
