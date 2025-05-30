@@ -3,7 +3,6 @@
 支持将 Office 文档(Word, PPT)转换为 PDF 格式
 """
 
-
 import os
 import subprocess
 import shutil
@@ -22,27 +21,25 @@ def check_system_requirements() -> Tuple[bool, str]:
     Returns:
         Tuple[bool, str]: (是否满足要求, 错误信息)
     """
-    
-    LIBREOFFICE_PATH = "/usr/bin/libreoffice"
-    
+
     # 检查 LibreOffice 是否安装
-    if not os.path.exists(LIBREOFFICE_PATH):
-        return False, f"LibreOffice 未安装或路径不正确: {LIBREOFFICE_PATH}"
+    if not os.path.exists(Config.PATHS["libreoffice_path"]):
+        return False, f"LibreOffice 未安装或路径不正确: {Config.PATHS['libreoffice_path']}"
     else:
-        logger.info(f"LibreOffice 已安装: {LIBREOFFICE_PATH}")
-    
+        logger.info(f"LibreOffice 已安装: {Config.PATHS['libreoffice_path']}")
+
     # 检查中文字体
     try:
         # 检查高质量中文字体，优先使用思源系列字体
         chinese_fonts = [
             "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",  # Noto Sans CJK
             "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",  # Noto Serif CJK
-            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",   # 备选路径
+            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # 备选路径
             "/usr/share/fonts/truetype/noto/NotoSerifCJK-Regular.ttc",  # 备选路径
-            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",          # 文泉驿微米黑
-            "/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc",              # 文泉驿正黑
+            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",  # 文泉驿微米黑
+            "/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc",  # 文泉驿正黑
         ]
-        
+
         font_found = False
         found_font = None
         for font in chinese_fonts:
@@ -50,7 +47,7 @@ def check_system_requirements() -> Tuple[bool, str]:
                 font_found = True
                 found_font = font
                 break
-                
+
         if not font_found:
             # 尝试使用 fc-list 命令检查字体
             try:
@@ -65,15 +62,15 @@ def check_system_requirements() -> Tuple[bool, str]:
                     found_font = "通过 fc-list 检测到中文字体"
             except FileNotFoundError:
                 pass
-                
+
         if not font_found:
             return False, "未检测到中文字体，建议安装：\n" + \
-                   "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n" + \
-                   "CentOS/RHEL: sudo yum install google-noto-cjk-fonts"
+                          "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n" + \
+                          "CentOS/RHEL: sudo yum install google-noto-cjk-fonts"
         else:
             logger.info(f"已检测到中文字体: {found_font}")
         return True, ""
-        
+
     except Exception as e:
         return False, f"检查系统环境时发生错误: {str(e)}"
 
@@ -98,11 +95,10 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
     if not is_ready:
         logger.error(error_msg)
         raise RuntimeError(error_msg)
-    
-    
+
     # 确保输入文件路径是字符串类型
     input_file = str(input_file)
-    
+
     # 检查输入文件是否存在
     if not os.path.exists(input_file):
         logger.error(f"输入文件不存在: {input_file}")
@@ -110,7 +106,7 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
 
     # 获取文件扩展名
     file_ext = os.path.splitext(input_file)[1].lower()
-    
+
     if file_ext not in Config.SUPPORTED_FILE_TYPES['libreoffice']:
         logger.error(f"不支持的文件格式: {file_ext}")
         raise ValueError(f"不支持的文件格式: {file_ext}")
@@ -118,10 +114,10 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
     # 如果未指定输出目录，使用输入文件所在目录
     if output_dir is None:
         output_dir = os.path.dirname(input_file)
-    
+
     # 确保输出目录是字符串类型
     output_dir = str(output_dir)
-    
+
     # 确保输出目录存在
     os.makedirs(output_dir, exist_ok=True)
     logger.info(f"输出目录: {output_dir}")
@@ -129,7 +125,7 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
     # 获取原始文件名并清理
     original_filename = os.path.splitext(os.path.basename(input_file))[0]
     cleaned_filename = sanitize_filename(original_filename)
-    
+
     # 构建输出文件路径
     output_file = os.path.join(output_dir, f"{cleaned_filename}.pdf")
     logger.info(f"输出文件路径: {output_file}")
@@ -144,7 +140,7 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
 
             # 构建 LibreOffice 命令
             cmd = [
-                LIBREOFFICE_PATH,
+                Config.PATHS["libreoffice_path"],
                 '--headless',
                 '--convert-to', 'pdf',
                 '--outdir', temp_dir,
@@ -159,7 +155,7 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
                 stderr=subprocess.PIPE,
                 env=dict(os.environ, LANG='zh_CN.UTF-8')  # 设置环境变量确保中文支持
             )
-            
+
             # 获取转换输出
             stdout, stderr = process.communicate()
             logger.debug(f"命令输出: {stdout.decode() if stdout else '无'}")

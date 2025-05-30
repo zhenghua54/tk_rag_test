@@ -1,6 +1,6 @@
 """MySQL 数据库的初始化和连接配置文件"""
 from contextlib import contextmanager
-from typing import Dict, Any
+from typing import  Optional, Tuple
 
 import pymysql
 from pymysql.cursors import DictCursor
@@ -10,20 +10,29 @@ from src.utils.common.logger import logger
 
 
 class MySQLConnect:
-    """定义 mysql 连接类"""
+    """MySQL 数据库连接类"""
 
-    def __init__(self, host, user, password, charset, database):
+    def __init__(self, host: str, user: str, password: str, charset: str, database: str):
+        """初始化数据库连接
+        
+        Args:
+            host: 数据库主机地址
+            user: 数据库用户名
+            password: 数据库密码
+            charset: 字符集
+            database: 数据库名
+        """
         self.host = host
         self.user = user
         self.password = password
         self.charset = charset
         self.database = database
-        # 初始化时不指定数据库
         self.connection = pymysql.connect(
             host=self.host,
             user=self.user,
             password=self.password,
-            charset=self.charset
+            charset=self.charset,
+            database=self.database
         )
 
     @contextmanager
@@ -35,7 +44,6 @@ class MySQLConnect:
             try:
                 yield cursor
             except Exception as e:
-                # 回滚事务
                 logger.error(f"mysql 执行失败,回滚事务: {e}")
                 self.connection.rollback()
                 raise e
@@ -43,94 +51,32 @@ class MySQLConnect:
                 # 提交事务
                 self.connection.commit()
             finally:
-                # 关闭游标
                 cursor.close()
         except Exception as e:
             logger.error(f"数据库连接失败: {e}")
             raise e
 
-    def create_db(self, db_name='tk_db'):
-        """创建数据库
-        Args:
-            db_name: 数据库名
-        """
-        with self.get_connection() as cursor:
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
-        logger.info(f"数据库 {db_name} 创建成功!")
-
     def use_db(self):
         """切换数据库,如果不存在则创建后切换"""
         try:
-            # 尝试切换数据库
             self.connection.select_db(self.database)
             logger.info(f"切换数据库 {self.database} 成功!")
         except pymysql.err.OperationalError:
-            # 如果数据库不存在,则创建后切换
-            logger.info(f"数据库 {self.database} 不存在,开始创建...")
-            self.create_db(self.database)
-            self.connection.select_db(self.database)
-            logger.info(f"创建并切换数据库 {self.database} 成功!")
+            raise pymysql.err.OperationalError(f"数据库 {self.database} 不存在,请执行 init_all.py 初始化数据库...")
 
-
-    def insert_data(self, data: Dict[str, Any], table_name: str) -> bool:
-        """插入数据
+    def execute(self, sql: str, args: Optional[Tuple] = None) -> int:
+        """执行 SQL 语句
+        
         Args:
-            data: 数据(字典格式)
-            table_name: 表名
+            sql: SQL 语句
+            args: SQL 参数
+            
         Returns:
-            bool: 插入是否成功
-        """
-        with self.get_connection() as cursor:
-            try:
-                # 使用参数化查询防止 SQL 注入
-                columns = ', '.join(data.keys())
-                placeholders = ', '.join(['%s'] * len(data))
-                query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-                cursor.execute(query, list(data.values()))
-                return True
-            except Exception as e:
-                if "Duplicate entry" in str(e):
-                    logger.error(f"数据已存在: {e}")
-                else:
-                    logger.error(f"数据插入失败: {e}")
-                raise e
-
-    def delete_data(self, data: Dict[str, Any], table_name: str):
-        """删除数据
-        Args:
-            data: 数据(字典格式)
-            table_name: 表名
-        """
-        with self.get_connection() as cursor:
-            # 构建 WHERE 子句
-            where_clause = ' AND '.join([f"{k} = %s" for k in data.keys()])
-            query = f"DELETE FROM {table_name} WHERE {where_clause}"
-            cursor.execute(query, list(data.values()))
-        logger.info(f"数据删除成功!")
-
-    def update_data(self, sql, args=None):
-        """更新数据
-        Args:
-            sql: 更新语句
-            args: 更新参数
+            int: 影响的行数
         """
         with self.get_connection() as cursor:
             cursor.execute(sql, args)
-
-    def select_data(self, sql, args=None) -> list:
-        """查询数据
-        Args:
-            sql: 查询语句
-            args: 查询参数
-
-        Returns:
-            list: 查询结果列表，每个元素是一个字典
-        """
-        with self.get_connection() as cursor:
-            # 构建基础查询
-            cursor.execute(sql, args)
-            result = cursor.fetchall()
-            return list(result) if result is not None else []
+            return cursor.rowcount
 
     def close(self):
         """关闭数据库连接"""
@@ -139,8 +85,23 @@ class MySQLConnect:
             logger.info("数据库连接已关闭")
 
 
-def connect_mysql():
-    """创建数据库连接实例"""
+def check_table_exists(mysql: MySQLConnect, table_name: str) -> bool:
+    """检查数据库中指定的表是否存在
+    
+    Args:
+        mysql: 数据库连接实例
+        table_name: 表名
+        
+    Returns:
+        bool: 表是否存在
+    """
+    query = f"SHOW TABLES LIKE '{table_name}'"
+    result = mysql.execute(query)
+    return result > 0
+
+
+def test_connect_mysql():
+    """测试数据库连接"""
     mysql = MySQLConnect(
         host=Config.MYSQL_CONFIG['host'],
         user=Config.MYSQL_CONFIG['user'],
@@ -148,12 +109,6 @@ def connect_mysql():
         charset=Config.MYSQL_CONFIG['charset'],
         database=Config.MYSQL_CONFIG['database']
     )
-    return mysql
-
-
-def test_connect_mysql():
-    """测试数据库连接"""
-    mysql = connect_mysql()
     try:
         # 测试连接
         with mysql.get_connection() as cursor:
@@ -164,31 +119,5 @@ def test_connect_mysql():
         return False
 
 
-def check_table_exists(mysql, table_name: str) -> bool:
-    """检查数据库中指定的表是否存在"""
-    query = f"SHOW TABLES LIKE '{table_name}'"
-    result = mysql.select_data(query)
-    return len(result) > 0
-
-
 if __name__ == '__main__':
-    # 测试数据
-    # test_data = {
-    #     'doc_id': 'c96f45c0bfb92a5071d02a6e0bc287d53ffba4b3b77294a28cf70e459b859a08',
-    #     'source_document_name': 'doc1.pdf',
-    #     'source_document_type': 'pdf',
-    #     'source_document_path': '/path/to/doc1.pdf',
-    #     'source_document_json_path': '/path/to/doc1.json',
-    #     'source_document_markdown_path': '/path/to/doc1.md',
-    #     'source_document_images_path': '/path/to/doc1/images/'
-    # }
-
-    try:
-        # 运行测试
-        mysql = connect_mysql()
-        mysql.use_db()
-    except Exception as e:
-        logger.error(f"测试执行失败: {e}")
-    finally:
-        if 'mysql' in locals():
-            mysql.close()
+    test_connect_mysql()

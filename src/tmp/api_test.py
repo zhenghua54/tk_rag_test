@@ -45,7 +45,7 @@ from src.core.document.processor import process_tables
 from src.core.document.processor import process_images
 
 # 4. 测试文档内容清洗
-from src.utils.text.content_cleaner import clean_content
+from src.utils.text.text_process import clean_content
 from src.utils.file.doc_path import get_doc_output_path
 
 

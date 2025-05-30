@@ -1,13 +1,6 @@
-"""
-PDF 文件合法性检查, 避免 MinerU 解析崩溃
-1. 文件头检查
-2. fitz 尝试打开
-3. pdfminer.six 测提取文本测试
-4. 使用 pdfcpu 检查 pdf 文件结构
-"""
+"""使用 PyMuPDF 检查 pdf 文件结构, 避免 MinerU 解析崩溃"""
 
 import os
-import fitz  # PyMuPDF
 from src.utils.common.logger import logger
 from src.utils.common.unit_convert import convert_bytes
 
@@ -97,26 +90,26 @@ def record_pdf_path(path):
     """
     记录 PDF 文件路径
     """
-    pdf_paths = []
+    pdf_path_list = []
 
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.lower().endswith('pdf'):
-                pdf_paths.append(os.path.join(root, file))
+                pdf_path_list.append(os.path.join(root, file))
         if dirs:
-            for dir in dirs:
-                path = os.path.join(root, dir)
+            for d in dirs:
+                path = os.path.join(root, d)
                 record_pdf_path(path)
 
-    return pdf_paths
+    return pdf_path_list
 
 
 if __name__ == '__main__':
-    pdf_paths = record_pdf_path("/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业/客户资料/知识问答案例")
+    from config.settings import Config
+    pdf_paths = record_pdf_path(Config.PATHS['origin_data'])
     pdf_valid_res = {}
     for pdf_path in pdf_paths:
-        res, content = is_pdf_valid(pdf_path)
+        res, content = assert_pdf_validity(pdf_path)
         pdf_valid_res[pdf_path] = (res, content)
 
-    from rich import print
     print(pdf_valid_res)

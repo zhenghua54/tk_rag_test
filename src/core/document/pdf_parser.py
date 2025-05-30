@@ -1,6 +1,7 @@
 """PDF/office 文件解析,返回 json 文件信息"""
 
 import os
+from typing import Any
 
 from magic_pdf.config.enums import SupportedPdfParseMethod
 from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
@@ -8,6 +9,7 @@ from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 
+from config.settings import Config
 from src.utils.common.logger import logger
 from src.utils.file.file_validator import assert_pdf_validity
 from src.utils.file.doc_path import get_doc_output_path
@@ -15,7 +17,7 @@ from src.core.document.office_convert import convert_to_pdf
 
 
 
-def parse_pdf_file(file_path: str) -> dict:
+def parse_pdf_file(file_path: str) -> bool | dict[str, str | dict | Any]:
     """
     解析 PDF 文件, 返回 json 文件信息
 
@@ -36,14 +38,14 @@ def parse_pdf_file(file_path: str) -> dict:
 
     
     # 验证 PDF 文件结构是否合法
-    valid_res, valid_content = is_pdf_valid(pdf_file_name)
+    valid_res, valid_content = assert_pdf_validity(file_path)
 
     if not valid_res:
-        logger.error(f"文件 {pdf_file_name} 结构不合法, {valid_content}")
+        logger.error(f"文件 {file_path} 结构不合法, {valid_content}")
         exit()
 
     # 获取输出路径
-    output_dir = get_doc_output_path(pdf_file_name)
+    output_dir = get_doc_output_path(file_path)
     output_path, image_path, doc_name = output_dir["output_path"], output_dir["output_image_path"], output_dir["doc_name"]
 
 
@@ -52,7 +54,7 @@ def parse_pdf_file(file_path: str) -> dict:
 
     # 读取 PDF 文件内容
     reader1 = FileBasedDataReader("")  # 初始化数据读取器
-    pdf_bytes = reader1.read(pdf_file_name)  # 读取 PDF 文件的字节内容
+    pdf_bytes = reader1.read(file_path)  # 读取 PDF 文件的字节内容
 
     # 创建数据集实例并进行文档分析
     ds = PymuDocDataset(pdf_bytes)  # 使用读取的 PDF 字节创建数据集实例
@@ -78,7 +80,7 @@ def parse_pdf_file(file_path: str) -> dict:
         "output_dir": output_dir
     }
     
-def parse_office_file(file_path: str) -> dict:
+def parse_office_file(file_path: str) -> str | None:
     """
     解析 Office 文件, 返回 json 文件信息
     """
@@ -115,4 +117,4 @@ def parse_office_file(file_path: str) -> dict:
 if __name__ == "__main__":
     pdf_file_name = "/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业/客户资料/知识问答案例/企业标准（约2300条）/规章制度及设计、采购、产品标准等（约1500条）/QSG A0303008-2024 新界泵业应届大学生培养及管理办法.pdf"  # 替换为实际的 PDF 文件路径
 
-    parse_pdf(pdf_file_name)
+    parse_pdf_file(pdf_file_name)
