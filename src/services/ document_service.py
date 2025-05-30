@@ -6,7 +6,6 @@ sys.path.append(root_path)
 from src.core.document.parser import parse_pdf_file, parse_office_file
 from config.settings import Config
 from src.utils.common.logger import logger
-from src.database.mysql.operations import update_file_info
 from src.database.mysql.connection import connect_mysql
 async def process_document(file_path: str) -> dict:
     """处理文档主流程
