@@ -5,6 +5,7 @@ import uuid
 import hashlib
 import pandas as pd
 from typing import List, Dict, Any
+from sentence_transformers import SentenceTransformer
 
 # 使用 langchain 的文本分块器
 from langchain.text_splitter import (

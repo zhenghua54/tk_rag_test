@@ -17,37 +17,37 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Config:
     """配置类：用于管理项目的所有配置信息"""
-    
+
     # ---------- Project Paths ----------
-    
+
     BASE_DIR = Path(__file__).parent.absolute().parent
-    
+
     MODEL_BASE = BASE_DIR / "models"  # 模型根目录
-        
+
     PATHS = {
         "origin_data": str(BASE_DIR / "datas/raw"),
         "processed_data": str(BASE_DIR / "datas/processed"),
-        "translated_data": str(BASE_DIR / "datas/translated"),
         "model_base": str(MODEL_BASE),
-        "log_dir": str(BASE_DIR / "logs")
+        "log_dir": str(BASE_DIR / "logs"),
+        "libreoffice_path": "/usr/bin/libreoffice"
     }
-    
+
     # ---------- Model Config ----------
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
         "llm": str(MODEL_BASE / "Qwen2.5-14B-DeepSeek-R1-1M"),
         "rerank": str(MODEL_BASE / "bge-reranker-v2-m3")
     }
-    
+
     # ---------- File Processing Config ----------
     SUPPORTED_FILE_TYPES = {
         "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
-    
+
     # ---------- System Config ----------
     DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
-    
+
     # ---------- Database Config ----------
     MILVUS_CONFIG = {
         "uri": "http://localhost:19530/",
@@ -58,7 +58,8 @@ class Config:
         "collection_name": "tk_rag",
         "vector_field": "vector",
         "vector_dim": 1024,
-        "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids","metadata"],
+        "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids",
+                          "metadata"],
         "index_params": {
             "field_name": "vector",
             "index_type": "IVF_FLAT",
@@ -69,15 +70,18 @@ class Config:
             "nprobe": 10
         }
     }
-    
+
     MYSQL_CONFIG = {
         "host": "localhost",
         "user": "root",
         "password": "Tk@654321",
         "charset": "utf8mb4",
         "database": "rag_db",
+        "file_info_table": "file_info",
+        "segment_info_table": "chunk_info",
+        "permission_info_table": "permission_info",
     }
-    
+
 
 if __name__ == "__main__":
     # 打印当前配置

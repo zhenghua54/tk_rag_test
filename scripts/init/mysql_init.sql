@@ -38,10 +38,10 @@ CREATE TABLE IF NOT EXISTS chunk_info (
 -- 创建权限表
 CREATE TABLE IF NOT EXISTS permission_info (
     pid INT AUTO_INCREMENT PRIMARY KEY,  -- 权限记录唯一ID
-    partment_id VARCHAR(64) NOT NULL,  -- 部门ID
+    department_id VARCHAR(64) NOT NULL,  -- 部门ID
     doc_id VARCHAR(64) NOT NULL,  -- 文档ID
     action_type VARCHAR(32),  -- 权限变更类型，如 'GRANT', 'REVOKE', 'UPDATE' 等
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 权限创建时间
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 权限更新时间
-    INDEX idx_partment_doc (partment_id, doc_id)  -- 针对部门ID和文档ID建立索引
+    INDEX idx_department_doc (department_id, doc_id)  -- 针对部门ID和文档ID建立索引
 );

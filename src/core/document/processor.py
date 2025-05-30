@@ -1,50 +1,98 @@
 """处理文档内容, 包括表格、图片、文本等"""
 
+import json
 import pandas as pd
 from bs4 import BeautifulSoup
 
+from src.utils.common.logger import logger
+from src.utils.common.args_validator import Validator
+from src.core.llm.extract_summary import extract_table_summary
 
-def extract_key_fields(segment):
+
+def extract_key_fields(table_html: str):
     """从 HTML 表格中提取关键字段
     
     Args:
-        segment: 文档片段
+        table_html: 文档片段
     
     Returns:
         str: 关键字段文本
     """
+    # 参数验证
+    Validator.validate_html_table(table_html)
+
     # 使用 BeautifulSoup 解析 HTML
-    soup = BeautifulSoup(segment, 'lxml')
-    
+    soup = BeautifulSoup(table_html, 'lxml')
+
     # 提取所有 td 文本
     tds = soup.find_all('td')
     texts = [td.get_text().strip() for td in tds]
-    
+
     # 过滤空文本
     texts = [t for t in texts if t]
-    
+
     return ' '.join(texts)
 
 
-def html_table_to_markdown(html: str) -> str:
-    soup = BeautifulSoup(html, 'lxml')
+def html_table_to_markdown(table_html: str) -> str:
+    """将 HTML 表格转换为 Markdown 格式
+    
+    Args:
+        table_html (str): HTML 表格字符串
+        
+    Returns:
+        str: Markdown 格式的表格
+    """
+    # 参数验证
+    Validator.validate_html_table(table_html)
+
+    soup = BeautifulSoup(table_html, 'lxml')
     table = soup.find('table')
     if not table:
         return ""
 
-    # 解析为二维列表（按渲染位置展开 colspan/rowspan）
+    # 解析为二维列表（按渲染位置展开 col_span/rowspan）
     grid = []
     max_cols = 0
+    row_spans = {}  # 记录每个列的 rowspan 状态
 
-    for row in table.find_all('tr'):
+    for row_idx, row in enumerate(table.find_all('tr')):
         row_data = []
+        col_idx = 0
+
+        # 处理当前行的 rowspan
+        for col_idx in range(max_cols):
+            if col_idx in row_spans and row_spans[col_idx] > 0:
+                row_data.append(row_spans[col_idx])
+                row_spans[col_idx] -= 1
+            else:
+                row_data.append("")
+
+        # 处理当前行的单元格
         cells = row.find_all(['td', 'th'])
         for cell in cells:
-            colspan = int(cell.get('colspan', 1))
-            rowspan = int(cell.get('rowspan', 1))
+            # 跳过已经被 rowspan 占用的列
+            while col_idx < len(row_data) and row_data[col_idx] != "":
+                col_idx += 1
+
+            colspan = int(cell.get('colspan', '1'))
+            rowspan = int(cell.get('rowspan', '1'))
             text = cell.get_text(strip=True)
-            for _ in range(colspan):
-                row_data.append(text)
+
+            # 处理 colspan
+            for i in range(colspan):
+                if col_idx + i >= len(row_data):
+                    row_data.append(text)
+                else:
+                    row_data[col_idx + i] = text
+
+            # 处理 rowspan
+            if rowspan > 1:
+                for i in range(colspan):
+                    row_spans[col_idx + i] = rowspan - 1
+
+            col_idx += colspan
+
         max_cols = max(max_cols, len(row_data))
         grid.append(row_data)
 
@@ -67,7 +115,7 @@ def html_table_to_markdown(html: str) -> str:
 
 
 def process_tables(content_list: list) -> list:
-    """更新跨页表格的表格标题和脚注
+    """更新跨页表格的表格标题
     
     Args:
         content_list: 文档内容列表
@@ -75,18 +123,66 @@ def process_tables(content_list: list) -> list:
     Returns:
         list: 更新后的文档内容列表
     """
-    
-    # 更新跨页表格的表格标题
-    for page_idx, page in enumerate(content_list):
-        # 获取页面第一个元素
-        item = page['content'][0]
-        # 标题为空且上一页最后一个元素为表格时,标题复用
-        if item['type'] == 'table' and item['table_caption'] is None:
-            last_item = content_list[page_idx - 1]['content'][-1]
-            if last_item['type'] == 'table':
-                item['table_caption'] = last_item['table_caption']
-                
+
+    # 统计信息
+    logger.info(f"开始处理表格标题...")
+    total_tables = 0
+    existing_captions = 0
+    updated_captions = 0
+    missing_captions = 0
+
+    # 更新跨页表格的标题信息
+    for idx, item in enumerate(content_list):
+        # 如果是表格且没有标题
+        if item['type'] == 'table':
+            total_tables += 1
+            # 提取表格摘要个标题
+            summary = extract_table_summary(item["table_body"])
+            # 增加摘要信息，后续 embedding 使用
+            item['table_summary'] = summary['summary']
+            # 如果表格标题存在
+            if item['table_caption']:
+                existing_captions += 1
+            else:
+                missing_captions += 1
+                # 获取上一个元素
+                if idx > 0:
+                    last_item = content_list[idx - 1]
+                    # 如果上一个元素是表格,则使用表格标题作为当前表格标题
+                    if last_item['type'] == 'table':
+                        # 确保两个值都是字符串类型
+                        caption = str(last_item.get('table_caption', ''))
+                        title = str(summary.get('title', ''))
+                        # 只有当两个值都不为空时才进行拼接
+                        if caption and title:
+                            item['table_caption'] = ','.join([caption, title])
+                        else:
+                            item['table_caption'] = title or caption
+                    # 如果上一个元素是文本,则使用文本作为表格标题
+                    elif last_item['type'] == 'text':
+                        # 确保两个值都是字符串类型
+                        text = str(last_item.get('text', ''))
+                        title = str(summary.get('title', ''))
+                        # 只有当两个值都不为空时才进行拼接
+                        if text and title:
+                            item['table_caption'] = ','.join([text, title])
+                        else:
+                            item['table_caption'] = title or text
+                    else:
+                        # 如果都没有，则使用 LLM 进行摘要提取
+                        item['table_caption'] = str(summary.get('title', ''))
+
+                if item['table_caption']:
+                    updated_captions += 1
+                else:
+                    missing_captions += 1
+
+    # 输出统计信息
+    logger.info(
+        f"标题处理完成, 总表格数: {total_tables}, 已有标题: {existing_captions}, 已更新标题: {updated_captions}, 缺少标题: {missing_captions}")
+
     return content_list
+
 
 def process_images(content_list: list) -> list:
     """图片批处理脚本,从上一个元素中获取图片标题,并更新图片标题
@@ -100,93 +196,69 @@ def process_images(content_list: list) -> list:
         处理后的文档内容列表
     """
     logger.info(f"开始处理图片标题...")
-    
+
     # 统计信息
     total_images = 0
     existing_captions = 0
     updated_captions = 0
     missing_captions = 0
-    
-    for page_idx, page in enumerate(content_list):
-        # 遍历当前页的所有元素
-        for idx, item in enumerate(page['content']):
-            if item['type'] == 'image':
-                total_images += 1
-                
-                # 已有标题
-                if item.get('img_caption'):
-                    existing_captions += 1
-                    continue
-                    
-                # 不是当前页的第一个元素,且上一个元素type=text
-                if idx > 0 and page['content'][idx-1]['type'] == 'text':
-                    item['img_caption'] = page['content'][idx-1]['text']
-                    updated_captions += 1
-                    # logger.info(f"第 {page_idx+1} 页图片更新标题: {item['img_caption']}")
-                
-                # 当前页的第一个元素,需要从上一个页的最后一个元素获取图片标题
-                elif idx == 0 and page_idx > 0:
-                    # 获取上一个页的最后一个元素
-                    last_item = content_list[page_idx-1]['content'][-1]
+
+    # 更新跨页表格的标题信息
+    for idx, item in enumerate(content_list):
+        # 如果是表格且没有标题
+        if item['type'] == 'image':
+            total_images += 1
+            # 如果表格标题存在
+            if item['img_caption']:
+                existing_captions += 1
+            else:
+                missing_captions += 1
+                # 获取上一个元素
+                if idx > 0:
+                    last_item = content_list[idx - 1]
+                    # 如果上一个元素是文本,则使用文本作为图片标题
                     if last_item['type'] == 'text':
                         item['img_caption'] = last_item['text']
-                        updated_captions += 1
-                        # logger.info(f"第 {page_idx+1} 页图片更新标题: {item['img_caption']}")
-                    else:
-                        missing_captions += 1
-                        # logger.warning(f"第 {page_idx+1} 页图片未找到标题")
+
+                if item['img_caption']:
+                    updated_captions += 1
                 else:
                     missing_captions += 1
-                    # logger.warning(f"第 {page_idx+1} 页图片未找到标题")
-    
+
     # 输出统计信息
-    logger.info(f"图片标题处理完成, 总图片数: {total_images}, 已有标题: {existing_captions}, 已更新标题: {updated_captions}, 缺少标题: {missing_captions}")
-                
+    logger.info(
+        f"图片标题处理完成, 总图片数: {total_images}, 已有标题: {existing_captions}, 已更新标题: {updated_captions}, 缺少标题: {missing_captions}")
+
     return content_list
 
-def format_html_table_to_markdown(html: str) -> str:
-    """将 HTML 表格转换为 Markdown 表格
-    
+
+def process_json_file(json_file: str) -> list:
+    """处理 JSON 文件中的表格和图片标题
+
     Args:
-        html: HTML 表格
-        
+        json_file: JSON 文件路径
+
     Returns:
-        str: Markdown 表格
+        list: 处理后的文档内容列表
     """
-    soup = BeautifulSoup(html, 'lxml')
-    table = soup.find('table')
-    if not table:
-        return ""
+    # 参数验证
+    Validator.validate_file(json_file)
 
-    # 解析为二维列表（按渲染位置展开 colspan/rowspan）
-    grid = []
-    max_cols = 0
+    # 读取 JSON 文件
+    try:
+        with open(json_file, 'r', encoding='utf-8') as f:
+            content_list = json.load(f)
 
-    for row in table.find_all('tr'):
-        row_data = []
-        cells = row.find_all(['td', 'th'])
-        for cell in cells:
-            colspan = int(cell.get('colspan', 1))
-            rowspan = int(cell.get('rowspan', 1))
-            text = cell.get_text(strip=True)
-            for _ in range(colspan):
-                row_data.append(text)
-        max_cols = max(max_cols, len(row_data))
-        grid.append(row_data)
+        # 验证内容类型
+        if not isinstance(content_list, list):
+            raise ValueError("JSON 内容必须是列表类型")
+    except json.JSONDecodeError as e:
+        raise ValueError(f"JSON 解析错误: {str(e)}")
 
-    # 规范化所有行的长度
-    for i in range(len(grid)):
-        if len(grid[i]) < max_cols:
-            grid[i].extend([""] * (max_cols - len(grid[i])))
+    # 处理表格标题
+    content_list = process_tables(content_list)
 
-    # 构造 DataFrame
-    df = pd.DataFrame(grid)
+    # 处理图片标题
+    content_list = process_images(content_list)
 
-    # 如果首行可能是 header，则设为表头
-    if len(df) > 1:
-        df.columns = df.iloc[0]
-        df = df[1:]
-        df.reset_index(drop=True, inplace=True)
-
-    # 转为 markdown
-    return df.to_markdown(index=False)
+    return content_list

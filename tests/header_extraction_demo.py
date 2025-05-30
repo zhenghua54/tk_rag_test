@@ -1,5 +1,5 @@
 """页眉提取"""
-from src.utils.json_parser import parse_json_content
+from src.utils.json_parser import merge_page_content
 from src.utils.common.table_format import extract_key_fields
 from src.utils.common.similar_count import SimilarCount
 
@@ -55,6 +55,6 @@ def check_header_exist(content_list: list[dict]) -> list:
 
 if __name__ == "__main__":
     json_file_path = "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225_content_list.json"
-    content_list = parse_json_content(json_file_path)
+    content_list = merge_page_content(json_file_path)
     avg_similarity = check_header_exist(content_list)
     print(avg_similarity)
