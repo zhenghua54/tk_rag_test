@@ -12,13 +12,13 @@
         "name": "segment_id",
         "type": "VARCHAR",
         "max_length": 64,
-        "is_primary": true,
         "description": "唯一段落ID（使用哈希值）"
       },
       {
         "name": "doc_id",
         "type": "VARCHAR",
         "max_length": 64,
+        "is_primary": true,
         "description": "文档ID（哈希值）"
       },
       {
