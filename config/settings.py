@@ -89,6 +89,14 @@ class Config:
         "memory_limit": 1024  # 内存限制（MB）
     }
 
+    # ---------- Segment Config ----------
+    SEGMENT_CONFIG = {
+        "batch_size": 10,  # 每批处理的记录数
+        "max_text_length": 1000,  # 最大文本长度
+        "memory_limit": 1024,  # 内存限制（MB）
+        "vector_batch_size": 10  # 向量生成的批处理大小
+    }
+
 if __name__ == "__main__":
     # 打印当前配置
     print(f"Base Dir: {Config.BASE_DIR}")
