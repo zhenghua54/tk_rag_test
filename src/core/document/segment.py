@@ -13,6 +13,7 @@ from src.core.llm.extract_summary import extract_table_summary, extract_text_sum
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text
+from config.settings import Config
 
 
 def generate_segment_id(content: str) -> str:
@@ -63,7 +64,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     logger.info("文本分块器初始化完成")
 
     # 分批处理结果
-    batch_size = 1000  # 每批处理的记录数
+    batch_size = Config.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
     milvus_batch = []
     mysql_batch = []
 
@@ -372,13 +373,24 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
                     "segment_id": segment["segment_id"],
                     "parent_segment_id": segment["parent_segment_id"],
                 }
-                chunk_op.insert(chunk_info)
+                try:
+                    # 尝试插入，如果失败则更新
+                    chunk_op.insert(chunk_info)
+                except Exception as e:
+                    if "Duplicate entry" in str(e):
+                        # 如果是重复记录，则更新
+                        chunk_op.update_by_doc_id(segment["segment_id"], chunk_info)
+                    else:
+                        raise
         
         # 保存到 Milvus
-        with VectorOperation() as vector_op:
+        vector_op = VectorOperation()
+        try:
             vector_op.insert_data(milvus_batch)
+        finally:
+            vector_op.close()
         
         return True
     except Exception as e:
-        logger.error(f"保存批次数据失败: {e}")
-        return False
+        logger.error(f"保存批次数据失败: {str(e)}")
+        raise
