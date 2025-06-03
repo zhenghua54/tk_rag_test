@@ -2,7 +2,6 @@ import sys
 import os
 import json
 from typing import Any
-from rich import print
 
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_path)
@@ -14,7 +13,6 @@ from src.utils.file.file_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
 from src.core.document.processor import process_json_file
 from src.utils.text.text_process import merge_page_content
-from src.core.llm.extract_summary import extract_table_summary
 
 
 def process_document(file_path: str) -> dict[str, Any] | None:
@@ -42,7 +40,7 @@ def process_document(file_path: str) -> dict[str, Any] | None:
     # 检查文件是否已存在于数据库中
     with FileInfoOperation() as f:
         select_res = f.get_file_by_doc_id(doc_id)
-        if select_res['source_document_json_path']:
+        if select_res:
             logger.info(f"该文件已存在 JSON 格式，路径：{select_res['source_document_json_path']}")
             # 直接使用已存在的 JSON 文件进行清洗
             path_info = {
@@ -80,8 +78,8 @@ def process_document(file_path: str) -> dict[str, Any] | None:
                 "source_document_images_path": path_info["image_path"],  # 文档图片路径
             }
             # 更新 mysql-file_info 表信息
-            with FileInfoOperation() as f:
-                f.insert_file_info(values)
+            with FileInfoOperation() as file_operation:
+                file_operation.insert_file_info(values)
 
     # ====== 清洗 JSON 文件信息：处理表格\图片等内容 ======
     # 处理表格和图片标题
@@ -93,7 +91,7 @@ def process_document(file_path: str) -> dict[str, Any] | None:
     # 先按页聚合
     content_dict = merge_page_content(content_list)
     # 保存处理后的 json 文件
-    save_file_path = os.path.join(os.path.abspath(path_info["json_path"]), f"{path_info['doc_name']}.processed_content.json")
+    save_file_path = os.path.join(os.path.dirname(path_info["json_path"]), f"{path_info['doc_name']}_processed_content.json")
     with open(save_file_path,'w', encoding='utf-8') as f:
         json.dump(content_dict, f, ensure_ascii=False, indent=4)
 
@@ -102,7 +100,7 @@ def process_document(file_path: str) -> dict[str, Any] | None:
 
 if __name__ == "__main__":
     # 测试代码
-    test_file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
+    test_file_path = "/home/jason/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
     # test_file_path = "/home/wumingxing/tk_rag/datas/raw/1_1_竞争情况（天宽科技）.docx"  # 替换为实际的测试文件路径
     process_document(test_file_path)
 

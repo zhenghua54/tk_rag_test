@@ -127,30 +127,4 @@ def process_document(document_content, window_size=1000, stride=500):
 # 记录开始时间
 start_time = time.time()
 
-# 读取文档内容
-with open("/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225_cleaned.txt", "r", encoding="utf-8") as f:
-    document_content = f.read()[:10000]
-    # print(len(document_content))    # 372642
 
-# 处理文档并获取分块结果
-chunks = process_document(document_content)
-
-# 计算总耗时
-end_time = time.time()
-total_time = end_time - start_time
-
-# 打印分块结果
-print(f"\n文档分块完成！")
-print(f"总耗时: {total_time:.2f} 秒")
-print(f"文档被分成了 {len(chunks)} 个块")
-print(f"平均每个块处理时间: {total_time/len(chunks):.2f} 秒")
-
-# for i, chunk in enumerate(chunks, 1):
-#     print(f"\n块 {i}:")
-#     print(chunk)
-#     print("-" * 50)
-    
-segment_content = "\n".join(chunks)
-    
-with open('./tests/segment.txt', 'w', encoding='utf-8') as f:
-    f.write(segment_content)

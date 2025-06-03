@@ -139,40 +139,32 @@ def process_tables(content_list: list) -> list:
             # 提取表格摘要个标题
             summary = extract_table_summary(item["table_body"])
             # 增加摘要信息，后续 embedding 使用
-            item['table_summary'] = summary['summary']
-            # 如果表格标题存在
-            if item['table_caption']:
-                existing_captions += 1
-            else:
-                missing_captions += 1
-                # 获取上一个元素
-                if idx > 0:
-                    last_item = content_list[idx - 1]
-                    # 如果上一个元素是表格,则使用表格标题作为当前表格标题
-                    if last_item['type'] == 'table':
-                        # 确保两个值都是字符串类型
-                        caption = str(last_item.get('table_caption', ''))
-                        title = str(summary.get('title', ''))
-                        # 只有当两个值都不为空时才进行拼接
-                        if caption and title:
-                            item['table_caption'] = ','.join([caption, title])
-                        else:
-                            item['table_caption'] = title or caption
-                    # 如果上一个元素是文本,则使用文本作为表格标题
-                    elif last_item['type'] == 'text':
-                        # 确保两个值都是字符串类型
-                        text = str(last_item.get('text', ''))
-                        title = str(summary.get('title', ''))
-                        # 只有当两个值都不为空时才进行拼接
-                        if text and title:
-                            item['table_caption'] = ','.join([text, title])
-                        else:
-                            item['table_caption'] = title or text
-                    else:
-                        # 如果都没有，则使用 LLM 进行摘要提取
-                        item['table_caption'] = str(summary.get('title', ''))
+            item['table_summary'] = summary['summary'].strip()
+            # 提取总结的标题
+            summary_title = str(summary.get('title', '')).strip()
 
-                if item['table_caption']:
+            # 表格标题存在
+            if item['table_caption'].strip():
+                existing_captions += 1
+                continue
+
+            # 表格标题不存在，逻辑处理
+            else:
+                # 获取上一个元素
+                last_item = content_list[idx - 1] if idx > 0 else None
+                # 获取上个元素的信息作为标题
+                last_caption = None
+                if last_item:
+                    if last_item['type'] == 'table':
+                        last_caption = str(last_item.get('table_caption', '')).strip()
+                    elif last_item['type'] == 'text':
+                        last_caption = str(last_item.get('text', '')).strip()
+
+                # 如果last_caption和summary_title都存在，拼接；否则选择其中一个
+                item['table_caption'] = ', '.join([last_caption, summary_title]) if last_caption and summary_title else (last_caption or summary_title)
+
+                # 统计更新标题情况
+                if item['table_caption'].strip():
                     updated_captions += 1
                 else:
                     missing_captions += 1
@@ -205,22 +197,24 @@ def process_images(content_list: list) -> list:
 
     # 更新跨页表格的标题信息
     for idx, item in enumerate(content_list):
-        # 如果是表格且没有标题
+        # 如果是图片且没有标题
         if item['type'] == 'image':
             total_images += 1
-            # 如果表格标题存在
-            if item['img_caption']:
+            # 如果图片标题存在
+            if item['img_caption'].strip():
                 existing_captions += 1
             else:
-                missing_captions += 1
-                # 获取上一个元素
-                if idx > 0:
-                    last_item = content_list[idx - 1]
-                    # 如果上一个元素是文本,则使用文本作为图片标题
+                last_item = content_list[idx - 1] if idx > 0 else None
+                last_caption = None
+                if last_item:
                     if last_item['type'] == 'text':
-                        item['img_caption'] = last_item['text']
+                        last_caption = str(last_item.get('text', '')).strip()
 
-                if item['img_caption']:
+                # 如果识别到标题，则使用，否则置空
+                item['img_caption'] = last_caption if last_caption else ''
+
+                 # 统计更新标题情况
+                if item['img_caption'].strip():
                     updated_captions += 1
                 else:
                     missing_captions += 1
