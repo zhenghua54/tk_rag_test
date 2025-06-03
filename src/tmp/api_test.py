@@ -236,16 +236,3 @@ if __name__ == "__main__":
     #     logger.error(f"加载集合时出错: {str(e)}")
     
     
-    # # 获取切块源文件路径
-    # file_path = "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225_cleaned.txt"
-    # directory_path = Config.PATHS['origin_data']
-    # all_results = process_directory(directory_path)
-    # print(all_results)
-    # exit()
-
-    # # 保存结果
-    # output_path = "processed_chunks.csv"
-    # df.to_csv(output_path, index=False)
-    # print(f"处理完成，结果已保存到 {output_path}")
-    # print(f"总共处理了 {len(df)} 个文本块")
-    # print(f"唯一文档数量：{df['doc_id'].nunique()}")
