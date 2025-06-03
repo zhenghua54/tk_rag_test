@@ -81,6 +81,9 @@ conda activate tk_rag
 # 安装 pytorch
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
+# 安装 vllm: 注意修改本地 cuda 版本 == 12.8
+pip install vllm --extra-index-url https://download.pytorch.org/whl/cu128
+
 # 安装 MinerU-GPU 版本
 # 安装 应用
 pip install -U magic-pdf[full] -i https://mirrors.aliyun.com/pypi/simple

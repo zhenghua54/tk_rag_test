@@ -2,23 +2,34 @@
 import os
 import json
 from typing import Dict
-from dotenv import load_dotenv
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from src.utils.common.logger import logger
 from src.utils.common.args_validator import Validator
 
 # 检查环境变量
 load_dotenv(verbose=True)
-HUNYUAN_API_KEY = os.getenv("HUNYUAN_API_KEY")
+HUNYUAN_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 if not HUNYUAN_API_KEY:
-    raise ValueError("请设置 HUNYUAN_API_KEY 环境变量")
+    raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")
 
-# 混元 API
+# # 混元 API
+# client = OpenAI(
+#     api_key=HUNYUAN_API_KEY,
+#     base_url="https://api.hunyuan.cloud.tencent.com/v1",
+# # )
+
+# 阿里云百炼 API
 client = OpenAI(
-    api_key=HUNYUAN_API_KEY,
-    base_url="https://api.hunyuan.cloud.tencent.com/v1",
+    # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
+    api_key=os.getenv("DASHSCOPE_API_KEY"),
+    # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
+
 
 def parse_table_summary(summary: str) -> Dict[str, str]:
     """解析和清洗表格摘要
@@ -35,40 +46,77 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
     try:
         # 清理输入文本
         cleaned_text = summary.strip()
-        
-            
-        # 尝试直接解析 JSON
+
+        # 尝试多种方式解析 JSON
+        result = None
+
+        # 1. 尝试直接解析
         try:
             result = json.loads(cleaned_text)
         except json.JSONDecodeError:
-            # 如果直接解析失败，尝试提取 JSON 部分
+            pass
+
+        # 2. 尝试提取 JSON 部分
+        if not result:
             import re
-            # 匹配最外层的花括号及其内容
-            json_match = re.search(r'^\s*\{[^{}]*\}\s*$', cleaned_text, re.DOTALL)
-            if not json_match:
+            # 匹配最外层的花括号及其内容，支持嵌套
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', cleaned_text)
+            if json_match:
+                try:
+                    result = json.loads(json_match.group().strip())
+                except json.JSONDecodeError:
+                    pass
+
+        # 3. 尝试修复常见格式问题
+        if not result:
+            # 处理可能的格式问题
+            fixed_text = cleaned_text
+            # 移除可能的 markdown 代码块标记
+            fixed_text = re.sub(r'```json\s*|\s*```', '', fixed_text)
+            # 修复可能的引号问题
+            fixed_text = re.sub(r'[\'"]', '"', fixed_text)
+            # 修复可能的换行问题
+            fixed_text = re.sub(r'\n\s*', ' ', fixed_text)
+            try:
+                result = json.loads(fixed_text)
+            except json.JSONDecodeError:
+                pass
+
+        # 4. 如果仍然无法解析，尝试手动构建
+        if not result:
+            # 尝试提取 title 和 summary
+            title_match = re.search(r'"title"\s*:\s*"([^"]*)"', cleaned_text)
+            summary_match = re.search(r'"summary"\s*:\s*"([^"]*)"', cleaned_text)
+
+            if title_match and summary_match:
+                result = {
+                    "title": title_match.group(1),
+                    "summary": summary_match.group(1)
+                }
+            else:
                 raise ValueError("无法从文本中提取 JSON 数据")
-            result = json.loads(json_match.group().strip())
-            
+
         # 验证结果格式
         if not isinstance(result, dict):
             raise ValueError("解析结果不是字典类型")
-            
+
         if "title" not in result or "summary" not in result:
             raise ValueError("解析结果缺少必要字段")
-            
+
         # 清理字段值
-        result["title"] = result["title"].strip()
-        result["summary"] = result["summary"].strip()
-        
+        result["title"] = str(result["title"]).strip()
+        result["summary"] = str(result["summary"]).strip()
+
         # 验证字段值非空
         if not result["title"] or not result["summary"]:
             raise ValueError("标题或摘要为空")
-            
+
         return result
-        
+
     except Exception as e:
         logger.error(f"解析表格摘要失败: {str(e)}")
         raise ValueError(f"解析表格摘要失败: {str(e)}")
+
 
 def extract_table_summary(table_html: str) -> Dict[str, str]:
     """提取表格摘要
@@ -82,7 +130,7 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
     # 参数验证
     Validator.validate_not_empty(table_html, "table_html")
     Validator.validate_type(table_html, str, "table_html")
-    
+
     # 构建 prompt
     prompt = """你是一个表格摘要生成助手，负责从 HTML 表格中提取表格的核心主题，并输出结构化的摘要结果，用于标题生成和内容嵌入。
 
@@ -110,26 +158,25 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
 """
 
     try:
-        # 调用混元 API
         completion = client.chat.completions.create(
-            model='hunyuan-turbos-latest',
-            stream=False,
-            messages=[
-                {"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
-                {"role": "user", "content": prompt.format(table_html=table_html)}
-            ]
+            model="qwen-turbo",  # 模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
+            messages=[{"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
+                      {"role": "user", "content": prompt.format(table_html=table_html)}
+                      ]
         )
-        
+
         # 获取摘要
         raw_summary = completion.choices[0].message.content
-        logger.info(f"表格摘要生成成功: {raw_summary[:100]}...")
-        
+
+        logger.info(f"表格摘要生成成功: {raw_summary[:200]}...")
+
         # 解析和清洗摘要
         return parse_table_summary(raw_summary)
-        
+
     except Exception as e:
         logger.error(f"生成表格摘要失败: {str(e)}")
         raise ValueError(f"生成表格摘要失败: {str(e)}")
+
 
 def extract_text_summary(text: str) -> str:
     """提取文本摘要
@@ -143,7 +190,7 @@ def extract_text_summary(text: str) -> str:
     # 参数验证
     Validator.validate_not_empty(text, "text")
     Validator.validate_type(text, str, "text")
-    
+
     # 构建 prompt
     prompt = """你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。
 
@@ -159,21 +206,23 @@ def extract_text_summary(text: str) -> str:
 请生成摘要："""
 
     try:
-        # 调用混元 API
+        # 调用在线 API
         completion = client.chat.completions.create(
-            model='hunyuan-turbos-latest',
+            model='qwen-turbo',
             stream=False,
             messages=[
-                {"role": "system", "content": "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。"},
+                {"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
                 {"role": "user", "content": prompt.format(text=text)}
             ]
         )
-        
+
         # 获取摘要
-        summary = completion.choices[0].message.content
-        logger.info(f"文本摘要生成成功: {summary[:200]}...")
-        return summary
-        
+        raw_summary = completion.choices[0].message.content
+
+        logger.info(f"文本摘要生成成功: {raw_summary[:200]}...")
+
+        return raw_summary
+
     except Exception as e:
         logger.error(f"生成文本摘要失败: {str(e)}")
         return "抱歉，生成文本摘要时发生错误。"
