@@ -23,6 +23,9 @@ wheels/
 .coverage
 htmlcov/
 .env
+.env.local
+.env.*
+!.env.example
 
 # IDE
 .cursor/
@@ -43,14 +46,10 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-datas/*
-!datas/.gitkeep
+#datas/*
+#!datas/.gitkeep
 logs/*
 !logs/.gitkeep
-.env
-.env.local
-.env.*
-!.env.example
 config.local.py
 *.log
 *.sqlite3
