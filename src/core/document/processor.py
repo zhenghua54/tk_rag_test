@@ -44,7 +44,8 @@ def html_table_to_markdown(table_html: str) -> str:
         str: Markdown 格式的表格
     """
     # 参数验证
-    Validator.validate_html_table(table_html)
+    Validator.validate_not_empty(table_html, "table_html")
+    Validator.validate_type(table_html, str, "table_html")
 
     soup = BeautifulSoup(table_html, 'lxml')
     table = soup.find('table')

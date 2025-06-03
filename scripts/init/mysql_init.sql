@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS file_info (
     source_document_pdf_path VARCHAR(512),  -- PDF路径
     source_document_json_path VARCHAR(512),  -- JSON路径
     source_document_images_path VARCHAR(512),  -- 图片路径
+    merge_document_path VARCHAR(512),  -- 合并后的文档路径
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 创建时间， 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,  -- 更新时间
     UNIQUE(doc_id),  -- 唯一的文档ID
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS file_info (
 CREATE TABLE IF NOT EXISTS chunk_info (
     cid INT AUTO_INCREMENT PRIMARY KEY,  -- 分块记录的唯一ID
     segment_id VARCHAR(64) NOT NULL,  -- 分块的唯一ID
+    parent_segment_id VARCHAR(64),  -- 分块的父表 segment_ID
     segment_text TEXT NOT NULL,  -- 分块的文本内容
     doc_id VARCHAR(64) NOT NULL,  -- 与文件关联的文档ID
     UNIQUE(segment_id),  -- 保证分块ID唯一

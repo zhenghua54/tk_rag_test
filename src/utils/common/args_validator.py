@@ -93,65 +93,7 @@ class Validator:
         Validator.validate_not_empty(department_id, "department_id")
         Validator.validate_type(department_id, str, "department_id")
 
-    @staticmethod
-    def validate_html_table(html: str) -> None:
-        """验证 HTML 表格格式
-        
-        Args:
-            html: HTML 表格字符串
-            
-        Raises:
-            ValueError: 当 HTML 格式不正确时抛出
-        """
-        Validator.validate_not_empty(html, "html")
-        Validator.validate_type(html, str, "html")
-
-        # 检查基本的 HTML 结构
-        if not html.strip().startswith('<table'):
-            raise ValueError("HTML 必须以 <table> 标签开始")
-
-        if not html.strip().endswith('</table>'):
-            raise ValueError("HTML 必须以 </table> 标签结束")
-
-        # 检查表格标签的完整性
-        if html.count('<table') != html.count('</table>'):
-            raise ValueError("表格标签不匹配")
-
-        if html.count('<tr') != html.count('</tr>'):
-            raise ValueError("行标签不匹配")
-
-        if html.count('<td') != html.count('</td>'):
-            raise ValueError("单元格标签不匹配")
-
-        # 检查表格属性的合法性
-        soup = BeautifulSoup(html, 'lxml')
-        table = soup.find('table')
-
-        if not table:
-            raise ValueError("未找到表格标签")
-
-        # 检查 colspan 和 rowspan 属性
-        for cell in table.find_all(['td', 'th']):
-            # 检查 colspan
-            colspan = cell.get('colspan')
-            if colspan:
-                try:
-                    colspan = int(colspan)
-                    if colspan < 1:
-                        raise ValueError(f"colspan 值必须大于 0: {colspan}")
-                except ValueError:
-                    raise ValueError(f"colspan 必须是整数: {colspan}")
-
-            # 检查 rowspan
-            rowspan = cell.get('rowspan')
-            if rowspan:
-                try:
-                    rowspan = int(rowspan)
-                    if rowspan < 1:
-                        raise ValueError(f"rowspan 值必须大于 0: {rowspan}")
-                except ValueError:
-                    raise ValueError(f"rowspan 必须是整数: {rowspan}")
-
+    
     @staticmethod
     def validate_file(file_path: str) -> None:
         """验证文件路径是否存在

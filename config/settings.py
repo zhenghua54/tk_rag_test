@@ -82,6 +82,12 @@ class Config:
         "permission_info_table": "permission_info",
     }
 
+    # ---------- BM25 Config ----------
+    BM25_CONFIG = {
+        "batch_size": 1000,  # 每批处理的文档数量
+        "max_docs": 10000,   # 最大文档数量
+        "memory_limit": 1024  # 内存限制（MB）
+    }
 
 if __name__ == "__main__":
     # 打印当前配置
