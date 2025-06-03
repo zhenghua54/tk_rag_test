@@ -52,7 +52,6 @@ from src.utils.file.doc_path import get_doc_output_path
 from src.database.milvus.connection import MilvusDB
 
 # 测试元素切割
-from src.core.document.chunker import segment_content
 from src.core.document.processor import format_html_table_to_markdown
 
 
