@@ -29,13 +29,13 @@ class Config:
         "processed_data": str(BASE_DIR / "datas/processed"),
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
-        "libreoffice_path": "/usr/bin/libreoffice"
+        "libreoffice_path": "/usr/bin/libreoffice",
     }
 
     # ---------- Model Config ----------
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
-        "llm": str(MODEL_BASE / "Qwen2.5-14B-DeepSeek-R1-1M"),
+        "llm": str(MODEL_BASE / "Qwen2.5-7B-Instruct-1M"),
         "rerank": str(MODEL_BASE / "bge-reranker-v2-m3")
     }
 
