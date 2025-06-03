@@ -1,5 +1,4 @@
 """数据库操作"""
-
 from typing import List, Dict, Optional
 from config.settings import Config
 from src.database.mysql.base import BaseDBOperation
@@ -51,7 +50,7 @@ class FileInfoOperation(BaseDBOperation):
             logger.error(f"获取PDF文件失败: {e}")
             return []
 
-    def insert_file_info(self, args: Dict):
+    def insert_datas(self, args: Dict):
         """插入文件信息
 
         Args:
@@ -69,6 +68,23 @@ class FileInfoOperation(BaseDBOperation):
             logger.error(f"插入文件信息失败: {e}")
             return False
 
+    def insert_single(self,doc_id: str, args: Dict):
+        """插入单条文件信息
+
+        Args:
+            doc_id (str): 文档ID
+            args (Dict): 文件信息字典，包含除了文档ID外的其他相关信息
+
+        Returns:
+            bool: 插入是否成功
+        """
+        Validator.validate_doc_id(doc_id)
+        Validator.validate_type(args, dict, "args")
+        try:
+            return self.update_by_doc_id(doc_id=doc_id, data=args)
+        except Exception as e:
+            logger.error(f"插入文件信息失败: {e}")
+            return False
 
 class ChunkOperation(BaseDBOperation):
     """文档分块表(chunk_info)操作类"""

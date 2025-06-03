@@ -1,5 +1,6 @@
 """使用 langchain 框架处理用户 query"""
-
+import psutil
+import os
 from typing import List, Tuple, Any
 
 from langchain_community.retrievers import BM25Retriever
@@ -11,31 +12,73 @@ from sentence_transformers import CrossEncoder
 # 项目配置
 from config.settings import Config, logger
 from src.database.milvus.connection import MilvusDB
+from src.database.mysql.operations import ChunkOperation
 
 
-def init_bm25_retriever(db: MilvusDB):
-    """初始化 BM25 检索器,从 Milvus 的 text_chunk 字段中获取所有文档内容
+def log_memory_usage():
+    """记录当前内存使用情况"""
+    process = psutil.Process(os.getpid())
+    memory_info = process.memory_info()
+    logger.info(f"内存使用: {memory_info.rss / 1024 / 1024:.2f} MB")
+
+
+# def init_bm25_retriever(db: MilvusDB, batch_size: int = 1000):
+#     """初始化 BM25 检索器，使用分批加载
+    
+#     Args:
+#         batch_size: 每批处理的文档数量
+#     """
+#     logger.info(f"开始初始化 BM25 检索器...")
+    
+#     try:
+#         # 创建空的 BM25 检索器
+#         bm25_retriever = BM25Retriever.from_documents([])
         
-    Returns:
-        初始化好的 BM25 检索器
-    """
-    logger.info(f"开始初始化 BM25 检索器...")
+#         # 分批加载数据
+#         with ChunkOperation() as chunk_op:
+#             # 获取总记录数
+#             total_count = chunk_op.get_count()
+            
+#             # 分批处理
+#             for offset in range(0, total_count, batch_size):
+#                 # 获取一批数据
+#                 chunks = chunk_op.select_records(
+#                     fields=["segment_text", "segment_id", "doc_id", "parent_segment_id"],
+#                     limit=batch_size,
+#                     offset=offset
+#                 )
+                
+#                 # 构建文档列表
+#                 batch_docs = []
+#                 for chunk in chunks:
+#                     metadata = {
+#                         "segment_id": chunk["segment_id"],
+#                         "doc_id": chunk["doc_id"],
+#                         "parent_segment_id": chunk["parent_segment_id"],
+#                     }
+#                     doc = Document(
+#                         page_content=chunk["segment_text"],
+#                         metadata=metadata
+#                     )
+#                     batch_docs.append(doc)
+                
+#                 # 更新 BM25 检索器
+#                 bm25_retriever.add_documents(batch_docs)
+                
+#                 # 清理内存
+#                 del batch_docs
+                
+#                 logger.info(f"已处理 {min(offset + batch_size, total_count)}/{total_count} 条记录")
+        
+#         logger.info(f"BM25 检索器初始化完成")
+#         return bm25_retriever
+        
+#     except Exception as e:
+#         logger.error(f"初始化 BM25 检索器失败: {str(e)}")
+#         return BM25Retriever.from_documents([Document(page_content="初始化失败")])
 
-    try:
-        # 从 Milvus 中获取所有文档内容
-        text_chunks = db.get_all_text_chunks()
-        all_docs = [Document(page_content=chunk) for chunk in text_chunks]
 
-        bm25_retriever = BM25Retriever.from_documents(all_docs)
-        logger.info(f"BM25 检索器初始化完成, 包含 {len(all_docs)} 条文档")
-        return bm25_retriever
-    except Exception as e:
-        logger.error(f"初始化 BM25 检索器失败: {str(e)}")
-        return BM25Retriever.from_documents([Document(page_content="初始化失败")])
-
-
-def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: BM25Retriever, k: int = 50) -> List[
-    Tuple[Any, float]]:
+def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: BM25Retriever, k: int = 50) -> List[Tuple[Any, float]]:
     """使用 Langchain 框架实现混合检索(向量检索 + BM25)获取结果
     
     Args:
@@ -49,24 +92,25 @@ def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: B
 
     # 1. 向量检索
     logger.info(f"开始向量检索...")
-    vector_results = vectorstore.similarity_search_with_score(query=query, k=k, filter={"partment": "",  # 可以根据需要添加过滤条件
-                                                                                        "role": ""  # 可以根据需要添加过滤条件
-                                                                                        })
+    vector_results = vectorstore.similarity_search_with_score(
+        query=query, 
+        k=k, 
+        filter={"principal_ids": ["1"]}
+    )
     # 1.1 获取检索到的文档的相似度分数
     vector_results_score_list = [result[-1] for result in vector_results]
     logger.info(f"向量检索完成,获取到 {len(vector_results)} 条结果, 文档分数: {vector_results_score_list}")
 
-    # 2. BM25 检索(仅召回)
+    # 2. BM25 检索
     logger.info(f"开始 BM25 检索...")
     bm25_docs = []
     try:
-        # 只获取文档,不计算分数
+        # 使用 BM25 检索器对查询进行检索
         bm25_docs = bm25_retriever.invoke(query, k=k)
+        logger.info(f"BM25 检索完成,获取到 {len(bm25_docs)} 条结果")
     except Exception as e:
         logger.error(f"BM25 检索失败: {str(e)}")
         bm25_docs = []
-
-    logger.info(f"BM25 检索完成,获取到 {len(bm25_docs)} 条结果")
 
     # 3. 合并结果并去重
     logger.info(f"开始合并并去重结果...")
@@ -75,22 +119,76 @@ def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: B
 
     # 3.1 添加向量检索结果
     for doc, score in vector_results:
-        content = doc.page_content
-        if content not in seen_contents:
-            # 添加来源标记到元数据
-            doc.metadata["source_type"] = "vector"
-            merged_results.append((doc, score))
-            seen_contents.add(content)
+        segment_id = doc.metadata.get("segment_id")
+        if segment_id not in seen_contents:
+            # 根据类型处理元数据
+            doc_type = doc.metadata.get("type")
 
-    # 3.2 添加 BM25 检索结果(使用默认分数 0.5,若需要计算则需要定义规则,计算分数)
+            # 处理通用字段
+            doc.metadata.update({
+                "document_name": doc.metadata.get("document_name"),
+                "page_idx": doc.metadata.get("page_idx"),
+                "principal_ids": doc.metadata.get("principal_ids"),
+                "create_time": doc.metadata.get("create_time"),
+                "update_time": doc.metadata.get("update_time"),
+                "source_type": "vector"
+            })
+            
+            # 根据特定类型处理特定字段
+            if doc_type == "text":
+                # 处理文本类型
+                doc.metadata["summary_text"] = doc.metadata.get("summary_text")
+
+            if doc_type == "table":
+                # 处理表格类型
+                if "metadata" in doc.metadata:
+                    metadata = doc.metadata["metadata"]
+                    if "raw_table_segment_id" in metadata:
+                        # 子表，需要关联母表信息
+                        doc.metadata["parent_table"] = metadata["raw_table_segment_id"]
+                        # 子表只补充基本元数据信息，不包含img_path、caption和footnote字段
+                        doc.metadata.update({
+                            "table_raw": metadata.get("table_raw"),
+                            "table_token_length": metadata.get("table_token_length")
+                        })
+                    else:
+                        # 母表包含所有元数据信息
+                        doc.metadata.update({
+                            "table_raw": metadata.get("table_raw"),
+                            "table_token_length": metadata.get("table_token_length"),
+                            "img_path": metadata.get("img_path"),
+                            "caption": metadata.get("caption"),
+                            "footnote": metadata.get("footnote")
+                        })
+            elif doc_type == "image":
+                # 处理图片类型
+                if "metadata" in doc.metadata:
+                    metadata = doc.metadata["metadata"]
+                    doc.metadata.update({
+                        "img_path": metadata.get("img_path"),
+                        "caption": metadata.get("caption"),
+                        "footnote": metadata.get("footnote")
+                    })
+            merged_results.append((doc, score))
+            seen_contents.add(segment_id)
+
+    # 3.2 添加 BM25 检索结果
     for doc in bm25_docs:
-        content = doc.page_content
-        if content not in seen_contents:
-            # 添加来源标记到元数据
+        segment_id = doc.metadata.get("segment_id")
+        if segment_id not in seen_contents:
+            # 从 MySQL 获取完整信息
+            with ChunkOperation() as chunk_op:
+                chunk_info = chunk_op.select_record(
+                    fields=["segment_id",  "doc_id", "parent_segment_id"],
+                    conditions={"segment_id": segment_id}  
+                )
+                if chunk_info:
+                    # 补充元数据信息
+                    doc.metadata.update(chunk_info[0])
+            
             doc.metadata["source_type"] = "bm25"
-            # 使用默认分数 0.5,后续通过 rerank 排序后会重新计算分数
             merged_results.append((doc, 0.5))
-            seen_contents.add(content)
+            seen_contents.add(segment_id)
 
     logger.info(f"混合检索完成,合并后共有 {len(merged_results)} 条结果")
     return merged_results
@@ -114,7 +212,19 @@ def rerank_results(query: str, merged_results: List[Tuple[Any, float]], top_k: i
     reranker = CrossEncoder(Config.MODEL_PATHS["rerank"], device=Config.DEVICE)
 
     # 准备重排序数据
-    pairs = [[query, doc.page_content] for doc, _ in merged_results]
+    pairs = []
+    for doc, _ in merged_results:
+        doc_type = doc.metadata.get("type")
+        if doc_type == "table":
+            # 对于表格，使用摘要进行重排序
+            content = doc.metadata.get("summary_text", doc.page_content)
+        elif doc_type == "image":
+            # 对于图片，使用标题进行重排序
+            content = doc.metadata.get("caption", doc.page_content)
+        else:
+            # 对于文本，直接使用内容
+            content = doc.page_content
+        pairs.append([query, content])
 
     # 分批处理计算重排序分数,避免批处理大小问题
     batch_size = 1
