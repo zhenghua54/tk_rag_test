@@ -30,13 +30,11 @@ class Config:
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
-        "tmp_dir": str(BASE_DIR / "tmp"),  # 临时目录
     }
 
     # ---------- Model Config ----------
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
-        # "llm": str(MODEL_BASE / "Qwen2.5-14B-DeepSeek-R1-1M"),
         "llm": str(MODEL_BASE / "Qwen2.5-7B-Instruct-1M"),
         "rerank": str(MODEL_BASE / "bge-reranker-v2-m3")
     }
@@ -82,30 +80,6 @@ class Config:
         "file_info_table": "file_info",
         "segment_info_table": "chunk_info",
         "permission_info_table": "permission_info",
-    }
-
-    # VLLM 配置
-    VLLM_CONFIG = {
-        # 基础推理配置
-        "tensor_parallel_size": 1,
-        "gpu_memory_utilization": 0.9,
-        "trust_remote_code": True,  # 信任远程代码
-        "dtype": "bfloat16",    # 使用 bfloat16 以减少显存使用
-        "max_model_len": 4096,  # 限制最大序列长度
-        "enforce_eager": True,  # 禁用 Torch 的 Lazy 模式，使用 eager 模式以提高性能
-        "tokenizer_mode": "auto",   # 自动选择分词器模式
-        "disable_custom_all_reduce": True,  # 禁用自定义 all_reduce
-
-        # 摘要生成采样配置
-        "summary_temperature": 0.3,
-        "summary_max_tokens": 1024,
-
-        # RAG 生成采样配置
-        "rag_temperature": 0.7,
-        "rag_top_p": 0.95,
-        "rag_max_tokens": 4096,
-        "rag_presence_penalty": 0.1,
-        "rag_frequency_penalty": 0.1,
     }
 
 
