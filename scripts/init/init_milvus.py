@@ -8,7 +8,7 @@ from src.utils.common.logger import logger
 
 def load_schema():
     """加载 Milvus schema 配置"""
-    schema_path = Path(__file__).parent / "milvus_schema.json"
+    schema_path = Config.MILVUS_CONFIG["schema_path"]
     with open(schema_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 

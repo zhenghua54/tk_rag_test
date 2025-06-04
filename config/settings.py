@@ -5,6 +5,7 @@
 2. 模型配置
 3. 数据库配置
 4. 系统配置
+5. API配置
 """
 
 import os
@@ -32,6 +33,12 @@ class Config:
         "libreoffice_path": "/usr/bin/libreoffice",
     }
 
+    # ---------- API Config ----------
+    API_VERSION = "v1"
+    API_PREFIX = f"/api/{API_VERSION}"
+    USE_MOCK = True  # 是否使用mock服务
+    MAX_FILE_SIZE = 50 * 1024 * 1024  # 文件大小限制 (50MB)
+
     # ---------- Model Config ----------
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
@@ -41,7 +48,7 @@ class Config:
 
     # ---------- File Processing Config ----------
     SUPPORTED_FILE_TYPES = {
-        "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf'],
+        "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
 
@@ -56,7 +63,7 @@ class Config:
         "token": "root:Milvus",
         "db_name": "default",
         "collection_name": "tk_rag",
-        "schema_path": str(BASE_DIR / "scripts" / "init" / "milvus_schema.json"),
+        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "milvus_schema.json"),
         "vector_field": "vector",
         "vector_dim": 1024,
         "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids",
@@ -81,6 +88,15 @@ class Config:
         "file_info_table": "file_info",
         "segment_info_table": "chunk_info",
         "permission_info_table": "permission_info",
+        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
+    }
+    
+    # ---------- ES Config ----------
+    ES_CONFIG = {
+        "host": "http://localhost:9200",
+        "index_name": "segment_text",
+        "timeout": 30,
+        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),
     }
 
     # ---------- BM25 Config ----------

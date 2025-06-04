@@ -57,6 +57,7 @@ tk_rag/
 - Milvus 2.5.10
 - LibreOffice（用于文档转换）
 - Miniconda 3
+- Ubuntu 22.04 amd64
 
 ## 快速开始
 
@@ -75,70 +76,100 @@ conda create -n tk_rag python=3.10
 conda activate tk_rag
 ```
 
-### 2. 安装软件包
-
+### 2. 安装数据库
 ```bash
-# 安装 pytorch
+# 安装 mysql8.0 版本
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb  # 下载安装包
+sudo dpkg -i mysql-apt-config_0.8.29-1_all.deb  # 添加官方 APT 仓库
+sudo apt update
+sudo apt install -y mysql-server # 安装 mysql 服务
+systemctl status mysql  # 检查服务状态
+
+# 安装 milvus 2.5.10 docker compose版本
+wget https://github.com/milvus-io/milvus/releases/download/v2.5.12/milvus-standalone-docker-compose.yml -O docker-compose.yml  # 下载安装脚本
+sudo docker compose up -d   # 执行安装
+# 官方安装文档: https://milvus.io/docs/install_standalone-docker-compose.md
+
+# 安装 ES 并启动
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.1-amd64.deb
+sudo dpkg -i elasticsearch-8.12.1-amd64.deb
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
+
+# 打开系统防火墙端口
+sudo ufw allow 3306/tcp
+sudo ufw allow 19530/tcp
+sudo ufw allow 9200/tcp
+```
+
+### 3. 安装工具
+```bash
+# 2.1 安装 pytorch == 12.8
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 
-# 安装 vllm: 注意修改本地 cuda 版本 == 12.8
+# 2.2 安装 vllm(暂未使用), 注意修改本地 cuda 版本 == 12.8
 pip install vllm --extra-index-url https://download.pytorch.org/whl/cu128
 
-# 安装 MinerU-GPU 版本
+# 2.3 安装 MinerU-GPU
 # 安装 应用
 pip install -U magic-pdf[full] -i https://mirrors.aliyun.com/pypi/simple
+
 # 从 ModelScope 下载模型
 pip install modelscope
 wget https://gcore.jsdelivr.net/gh/opendatalab/MinerU@master/scripts/download_models.py -O download_models.py
 python download_models.py
 
-官方安装文档: https://github.com/opendatalab/MinerU/blob/master/docs/README_Ubuntu_CUDA_Acceleration_zh_CN.md
+# 官方安装文档: https://github.com/opendatalab/MinerU/blob/master/docs/README_Ubuntu_CUDA_Acceleration_zh_CN.md
 
-# 进入项目文件夹安装依赖
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-# 安装 Libreoffice
+# 2.4 安装 Libreoffice
 sudo apt-get install libreoffice
+
+# 2.5 安装 analysis-ik 分词器
 ```
 
-### 3. 数据库准备
+### 4. 安装软件包
+```bash
+# 进入项目文件夹安装依赖
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
 
-1. MySQL 数据库
-   - 确保 MySQL 服务已启动
-   - 默认配置：
-     - 主机：localhost
-     - 用户：root
-     - 密码：Tk@654321
-     - 数据库：rag_db
 
-2. Milvus 数据库
-   - 确保 Milvus 服务已启动
-   - 默认配置：
-     - 主机：localhost
-     - 端口：19530
-     - 数据库：default
-     - 集合：tk_rag
-
-### 4. 初始化项目
+### 5. 初始化项目
 
 运行初始化脚本：
 ```bash
-python scripts/init_project.py
+python scripts/init/init_all.py
 ```
 
 该脚本将：
 1. 创建必要的目录结构
 2. 初始化 MySQL 数据库（包括表结构）
 3. 初始化 Milvus 数据库（包括集合和索引）
+4. 初始化 ES 数据库(包括表结构和索引)
 
-### 5. 验证初始化
+###  6. 验证初始化
+```bash
+# 6.1 检查 mysql 数据库连接
+python src/database/mysql/connection.py
 
-1. 检查 MySQL 数据库：
-   ```bash
-   python src/database/mysql/connection.py
-   ```
+# 6.2 检查 Milvus 数据库连接
+python src/database/milvus/connection.py
 
-2. 检查 Milvus 数据库：
-   ```bash
-   python src/database/milvus/connection.py
-   ```
+# 6.3 使用 HTTPS 连接, 检查 ES 服务状态
+curl -k -u user:passwd https://localhost:9200
+```
+
+### 7. 启动 FastAPI
+```bash
+uvicorn app:app --reload --host 0.0.0.0 --port 8000
+```
+#### 接口文档
+访问 Swagger 文档来查看和测试这些接口：
+- Swagger UI: http://localhost:8000/api/v1/docs
+- ReDoc: http://localhost:8000/api/v1/redoc
+
+#### 接口 url
+- 健康检查：http://localhost:8000/api/v1/health
+- 聊天接口：http://localhost:8000/api/v1/rag_chat
+- 上传文档：http://localhost:8000/api/v1/documents
+- 删除文档：http://localhost:8000/api/v1/documents/{doc_id}

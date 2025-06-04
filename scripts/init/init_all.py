@@ -4,21 +4,29 @@
 1. 创建必要的目录结构
 2. 初始化 MySQL 数据库
 3. 初始化 Milvus 数据库
+4. 初始化 Elasticsearch
 """
+
 import sys
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 添加项目根目录到 Python 路径
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_path)
 
-import pymysql
-from pathlib import Path
-from pymilvus import connections, Collection            
-
+from pymilvus import connections, Collection
+from src.database.elasticsearch.operations import ElasticsearchOperation
 
 from config.settings import Config
-from scripts.init.milvus_init import init_milvus
 from src.utils.common.logger import logger
 from src.database.mysql.connection import test_connect_mysql
+from scripts.init.init_mysql import init_mysql
+from scripts.init.init_milvus import init_milvus
+from scripts.init.init_es import init_es
 
 def ensure_directories():
     """确保所有必要的目录存在"""
@@ -37,70 +45,52 @@ def ensure_directories():
         os.makedirs(path, exist_ok=True)
         logger.info(f"创建目录: {path}")
 
-def init_mysql():
-    """初始化 MySQL 数据库"""
-    logger.info("开始初始化 MySQL 数据库...")
+def test_connections():
+    """测试所有数据库连接"""
+    # 测试 MySQL 连接
+    if not test_connect_mysql():
+        raise Exception("MySQL 数据库连接失败！")
     
-    # 读取初始化 SQL 文件
-    init_sql_path = Path(__file__).parent / "mysql_init.sql"
-    with open(init_sql_path, 'r') as f:
-        init_sql = f.read()
-    
-    # 连接 MySQL（不指定数据库）
-    conn = pymysql.connect(
-        host=Config.MYSQL_CONFIG['host'],
-        user=Config.MYSQL_CONFIG['user'],
-        password=Config.MYSQL_CONFIG['password'],
-        charset=Config.MYSQL_CONFIG['charset']
-    )
-    
+    # 测试 Milvus 连接
     try:
-        with conn.cursor() as cursor:
-            # 执行初始化 SQL
-            for sql in init_sql.split(';'):
-                if sql.strip():
-                    cursor.execute(sql)
-            conn.commit()
-        logger.info("MySQL 数据库初始化完成！")
+        connections.connect(
+            alias="default",
+            host=Config.MILVUS_CONFIG["host"],
+            port=Config.MILVUS_CONFIG["port"],
+            token=Config.MILVUS_CONFIG["token"],
+            db_name=Config.MILVUS_CONFIG["db_name"]
+        )
+        collection = Collection(Config.MILVUS_CONFIG["collection_name"])
+        if not collection:
+            raise Exception("Milvus 集合加载失败！")
     except Exception as e:
-        logger.error(f"MySQL 数据库初始化失败: {e}")
-        raise
-    finally:
-        conn.close()
+        logger.error(f"Milvus 连接测试失败: {e}")
+        raise Exception(f"Milvus 连接失败: {e}")
+    
+    # 测试 ES 连接
+    try:
+        es_client = ElasticsearchOperation()
+        if not es_client.ping():
+            raise Exception("ES 连接失败！")
+    except Exception as e:
+        logger.error(f"ES 连接测试失败: {e}")
+        raise Exception(f"ES 连接失败: {e}")
 
 def init_all():
     """初始化所有组件"""
     try:
         logger.info("开始初始化项目环境...")
         
-        # 创建目录结构
+        # 1. 创建目录结构
         ensure_directories()
         
-        # 初始化 MySQL
+        # 2. 初始化各个服务
         init_mysql()
-        
-        # 初始化 Milvus
         init_milvus()
-
-        # 测试数据库连接
-        if not test_connect_mysql():
-            raise Exception("数据库连接失败！")
+        init_es()
         
-        # 测试 Milvus 连接
-        try:
-            connections.connect(
-                alias="default",
-                host=Config.MILVUS_CONFIG["host"],
-                port=Config.MILVUS_CONFIG["port"],
-                token=Config.MILVUS_CONFIG["token"],
-                db_name=Config.MILVUS_CONFIG["db_name"]
-            )
-            collection = Collection(Config.MILVUS_CONFIG["collection_name"])
-            if not collection:
-                raise Exception("Milvus 集合加载失败！")
-        except Exception as e:
-            logger.error(f"Milvus 连接测试失败: {e}")
-            raise Exception(f"Milvus 连接失败: {e}")
+        # 3. 测试所有连接
+        test_connections()
         
         logger.info("项目环境初始化完成！")
     except Exception as e:
@@ -108,4 +98,4 @@ def init_all():
         raise
 
 if __name__ == "__main__":
-    init_all() 
+    init_all()
