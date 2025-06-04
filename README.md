@@ -8,15 +8,23 @@
 tk_rag/
 ├── src/                               # 源代码目录
 │   ├── api/                           # API 接口
-│   │   ├── office_convert.py     # 文档转换 API
-│   │   └── mineru_api.py              # PDF 解析 API
+│   │   ├── base.py                    # API 基础组件(响应、错误码等)
+│   │   ├── chat.py                    # 聊天相关接口
+│   │   ├── document.py                # 文档管理接口
+│   │   └── __init__.py               # API 模块初始化
 │   ├── core/                          # 核心业务逻辑
 │   │   ├── document/                  # 文档处理
 │   │   ├── llm/                       # 大语言模型
 │   │   └── rag/                       # RAG 实现
 │   ├── database/                      # 数据库操作
 │   │   ├── mysql/                     # MySQL 相关
-│   │   └── milvus/                    # Milvus 向量数据库
+│   │   ├── milvus/                    # Milvus 向量数据库
+│   │   └── elasticsearch/             # Elasticsearch 全文搜索
+│   ├── services/                      # 业务服务层
+│   │   ├── base.py                    # 服务基类
+│   │   ├── chat.py                    # 聊天服务
+│   │   ├── document.py                # 文档服务
+│   │   └── mock.py                    # Mock 数据服务
 │   └── utils/                         # 工具函数
 │       ├── common/                    # 通用工具
 │       ├── file/                      # 文件操作
@@ -24,13 +32,30 @@ tk_rag/
 ├── tests/                             # 测试代码
 ├── datas/                             # 数据目录
 │   ├── raw/                           # 原始文档
-│   ├── processed/                     # 处理后的文档
-│   └── translated/                    # 转换后的文档
+│   └── processed/                     # 处理后的文档
 ├── models/                            # 模型目录
+│   ├── bge-m3/                        # 向量模型
+│   ├── Qwen2.5-7B-Instruct-1M/        # LLM模型
+│   └── bge-reranker-v2-m3/            # 重排序模型
 ├── logs/                              # 日志目录
-├── config.py                          # 配置文件
+├── config/                            # 配置目录
+│   └── settings.py                    # 配置文件
+├── scripts/                           # 脚本目录
+│   └── init/                          # 初始化脚本
+│       ├── init_all.py                # 项目初始化脚本
+│       ├── init_es.py                 # Elasticsearch 数据库初始化脚本
+│       ├── init_milvus.py             # Milvus 数据库初始化脚本
+│       ├── init_mysql.py              # mysql 数据库初始化脚本
+│       └── schema/                    # 数据库schema
+│           ├── milvus_schema.json     # Milvus集合schema
+│           ├── mysql_schema.sql       # MySQL表结构
+│           └── es_schema.json         # ES索引schema
+├── app.py                             # FastAPI应用入口
 ├── requirements.txt                   # 依赖包
-└── README.md                          # 项目文档
+├── .gitignore                         # Git忽略文件配置
+├── .env                               # 环境配置信息
+├── README.md                          # 项目文档
+└── Demo1.0 接口文档.md                 # API接口文档
 ```
 
 ## 功能特性
