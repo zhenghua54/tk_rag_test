@@ -10,26 +10,46 @@ from src.utils.common.logger import logger
 
 
 class MilvusDB:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(MilvusDB, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
         """初始化 Milvus 客户端
 
         从配置文件中读取 Milvus 服务器配置信息并初始化客户端连接
         """
-        self.client = MilvusClient(
-            uri=Config.MILVUS_CONFIG["uri"],
-            token=Config.MILVUS_CONFIG["token"]
-        )
-        self.db_name = Config.MILVUS_CONFIG["db_name"]
+        if self._initialized:
+            return
 
-        connections.connect(
-            alias="default",
-            host=Config.MILVUS_CONFIG["host"],
-            port=Config.MILVUS_CONFIG["port"],
-            token=Config.MILVUS_CONFIG["token"],
-            db_name=self.db_name
-        )
-        self.collection_name = Config.MILVUS_CONFIG["collection_name"]
-        self.collection = None  # 集合不存在时,初始化时不会创建集合实例
+        try:
+            self.client = MilvusClient(
+                uri=Config.MILVUS_CONFIG["uri"],
+                token=Config.MILVUS_CONFIG["token"]
+            )
+            self.db_name = Config.MILVUS_CONFIG["db_name"]
+
+            connections.connect(
+                alias="default",
+                host=Config.MILVUS_CONFIG["host"],
+                port=Config.MILVUS_CONFIG["port"],
+                token=Config.MILVUS_CONFIG["token"],
+                db_name=self.db_name
+            )
+            self.collection_name = Config.MILVUS_CONFIG["collection_name"]
+            
+            # 初始化数据库和集合
+            self.init_database()
+            logger.info("Milvus 客户端初始化完成")
+            self._initialized = True
+            
+        except Exception as e:
+            logger.error(f"Milvus 客户端初始化失败: {str(e)}")
+            raise
 
     def _load_schema(self) -> Dict:
         """加载 Milvus schema 配置"""
@@ -55,8 +75,8 @@ class MilvusDB:
             # 如果集合不存在，则创建新的集合
             logger.info(f"集合 {self.collection_name} 不存在，正在创建...")
             self._create_collection()
-        # else:
-        # logger.info(f"集合 {self.collection_name} 已存在，跳过创建")
+        else:
+            logger.info(f"集合 {self.collection_name} 已存在，跳过创建")
 
         # 初始化完成后设置 collection 实例
         self.collection = Collection(self.collection_name)
@@ -138,7 +158,7 @@ class MilvusDB:
                 data=data
             )
             inserted_ids = result['ids']
-            logger.info(f"成功插入 {len(data)} 条数据,主键 ID : {inserted_ids}")
+            logger.info(f"Milvus 数据插入成功, 共计 {len(data)} 条")
             return inserted_ids
         except Exception as e:
             logger.info(f"插入数据时出错: {str(e)}")
@@ -170,16 +190,16 @@ class MilvusDB:
             logger.error(f"删除集合时出错: {str(e)}")
             raise
 
-    def get_all_text_chunks(self) -> List[str]:
-        """从 Milvus 集合中获取所有 text_chunk 字段内容"""
-        # 查询所有记录的 text_chunk 字段
-        results = self.collection.query(
-            expr="",  # 无过滤条件,返回所有
-            output_fields=["text_chunk"],
-            limit=16384  # 设置一个足够大的限制
-        )
-        logger.info(f"从 Milvus 中获取到 {len(results)} 个 text_chunk 文本块")
-        return [r["text_chunk"] for r in results if "text_chunk" in r]
+    # def get_all_text_chunks(self) -> List[str]:
+    #     """从 Milvus 集合中获取所有 text_chunk 字段内容"""
+    #     # 查询所有记录的 text_chunk 字段
+    #     results = self.collection.query(
+    #         expr="",  # 无过滤条件,返回所有
+    #         output_fields=["text_chunk"],
+    #         limit=16384  # 设置一个足够大的限制
+    #     )
+    #     logger.info(f"从 Milvus 中获取到 {len(results)} 个 text_chunk 文本块")
+    #     return [r["text_chunk"] for r in results if "text_chunk" in r]
 
 
 def create_milvus_db() -> MilvusDB:

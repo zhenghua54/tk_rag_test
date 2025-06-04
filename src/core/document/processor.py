@@ -144,6 +144,10 @@ def process_tables(content_list: list) -> list:
             # 提取总结的标题
             summary_title = str(summary.get('title', '')).strip()
 
+            # 处理表格标题
+            if isinstance(item['table_caption'], list):
+                item['table_caption'] = ', '.join(item['table_caption'])
+            
             # 表格标题存在
             if item['table_caption'].strip():
                 existing_captions += 1
@@ -201,6 +205,11 @@ def process_images(content_list: list) -> list:
         # 如果是图片且没有标题
         if item['type'] == 'image':
             total_images += 1
+            
+            # 处理图片标题
+            if isinstance(item['img_caption'], list):
+                item['img_caption'] = ', '.join(item['img_caption'])
+            
             # 如果图片标题存在
             if item['img_caption'].strip():
                 existing_captions += 1

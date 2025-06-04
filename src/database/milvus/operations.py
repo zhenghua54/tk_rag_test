@@ -13,13 +13,19 @@ class VectorOperation:
 
     def __init__(self):
         """初始化向量库操作类"""
-        self.milvus = MilvusDB()
-        self.milvus.init_database()
-        
+        try:
+            # 初始化 Milvus 数据库连接
+            self.milvus = MilvusDB()
+            logger.info("向量库操作类初始化完成")
+            
+        except Exception as e:
+            logger.error(f"向量库操作类初始化失败: {str(e)}")
+            raise
+
     def flush(self):
         """执行 Milvus 的 flush 操作，确保数据被持久化"""
         try:
-            self.collection.flush()
+            self.milvus.client.flush(self.milvus.collection_name)
             logger.info("Milvus 数据已成功持久化")
         except Exception as e:
             logger.error(f"Milvus flush 操作失败: {str(e)}")
@@ -76,7 +82,7 @@ class VectorOperation:
             if not inserted_ids:
                 raise ValueError("插入数据失败：未返回插入ID")
             
-            logger.info(f"成功插入 {len(data)} 条数据，ID: {inserted_ids}")
+            logger.info(f"Milvus 数据插入成功, 共 {len(data)} 条")
             return inserted_ids
         except Exception as e:
             logger.error(f"插入数据失败: {str(e)}")
@@ -106,7 +112,8 @@ class VectorOperation:
         """
         Validator.validate_doc_id(doc_id)
         try:
-            results = self.milvus.collection.query(
+            results = self.milvus.client.query(
+                collection_name=self.milvus.collection_name,
                 expr=f'doc_id == "{doc_id}"',
                 output_fields=["*"]
             )
@@ -126,7 +133,8 @@ class VectorOperation:
         """
         Validator.validate_segment_id(segment_id)
         try:
-            results = self.milvus.collection.query(
+            results = self.milvus.client.query(
+                collection_name=self.milvus.collection_name,
                 expr=f'segment_id == "{segment_id}"',
                 output_fields=["*"]
             )
@@ -153,7 +161,8 @@ class VectorOperation:
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # 更新数据
-            self.milvus.collection.upsert(
+            self.milvus.client.upsert(
+                collection_name=self.milvus.collection_name,
                 data=[{**data, 'doc_id': doc_id}]
             )
             logger.info(f"成功更新文档 {doc_id} 的数据")
@@ -180,7 +189,8 @@ class VectorOperation:
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             # 更新数据
-            self.milvus.collection.upsert(
+            self.milvus.client.upsert(
+                collection_name=self.milvus.collection_name,
                 data=[{**data, 'segment_id': segment_id}]
             )
             logger.info(f"成功更新段落 {segment_id} 的数据")
@@ -200,7 +210,8 @@ class VectorOperation:
         """
         Validator.validate_doc_id(doc_id)
         try:
-            self.milvus.collection.delete(
+            self.milvus.client.delete(
+                collection_name=self.milvus.collection_name,
                 expr=f'doc_id == "{doc_id}"'
             )
             logger.info(f"成功删除文档 {doc_id} 的数据")
@@ -220,7 +231,8 @@ class VectorOperation:
         """
         Validator.validate_segment_id(segment_id)
         try:
-            self.milvus.collection.delete(
+            self.milvus.client.delete(
+                collection_name=self.milvus.collection_name,
                 expr=f'segment_id == "{segment_id}"'
             )
             logger.info(f"成功删除段落 {segment_id} 的数据")

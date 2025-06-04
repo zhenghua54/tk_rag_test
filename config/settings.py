@@ -93,10 +93,14 @@ class Config:
     
     # ---------- ES Config ----------
     ES_CONFIG = {
-        "host": "http://localhost:9200",
-        "index_name": "segment_text",
-        "timeout": 30,
-        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),
+        "host": "http://localhost:9200",  # ES 服务器地址
+        "timeout": 30,  # 请求超时时间（秒）
+        "index_name": "segment_text",  # 索引名称
+        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),  # schema 配置文件路径
+        # 安全配置
+        "username": os.getenv("ES_USER"),  # ES 用户名
+        "password": os.getenv("ES_PASSWORD"),  # ES 密码
+        "verify_certs": False  # 是否验证证书
     }
 
     # ---------- BM25 Config ----------

@@ -49,6 +49,8 @@ class BaseDBOperation:
         Returns:
             List[Dict]: 查询结果列表
         """
+        if not self.mysql:
+            raise Exception("数据库连接未初始化")
         with self.mysql.get_connection() as cursor:
             cursor.execute(sql, args)
             result = cursor.fetchall()
@@ -64,6 +66,8 @@ class BaseDBOperation:
         Returns:
             int: 影响的行数
         """
+        if not self.mysql:
+            raise Exception("数据库连接未初始化")
         return self.mysql.execute(sql, args)
 
     def select_by_id(self, doc_id: str) -> Optional[Dict]:
@@ -153,7 +157,7 @@ class BaseDBOperation:
             sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
             return self._execute_update(sql, tuple(data.values())) > 0
         except Exception as e:
-            logger.error(f"插入记录失败: {e}")
+            logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}")
             return False
 
     def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool:
