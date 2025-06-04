@@ -198,3 +198,11 @@ uvicorn app:app --reload --host 0.0.0.0 --port 8000
 - 聊天接口：http://localhost:8000/api/v1/rag_chat
 - 上传文档：http://localhost:8000/api/v1/documents
 - 删除文档：http://localhost:8000/api/v1/documents/{doc_id}
+
+
+## 其他工具推荐
+### 1. ES 数据查询
+```bash
+# Elasticsearch Head：轻量级的 Chrome 插件
+sudo docker run -p 9100:9100 mobz/elasticsearch-head:5
+```

@@ -13,7 +13,7 @@ from src.utils.file.file_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
 from src.core.document.processor import process_json_file
 from src.utils.text.text_process import merge_page_content
-
+from src.database.elasticsearch.operations import ElasticsearchOperation
 from src.core.document.segment import segment_text_content
 
 
@@ -134,12 +134,37 @@ def test_document_processing():
     logger.info("开始测试 Milvus 操作...")
     from src.database.milvus.operations import run_all_tests
     run_all_tests()
+    
+def test_es_operation():
+    """测试 ES 操作"""
+    # 查询 es 数据情况
+    es_op = ElasticsearchOperation()
+    # 先获取统计信息
+    stats = es_op.get_stats()
+    
+    # 查询文档
+    # res = es_op.search(query="管理规定")
+    # print(res)
+    
+    # segment_id = "3b792c3cd80dd67d375c68c08f5e2ff3781c5948e7825ff7c6f8e2deaacedbab"
+    # 根据 segment_id 删除文档
+    # es_op.delete_by_segment_id(segment_id)
+    # 根据 doc_id 删除文档
+    # doc_id = "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
+    # es_op.delete_by_doc_id(doc_id)
+    
+    # 先获取统计信息
+    # stats = es_op.get_stats()
+    # 然后列出所有文档
+    docs = es_op.list_all_documents()
+    
+    
 
 if __name__ == "__main__":
     # 测试代码
-    test_file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
+    # test_file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
     # test_file_path = "/home/wumingxing/tk_rag/datas/raw/1_1_竞争情况（天宽科技）.docx"  # 替换为实际的测试文件路径
-    process_document(test_file_path)
+    # process_document(test_file_path)
 
 
     # # 使用上下文管理器
@@ -160,3 +185,6 @@ if __name__ == "__main__":
     
     # 运行测试
     # test_document_processing()
+    
+    # 测试 ES 操作
+    test_es_operation()

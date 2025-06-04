@@ -2,13 +2,30 @@
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
 import numpy as np
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from config.settings import Config
 
 
 def init_embedding_model() -> SentenceTransformer:
-    """初始化向量化模型"""
+    """初始化向量化模型
+    
+    Returns:
+        SentenceTransformer: 向量化模型实例
+    """
     return SentenceTransformer(Config.MODEL_PATHS["embedding"])
+
+
+def init_langchain_embeddings() -> HuggingFaceEmbeddings:
+    """初始化 Langchain 的 HuggingFaceEmbeddings
+    
+    Returns:
+        HuggingFaceEmbeddings: Langchain 的 embedding 实例
+    """
+    return HuggingFaceEmbeddings(
+        model_name=Config.MODEL_PATHS["embedding"],
+        model_kwargs={'device': Config.DEVICE}
+    )
 
 
 def embed_text(text: str) -> list:

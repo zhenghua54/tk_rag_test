@@ -5,6 +5,7 @@ import json
 from typing import List, Dict, Optional
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import time
 
 from src.core.document.processor import html_table_to_markdown
 from src.utils.common.logger import logger
@@ -398,6 +399,7 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
         # 1. 数据验证和日志记录
         valid_milvus_batch = []
         es_batch = []
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         for idx, item in enumerate(milvus_batch):
             vector = item.get('vector', [])
@@ -423,13 +425,19 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
                 logger.error(f"向量数据类型: {[type(x) for x in vector[:5]]}...")
                 continue
 
+            # 添加时间戳
+            item['create_time'] = current_time
+            item['update_time'] = current_time
             valid_milvus_batch.append(item)
 
         # 2. 保存到 MySQL(原文)
         with ChunkOperation() as chunk_op:
+            success_count = 0
             for idx, segment in enumerate(mysql_batch):
                 try:
                     chunk_op.insert(segment)
+                    if chunk_op.insert(segment):
+                        success_count += 1
                     # 使用 mysql 中的原文数据构建 ES 数据
                     es_batch.append({
                         "segment_id": segment["segment_id"],
@@ -437,11 +445,14 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
                         "segment_text": segment["segment_text"]  # 使用 MySQL 中的原文
                     })
                 except Exception as e:
-                    logger.error(f"MySQL插入失败 - 索引: {idx}")
+                    logger.error(f"MySQL 数据插入失败 - 索引: {idx}")
                     logger.error(
                         f"数据信息: segment_id: {segment.get('segment_id', 'unknown')}, doc_id: {segment.get('doc_id', 'unknown')}")
                     logger.error(f"错误详情: {str(e)}")
                     continue
+            if success_count > 0:
+                logger.info(f"MySQL 数据插入完成，成功插入 {success_count}/{len(mysql_batch)} 条记录")
+        
 
         # 3. 保存到 Milvus(向量和元数据)
         if valid_milvus_batch:
@@ -451,7 +462,6 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
                 vector_op.insert_data(valid_milvus_batch)
                 # 执行 flush 操作
                 vector_op.flush()
-                logger.info(f"成功保存并持久化 {len(valid_milvus_batch)} 条数据到 Milvus")
             except Exception as e:
                 logger.error(f"Milvus 操作失败: {str(e)}")
                 raise
@@ -461,7 +471,6 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
             try:
                 es_op = ElasticsearchOperation()
                 es_op.insert_data(es_batch)
-                logger.info(f"成功保存 {len(es_batch)} 条数据到 ES")
             except Exception as e:
                 logger.error(f"ES 操作失败: {str(e)}")
                 raise
