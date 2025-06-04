@@ -26,6 +26,9 @@ def ensure_directories():
     
     # 创建数据目录
     for path in Config.PATHS.values():
+        if os.path.isfile(path) or os.path.exists(path):
+            logger.warning(f"跳过已存在文件路径: {path}")
+            continue
         os.makedirs(path, exist_ok=True)
         logger.info(f"创建目录: {path}")
     

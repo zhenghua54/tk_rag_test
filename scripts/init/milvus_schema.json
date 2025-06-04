@@ -30,7 +30,7 @@
       {
         "name": "summary_text",
         "type": "VARCHAR",
-        "max_length": 1024,
+        "max_length": 4096,
         "description": "摘要内容，用于后验展示"
       },
       {
@@ -48,7 +48,7 @@
         "name": "principal_ids",
         "type": "VARCHAR",
         "max_length": 1024,
-        "description": "权限控制实体（部门ID / 用户ID / 角色ID），JSON 数组字符串"
+        "description": "权限ID列表，JSON格式，包含departments、roles、users等权限信息"
       },
       {
         "name": "create_time",

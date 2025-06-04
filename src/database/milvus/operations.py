@@ -15,6 +15,42 @@ class VectorOperation:
         """初始化向量库操作类"""
         self.milvus = MilvusDB()
         self.milvus.init_database()
+        
+    def flush(self):
+        """执行 Milvus 的 flush 操作，确保数据被持久化"""
+        try:
+            self.collection.flush()
+            logger.info("Milvus 数据已成功持久化")
+        except Exception as e:
+            logger.error(f"Milvus flush 操作失败: {str(e)}")
+            raise
+
+    def _validate_milvus_data(self, data: List[Dict[str, Any]]) -> None:
+        """验证 Milvus 数据格式
+
+        Args:
+            data (List[Dict[str, Any]]): 要验证的数据列表
+
+        Raises:
+            ValueError: 当数据格式不符合要求时抛出
+        """
+        for idx, item in enumerate(data):
+            # 验证必需字段
+            required_fields = ["vector", "segment_id", "doc_id", "document_name", "summary_text", 
+                             "type", "page_idx", "principal_ids", "create_time", "update_time", "metadata"]
+            missing_fields = [field for field in required_fields if field not in item]
+            if missing_fields:
+                raise ValueError(f"第 {idx + 1} 条数据缺少必需字段: {missing_fields}")
+
+            # 验证字段类型
+            if not isinstance(item["vector"], list) or len(item["vector"]) != 1024:
+                raise ValueError(f"第 {idx + 1} 条数据的 vector 字段必须是 1024 维的浮点数列表")
+            if not isinstance(item["page_idx"], int):
+                raise ValueError(f"第 {idx + 1} 条数据的 page_idx 字段必须是整数")
+            if not isinstance(item["segment_id"], str):
+                raise ValueError(f"第 {idx + 1} 条数据的 segment_id 字段必须是字符串")
+            if not isinstance(item["doc_id"], str):
+                raise ValueError(f"第 {idx + 1} 条数据的 doc_id 字段必须是字符串")
 
     def insert_data(self, data: List[Dict[str, Any]]) -> List[str]:
         """批量插入数据
@@ -24,24 +60,27 @@ class VectorOperation:
 
         Returns:
             List[str]: 插入成功的 segment_id 列表
+
+        Raises:
+            ValueError: 当数据格式不符合要求时抛出
         """
         Validator.validate_list_not_empty(data, "data")
         Validator.validate_type(data, list, "data")
 
         try:
-            # 添加时间戳
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            for item in data:
-                item['create_time'] = current_time
-                item['update_time'] = current_time
+            # 验证数据格式
+            self._validate_milvus_data(data)
 
             # 插入数据
             inserted_ids = self.milvus.insert_data(data)
-            logger.info(f"成功插入 {len(data)} 条数据")
+            if not inserted_ids:
+                raise ValueError("插入数据失败：未返回插入ID")
+            
+            logger.info(f"成功插入 {len(data)} 条数据，ID: {inserted_ids}")
             return inserted_ids
         except Exception as e:
-            logger.error(f"插入数据失败: {e}")
-            return []
+            logger.error(f"插入数据失败: {str(e)}")
+            raise  # 向上抛出异常，让调用者处理
 
     def insert_single(self, data: Dict[str, Any]) -> Optional[str]:
         """插入单条数据

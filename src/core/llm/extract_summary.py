@@ -13,15 +13,24 @@ from src.utils.common.args_validator import Validator
 
 # 检查环境变量
 load_dotenv(verbose=True)
-HUNYUAN_API_KEY = os.getenv("HUNYUAN_API_KEY")
+HUNYUAN_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 if not HUNYUAN_API_KEY:
-    raise ValueError("请设置 HUNYUAN_API_KEY 环境变量")
+    raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")
 
-# 混元 API
+# # 混元 API
+# client = OpenAI(
+#     api_key=HUNYUAN_API_KEY,
+#     base_url="https://api.hunyuan.cloud.tencent.com/v1",
+# )
+
+# 阿里云百炼 API
 client = OpenAI(
-    api_key=HUNYUAN_API_KEY,
-    base_url="https://api.hunyuan.cloud.tencent.com/v1",
+    # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
+    api_key=os.getenv("DASHSCOPE_API_KEY"),
+    # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
+    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
+
 
 def parse_table_summary(summary: str) -> Dict[str, str]:
     """解析和清洗表格摘要

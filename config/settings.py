@@ -56,6 +56,7 @@ class Config:
         "token": "root:Milvus",
         "db_name": "default",
         "collection_name": "tk_rag",
+        "schema_path": str(BASE_DIR / "scripts" / "init" / "milvus_schema.json"),
         "vector_field": "vector",
         "vector_dim": 1024,
         "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids",

@@ -1,6 +1,7 @@
 """Embedding 模块"""
 from sentence_transformers import SentenceTransformer
 from torch import Tensor
+import numpy as np
 
 from config.settings import Config
 
@@ -10,7 +11,33 @@ def init_embedding_model() -> SentenceTransformer:
     return SentenceTransformer(Config.MODEL_PATHS["embedding"])
 
 
-def embed_text(text: str) -> Tensor:
-    """文本向量化"""
+def embed_text(text: str) -> list:
+    """文本向量化
+    
+    Args:
+        text (str): 输入文本
+        
+    Returns:
+        list: 1024维的浮点数列表
+    """
     model = init_embedding_model()
-    return model.encode(text)
+    # 获取向量
+    vector = model.encode(text)
+    # 如果是tensor,转换为numpy数组
+    if isinstance(vector, Tensor):
+        vector = vector.numpy()
+    # 如果是numpy数组,转换为list
+    if isinstance(vector, np.ndarray):
+        vector = vector.tolist()
+    return vector
+
+
+if __name__ == '__main__':
+    import sys
+    sys.path.append("/home/wumingxing/tk_rag")
+
+    query = 'Ni好啊'
+    result = embed_text(query)
+    print(result)
+    print(len(result))
+    print(type(result))  # 验证返回类型

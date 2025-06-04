@@ -34,14 +34,18 @@ def generate_segment_id(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, principal_ids: List[str]):
+def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, principal_ids: Dict[str, List[str]]):
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
         document_name (str): 文档名称
         page_content_dict (dict[idx:[content]]): 文本内容列表，每条记录为单页内容字典
-        principal_ids (List[str]): 权限ID列表
+        principal_ids (Dict[str, List[str]]): 权限ID字典，格式为 {
+            "departments": ["dept1", "dept2"],
+            "roles": ["role1", "role2"],
+            "users": ["user1", "user2"]
+        }
 
     Returns:
         List[Dict]: 分块结果列表
@@ -52,7 +56,17 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     Validator.validate_not_empty(document_name, "document_name")
     Validator.validate_doc_id(doc_id)
     Validator.validate_type(page_content_dict, dict, "page_content_dict")
-    Validator.validate_list_not_empty(principal_ids, "principal_ids")
+    Validator.validate_type(principal_ids, dict, "principal_ids")
+
+    # 确保权限数据包含所有必要的键
+    permissions = {
+        "departments": principal_ids.get("departments", []),
+        "roles": principal_ids.get("roles", []),
+        "users": principal_ids.get("users", [])
+    }
+    
+    # 将权限数据转换为JSON字符串
+    principal_ids_str = json.dumps(permissions, ensure_ascii=False)
 
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
@@ -72,6 +86,23 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     total_pages = len(page_content_dict)
     logger.info(f"开始处理 {total_pages} 页内容...")
     
+    def truncate_summary(text: str, max_length: int = 4096) -> str:
+        """截断摘要文本，确保不超过最大长度
+        
+        Args:
+            text: 原始文本
+            max_length: 最大长度限制，默认4096字符
+            
+        Returns:
+            截断后的文本
+        """
+        if not text:
+            return ""
+        if len(text) <= max_length:
+            return text
+        # 在最大长度处截断，并添加省略号
+        return text[:max_length-3] + "..."
+
     for page_idx, page_contents in page_content_dict.items():
         logger.info(f"正在处理第 {page_idx} 页内容...")
 
@@ -107,10 +138,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                             "segment_id": segment_id,
                             "doc_id": doc_id,
                             "document_name": document_name,
-                            "summary_text": chunk,
+                            "summary_text": truncate_summary(chunk),  # 截断摘要文本
                             "type": "text",
                             "page_idx": int(page_idx),
-                            "principal_ids": principal_ids,
+                            "principal_ids": principal_ids_str,  # 使用JSON字符串
                             "create_time": "",  # 插入数据时更新
                             "update_time": "",  # 插入数据时更新
                             "metadata": {}
@@ -158,10 +189,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "segment_id": parent_segment_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
-                        "summary_text": content['table_summary'],
+                        "summary_text": truncate_summary(content['table_summary']),  # 截断摘要文本
                         "type": "parent_table",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "principal_ids": principal_ids_str,  # 使用JSON字符串
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {
@@ -196,10 +227,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                             "segment_id": sub_segment_id,
                             "doc_id": doc_id,
                             "document_name": document_name,
-                            "summary_text": "",
+                            "summary_text": truncate_summary(table_segment),  # 截断摘要文本
                             "type": "sub_table",
                             "page_idx": int(page_idx),
-                            "principal_ids": principal_ids,
+                            "principal_ids": principal_ids_str,  # 使用JSON字符串
                             "create_time": "",  # 插入数据时更新
                             "update_time": "",  # 插入数据时更新
                             "metadata": {
@@ -228,10 +259,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "segment_id": table_segment_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
-                        "summary_text": content['table_summary'],
+                        "summary_text": truncate_summary(content['table_summary']),  # 截断摘要文本
                         "type": "table",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "principal_ids": principal_ids_str,  # 使用JSON字符串
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {
@@ -276,10 +307,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                             "segment_id": segment_id,
                             "doc_id": doc_id,
                             "document_name": document_name,
-                            "summary_text": chunk,
+                            "summary_text": truncate_summary(chunk),  # 截断摘要文本
                             "type": "text",
                             "page_idx": int(page_idx),
-                            "principal_ids": principal_ids,
+                            "principal_ids": principal_ids_str,  # 使用JSON字符串
                             "create_time": "",  # 插入数据时更新
                             "update_time": "",  # 插入数据时更新
                             "metadata": {}
@@ -320,10 +351,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     "segment_id": image_segment_id,
                     "doc_id": doc_id,
                     "document_name": document_name,
-                    "summary_text": None,
+                    "summary_text": truncate_summary(image_title),  # 截断摘要文本
                     "type": "image",
                     "page_idx": int(page_idx),
-                    "principal_ids": principal_ids,
+                    "principal_ids": principal_ids_str,  # 使用JSON字符串
                     "create_time": "",  # 插入数据时更新
                     "update_time": "",  # 插入数据时更新
                     "metadata": {
@@ -364,33 +395,60 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
         bool: 保存是否成功
     """
     try:
-        # 保存到 MySQL
+        # 1. 数据验证和日志记录
+        valid_milvus_batch = []
+        for idx, item in enumerate(milvus_batch):
+            vector = item.get('vector', [])
+            segment_id = item.get('segment_id', 'unknown')
+            doc_id = item.get('doc_id', 'unknown')
+            type = item.get('type', 'unknown')
+            
+            # 详细记录异常数据信息
+            if not isinstance(vector, list):
+                logger.error(f"向量数据格式错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
+                logger.error(f"向量类型: {type(vector)}, 期望类型: list")
+                continue
+                
+            if len(vector) != 1024:
+                logger.error(f"向量维度错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
+                logger.error(f"向量维度: {len(vector)}, 期望维度: 1024")
+                continue
+                
+            if not all(isinstance(x, (int, float)) for x in vector):
+                logger.error(f"向量数据类型错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
+                logger.error(f"向量数据类型: {[type(x) for x in vector[:5]]}...")
+                continue
+                
+            valid_milvus_batch.append(item)
+            
+        # 2. 保存到 MySQL
         with ChunkOperation() as chunk_op:
-            for segment in mysql_batch:
-                chunk_info = {
-                    "segment_text": segment["segment_text"],
-                    "doc_id": segment["doc_id"],
-                    "segment_id": segment["segment_id"],
-                    "parent_segment_id": segment["parent_segment_id"],
-                }
+            for idx, segment in enumerate(mysql_batch):
                 try:
-                    # 尝试插入，如果失败则更新
-                    chunk_op.insert(chunk_info)
+                    chunk_op.insert(segment)
                 except Exception as e:
-                    if "Duplicate entry" in str(e):
-                        # 如果是重复记录，则更新
-                        chunk_op.update_by_doc_id(segment["segment_id"], chunk_info)
-                    else:
-                        raise
+                    logger.error(f"MySQL插入失败 - 索引: {idx}")
+                    logger.error(f"数据信息: segment_id: {segment.get('segment_id', 'unknown')}, doc_id: {segment.get('doc_id', 'unknown')}")
+                    logger.error(f"错误详情: {str(e)}")
+                    continue
         
-        # 保存到 Milvus
-        vector_op = VectorOperation()
-        try:
-            vector_op.insert_data(milvus_batch)
-        finally:
-            vector_op.close()
-        
+        # 3. 保存到 Milvus
+        if valid_milvus_batch:
+            vector_op = VectorOperation()
+            try:
+                # 插入数据
+                vector_op.insert_data(valid_milvus_batch)
+                # 执行 flush 操作
+                vector_op.flush()
+                logger.info(f"成功保存并持久化 {len(valid_milvus_batch)} 条数据到 Milvus")
+            except Exception as e:
+                logger.error(f"Milvus 操作失败: {str(e)}")
+                raise
+        else:
+            logger.warning("没有有效的数据需要保存到 Milvus")
+            
         return True
     except Exception as e:
         logger.error(f"保存批次数据失败: {str(e)}")
-        raise
+        logger.error(f"异常数据批次大小: Milvus={len(milvus_batch)}, MySQL={len(mysql_batch)}")
+        return False
