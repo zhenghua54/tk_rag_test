@@ -13,6 +13,7 @@ from src.core.llm.extract_summary import extract_table_summary, extract_text_sum
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text
+from src.database.elasticsearch.operations import ElasticsearchOperation
 from config.settings import Config
 
 
@@ -51,7 +52,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
         List[Dict]: 分块结果列表
     """
     logger.info(f"开始处理文档 {document_name} (doc_id: {doc_id}) 的分块...")
-    
+
     # 参数验证
     Validator.validate_not_empty(document_name, "document_name")
     Validator.validate_doc_id(doc_id)
@@ -64,7 +65,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
         "roles": principal_ids.get("roles", []),
         "users": principal_ids.get("users", [])
     }
-    
+
     # 将权限数据转换为JSON字符串
     principal_ids_str = json.dumps(permissions, ensure_ascii=False)
 
@@ -85,7 +86,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     # 遍历处理每一页的内容
     total_pages = len(page_content_dict)
     logger.info(f"开始处理 {total_pages} 页内容...")
-    
+
     def truncate_summary(text: str, max_length: int = 4096) -> str:
         """截断摘要文本，确保不超过最大长度
         
@@ -101,7 +102,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
         if len(text) <= max_length:
             return text
         # 在最大长度处截断，并添加省略号
-        return text[:max_length-3] + "..."
+        return text[:max_length - 3] + "..."
 
     for page_idx, page_contents in page_content_dict.items():
         logger.info(f"正在处理第 {page_idx} 页内容...")
@@ -117,21 +118,21 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 # 非文本内容时，处理已累积的文本内容
                 texts = "".join(text_list).strip()  # 提取积累的文本
                 text_list = []  # 置空存储
-                
+
                 # 对文本分块
                 text_chunks = text_splitter.split_text(texts)
                 logger.info(f"文本内容分块完成，共 {len(text_chunks) + 1} 个块")
-                
+
                 # 分批处理文本块
                 for i in range(0, len(text_chunks), batch_size):
                     batch_chunks = text_chunks[i:i + batch_size]
-                    
+
                     # 生成各分块的片段 id 和向量
                     for chunk in batch_chunks:
                         segment_id = generate_segment_id(chunk)  # 片段 ID
                         vector = embed_text(chunk)  # 片段向量
                         logger.debug(f"生成文本片段向量，segment_id: {segment_id}")
-                    
+
                         # 构建milvus存储结果
                         text_milvus_res = {
                             "vector": vector,
@@ -176,14 +177,14 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 table_html = content['table_body'].strip()
                 table_markdown = html_table_to_markdown(table_html)
                 logger.info(f"表格转换为 Markdown 格式，长度: {len(table_markdown)}")
-                
+
                 if len(table_markdown) > 1000:
                     logger.info("表格内容较长，进行分块处理...")
                     # 保存母表信息：
                     table_table_vector = embed_text(content['table_summary'])
                     parent_segment_id = generate_segment_id(content["table_body"])
                     logger.debug(f"生成母表向量，parent_segment_id: {parent_segment_id}")
-                    
+
                     parent_milvus_res = {
                         "vector": table_table_vector,
                         "segment_id": parent_segment_id,
@@ -215,12 +216,12 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     # 处理子表信息: 将markdown格式的内容送入切块
                     sub_table_chunks = text_splitter.split_text(table_markdown)
                     logger.info(f"表格分块完成，共 {len(sub_table_chunks)} 个子块")
-                    
+
                     for table_segment in sub_table_chunks:
                         sub_table_vector = embed_text(table_segment)
                         sub_segment_id = generate_segment_id(table_segment)
                         logger.debug(f"生成子表向量，sub_segment_id: {sub_segment_id}")
-                        
+
                         # 构建子表信息
                         sub_milvus_res = {
                             "vector": sub_table_vector,
@@ -253,7 +254,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     table_vector = embed_text(table_markdown)
                     table_segment_id = generate_segment_id(content["table_body"])
                     logger.debug(f"生成表格向量，table_segment_id: {table_segment_id}")
-                    
+
                     table_milvus_res = {
                         "vector": table_vector,
                         "segment_id": table_segment_id,
@@ -286,21 +287,21 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 # 非文本内容时，处理已累积的文本内容
                 texts = "".join(text_list).strip()  # 提取积累的文本
                 text_list = []  # 置空存储
-                
+
                 # 对文本分块
                 text_chunks = text_splitter.split_text(texts)
                 logger.info(f"文本内容分块完成，共 {len(text_chunks) + 1} 个块")
-                
+
                 # 分批处理文本块
                 for i in range(0, len(text_chunks), batch_size):
                     batch_chunks = text_chunks[i:i + batch_size]
-                    
+
                     # 生成各分块的片段 id 和向量
                     for chunk in batch_chunks:
                         segment_id = generate_segment_id(chunk)  # 片段 ID
                         vector = embed_text(chunk)  # 片段向量
                         logger.debug(f"生成文本片段向量，segment_id: {segment_id}")
-                    
+
                         # 构建milvus存储结果
                         text_milvus_res = {
                             "vector": vector,
@@ -332,8 +333,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         milvus_batch = []
                         mysql_batch = []
                         logger.info(f"已保存 {batch_size} 条记录")
-                
-                
+
                 # 处理图片
                 # 判断图片内容是否为空
                 if not content.get('img_path'):
@@ -341,11 +341,11 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     continue
 
                 logger.info(f"处理第 {page_idx} 页的图片内容...")
-                image_title = content["img_caption"]    # 图片标题
+                image_title = content["img_caption"]  # 图片标题
                 image_vector = embed_text(image_title)
                 image_segment_id = generate_segment_id(image_title)
                 logger.debug(f"生成图片向量，image_segment_id: {image_segment_id}")
-                
+
                 image_milvus_res = {
                     "vector": image_vector,
                     "segment_id": image_segment_id,
@@ -364,7 +364,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     }
                 }
                 milvus_batch.append(image_milvus_res)
-                img_segment_text = {"title":image_title,"img_path":content['img_path']}
+                img_segment_text = {"title": image_title, "img_path": content['img_path']}
                 image_mysql_res = {
                     "segment_text": json.dumps(img_segment_text),
                     "doc_id": doc_id,
@@ -379,7 +379,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     if milvus_batch or mysql_batch:
         save_batch(milvus_batch, mysql_batch)
         logger.info(f"已保存剩余 {len(milvus_batch)} 条记录")
-    
+
     logger.info(f"文档分块完成")
     return True
 
@@ -397,42 +397,53 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
     try:
         # 1. 数据验证和日志记录
         valid_milvus_batch = []
+        es_batch = []
+
         for idx, item in enumerate(milvus_batch):
             vector = item.get('vector', [])
             segment_id = item.get('segment_id', 'unknown')
             doc_id = item.get('doc_id', 'unknown')
             type = item.get('type', 'unknown')
-            
+
             # 详细记录异常数据信息
             if not isinstance(vector, list):
-                logger.error(f"向量数据格式错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
+                logger.error(
+                    f"向量数据格式错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
                 logger.error(f"向量类型: {type(vector)}, 期望类型: list")
                 continue
-                
+
             if len(vector) != 1024:
                 logger.error(f"向量维度错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
                 logger.error(f"向量维度: {len(vector)}, 期望维度: 1024")
                 continue
-                
+
             if not all(isinstance(x, (int, float)) for x in vector):
-                logger.error(f"向量数据类型错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
+                logger.error(
+                    f"向量数据类型错误 - 索引: {idx}, segment_id: {segment_id}, doc_id: {doc_id}, type: {type}")
                 logger.error(f"向量数据类型: {[type(x) for x in vector[:5]]}...")
                 continue
-                
+
             valid_milvus_batch.append(item)
-            
-        # 2. 保存到 MySQL
+
+        # 2. 保存到 MySQL(原文)
         with ChunkOperation() as chunk_op:
             for idx, segment in enumerate(mysql_batch):
                 try:
                     chunk_op.insert(segment)
+                    # 使用 mysql 中的原文数据构建 ES 数据
+                    es_batch.append({
+                        "segment_id": segment["segment_id"],
+                        "doc_id": segment["doc_id"],
+                        "segment_text": segment["segment_text"]  # 使用 MySQL 中的原文
+                    })
                 except Exception as e:
                     logger.error(f"MySQL插入失败 - 索引: {idx}")
-                    logger.error(f"数据信息: segment_id: {segment.get('segment_id', 'unknown')}, doc_id: {segment.get('doc_id', 'unknown')}")
+                    logger.error(
+                        f"数据信息: segment_id: {segment.get('segment_id', 'unknown')}, doc_id: {segment.get('doc_id', 'unknown')}")
                     logger.error(f"错误详情: {str(e)}")
                     continue
-        
-        # 3. 保存到 Milvus
+
+        # 3. 保存到 Milvus(向量和元数据)
         if valid_milvus_batch:
             vector_op = VectorOperation()
             try:
@@ -444,9 +455,19 @@ def save_batch(milvus_batch: List[Dict], mysql_batch: List[Dict]) -> bool:
             except Exception as e:
                 logger.error(f"Milvus 操作失败: {str(e)}")
                 raise
+
+        # 4. 保存到 ES(用于 BM25 检索)
+        if es_batch:
+            try:
+                es_op = ElasticsearchOperation()
+                es_op.insert_data(es_batch)
+                logger.info(f"成功保存 {len(es_batch)} 条数据到 ES")
+            except Exception as e:
+                logger.error(f"ES 操作失败: {str(e)}")
+                raise
         else:
-            logger.warning("没有有效的数据需要保存到 Milvus")
-            
+            logger.warning("没有有效的数据需要保存到 ES")
+
         return True
     except Exception as e:
         logger.error(f"保存批次数据失败: {str(e)}")

@@ -23,7 +23,7 @@ cachetools==5.5.2
 certifi==2025.4.26
 cffi==1.17.1
 charset-normalizer==3.4.2
-click @ file:///croot/click_1744271578095/work
+click
 cloudpickle==3.1.1
 coloredlogs==15.0.1
 colorlog==6.9.0
@@ -174,7 +174,7 @@ PyMySQL==1.1.1
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
 python-docx==1.1.2
-python-dotenv
+python-dotenv~=1.1.0
 python-json-logger==3.3.0
 python-magic==0.4.27
 python-multipart==0.0.20
@@ -246,6 +246,6 @@ xgrammar==0.1.19
 yarl==1.20.0
 zipp==3.22.0
 zstandard==0.23.0
-
 python-dotenv~=1.1.0
 setuptools~=78.1.1
+elasticsearch~=9.0.1
