@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS chunk_info (
     parent_segment_id VARCHAR(64),  -- 分块的父表 segment_ID
     segment_text TEXT NOT NULL,  -- 分块的文本内容
     doc_id VARCHAR(64) NOT NULL,  -- 与文件关联的文档ID
-    UNIQUE(segment_id),  -- 保证分块ID唯一
     INDEX idx_doc_id (doc_id),  -- 针对doc_id的索引
     FOREIGN KEY (doc_id) REFERENCES file_info(doc_id) ON DELETE CASCADE,  -- 外键约束
     INDEX idx_segment_id (segment_id)  -- 为segment_id增加索引以优化查询

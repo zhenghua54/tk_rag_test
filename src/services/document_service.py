@@ -41,7 +41,7 @@ def process_document(file_path: str):
     with FileInfoOperation() as f:
         select_res = f.get_file_by_doc_id(doc_id)
         # 如果已存在，直接返回已解析的 JSON 文件路径
-        if select_res['source_document_json_path']:
+        if select_res and select_res['source_document_json_path']:
             logger.info(f"该文件已解析，json 文件路径：{select_res['source_document_json_path']}")
             # 直接使用已存在的 JSON 文件进行清洗
             path_info = {"json_path": select_res['source_document_json_path'],
@@ -118,7 +118,7 @@ def process_document(file_path: str):
         content_dict = json.load(f)
     
     # 分块
-    segment_text_content(doc_id=doc_id, document_name=path_info["doc_name"], page_content_dict=content_dict, principal_ids=[{"partment_id": ["1"]}])
+    segment_text_content(doc_id=doc_id, document_name=path_info["doc_name"], page_content_dict=content_dict, principal_ids={"departments": ["1"]})
 
 
 def test_document_processing():
@@ -137,7 +137,7 @@ def test_document_processing():
 
 if __name__ == "__main__":
     # 测试代码
-    test_file_path = "/home/jason/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
+    test_file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
     # test_file_path = "/home/wumingxing/tk_rag/datas/raw/1_1_竞争情况（天宽科技）.docx"  # 替换为实际的测试文件路径
     process_document(test_file_path)
 

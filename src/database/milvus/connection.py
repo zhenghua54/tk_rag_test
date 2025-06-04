@@ -1,6 +1,8 @@
 """ Milvus 数据库操作工具 """
 
 from typing import List, Dict, Any
+import json
+from pathlib import Path
 from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType, Collection, connections
 
 from config.settings import Config
@@ -29,6 +31,12 @@ class MilvusDB:
         self.collection_name = Config.MILVUS_CONFIG["collection_name"]
         self.collection = None  # 集合不存在时,初始化时不会创建集合实例
 
+    def _load_schema(self) -> Dict:
+        """加载 Milvus schema 配置"""
+        schema_path = Config.MILVUS_CONFIG["schema_path"]
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+
     def init_database(self) -> None:
         """初始化数据库和集合"""
         # 创建数据库（如果不存在）
@@ -55,28 +63,33 @@ class MilvusDB:
 
     def _create_collection(self) -> None:
         """创建集合和索引"""
+        # 加载 schema 配置
+        schema_config = self._load_schema()
+        
+        # 创建字段
         fields = []
-
-        # 从配置文件添加字段
-        for field_name, field_config in Config.MILVUS_CONFIG['fields'].items():
-            fields.append(
-                FieldSchema(
-                    name=field_name,
-                    dtype=getattr(DataType, field_config['datatype']),
-                    **{k: v for k, v in field_config.items() if k != 'datatype'}
-                )
+        for field_config in schema_config["fields"]:
+            field = FieldSchema(
+                name=field_config["name"],
+                dtype=getattr(DataType, field_config["type"]),
+                description=field_config.get("description", ""),
+                is_primary=field_config.get("is_primary", False),
+                **{k: v for k, v in field_config.items() 
+                   if k not in ["name", "type", "description", "is_primary"]}
             )
+            fields.append(field)
+
+        # 创建 schema
         schema = CollectionSchema(
             fields=fields,
             description="企业知识库文档向量库 (支持文档管理 + 部门/角色过滤)",
-            enable_dynamic_field=True,
-            auto_id=False
+            enable_dynamic_field=True
         )
 
-        # 创建集合,使用配置文件中的 index_params 创建索引
+        # 创建集合
         self.client.create_collection(
             collection_name=self.collection_name,
-            schema=schema,
+            schema=schema
         )
         logger.info(f"集合 {self.collection_name} 创建成功")
 
@@ -97,7 +110,7 @@ class MilvusDB:
         indexes = self.client.list_indexes(collection_name=self.collection_name)
         logger.info(f"集合 {self.collection_name} 当前索引列表: {indexes}")
 
-    def insert_data(self, data: List[Dict[str, Any]]) -> None:
+    def insert_data(self, data: List[Dict[str, Any]]) -> List[str]:
         """插入数据到集合
         
         Args:
@@ -109,8 +122,11 @@ class MilvusDB:
         Raises:
             ValueError: 当数据格式不符合要求输出
         """
+        # 加载 schema 配置
+        schema_config = self._load_schema()
+        required_fields = [field["name"] for field in schema_config["fields"]]
+        
         # 验证数据格式
-        required_fields = Config.MILVUS_CONFIG['fields'].keys()
         for idx, item in enumerate(data):
             missing_fields = set(required_fields) - set(item.keys())
             if missing_fields:

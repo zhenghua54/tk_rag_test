@@ -21,8 +21,6 @@ from src.utils.common.logger import logger
 
 
 
-
-
 def generate_doc_id(text: str) -> str:
     """根据文本内容生成唯一的哈希值
     
