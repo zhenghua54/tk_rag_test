@@ -102,7 +102,7 @@ class MilvusDB:
         # 创建 schema
         schema = CollectionSchema(
             fields=fields,
-            description="企业知识库文档向量库 (支持文档管理 + 部门/角色过滤)",
+            description="天宽认知大模型文档向量库",
             enable_dynamic_field=True
         )
 

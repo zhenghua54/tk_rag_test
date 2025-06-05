@@ -62,7 +62,7 @@ class Config:
         "port": 19530,
         "token": "root:Milvus",
         "db_name": "default",
-        "collection_name": "tk_rag",
+        "collection_name": "rag_collection",
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "milvus_schema.json"),
         "vector_field": "vector",
         "vector_dim": 1024,
@@ -85,8 +85,8 @@ class Config:
         "password": "Tk@654321",
         "charset": "utf8mb4",
         "database": "rag_db",
-        "file_info_table": "file_info",
-        "segment_info_table": "chunk_info",
+        "file_info_table": "doc_info",
+        "segment_info_table": "segment_info",
         "permission_info_table": "permission_info",
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
     }
@@ -95,7 +95,7 @@ class Config:
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
         "timeout": 30,  # 请求超时时间（秒）
-        "index_name": "segment_text",  # 索引名称
+        "index_name": "rag_index",  # ES 索引（数据库）名称
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),  # schema 配置文件路径
         # 安全配置
         "username": os.getenv("ES_USER"),  # ES 用户名

@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS segment_info
     seg_page_idx   VARCHAR(100),                                          -- 分块所在页码
     doc_id         VARCHAR(64) NOT NULL,                                  -- 与文件关联的文档ID
     INDEX idx_doc_id (doc_id),                                            -- 针对 doc_id 的索引
-    FOREIGN KEY (doc_id) REFERENCES file_info (doc_id) ON DELETE CASCADE, -- 外键约束
+    FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE, -- 外键约束
     INDEX idx_segment_id (seg_id)                                         -- 为 segment_id 增加索引以优化查询
 );
 
