@@ -67,11 +67,11 @@ class TableMerge:
         return pd.concat([table1_df, table2_df], ignore_index=False)
     
     
-    # def merge_cross_page_tables(self, content_list: list) -> list:
+    # def merge_cross_page_tables(self, doc_content: list) -> list:
         """处理分页表格
         
         Args:
-            content_list: json格式的文档内容列表
+            doc_content: json格式的文档内容列表
             
         Returns:
             list: 处理完跨页表格后的内容列表
@@ -84,14 +84,14 @@ class TableMerge:
         success_merges = []     # 记录成功合并的页码
         failed_merges = []      # 记录合并失败的页码
         
-        while i < len(content_list):
+        while i < len(doc_content):
             # 检查当前页是否有内容
-            if not content_list[i].get('content'):
+            if not doc_content[i].get('content'):
                 i += 1
                 continue
                 
             # 提取第一个元素
-            item = content_list[i]['content'][0]
+            item = doc_content[i]['content'][0]
             
             # 检查是否为表格
             if item['type'] != 'table':
@@ -116,10 +116,10 @@ class TableMerge:
                     
                     # 从当前页向前查找
                     for j in range(i-1, -1, -1):
-                        if not content_list[j].get('content'):
+                        if not doc_content[j].get('content'):
                             continue
                             
-                        last_item = content_list[j]['content'][-1]
+                        last_item = doc_content[j]['content'][-1]
                         if last_item['type'] in ['table', 'merged_table']:
                             merge_target = last_item
                             merge_target_idx = j
@@ -192,7 +192,7 @@ class TableMerge:
                                 success_merges.append(i)
                             
                             # 移除当前页面的当前表格(第一个元素)
-                            content_list[i]['content'].pop(0)
+                            doc_content[i]['content'].pop(0)
                             continue
                             
                         except Exception as e:
@@ -210,12 +210,12 @@ class TableMerge:
         logger.info(f"成功合并 {len(success_merges)} 页: {sorted(success_merges)}")
         logger.info(f"合并失败 {len(failed_merges)} 页: {sorted(failed_merges)}")
             
-        return content_list
+        return doc_content
 
 
 if __name__ == "__main__":
     table_merge = TableMerge()
     json_file_path = "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225_content_list.json"
-    content_list = parse_json_file(json_file_path)
-    new_content_list = table_merge.process_tables(content_list)
+    doc_content = parse_json_file(json_file_path)
+    new_content_list = table_merge.process_tables(doc_content)
     print(new_content_list)

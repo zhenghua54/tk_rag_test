@@ -21,6 +21,8 @@ class DocumentService(BaseService):
             Dict: 上传响应数据
         """
         # TODO: 实现真实的文档上传逻辑
+        # 获取到文件路径和权限信息后，保存到数据库并返回上传结果
+
         raise NotImplementedError("真实文档上传服务尚未实现")
     
     async def delete(self, doc_id: str, is_soft_delete: bool = False) -> Dict[str, Any]:

@@ -1,6 +1,7 @@
 """使用 LLM 提取摘要"""
 import os
 import json
+import re
 from typing import Dict
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -47,20 +48,24 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
     try:
         # 清理输入文本
         cleaned_text = summary.strip()
-        
+        json_text = re.sub(r'^```json\n|\n```$', '', cleaned_text).strip()
+
+        if not json_text:
+            raise ValueError("清理后的 Json 文本为空， 无法解析")
+
             
         # 尝试直接解析 JSON
         try:
-            result = json.loads(cleaned_text)
+            result = json.loads(json_text)
         except json.JSONDecodeError:
             # 如果直接解析失败，尝试提取 JSON 部分
-            import re
             # 匹配最外层的花括号及其内容
-            json_match = re.search(r'^\s*\{[^{}]*\}\s*$', cleaned_text, re.DOTALL)
+            json_match = re.search(r'^\s*\{[^{}]*\}\s*$', json_text, re.DOTALL)
             if not json_match:
                 raise ValueError("无法从文本中提取 JSON 数据")
             result = json.loads(json_match.group().strip())
-            
+
+
         # 验证结果格式
         if not isinstance(result, dict):
             raise ValueError("解析结果不是字典类型")
@@ -124,7 +129,7 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
     try:
         # 调用混元 API
         completion = client.chat.completions.create(
-            model='hunyuan-turbos-latest',
+            model='qwen-turbo',
             stream=False,
             messages=[
                 {"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
@@ -173,7 +178,7 @@ def extract_text_summary(text: str) -> str:
     try:
         # 调用混元 API
         completion = client.chat.completions.create(
-            model='hunyuan-turbos-latest',
+            model='qwen-turbo',
             stream=False,
             messages=[
                 {"role": "system", "content": "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。"},

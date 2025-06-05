@@ -1,0 +1,166 @@
+text_milvus_res = {
+    "vector": vector,
+    "segment_id": segment_id,
+    "doc_id": doc_id,
+    "document_name": document_name,
+    "summary_text": truncate_summary(chunk),  # 截断摘要文本
+    "type": "text",
+    "page_idx": int(page_idx),
+    "principal_ids": principal_ids_str,  # 使用JSON字符串
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+    "metadata": {}
+}
+
+
+parent_milvus_res = {
+    "vector": table_table_vector,
+    "segment_id": parent_segment_id,
+    "doc_id": doc_id,
+    "document_name": document_name,
+    "summary_text": truncate_summary(content['table_summary']),  # 截断摘要文本
+    "type": "parent_table",
+    "page_idx": int(page_idx),
+    "principal_ids": principal_ids_str,  # 使用JSON字符串
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+    "metadata": {
+        "table_raw": table_markdown,
+        "table_token_length": len(table_markdown),
+        "img_path": content['img_path'],
+        "caption": content['table_caption'],
+        "footnote": content['table_footnote'],
+    }
+}
+
+# 构建子表信息
+sub_milvus_res = {
+    "vector": sub_table_vector,
+    "segment_id": sub_segment_id,
+    "doc_id": doc_id,
+    "document_name": document_name,
+    "summary_text": truncate_summary(table_segment),  # 截断摘要文本
+    "type": "sub_table",
+    "page_idx": int(page_idx),
+    "principal_ids": principal_ids_str,  # 使用JSON字符串
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+    "metadata": {
+        "table_raw": table_segment,
+        "raw_table_segment_id": parent_segment_id,
+        "table_token_length": len(table_segment),
+    }
+}
+
+table_milvus_res = {
+    "vector": table_vector,
+    "segment_id": table_segment_id,
+    "doc_id": doc_id,
+    "document_name": document_name,
+    "summary_text": truncate_summary(content['table_summary']),  # 截断摘要文本
+    "type": "table",
+    "page_idx": int(page_idx),
+    "principal_ids": principal_ids_str,  # 使用JSON字符串
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+    "metadata": {
+        "table_raw": table_markdown,
+        "table_token_length": len(table_markdown),
+        "img_path": content['img_path'],
+        "caption": content['table_caption'],
+        "footnote": content['table_footnote'],
+    }
+}
+
+image_milvus_res = {
+    "vector": image_vector,
+    "segment_id": image_segment_id,
+    "doc_id": doc_id,
+    "document_name": document_name,
+    "summary_text": truncate_summary(image_title),  # 截断摘要文本
+    "type": "image",
+    "page_idx": int(page_idx),
+    "principal_ids": principal_ids_str,  # 使用JSON字符串
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+    "metadata": {
+        "img_path": content['img_path'],
+        "caption": content['img_caption'],
+        "footnote": content['img_footnote'],
+    }
+}
+
+# 向量数据库只做向量检索，其余数据统一从 mysql 中返回
+milvus_res = {
+    # 通用部分
+    "vector": vector,   # 文本 embed，表格（母表是摘要的 embed，子表是表格块的 embed），图片标题 embed
+    "segment_id": image_segment_id, # 同上
+    "doc_id": doc_id,   # 共用的文档 ID
+    "segment_content": truncate_summary(text | table_summary | image_title | table_body) ,  # 截断摘要文本
+    "type": "image | text | parent_table | sub_table | table",
+    "principal_ids": principal_ids_str,  # 使用JSON字符串存储字典 {department:[],role:[]}
+    "create_time": "",  # 插入数据时更新
+    "update_time": "",  # 插入数据时更新
+
+    # 元数据部分
+    "metadata": {
+            "table_raw": table_markdown, --
+        "table_token_length": len(table_markdown), --
+        "img_path": content['img_path'], --
+        "caption": content['table_caption'],
+        "footnote": content['table_footnote'],
+                "table_raw": table_segment, --
+        "raw_table_segment_id": parent_segment_id, --
+        "table_token_length": len(table_segment), --
+
+        "img_path": None | content['img_path'] | , --
+        "caption": content['img_caption'],
+        "footnote": content['img_footnote'],
+    }
+}
+
+
+{
+  "collection_name": "tk_rag",
+      "name": "vector",
+      "name": "segment_id",
+      "name": "doc_id",
+      "name": "segment_content",
+      "name": "type",
+      "name": "permission_ids",
+      "name": "create_time",
+      "name": "update_time",
+      "name": "metadata",
+
+doc_info
+    fid
+    doc_id
+    doc_name
+    doc_type
+    doc_path
+    doc_pdf_path
+    doc_json_path
+    doc_images_path
+    doc_process_path
+    created_at
+    updated_at
+
+segment_info
+    cid
+    seg_id
+    seg_parent_id
+    seg_content
+    seg_image_path
+    seg_caption
+    seg_footnote
+    seg_len
+    seg_type
+    seg_page_idx
+    doc_id
+
+permission_info
+    pid
+    department_id
+    doc_id
+    created_at
+    updated_at

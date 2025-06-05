@@ -23,17 +23,6 @@
         "type": "text",
         "analyzer": "ik_smart_analyzer",
         "search_analyzer": "ik_smart_analyzer"
-      },
-      "type": {
-        "type": "keyword"
-      },
-      "update_time": {
-        "type": "date",
-        "format": "yyyy-MM-dd HH:mm:ss||epoch_millis"
-      },
-      "metadata": {
-        "type": "object",
-        "enabled": true
       }
     }
   }

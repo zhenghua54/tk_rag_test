@@ -1,71 +1,60 @@
 {
-    "collection_name": "tk_rag",
-    "fields": [
-      {
-        "name": "vector",
-        "type": "FLOAT_VECTOR",
-        "dim": 1024,
-        "is_primary": false,
-        "description": "主向量字段，使用 BGE-M3 生成"
-      },
-      {
-        "name": "segment_id",
-        "type": "VARCHAR",
-        "max_length": 64,
-        "description": "唯一段落ID（使用哈希值）"
-      },
-      {
-        "name": "doc_id",
-        "type": "VARCHAR",
-        "max_length": 64,
-        "is_primary": true,
-        "description": "文档ID（哈希值）"
-      },
-      {
-        "name": "document_name",
-        "type": "VARCHAR",
-        "max_length": 256,
-        "description": "文档名称"
-      },
-      {
-        "name": "summary_text",
-        "type": "VARCHAR",
-        "max_length": 4096,
-        "description": "摘要内容，用于后验展示"
-      },
-      {
-        "name": "type",
-        "type": "VARCHAR",
-        "max_length": 32,
-        "description": "片段类型，如 text / table / image"
-      },
-      {
-        "name": "page_idx",
-        "type": "INT64",
-        "description": "该段在文档中的页码"
-      },
-      {
-        "name": "principal_ids",
-        "type": "VARCHAR",
-        "max_length": 1024,
-        "description": "权限ID列表，JSON格式，包含departments、roles、users等权限信息"
-      },
-      {
-        "name": "create_time",
-        "type": "VARCHAR",
-        "max_length": 64,
-        "description": "嵌入创建时间"
-      },
-      {
-        "name": "update_time",
-        "type": "VARCHAR",
-        "max_length": 64,
-        "description": "嵌入更新时间"
-      },
-      {
-        "name": "metadata",
-        "type": "JSON",
-        "description": "可选扩展字段（如图片路径、源表格结构等）"
+  "collection_name": "tk_rag",
+  "fields": [
+    {
+      "name": "vector",
+      "type": "FLOAT_VECTOR",
+      "dim": 1024,
+      "is_primary": false,
+      "description": "主向量字段，使用 BGE-M3 生成"
+    },
+    {
+      "name": "segment_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "段落ID（使用哈希值）"
+    },
+    {
+      "name": "doc_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "is_primary": true,
+      "description": "唯一文档ID（哈希值）"
+    },
+    {
+      "name": "segment_content",
+      "type": "VARCHAR",
+      "max_length": 1024,
+      "description": "摘要内容，用于后验展示"
+    },
+    {
+      "name": "type",
+      "type": "VARCHAR",
+      "max_length": 32,
+      "description": "片段类型，如 text / table / image"
+    },
+    {
+      "name": "permission_ids",
+      "type": "VARCHAR",
+      "max_length": 1024,
+      "description": "权限ID列表，JSON格式，包含departments、roles、users等权限信息"
+    },
+    {
+      "name": "create_time",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "嵌入创建时间"
+    },
+    {
+      "name": "update_time",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "嵌入更新时间"
+    },
+    {
+      "name": "metadata",
+      "type": "JSON",
+      "description": "可选扩展字段"
       }
     ]
   }

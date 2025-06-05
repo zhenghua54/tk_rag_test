@@ -172,16 +172,16 @@ def segment_content(model: SentenceTransformer, file_content: str) -> Dict[str, 
     
     return chunks
 
-def segment_chunk_content(content_list: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+def segment_chunk_content(doc_content: List[Dict[str, Any]]) -> Dict[str, List[str]]:
     """切分文本, 返回切分后的文本列表
     
     Args:
-        content_list: 文档内容列表, 按照元素粗切后的
+        doc_content: 文档内容列表, 按照元素粗切后的
         
         
     """
     # 提取元素块
-    content_chunk = content_list[1]['chunks']
+    content_chunk = doc_content[1]['chunks']
     
     # 对表格内容
     

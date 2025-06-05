@@ -185,7 +185,7 @@ def convert_to_pdf(input_file: str, output_dir: Optional[str] = None) -> Optiona
 
 if __name__ == "__main__":
     # 测试代码
-    test_file = "/home/wumingxing/tk_rag/datas/raw/1_1_竞争情况（天宽科技）.docx"
+    test_file = "/datas/raw/1_1_竞争情况（天宽科技）.docx"
     try:
         pdf_path = convert_to_pdf(test_file)
         if pdf_path:
