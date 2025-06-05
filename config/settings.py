@@ -75,7 +75,7 @@ class Config:
             "params": {"nlist": 1024},
         },
         "search_params": {
-            "nprobe": 10
+            "nprobe": 50
         }
     }
 

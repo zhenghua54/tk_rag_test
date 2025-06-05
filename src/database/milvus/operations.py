@@ -2,7 +2,6 @@
 
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from config.settings import Config
 from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
 from src.utils.common.args_validator import Validator

@@ -1,18 +1,17 @@
 import sys
 import os
 import json
-from typing import Any
 
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(root_path)
 
 from config.settings import Config
-from src.core.document.pdf_parser import parse_pdf_file, parse_office_file
+from src.utils.file.mineru_parser import parse_pdf_file, convert_office_file
 from src.utils.common.logger import logger
 from src.utils.file.file_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
-from src.core.document.processor import process_json_file
-from src.utils.text.text_process import merge_page_content
+from src.core.document.content_merge import process_json_file
+from src.utils.text.title_process import merge_page
 from src.database.elasticsearch.operations import ElasticsearchOperation
 from src.core.document.segment import segment_text_content
 
@@ -58,7 +57,7 @@ def process_document(file_path: str):
                 pdf_path = file_path
             elif file_ext in Config.SUPPORTED_FILE_TYPES["libreoffice"]:
                 # 转换文件为 PDF 格式
-                pdf_path = parse_office_file(file_path)
+                pdf_path = convert_office_file(file_path)
                 if not pdf_path:
                     logger.error(f"未获取到转换后的 PDF 文件: {file_path}")
                     return None
@@ -93,12 +92,12 @@ def process_document(file_path: str):
         logger.warning(f"处理后的 JSON 文件已存在: {save_file_path}")
     else:
         # 处理表格和图片标题（调取LLM生成摘要和标题）
-        content_list = process_json_file(path_info["json_path"])
-        if not content_list:
+        doc_content = process_json_file(path_info["json_path"])
+        if not doc_content:
             logger.error(f"处理表格和图片标题失败: {path_info['json_path']}")
 
         # 按页聚合
-        content_dict = merge_page_content(content_list)
+        content_dict = merge_page(doc_content)
 
         # 保存处理后的 json 文件
         with open(save_file_path, 'w', encoding='utf-8') as f:
@@ -153,17 +152,22 @@ def test_es_operation():
     # doc_id = "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
     # es_op.delete_by_doc_id(doc_id)
     
+    # 清除所有文档
+    # es_op.clear_index()
+    
+    
     # 先获取统计信息
     # stats = es_op.get_stats()
+    
     # 然后列出所有文档
     docs = es_op.list_all_documents()
+
     
     
 
 if __name__ == "__main__":
     # 测试代码
     # test_file_path = "/home/wumingxing/tk_rag/datas/raw/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225.pdf"  # 替换为实际的测试文件路径
-    # test_file_path = "/home/wumingxing/tk_rag/datas/raw/1_1_竞争情况（天宽科技）.docx"  # 替换为实际的测试文件路径
     # process_document(test_file_path)
 
 

@@ -39,20 +39,20 @@ from src.database.mysql.operations import select_non_pdf_files, select_pdf_files
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
 # from src.utils.table_toolkit.table_merge import TableMerge
-from src.core.document.processor import process_tables
+from src.core.document.content_merge import process_tables
 
 # 3. 测试图片标题提取
-from src.core.document.processor import process_images
+from src.core.document.content_merge import process_images
 
 # 4. 测试文档内容清洗
-from src.utils.text.text_process import clean_content
+from src.utils.text.title_process import clean_content
 from src.utils.file.doc_path import get_doc_output_path
 
 
 from src.database.milvus.connection import MilvusDB
 
 # 测试元素切割
-from src.core.document.processor import format_html_table_to_markdown
+from src.core.document.content_merge import format_html_table_to_markdown
 
 
 
@@ -129,13 +129,13 @@ def clean_content_test(doc_id: str):
     
     logger.info(f"开始清洗文档, doc_id: {doc_id}, 文件名: {file_name}")
     # 按页合并内容
-    content_list = parse_json_file(json_file_path)
+    doc_content = parse_json_file(json_file_path)
     
     # 跨页表格合并
     # table_merge = TableMerge()
-    # merged_content_list = table_merge.merge_cross_page_tables(content_list)
+    # merged_content_list = table_merge.merge_cross_page_tables(doc_content)
     # 更新跨页表格的表格标题和脚注
-    merged_content_list = process_tables(content_list)
+    merged_content_list = process_tables(doc_content)
     
     # 图片标题处理
     merged_content_list = process_images(merged_content_list)
@@ -201,14 +201,14 @@ if __name__ == "__main__":
 
     # 检查文档内容中的所有元素类型
     # type_set = {}
-    # for page in content_list:
+    # for page in doc_content:
     #     for item in page['content']:
     #         type_set[item['type']] = type_set.get(item['type'], 0) + 1
     # print(type_set)
     
 
     # # 遍历所有页面,打印包含图片的页面信息
-    # for page in content_list:
+    # for page in doc_content:
     #     # 检查页面是否包含图片且图片标题为空
     #     has_image = any(item['type'] == 'image' for item in page['content'])
     #     if has_image:

@@ -6,7 +6,7 @@ from typing import List, Dict, Optional
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from src.core.document.processor import html_table_to_markdown
+from src.core.document.content_merge import html_table_to_markdown
 from src.utils.common.logger import logger
 from src.utils.common.args_validator import Validator
 from src.core.llm.extract_summary import extract_table_summary, extract_text_summary

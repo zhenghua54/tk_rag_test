@@ -70,7 +70,6 @@ def file_filter(path: str) -> list[dict]:
                 file_filter(os.path.join(root, d))
     return file_infos
 
-
 def compute_file_hash(file: str, algo: str = "sha256") -> str:
     """计算文件内容的哈希值
 

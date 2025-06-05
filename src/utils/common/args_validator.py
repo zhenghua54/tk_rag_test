@@ -1,7 +1,7 @@
 """参数校验工具类"""
+import json
 import os.path
 from typing import Any, List, Union
-from bs4 import BeautifulSoup
 
 
 class Validator:
@@ -105,3 +105,24 @@ class Validator:
         Validator.validate_type(file_path, str, "file_path")
         if not os.path.isfile(file_path):
             raise ValueError(f"文件不存在: {file_path}")
+
+    @staticmethod
+    def validata_json_file(file_path: str) -> None:
+        """检验文件存在且为 json[]格式
+
+        Args:
+        """
+        Validator.validate_not_empty(file_path, "file_path")
+        Validator.validate_type(file_path, str, "file_path")
+        Validator.validate_file(file_path)
+
+        # 读取 JSON 文件
+        try:
+            with open(file=file_path, mode='r', encoding='utf-8') as f:
+                doc_content = json.load(f)
+
+            # 验证内容类型
+            if not isinstance(doc_content, list):
+                raise ValueError("JSON 内容必须是列表类型")
+        except json.JSONDecodeError as e:
+            raise ValueError(f"JSON 解析错误: {str(e)}")

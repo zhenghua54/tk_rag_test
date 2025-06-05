@@ -1,4 +1,4 @@
-"""PDF/office 文件解析,返回 json 文件信息"""
+"""PDF 文件解析,返回 json 文件信息"""
 
 import os
 from typing import Any
@@ -9,11 +9,9 @@ from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 
-from config.settings import Config
 from src.utils.common.logger import logger
 from src.utils.file.file_validator import assert_pdf_validity
 from src.utils.file.doc_path import get_doc_output_path
-from src.core.document.office_convert import convert_to_pdf
 
 
 
@@ -80,39 +78,7 @@ def parse_pdf_file(file_path: str) -> bool | dict[str, str | dict | Any]:
         "output_dir": output_dir
     }
     
-def parse_office_file(file_path: str) -> str | None:
-    """
-    解析 Office 文件, 返回 json 文件信息
-    """
-    if not os.path.exists(file_path):
-        logger.error(f"文件 {file_path} 不存在")
-        return None
-    
-    if os.path.splitext(file_path)[1] not in Config.SUPPORTED_FILE_TYPES["libreoffice"]:
-        logger.error(f"暂不支持该格式文件,目前支持的格式为: {Config.SUPPORTED_FILE_TYPES['libreoffice']}")
-        return None
-    
-    # 获取输出路径
-    output_path = get_doc_output_path(file_path)
-    output_path, output_image_path, doc_name = output_path["output_path"], output_path["output_image_path"], output_path["doc_name"]
-    
-    
-    # 转换为 PDF
-    logger.info(f"开始转换为 PDF")
-    pdf_path = convert_to_pdf(
-        file_path,
-        output_path
-    )
-    if pdf_path:  # 检查转换是否成功
-        logger.info(f"文件转换成功: {pdf_path}")
-        return pdf_path
-    else:
-        logger.error(
-            f"文件转换失败: {file_path}"
-        )
-        return None
-    
-    
+
 
 if __name__ == "__main__":
     pdf_file_name = "/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业/客户资料/知识问答案例/企业标准（约2300条）/规章制度及设计、采购、产品标准等（约1500条）/QSG A0303008-2024 新界泵业应届大学生培养及管理办法.pdf"  # 替换为实际的 PDF 文件路径
