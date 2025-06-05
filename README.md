@@ -61,19 +61,19 @@ tk_rag/
 ## 功能特性
 
 1. 文档处理
-   - 支持多种格式文档（PDF、Word、Excel、PowerPoint）
-   - 自动转换为 PDF 格式
-   - PDF 文档解析和结构化
+    - 支持多种格式文档（PDF、Word、Excel、PowerPoint）
+    - 自动转换为 PDF 格式
+    - PDF 文档解析和结构化
 
 2. 向量存储
-   - 使用 Milvus 向量数据库
-   - 支持文档分块和向量化
-   - 高效的相似度检索
+    - 使用 Milvus 向量数据库
+    - 支持文档分块和向量化
+    - 高效的相似度检索
 
 3. 问答系统
-   - 基于 RAG 的问答生成
-   - 支持上下文理解和多轮对话
-   - 答案来源可追溯
+    - 基于 RAG 的问答生成
+    - 支持上下文理解和多轮对话
+    - 答案来源可追溯
 
 ## 环境要求
 
@@ -102,6 +102,7 @@ conda activate tk_rag
 ```
 
 ### 2. 安装数据库
+
 ```bash
 # 安装 mysql8.0 版本
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb  # 下载安装包
@@ -116,10 +117,7 @@ sudo docker compose up -d   # 执行安装
 # 官方安装文档: https://milvus.io/docs/install_standalone-docker-compose.md
 
 # 安装 ES 并启动
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.1-amd64.deb
-sudo dpkg -i elasticsearch-8.12.1-amd64.deb
-sudo systemctl start elasticsearch
-sudo systemctl enable elasticsearch
+执行脚本 "./install_es_ik.sh"，安装 elasticsearch 和 IK 分词器
 
 # 打开系统防火墙端口
 sudo ufw allow 3306/tcp
@@ -128,6 +126,7 @@ sudo ufw allow 9200/tcp
 ```
 
 ### 3. 安装工具
+
 ```bash
 # 2.1 安装 pytorch == 12.8
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
@@ -148,31 +147,32 @@ python download_models.py
 
 # 2.4 安装 Libreoffice
 sudo apt-get install libreoffice
-
-# 2.5 安装 analysis-ik 分词器
 ```
 
 ### 4. 安装软件包
+
 ```bash
 # 进入项目文件夹安装依赖
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-
 ### 5. 初始化项目
 
 运行初始化脚本：
+
 ```bash
 python scripts/init/init_all.py
 ```
 
 该脚本将：
+
 1. 创建必要的目录结构
 2. 初始化 MySQL 数据库（包括表结构）
 3. 初始化 Milvus 数据库（包括集合和索引）
 4. 初始化 ES 数据库(包括表结构和索引)
 
-###  6. 验证初始化
+### 6. 验证初始化
+
 ```bash
 # 6.1 检查 mysql 数据库连接
 python src/database/mysql/connection.py
@@ -185,23 +185,29 @@ curl -k -u user:passwd https://localhost:9200
 ```
 
 ### 7. 启动 FastAPI
+
 ```bash
 uvicorn app:app --reload --host 0.0.0.0 --port 8000
 ```
+
 #### 接口文档
+
 访问 Swagger 文档来查看和测试这些接口：
+
 - Swagger UI: http://localhost:8000/api/v1/docs
 - ReDoc: http://localhost:8000/api/v1/redoc
 
 #### 接口 url
+
 - 健康检查：http://localhost:8000/api/v1/health
 - 聊天接口：http://localhost:8000/api/v1/rag_chat
 - 上传文档：http://localhost:8000/api/v1/documents
 - 删除文档：http://localhost:8000/api/v1/documents/{doc_id}
 
-
 ## 其他工具推荐
+
 ### 1. ES 数据查询
+
 ```bash
 # Elasticsearch Head：轻量级的 Chrome 插件
 sudo docker run -p 9100:9100 mobz/elasticsearch-head:5

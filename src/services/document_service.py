@@ -120,19 +120,19 @@ def process_document(file_path: str):
     segment_text_content(doc_id=doc_id, document_name=path_info["doc_name"], page_content_dict=content_dict, principal_ids={"departments": ["1"]})
 
 
-def test_document_processing():
-    """测试文档处理流程"""
-    # 测试文件路径
-    test_file_path = "/home/jason/tk_rag/datas/raw/test.pdf"  # 请替换为实际的测试文件路径
-    
-    # 测试文档处理
-    logger.info("开始测试文档处理流程...")
-    process_document(test_file_path)
-    
-    # 测试 Milvus 操作
-    logger.info("开始测试 Milvus 操作...")
-    from src.database.milvus.operations import run_all_tests
-    run_all_tests()
+# def test_document_processing():
+#     """测试文档处理流程"""
+#     # 测试文件路径
+#     test_file_path = "/home/jason/tk_rag/datas/raw/test.pdf"  # 请替换为实际的测试文件路径
+#
+#     # 测试文档处理
+#     logger.info("开始测试文档处理流程...")
+#     process_document(test_file_path)
+#
+#     # 测试 Milvus 操作
+#     logger.info("开始测试 Milvus 操作...")
+#     from src.database.milvus.operations import run_all_tests
+#     run_all_tests()
     
 def test_es_operation():
     """测试 ES 操作"""

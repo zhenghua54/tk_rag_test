@@ -22,15 +22,20 @@ def upload_doc(doc_path: str, department_id: str):
     Validator.validate_department_id(department_id)
 
     # 初始化存储信息
-    doc_id = compute_file_hash(doc_path)  # 文档唯一标识
-    doc_name = os.path.basename(doc_path)  # 文档名称
-    doc_ext = os.path.splitext(doc_path)[1]  # 文档后缀
-    doc_size = convert_bytes(os.path.getsize(doc_path))  # 文档大小
-    doc_path = os.path.abspath(doc_path)    # 文档服务器存储路径
-    doc_pdf_path = doc_path if doc_ext == "pdf" else None
-    created_at = datetime.now()
-    updated_at = created_at
-    
+    values = {
+        "doc_id": compute_file_hash(doc_path),  # 文档唯一标识
+        "doc_name": os.path.basename(doc_path),  # 文档名称
+        "doc_ext": os.path.splitext(doc_path)[1],  # 文档后缀
+        "doc_size": convert_bytes(os.path.getsize(doc_path)),  # 文档大小
+        "doc_path": os.path.abspath(doc_path),  # 文档服务器存储路径
+        "doc_pdf_path": doc_path if os.path.splitext(doc_path)[1] == "pdf" else None,
+        "created_at": datetime.now(),
+        "updated_at": datetime.now(),
+    }
+
+    # 更新 mysql-file_info 表信息
+    with FileInfoOperation() as file_op:
+        file_op.insert_datas(values)
 
 
 # 保存到 mysql 服务器

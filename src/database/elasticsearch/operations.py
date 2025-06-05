@@ -16,10 +16,10 @@ class ElasticsearchOperation:
         try:
             # 创建 ES 客户端实例，使用配置中的连接信息
             self.client = Elasticsearch(
-                hosts=[Config.ES_CONFIG['host']],  # 使用配置的 host
+                hosts=Config.ES_CONFIG['host'],  # 使用配置的 host
                 request_timeout=Config.ES_CONFIG["timeout"],  # 超时设置
-                # 添加基本安全配置
-                basic_auth=(Config.ES_CONFIG.get('username', ''), 
+                # 7.x版本使用http_auth而不是basic_auth
+                http_auth=(Config.ES_CONFIG.get('username', ''), 
                           Config.ES_CONFIG.get('password', '')),  # 用户名密码认证
                 verify_certs=Config.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
             )
@@ -227,6 +227,32 @@ class ElasticsearchOperation:
             
         except Exception as e:
             logger.error(f"清空索引失败: {str(e)}")
+            return False
+
+    def delete_index(self) -> bool:
+        """完全删除索引
+        
+        Returns:
+            bool: 是否删除成功
+        """
+        try:
+            # 检查索引是否存在
+            if not self.client.indices.exists(index=self.index_name):
+                logger.info(f"索引 {self.index_name} 不存在")
+                return True
+                
+            # 删除索引
+            response = self.client.indices.delete(index=self.index_name)
+            
+            if response.get('acknowledged'):
+                logger.info(f"成功删除索引 {self.index_name}")
+                return True
+            else:
+                logger.warning(f"删除索引 {self.index_name} 失败")
+                return False
+                
+        except Exception as e:
+            logger.error(f"删除索引失败: {str(e)}")
             return False
 
     def ping(self) -> bool:

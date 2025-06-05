@@ -1,74 +1,35 @@
 """Milvus 数据库初始化脚本"""
 
-import json
+import sys
 from pathlib import Path
-from pymilvus import connections, Collection, CollectionSchema, FieldSchema, DataType, utility
-from config.settings import Config
+
+# 添加项目根目录到 Python 路径
+project_root = str(Path(__file__).parent.parent.parent)
+sys.path.append(project_root)
+
+from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
 
-def load_schema():
-    """加载 Milvus schema 配置"""
-    schema_path = Config.MILVUS_CONFIG["schema_path"]
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
 
 def init_milvus():
     """初始化 Milvus 数据库"""
-    # 连接 Milvus
-    connections.connect(
-        alias="default",
-        host=Config.MILVUS_CONFIG["host"],
-        port=Config.MILVUS_CONFIG["port"],
-        token=Config.MILVUS_CONFIG["token"],
-        db_name=Config.MILVUS_CONFIG["db_name"]
-    )
+    try:
+        # 创建 Milvus 连接
+        milvus_conn = MilvusDB()
 
-    # 加载 schema 配置
-    schema_config = load_schema()
-    
-    # 创建字段
-    fields = []
-    for field_config in schema_config["fields"]:
-        field = FieldSchema(
-            name=field_config["name"],
-            dtype=getattr(DataType, field_config["type"]),
-            description=field_config.get("description", ""),
-            is_primary=field_config.get("is_primary", False),
-            **{k: v for k, v in field_config.items() 
-               if k not in ["name", "type", "description", "is_primary"]}
-        )
-        fields.append(field)
+        # 检查集合是否存在
+        if milvus_conn.client.has_collection(milvus_conn.collection_name):
+            logger.info(f"集合 {milvus_conn.collection_name} 已存在，跳过创建")
+            return
 
-    # 创建 schema
-    schema = CollectionSchema(
-        fields=fields,
-        description="天宽认知大模型文档向量库",
-        enable_dynamic_field=True
-    )
+        # 创建集合（使用 connection.py 中的代码）
+        milvus_conn._create_collection()
+        logger.info("Milvus 数据库初始化成功")
 
-    # 如果集合已存在，记录日志并跳过创建
-    if utility.has_collection(schema_config["collection_name"]):
-        logger.info(f"集合 {schema_config['collection_name']} 已存在，跳过创建")
-        return
+    except Exception as e:
+        logger.error(f"Milvus 数据库初始化失败: {str(e)}")
+        raise
 
-    # 创建新集合
-    collection = Collection(
-        name=schema_config["collection_name"],
-        schema=schema
-    )
-
-    # 创建索引
-    index_params = {
-        "index_type": Config.MILVUS_CONFIG["index_params"]["index_type"],
-        "metric_type": Config.MILVUS_CONFIG["index_params"]["metric_type"],
-        "params": Config.MILVUS_CONFIG["index_params"]["params"]
-    }
-    collection.create_index(
-        field_name=Config.MILVUS_CONFIG["vector_field"],
-        index_params=index_params
-    )
-
-    logger.info(f"Milvus 集合 {schema_config['collection_name']} 初始化完成！")
 
 if __name__ == "__main__":
-    init_milvus() 
+    init_milvus()

@@ -1,5 +1,5 @@
 {
-  "collection_name": "tk_rag",
+  "collection_name": "rag_collection",
   "fields": [
     {
       "name": "vector",
