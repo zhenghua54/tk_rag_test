@@ -2,7 +2,7 @@
 """
 from fastapi import APIRouter, HTTPException
 from typing import Optional
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 import os
 from src.api.base import APIResponse, ErrorCode
 from src.services.document import DocumentService
@@ -20,19 +20,43 @@ class DocumentUploadRequest(BaseModel):
     document_path: str = Field(..., description="文件路径")
     department_id: str = Field(..., description="部门UUID")
     
-    @validator("document_path")
+    @field_validator("document_path")
+    @classmethod
     def validate_file(cls, v):
         if not os.path.exists(v):
-            raise ValueError("文件不存在")
+            return APIResponse.error(
+                code=ErrorCode.FILE_NOT_FOUND,
+                message="文件不存在",
+                data={
+                    "file_path": v,
+                    "reason": "文件路径不存在"
+                }
+            )
         
         # 检查文件大小
         if os.path.getsize(v) > Config.MAX_FILE_SIZE:
-            raise ValueError(f"文件大小超过{Config.MAX_FILE_SIZE // 1024 // 1024}MB限制")
+            return APIResponse.error(
+                code=ErrorCode.FILE_SIZE_LIMIT,
+                message="文件大小超限",
+                data={
+                    "file_path": v,
+                    "current_size": os.path.getsize(v),
+                    "max_size": Config.MAX_FILE_SIZE
+                }
+            )
             
         # 检查文件扩展名
         ext = os.path.splitext(v)[1].lower()
         if ext not in Config.SUPPORTED_FILE_TYPES["all"]:
-            raise ValueError(f"不支持的文件格式: {ext}")
+            return APIResponse.error(
+                code=ErrorCode.FILE_TYPE_NOT_SUPPORTED,
+                message="文件格式不支持",
+                data={
+                    "file_path": v,
+                    "current_type": ext,
+                    "supported_types": Config.SUPPORTED_FILE_TYPES["all"]
+                }
+            )
             
         return v
 
@@ -67,25 +91,17 @@ async def upload_document(request: DocumentUploadRequest):
         )
         return APIResponse.success(data=result)
         
-    except ValueError as e:
-        return APIResponse.error(
-            code=ErrorCode.PARAM_ERROR,
-            message=str(e)
-        )
-    except OSError as e:
-        return APIResponse.error(
-            code=ErrorCode.FILE_PARSE_ERROR,
-            message="文件解析失败",
-            data={"error": str(e)}
-        )
     except Exception as e:
         # 记录未预期的错误
         import logging
         logging.exception("Document upload error")
         return APIResponse.error(
-            code=ErrorCode.STORAGE_FULL,
-            message="存储失败",
-            data={"error": str(e)}
+            code=ErrorCode.FILE_PARSE_ERROR,
+            message="文件解析失败",
+            data={
+                "error": str(e),
+                "suggestion": "请检查文件是否损坏或格式是否正确"
+            }
         )
 
 @router.delete("/documents/{doc_id}")
@@ -112,17 +128,6 @@ async def delete_document(doc_id: str, request: DocumentDeleteRequest):
         )
         return APIResponse.success(data=result)
         
-    except ValueError as e:
-        return APIResponse.error(
-            code=ErrorCode.PARAM_ERROR,
-            message=str(e)
-        )
-    except FileNotFoundError:
-        return APIResponse.error(
-            code=ErrorCode.FILE_NOT_FOUND,
-            message="文档不存在",
-            data={"doc_id": doc_id}
-        )
     except Exception as e:
         # 记录未预期的错误
         import logging
@@ -130,5 +135,8 @@ async def delete_document(doc_id: str, request: DocumentDeleteRequest):
         return APIResponse.error(
             code=ErrorCode.FILE_PARSE_ERROR,
             message="删除失败",
-            data={"error": str(e)}
+            data={
+                "error": str(e),
+                "suggestion": "请稍后重试或联系管理员"
+            }
         ) 

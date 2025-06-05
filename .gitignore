@@ -75,3 +75,4 @@ ENV/
 # Distribution
 *.tar.gz
 *.whl
+*.deb
