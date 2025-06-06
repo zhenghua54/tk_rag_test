@@ -1,7 +1,7 @@
 """最终文档内容处理模块"""
 import json
 from rich import print
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 
 from src.utils.common.logger import logger
 from src.core.llm.extract_summary import extract_table_summary
@@ -18,7 +18,7 @@ def fill_title(file_path: str) -> list:
         list: 处理后的文档内容列表
     """
     # 参数校验
-    Validator.validata_json_file(file_path)
+    ArgsValidator.validata_json_file(file_path)
 
     # 统计信息初始化
     table_total, table_cap, table_cap_up, table_cap_miss = 0, 0, 0, 0

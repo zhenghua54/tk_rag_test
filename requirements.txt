@@ -174,10 +174,10 @@ pymilvus==2.5.10
 PyMuPDF==1.24.14
 PyMySQL==1.1.1
 pyparsing==3.2.3
-pytest
+pytest~=8.3.4
 python-dateutil==2.9.0.post0
 python-docx==1.1.2
-python-dotenv
+python-dotenv~=1.1.0
 python-json-logger==3.3.0
 python-magic==0.4.27
 python-multipart==0.0.20
@@ -222,7 +222,7 @@ toml==0.10.2
 tomli
 tornado==6.5.1
 tqdm==4.67.1
-transformers
+transformers~=4.49.0
 triton==3.3.0
 typer==0.16.0
 typing-inspect==0.9.0
@@ -246,3 +246,6 @@ xxhash
 yarl==1.20.0
 zipp==3.22.0
 zstandard==0.23.0
+
+sentence-transformers~=4.1.0
+torch~=2.7.0

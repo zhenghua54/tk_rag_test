@@ -1,0 +1,193 @@
+{
+    "categories": {
+        "SUCCESS": "成功",
+        "COMMON": "通用错误",
+        "CHAT": "聊天相关",
+        "FILE": "文件相关",
+        "DATABASE": "数据库相关",
+        "PERMISSION": "权限相关",
+        "SYSTEM": "系统相关"
+    },
+    "codes": {
+        "0": {
+            "name": "SUCCESS",
+            "category": "SUCCESS",
+            "description": "操作成功",
+            "suggestion": ""
+        },
+        "1001": {
+            "name": "PARAM_ERROR",
+            "category": "COMMON",
+            "description": "参数错误",
+            "suggestion": "请检查输入参数是否正确"
+        },
+        "1002": {
+            "name": "PARAM_EXCEED_LIMIT",
+            "category": "COMMON",
+            "description": "参数超出限制",
+            "suggestion": "请确保参数在允许范围内"
+        },
+        "1003": {
+            "name": "DUPLICATE_OPERATION",
+            "category": "COMMON",
+            "description": "重复操作",
+            "suggestion": "请勿重复执行相同操作"
+        },
+        "1004": {
+            "name": "INTERNAL_ERROR",
+            "category": "COMMON",
+            "description": "系统内部错误",
+            "suggestion": "请联系系统管理员"
+        },
+        "1005": {
+            "name": "UNAUTHORIZED",
+            "category": "COMMON",
+            "description": "未授权操作",
+            "suggestion": "请先进行身份认证"
+        },
+        "2001": {
+            "name": "QUESTION_TOO_LONG",
+            "category": "CHAT",
+            "description": "问题长度超出限制",
+            "suggestion": "请缩短问题长度"
+        },
+        "2002": {
+            "name": "INVALID_SESSION",
+            "category": "CHAT",
+            "description": "会话ID无效",
+            "suggestion": "请重新建立会话"
+        },
+        "2003": {
+            "name": "MODEL_TIMEOUT",
+            "category": "CHAT",
+            "description": "模型响应超时",
+            "suggestion": "请稍后重试"
+        },
+        "2004": {
+            "name": "KB_MATCH_FAILED",
+            "category": "CHAT",
+            "description": "知识库匹配失败",
+            "suggestion": "请尝试重新表述问题"
+        },
+        "2005": {
+            "name": "CONTEXT_TOO_LONG",
+            "category": "CHAT",
+            "description": "上下文长度超限",
+            "suggestion": "请减少上下文信息"
+        },
+        "3001": {
+            "name": "FILE_NOT_FOUND",
+            "category": "FILE",
+            "description": "文件未找到",
+            "suggestion": "请检查文件路径是否正确"
+        },
+        "3002": {
+            "name": "UNSUPPORTED_FORMAT",
+            "category": "FILE",
+            "description": "不支持的文件格式",
+            "suggestion": "请使用支持的文件格式"
+        },
+        "3003": {
+            "name": "FILE_TOO_LARGE",
+            "category": "FILE",
+            "description": "文件过大",
+            "suggestion": "请压缩文件或使用更小的文件"
+        },
+        "3004": {
+            "name": "INVALID_FILENAME",
+            "category": "FILE",
+            "description": "文件名无效",
+            "suggestion": "请使用合法的文件名"
+        },
+        "3005": {
+            "name": "FILE_PARSE_ERROR",
+            "category": "FILE",
+            "description": "文件解析失败",
+            "suggestion": "请确保文件完整性"
+        },
+        "3006": {
+            "name": "FILE_EXISTS",
+            "category": "FILE",
+            "description": "文件已存在",
+            "suggestion": "请使用其他文件名"
+        },
+        "3007": {
+            "name": "STORAGE_FULL",
+            "category": "FILE",
+            "description": "存储空间不足",
+            "suggestion": "请清理存储空间"
+        },
+        "3008": {
+            "name": "FILE_TOO_SMALL",
+            "category": "FILE",
+            "description": "文件为空",
+            "suggestion": "请确保文件包含内容"
+        },
+        "4001": {
+            "name": "MYSQL_INSERT_FAIL",
+            "category": "DATABASE",
+            "description": "MySQL插入失败",
+            "suggestion": "请检查数据格式是否正确"
+        },
+        "4002": {
+            "name": "MYSQL_UPDATE_FAIL",
+            "category": "DATABASE",
+            "description": "MySQL更新失败",
+            "suggestion": "请确保更新条件正确"
+        },
+        "4003": {
+            "name": "MYSQL_DELETE_FAIL",
+            "category": "DATABASE",
+            "description": "MySQL删除失败",
+            "suggestion": "请确保删除条件正确"
+        },
+        "4004": {
+            "name": "MYSQL_QUERY_FAIL",
+            "category": "DATABASE",
+            "description": "MySQL查询失败",
+            "suggestion": "请检查查询条件"
+        },
+        "4005": {
+            "name": "MYSQL_CONNECTION_FAIL",
+            "category": "DATABASE",
+            "description": "MySQL连接失败",
+            "suggestion": "请检查数据库连接配置"
+        },
+        "5001": {
+            "name": "PERMISSION_DENIED",
+            "category": "PERMISSION",
+            "description": "权限不足",
+            "suggestion": "请申请相应权限"
+        },
+        "5002": {
+            "name": "PERMISSION_EXPIRED",
+            "category": "PERMISSION",
+            "description": "权限已过期",
+            "suggestion": "请更新权限"
+        },
+        "5003": {
+            "name": "PERMISSION_INVALID",
+            "category": "PERMISSION",
+            "description": "权限无效",
+            "suggestion": "请重新申请权限"
+        },
+        "6001": {
+            "name": "SYSTEM_BUSY",
+            "category": "SYSTEM",
+            "description": "系统繁忙",
+            "suggestion": "请稍后重试"
+        },
+        "6002": {
+            "name": "SYSTEM_MAINTENANCE",
+            "category": "SYSTEM",
+            "description": "系统维护中",
+            "suggestion": "请等待维护完成"
+        },
+        "6003": {
+            "name": "SYSTEM_OVERLOAD",
+            "category": "SYSTEM",
+            "description": "系统过载",
+            "suggestion": "请稍后重试"
+        }
+    }
+} 

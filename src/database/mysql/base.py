@@ -1,11 +1,11 @@
-# src/database/mysql/base.py
+# src/database/mysql/response.py
 """数据库操作基类"""
 
 from typing import List, Dict, Any, Optional, Tuple
 from config.settings import Config
 from src.utils.common.logger import logger
 from src.database.mysql.connection import MySQLConnect
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 
 
 class BaseDBOperation:
@@ -17,8 +17,8 @@ class BaseDBOperation:
         Args:
             table_name (str): 表名
         """
-        Validator.validate_not_empty(table_name, "table_name")
-        Validator.validate_type(table_name, str, "table_name")
+        ArgsValidator.validity_not_empty(table_name, "table_name")
+        ArgsValidator.validity_type(table_name, str, "table_name")
         self.table_name = table_name
         self.mysql = None
 
@@ -79,7 +79,7 @@ class BaseDBOperation:
         Returns:
             Optional[Dict]: 查询结果，如果未找到则返回 None
         """
-        Validator.validate_doc_id(doc_id)
+        ArgsValidator.validity_doc_id(doc_id)
         try:
             sql = f'SELECT * FROM {self.table_name} WHERE doc_id = %s'
             data = self._execute_query(sql, (doc_id,))
@@ -105,7 +105,7 @@ class BaseDBOperation:
             # 构建 WHERE 子句
             args = None
             if conditions:
-                Validator.validate_type(conditions, dict, "conditions")
+                ArgsValidator.validity_type(conditions, dict, "conditions")
                 where_clause = ' AND '.join([f"{k} = %s" for k in conditions.keys()])
                 args = tuple(conditions.values())
                 sql = f'SELECT {select_clause} FROM {self.table_name} WHERE {where_clause}'
@@ -148,8 +148,8 @@ class BaseDBOperation:
         Returns:
             bool: 是否插入成功
         """
-        Validator.validate_not_empty(data, "data")
-        Validator.validate_type(data, dict, "data")
+        ArgsValidator.validity_not_empty(data, "data")
+        ArgsValidator.validity_type(data, dict, "data")
 
         try:
             columns = ', '.join(data.keys())
@@ -170,9 +170,9 @@ class BaseDBOperation:
         Returns:
             bool: 是否更新成功
         """
-        Validator.validate_doc_id(doc_id)
-        Validator.validate_not_empty(data, "data")
-        Validator.validate_type(data, dict, "data")
+        ArgsValidator.validity_doc_id(doc_id)
+        ArgsValidator.validity_not_empty(data, "data")
+        ArgsValidator.validity_type(data, dict, "data")
 
         try:
             set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
@@ -193,7 +193,7 @@ class BaseDBOperation:
         Returns:
             bool: 是否删除成功
         """
-        Validator.validate_doc_id(doc_id)
+        ArgsValidator.validity_doc_id(doc_id)
 
         try:
             sql = f'DELETE FROM {self.table_name} WHERE doc_id = %s'

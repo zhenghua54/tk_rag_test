@@ -8,7 +8,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from src.core.document.content_merge import html_table_to_markdown
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text
@@ -64,10 +64,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     logger.info(f"开始处理文档 {document_name} (doc_id: {doc_id}) 的分块...")
 
     # 参数验证
-    Validator.validate_not_empty(document_name, "document_name")
-    Validator.validate_doc_id(doc_id)
-    Validator.validate_type(page_content_dict, dict, "page_content_dict")
-    Validator.validate_type(principal_ids, dict, "principal_ids")
+    ArgsValidator.validity_not_empty(document_name, "document_name")
+    ArgsValidator.validity_doc_id(doc_id)
+    ArgsValidator.validity_type(page_content_dict, dict, "page_content_dict")
+    ArgsValidator.validity_type(principal_ids, dict, "principal_ids")
 
     # 确保权限数据包含所有必要的键
     permissions = {

@@ -242,7 +242,7 @@ class ElasticsearchOperation:
                 return True
                 
             # 删除索引
-            response = self.client.indices.delete(index=self.index_name)
+            response = self.client.indices.delete_file()
             
             if response.get('acknowledged'):
                 logger.info(f"成功删除索引 {self.index_name}")

@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 # 添加项目根目录到 Python 路径
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(project_root)
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 from src.utils.common.logger import logger
 
 
@@ -22,8 +22,8 @@ def html_table_to_markdown(table_html: str) -> str:
         str: Markdown 格式的表格
     """
     # 参数验证
-    Validator.validate_not_empty(table_html, "table_html")
-    Validator.validate_type(table_html, str, "table_html")
+    ArgsValidator.validity_not_empty(table_html, "table_html")
+    ArgsValidator.validity_type(table_html, str, "table_html")
 
     logger.info("开始转换表格（html -> markdown）...")
     soup = BeautifulSoup(table_html, "lxml")

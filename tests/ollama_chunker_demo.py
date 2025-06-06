@@ -68,14 +68,14 @@ def validate_chunks(original_text: str, chunks: list) -> bool:
     return True
 
 
-def segment_text(context: str, model_name, api_base, validate=True):
+def segment_text(context: str, model_name, api_base, validity=True):
     """使用 Ollama API 进行文本分块
     
     Args:
         context (str): 需要分块的文本
         model_name (str): Ollama 模型名称
         api_base (str): Ollama API 地址
-        validate (bool): 是否进行分块验证，默认为 True
+        validity (bool): 是否进行分块验证，默认为 True
     """
     logging.info('=== 初始状态 ===')
     print_memory_usage()
@@ -154,7 +154,7 @@ def segment_text(context: str, model_name, api_base, validate=True):
             logging.info(f'总块数：{len(chunks)}, 总字符数：{total_length}, 平均每块：{avg_length:.1f} 字')
 
             chunks = [chunk.strip() for chunk in chunks if chunk.strip()]
-            if validate and not validate_chunks(context, chunks):
+            if validity and not validate_chunks(context, chunks):
                 logging.warning('分块验证失败，返回原文')
                 return [context]
 

@@ -4,9 +4,9 @@ import os.path
 from typing import Any, List, Union
 
 
-class Validator:
+class ArgsValidator:
     @staticmethod
-    def validate_not_empty(value: Any, param_name: str) -> None:
+    def validity_not_empty(value: Any, param_name: str) -> None:
         """验证参数非空
         
         Args:
@@ -20,7 +20,7 @@ class Validator:
             raise ValueError(f"{param_name} 不能为空")
 
     @staticmethod
-    def validate_type(value: Any, expected_type: Union[type, tuple], param_name: str) -> None:
+    def validity_type(value: Any, expected_type: Union[type, tuple], param_name: str) -> None:
         """验证参数类型
         
         Args:
@@ -35,7 +35,7 @@ class Validator:
             raise TypeError(f"{param_name} 必须是 {expected_type} 类型")
 
     @staticmethod
-    def validate_list_not_empty(value: List, param_name: str) -> None:
+    def validity_list_not_empty(value: List, param_name: str) -> None:
         """验证列表非空
         
         Args:
@@ -51,7 +51,7 @@ class Validator:
             raise ValueError(f"{param_name} 列表不能为空")
 
     @staticmethod
-    def validate_doc_id(doc_id: str) -> None:
+    def validity_doc_id(doc_id: str) -> None:
         """验证文档ID格式
         
         Args:
@@ -60,13 +60,13 @@ class Validator:
         Raises:
             ValueError: 当文档ID格式不正确时抛出
         """
-        Validator.validate_not_empty(doc_id, "doc_id")
-        Validator.validate_type(doc_id, str, "doc_id")
+        ArgsValidator.validity_not_empty(doc_id, "doc_id")
+        ArgsValidator.validity_type(doc_id, str, "doc_id")
         if len(doc_id) != 64:
             raise ValueError("doc_id 必须是64位哈希值字符串")
 
     @staticmethod
-    def validate_segment_id(segment_id: str) -> None:
+    def validity_segment_id(segment_id: str) -> None:
         """验证分段ID格式
         
         Args:
@@ -75,13 +75,13 @@ class Validator:
         Raises:
             ValueError: 当分段ID格式不正确时抛出
         """
-        Validator.validate_not_empty(segment_id, "segment_id")
-        Validator.validate_type(segment_id, str, "segment_id")
+        ArgsValidator.validity_not_empty(segment_id, "segment_id")
+        ArgsValidator.validity_type(segment_id, str, "segment_id")
         if len(segment_id) != 64:
             raise ValueError("segment_id 必须是64位哈希值字符串")
 
     @staticmethod
-    def validate_department_id(department_id: str) -> None:
+    def validity_department_id(department_id: str) -> None:
         """验证部门ID格式
         
         Args:
@@ -90,39 +90,7 @@ class Validator:
         Raises:
             ValueError: 当部门ID格式不正确时抛出
         """
-        Validator.validate_not_empty(department_id, "department_id")
-        Validator.validate_type(department_id, str, "department_id")
+        ArgsValidator.validity_not_empty(department_id, "department_id")
+        ArgsValidator.validity_type(department_id, str, "department_id")
 
     
-    @staticmethod
-    def validate_file(file_path: str) -> None:
-        """验证文件路径是否存在
-
-        Args:
-            file_path
-        """
-        Validator.validate_not_empty(file_path, "file_path")
-        Validator.validate_type(file_path, str, "file_path")
-        if not os.path.isfile(file_path):
-            raise ValueError(f"文件不存在: {file_path}")
-
-    @staticmethod
-    def validata_json_file(file_path: str) -> None:
-        """检验文件存在且为 json[]格式
-
-        Args:
-        """
-        Validator.validate_not_empty(file_path, "file_path")
-        Validator.validate_type(file_path, str, "file_path")
-        Validator.validate_file(file_path)
-
-        # 读取 JSON 文件
-        try:
-            with open(file=file_path, mode='r', encoding='utf-8') as f:
-                doc_content = json.load(f)
-
-            # 验证内容类型
-            if not isinstance(doc_content, list):
-                raise ValueError("JSON 内容必须是列表类型")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"JSON 解析错误: {str(e)}")

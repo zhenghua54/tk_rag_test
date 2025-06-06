@@ -18,6 +18,10 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Config:
     """配置类：用于管理项目的所有配置信息"""
+    # ---------- API info ----------
+    API_TITLE = "RAG Demo API"
+    API_DESCRIPTION = "RAG系统API文档"
+    API_VERSION = "1.0.0",
 
     # ---------- Project Paths ----------
 
@@ -61,7 +65,8 @@ class Config:
         "host": "localhost",
         "port": 19530,
         "token": "root:Milvus",
-        "db_name": "default",
+        # "db_name": "default",
+        "db_name": "default_new",
         "collection_name": "rag_collection",
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "milvus_schema.json"),
         "vector_field": "vector",
@@ -83,8 +88,10 @@ class Config:
         "host": "localhost",
         "user": "root",
         "password": "Tk@654321",
+        "port": 3306,
         "charset": "utf8mb4",
-        "database": "rag_db",
+        # "database": "rag_db",
+        "database": "rag_db_new",
         "file_info_table": "doc_info",
         "segment_info_table": "segment_info",
         "permission_info_table": "permission_info",
@@ -95,7 +102,8 @@ class Config:
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
         "timeout": 30,  # 请求超时时间（秒）
-        "index_name": "rag_index",  # ES 索引（数据库）名称
+        # "index_name": "rag_index",  # ES 索引（数据库）名称
+        "index_name": "rag_index_new",  # ES 索引（数据库）名称
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),  # schema 配置文件路径
         # 安全配置
         "username": os.getenv("ES_USER"),  # ES 用户名

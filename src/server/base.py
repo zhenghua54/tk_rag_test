@@ -22,12 +22,9 @@ class BaseService(ABC):
             BaseService: 服务实例
         """
         # 导入放在这里避免循环引用
-        from src.services.chat import MockChatService
-        from src.services.document import MockDocumentService
+        from src.server.chat import MockChatService
         
         if Config.USE_MOCK:
             if cls.__name__ == "ChatService":
                 return MockChatService()
-            elif cls.__name__ == "DocumentService":
-                return MockDocumentService()
         return cls() 
