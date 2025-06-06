@@ -3,8 +3,8 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional
 from pydantic import BaseModel, Field, validator
-from src.api.base import APIResponse, ErrorCode
-from src.services.chat import ChatService
+from src.api.response import ResponseBuilder, ErrorCode
+from src.server.chat import ChatService
 
 router = APIRouter(prefix="/api/v1")
 
@@ -55,15 +55,15 @@ async def rag_chat(request: ChatRequest):
             timeout=request.timeout
         )
         
-        return APIResponse.success(data=result)
+        return ResponseBuilder.success(data=result)
         
     except ValueError as e:
-        return APIResponse.error(
+        return ResponseBuilder.error(
             code=ErrorCode.PARAM_ERROR,
             message=str(e)
         )
     except TimeoutError:
-        return APIResponse.error(
+        return ResponseBuilder.error(
             code=ErrorCode.MODEL_TIMEOUT,
             message="模型响应超时",
             data={
@@ -76,7 +76,7 @@ async def rag_chat(request: ChatRequest):
         # 记录未预期的错误
         import logging
         logging.exception("Chat error")
-        return APIResponse.error(
+        return ResponseBuilder.error(
             code=ErrorCode.KB_MATCH_FAILED,
             message="知识库匹配失败",
             data={"error": str(e)}

@@ -111,14 +111,14 @@ application/json 作为请求与返回数据格式。
         "source": [
             {
                 "doc_id": "abcdef1234567890...",
-                "file_name": "服务质量手册.pdf",
+                "doc_name": "服务质量手册.pdf",
                 "segment_id": "seg_00042",
                 "page_idx":"1",
                 "confidence": 0.95
             },
             {
                 "doc_id": "abcdef1234567890...",
-                "file_name": "服务质量手册.pdf",
+                "doc_name": "服务质量手册.pdf",
                 "segment_id": "seg_00042",
                 "page_idx":"2",
                 "confidence": 0.95
@@ -155,7 +155,7 @@ application/json 作为请求与返回数据格式。
     "message": "success",
     "data": {
         "doc_id": "doc_789xyz",
-        "file_name": "服务质量手册.pdf",
+        "doc_name": "服务质量手册.pdf",
         "status": "completed",
         "department_id": "7e96498e-..."
     }
@@ -211,7 +211,7 @@ application/json 作为请求与返回数据格式。
     "code": 3002,
     "message": "文件格式不支持",
     "data": {
-        "file_name": "test.jpg",
+        "doc_name": "test.jpg",
         "current_type": "jpg",
         "supported_types": [".doc", ".docx", ".ppt", ".pptx", ".pdf", ".txt"]
     }
@@ -239,7 +239,7 @@ application/json 作为请求与返回数据格式。
     "code": 3005,
     "message": "文件解析失败",
     "data": {
-        "file_name": "report.pdf",
+        "doc_name": "report.pdf",
         "error_page": 5,
         "reason": "PDF文件已加密，无法解析",
         "suggestion": "请解除文件加密后重新上传"

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 
 
 
@@ -97,8 +97,8 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
         Dict[str, str]: 包含 title 和 summary 的字典
     """
     # 参数验证
-    Validator.validate_not_empty(table_html, "table_html")
-    Validator.validate_type(table_html, str, "table_html")
+    ArgsValidator.validity_not_empty(table_html, "table_html")
+    ArgsValidator.validity_type(table_html, str, "table_html")
     
     # 构建 prompt
     prompt = """你是一个表格摘要生成助手，负责从 HTML 表格中提取表格的核心主题，并输出结构化的摘要结果，用于标题生成和内容嵌入。
@@ -158,8 +158,8 @@ def extract_text_summary(text: str) -> str:
         str: 文本摘要
     """
     # 参数验证
-    Validator.validate_not_empty(text, "text")
-    Validator.validate_type(text, str, "text")
+    ArgsValidator.validity_not_empty(text, "text")
+    ArgsValidator.validity_type(text, str, "text")
     
     # 构建 prompt
     prompt = """你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。

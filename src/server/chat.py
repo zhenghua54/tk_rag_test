@@ -1,8 +1,8 @@
 """聊天服务实现
 """
 from typing import Dict, Any, Optional
-from src.services.base import BaseService
-from src.services.mock import MockData
+from src.server.base import BaseService
+from src.server.mock import MockData
 
 class ChatService(BaseService):
     """聊天服务类

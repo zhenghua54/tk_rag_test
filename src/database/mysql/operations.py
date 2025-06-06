@@ -1,9 +1,10 @@
 """数据库操作"""
 from typing import List, Dict, Optional
 from config.settings import Config
+from src.api.response import ErrorCode
 from src.database.mysql.base import BaseDBOperation
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 
 
 class FileInfoOperation(BaseDBOperation):
@@ -21,7 +22,7 @@ class FileInfoOperation(BaseDBOperation):
         Returns:
             Optional[Dict]: 查询到的文件信息字典，如果未找到则返回 None
         """
-        Validator.validate_doc_id(doc_id)
+        ArgsValidator.validity_doc_id(doc_id)
         return self.select_by_id(doc_id)
 
     def get_non_pdf_files(self) -> List[Dict]:
@@ -59,14 +60,14 @@ class FileInfoOperation(BaseDBOperation):
         Returns:
             bool: 插入是否成功
         """
-        Validator.validate_type(args, dict, "args")
-        Validator.validate_doc_id(args.get('doc_id'))
+        ArgsValidator.validity_type(args, dict, "args")
+        ArgsValidator.validity_doc_id(args.get('doc_id'))
 
-        try:
-            return self.insert(args)
-        except Exception as e:
-            logger.error(f"插入文件信息失败: {e}")
-            return False
+        res = self.insert(args)
+        if not res:
+            raise ValueError(ErrorCode.MYSQL_INSERT_FAIL, ErrorCode.MYSQL_INSERT_FAIL)
+        else:
+            return res
 
     def insert_single(self,doc_id: str, args: Dict):
         """插入单条文件信息
@@ -78,12 +79,12 @@ class FileInfoOperation(BaseDBOperation):
         Returns:
             bool: 插入是否成功
         """
-        Validator.validate_doc_id(doc_id)
-        Validator.validate_type(args, dict, "args")
+        ArgsValidator.validity_doc_id(doc_id)
+        ArgsValidator.validity_type(args, dict, "args")
         try:
             return self.update_by_doc_id(doc_id=doc_id, data=args)
         except Exception as e:
-            logger.error(f"插入文件信息失败: {e}")
+            raise  ValueError(f"插入文件信息失败: {e}")
             return False
 
 class ChunkOperation(BaseDBOperation):
@@ -101,7 +102,7 @@ class ChunkOperation(BaseDBOperation):
         Returns:
             List[Dict]: 文档分块的数据库记录列表
         """
-        Validator.validate_doc_id(doc_id)
+        ArgsValidator.validate_doc_id(doc_id)
         return self.select_record(conditions={'doc_id': doc_id})
 
     def insert_chunks(self, chunks: List[Dict]) -> tuple[int, int]:
@@ -113,8 +114,8 @@ class ChunkOperation(BaseDBOperation):
         Returns:
             tuple[int, int]: (成功插入的分块数量, 失败的分块数量)
         """
-        Validator.validate_list_not_empty(chunks, "chunks")
-        Validator.validate_type(chunks, list, "chunks")
+        ArgsValidator.validity_list_not_empty(chunks, "chunks")
+        ArgsValidator.validity_type(chunks, list, "chunks")
         
         success_count = 0
         fail_count = 0
@@ -136,7 +137,7 @@ class ChunkOperation(BaseDBOperation):
         Returns:
             Optional[Dict]: 删除操作的结果，如果成功则返回删除的记录数，否则返回 None
         """
-        Validator.validate_doc_id(doc_id)
+        ArgsValidator.validate_doc_id(doc_id)
         
         try:
             sql = f'DELETE FROM {self.table_name} WHERE doc_id = %s'
@@ -155,7 +156,7 @@ class ChunkOperation(BaseDBOperation):
         Returns:
             Optional[Dict]: 删除操作的结果，如果成功则返回删除的记录数，否则返回 None
         """
-        Validator.validate_segment_id(segment_id)
+        ArgsValidator.validate_segment_id(segment_id)
         
         try:
             sql = f'DELETE FROM {self.table_name} WHERE segment_id = %s'
@@ -181,8 +182,28 @@ class PermissionOperation(BaseDBOperation):
         Returns:
             List[Dict]: 部门下的文档信息列表
         """
-        Validator.validate_department_id(department_id)
+        ArgsValidator.validity_department_id(department_id)
         return self.select_record(conditions={'department_id': department_id})
+
+    def insert_datas(self, args: Dict) -> bool:
+        """插入权限信息
+
+        Args:
+            args (Dict): 权限信息字典，包含部门ID、文档ID等信息
+
+        Returns:
+            bool: 插入是否成功
+        """
+        ArgsValidator.validity_type(args, dict, "args")
+        ArgsValidator.validity_doc_id(args.get('doc_id'))
+        ArgsValidator.validity_department_id(args.get('department_id'))
+
+
+        res = self.insert(args)
+        if not res:
+            raise ValueError(ErrorCode.MYSQL_INSERT_FAIL, ErrorCode.MYSQL_INSERT_FAIL)
+        else:
+            return res
 
     def update_permission_by_doc_id(self, doc_id: str, departments_id: list[str]) -> Optional[Dict]:
         """根据文档 ID 批量更新对应的部门权限
@@ -195,8 +216,8 @@ class PermissionOperation(BaseDBOperation):
             Optional[Dict]: 更新操作的结果，如果成功则返回更新的记录数，否则返回 None
         """
         # 参数校验
-        Validator.validate_doc_id(doc_id)
-        Validator.validate_list_not_empty(departments_id, "department_id")
+        ArgsValidator.validate_doc_id(doc_id)
+        ArgsValidator.validity_list_not_empty(departments_id, "department_id")
 
         try:
             # 删除原有权限数据记录

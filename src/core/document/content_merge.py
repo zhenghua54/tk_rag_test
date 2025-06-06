@@ -10,7 +10,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(o
 sys.path.append(project_root)
 
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import Validator
+from src.utils.common.args_validator import ArgsValidator
 
 
 def merge_page(doc_content: list) -> dict[str:list]:
@@ -23,8 +23,8 @@ def merge_page(doc_content: list) -> dict[str:list]:
         merge_page_contents (dict): 按照 page_idx 进行合并的 json 内容, 格式为 {page_idx:[content,content,content], ...}
     """
     # 参数校验
-    Validator.validate_type(doc_content, list, "doc_content")
-    Validator.validate_list_not_empty(doc_content, "doc_content")
+    ArgsValidator.validity_type(doc_content, list, "doc_content")
+    ArgsValidator.validity_list_not_empty(doc_content, "doc_content")
 
     merge_page_contents = defaultdict(list)  # 初始化页面存储
     text_list = []  # 临时存储文本段

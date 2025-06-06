@@ -1,6 +1,6 @@
 import pytest
 import os
-from src.api.base import ErrorCode
+from src.api.response import ErrorCode
 
 def test_upload_success(client, test_file, test_department_id):
     """测试文件上传 - 成功场景"""
@@ -75,7 +75,7 @@ def test_upload_invalid_filename(client, test_department_id, tmp_path):
 
 def test_delete_success(client, test_doc_id):
     """测试文件删除 - 成功场景"""
-    response = client.delete(f"/api/v1/documents/{test_doc_id}")
+    response = client.delete_file(f"/api/v1/documents/{test_doc_id}")
     
     assert response.status_code == 200
     data = response.json()
@@ -87,10 +87,7 @@ def test_delete_success(client, test_doc_id):
 
 def test_delete_with_soft_delete(client, test_doc_id):
     """测试文件删除 - 软删除"""
-    response = client.delete(
-        f"/api/v1/documents/{test_doc_id}",
-        params={"is_soft_delete": True}
-    )
+    response = client.delete_file(f"/api/v1/documents/{test_doc_id}")
     
     assert response.status_code == 200
     data = response.json()
@@ -99,7 +96,7 @@ def test_delete_with_soft_delete(client, test_doc_id):
 
 def test_delete_non_existent(client):
     """测试文件删除 - 文件不存在"""
-    response = client.delete("/api/v1/documents/non_existent_id")
+    response = client.delete_file("/api/v1/documents/non_existent_id")
     
     assert response.status_code == 400
     data = response.json()

@@ -1,5 +1,5 @@
 import pytest
-from src.api.base import ErrorCode
+from src.api.response import ErrorCode
 
 def test_chat_success(client, test_department_id, test_session_id):
     """测试聊天接口 - 成功场景"""
