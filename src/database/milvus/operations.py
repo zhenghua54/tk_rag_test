@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import ArgsValidator
+from src.utils.validate.args_validator import ArgsValidator
 
 
 class VectorOperation:
@@ -69,8 +69,8 @@ class VectorOperation:
         Raises:
             ValueError: 当数据格式不符合要求时抛出
         """
-        ArgsValidator.validity_list_not_empty(data, "data")
-        ArgsValidator.validity_type(data, list, "data")
+        ArgsValidator.validate_list_not_empty(data, "data")
+        ArgsValidator.validate_type(data, list, "data")
 
         try:
             # 验证数据格式
@@ -96,7 +96,7 @@ class VectorOperation:
         Returns:
             Optional[str]: 插入成功的 segment_id，失败返回 None
         """
-        ArgsValidator.validity_type(data, dict, "data")
+        ArgsValidator.validate_type(data, dict, "data")
         result = self.insert_data([data])
         return result[0] if result else None
 
@@ -109,7 +109,7 @@ class VectorOperation:
         Returns:
             List[Dict[str, Any]]: 检索结果列表
         """
-        ArgsValidator.validity_doc_id(doc_id)
+        ArgsValidator.validate_doc_id(doc_id)
         try:
             results = self.milvus.client.query(
                 collection_name=self.milvus.collection_name,
@@ -152,8 +152,8 @@ class VectorOperation:
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validity_doc_id(doc_id)
-        ArgsValidator.validity_type(data, dict, "data")
+        ArgsValidator.validate_doc_id(doc_id)
+        ArgsValidator.validate_type(data, dict, "data")
 
         try:
             # 添加更新时间
@@ -181,7 +181,7 @@ class VectorOperation:
             bool: 是否更新成功
         """
         ArgsValidator.validate_segment_id(segment_id)
-        ArgsValidator.validity_type(data, dict, "data")
+        ArgsValidator.validate_type(data, dict, "data")
 
         try:
             # 添加更新时间
@@ -207,7 +207,7 @@ class VectorOperation:
         Returns:
             bool: 是否删除成功
         """
-        ArgsValidator.validity_doc_id(doc_id)
+        ArgsValidator.validate_doc_id(doc_id)
         try:
             self.milvus.client.delete_file()
             logger.info(f"成功删除文档 {doc_id} 的数据")
@@ -245,7 +245,7 @@ def test_milvus_operations():
         "vector": [0.1] * 1024,  # 1024维向量
         "document_name": "测试文档",
         "summary_text": "这是一个测试文档的摘要",
-        "type": "text",
+        "type": "content",
         "page_idx": 1,
         "principal_ids": "['dept1', 'dept2']",
         "metadata": {"key": "value"}

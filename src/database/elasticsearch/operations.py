@@ -379,7 +379,7 @@ class ElasticsearchOperation:
                                 "doc_id": {"type": "keyword"},
                                 "type": {"type": "keyword"},
                                 "summary_text": {
-                                    "type": "text",
+                                    "type": "content",
                                     "analyzer": "ik_max_word",
                                     "search_analyzer": "ik_max_word"
                                 }

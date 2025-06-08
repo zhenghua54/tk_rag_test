@@ -2,14 +2,12 @@
 
 import hashlib
 import json
-from typing import List, Dict, Optional
-from datetime import datetime
+from typing import List, Dict
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from src.core.document.content_merge import html_table_to_markdown
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import ArgsValidator
-from src.core.llm.extract_summary import extract_table_summary, extract_text_summary
+from src.utils.validate.args_validator import ArgsValidator
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text
@@ -48,10 +46,10 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     logger.info(f"开始处理文档 {document_name} (doc_id: {doc_id}) 的分块...")
     
     # 参数验证
-    ArgsValidator.validity_not_empty(document_name, "document_name")
+    ArgsValidator.validate_not_empty(document_name, "document_name")
     ArgsValidator.validate_doc_id(doc_id)
-    ArgsValidator.validity_type(page_content_dict, dict, "page_content_dict")
-    ArgsValidator.validity_list_not_empty(principal_ids, "principal_ids")
+    ArgsValidator.validate_type(page_content_dict, dict, "page_content_dict")
+    ArgsValidator.validate_list_not_empty(principal_ids, "principal_ids")
 
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
@@ -76,8 +74,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
         text_list = []
         for content in page_contents:
             # 累积文本内容
-            if content["type"] == "text":
-                text_list.append(content["text"].strip())
+            if content["type"] == "content":
+                text_list.append(content["content"].strip())
                 continue
             elif content["type"] == "table":
                 # 非文本内容时，处理已累积的文本内容
@@ -100,7 +98,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": chunk,
-                        "type": "text",
+                        "type": "content",
                         "page_idx": int(page_idx),
                         "principal_ids": principal_ids,
                         "create_time": "",  # 插入数据时更新
@@ -257,7 +255,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": chunk,
-                        "type": "text",
+                        "type": "content",
                         "page_idx": int(page_idx),
                         "principal_ids": principal_ids,
                         "create_time": "",  # 插入数据时更新
@@ -335,7 +333,7 @@ def save_segments(segments: Dict) -> bool:
     """
     try:
         # 参数验证
-        ArgsValidator.validity_not_empty(segments, "segments")
+        ArgsValidator.validate_not_empty(segments, "segments")
         logger.info("开始保存分块结果...")
 
         # 保存到 MySQL

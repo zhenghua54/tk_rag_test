@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 """系统基础接口"""
+import datetime
 from fastapi import APIRouter
-from config.settings import Config
 from src.api.response import ResponseBuilder
 
-router = APIRouter(prefix=Config.API_PREFIX)
+router = APIRouter(
+    tags=["基础接口"]
+)
+
 
 @router.get("/health")
 async def health_check():
     """健康检查接口"""
+    # 使用UTC时间格式化当前时间
+    now = datetime.datetime.now(datetime.timezone.utc)
+    iso_time = now.strftime('%Y-%m-%dT%H:%M:%SZ')
     return ResponseBuilder.success(data={
         "status": "healthy",
         "version": "1.0.0",
-        "timestamp": "2025-06-04T10:00:00Z"
+        "timestamp": iso_time
     }).dict()

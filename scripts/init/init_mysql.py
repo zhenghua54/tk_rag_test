@@ -15,6 +15,10 @@ def init_mysql():
     with open(init_sql_path, 'r') as f:
         init_sql = f.read()
 
+    # 替换占位符为配置中的数据库名称
+    db_name = Config.MYSQL_CONFIG['database']
+    init_sql = init_sql.replace('{{DB_NAME}}', db_name)
+
     # 连接 MySQL（不指定数据库）
     conn = pymysql.connect(
         host=Config.MYSQL_CONFIG['host'],

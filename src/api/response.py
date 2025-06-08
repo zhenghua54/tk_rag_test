@@ -2,17 +2,18 @@
 
 包含API响应、错误码等基础组件
 """
-from enum import Enum
 from typing import Any, Optional, Dict
+
 from pydantic import BaseModel
-from src.utils.common.error_code import ErrorCode, ErrorInfo
+from src.api.error_codes import ErrorCode
 
 
 # 自定义异常类
 class APIException(Exception):
-    def __init__(self, code: ErrorCode, message: str = None):
-        self.code = code
-        self.message = message or code.describe()
+    def __init__(self, error_code: ErrorCode, message: str = None, extra_info: str = None):
+        self.code = error_code
+        # 获取定义信息
+        self.message = message or ErrorCode.get_message(error_code, extra_info)
 
 
 # 响应构造工具类
@@ -20,32 +21,27 @@ class ResponseBuilder(BaseModel):
     """统一的API响应处理类"""
     code: int
     message: str
-    data: Optional[Dict[str, Any]] = None
+    data: Optional[Any] = None
+    request_id: Optional[str] = None
 
     @classmethod
-    def success(cls, data: Optional[Dict[str, Any]] = None):
+    def success(cls, error_code: int = 0, data: Optional[Any] = None,
+                request_id: str = None) -> "ResponseBuilder":
         """生成成功响应"""
         return cls(
-            code=ErrorCode.SUCCESS.value,
-            message="操作成功",
+            code=error_code,
+            message=ErrorCode.get_message(error_code),
+            request_id=request_id,
             data=data
         )
 
     @classmethod
-    def error(cls, code: int, message: str = None, data: Optional[Dict[str, Any]] = None):
+    def error(cls, error_code: int, extra_info: str = None, error_message: str = None,
+              data: Optional[Any] = None, request_id: str = None):
         """生成错误响应"""
-        error_info = ErrorInfo()
-        description, category, suggestion = error_info.get_error_info(code)
-        
-        error_data = {
-            "category": category,
-            "suggestion": suggestion
-        }
-        if data:
-            error_data.update(data)
-            
         return cls(
-            code=code,
-            message=str(message or description),  # 确保message是字符串类型
-            data=error_data
+            code=error_code,
+            message=error_message or ErrorCode.get_message(error_code, extra_info),
+            request_id=request_id,
+            data=data  # 预留字段
         )

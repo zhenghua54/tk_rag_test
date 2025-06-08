@@ -1,11 +1,14 @@
 # src/database/mysql/response.py
 """数据库操作基类"""
-
+from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
+
+import pymysql
+
 from config.settings import Config
 from src.utils.common.logger import logger
 from src.database.mysql.connection import MySQLConnect
-from src.utils.common.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 
 
 class BaseDBOperation:
@@ -17,8 +20,8 @@ class BaseDBOperation:
         Args:
             table_name (str): 表名
         """
-        ArgsValidator.validity_not_empty(table_name, "table_name")
-        ArgsValidator.validity_type(table_name, str, "table_name")
+        ArgsValidator.validate_not_empty(table_name, "table_name")
+        ArgsValidator.validate_type(table_name, str, "table_name")
         self.table_name = table_name
         self.mysql = None
 
@@ -39,7 +42,7 @@ class BaseDBOperation:
         if self.mysql:
             self.mysql.close()
 
-    def _execute_query(self, sql: str, args: Optional[Tuple] = None) -> List[Dict]:
+    def _execute_query(self, sql: str, args: Optional[Tuple] = None) -> List[Dict] | None:
         """执行查询语句
         
         Args:
@@ -49,14 +52,27 @@ class BaseDBOperation:
         Returns:
             List[Dict]: 查询结果列表
         """
-        if not self.mysql:
-            raise Exception("数据库连接未初始化")
-        with self.mysql.get_connection() as cursor:
-            cursor.execute(sql, args)
-            result = cursor.fetchall()
-            return list(result) if result else []
+        try:
+            if not self.mysql:
+                raise Exception("数据库连接未初始化")
+            with self.mysql.get_connection() as cursor:
+                cursor.execute(sql, args)
+                result = cursor.fetchall()
+                return list(result) if result else []
+        except pymysql.MySQLError as e:
+            # 捕获 MySQL 错误并分类
+            if e.args[0] == 1049:  # 数据库不存在错误
+                logger.error(f"[数据库错误] 数据库不存在，sql={sql}, error={str(e)}")
+            elif e.args[0] == 1062:  # 唯一约束错误
+                logger.error(f"[数据库错误] 唯一约束冲突，sql={sql}, error={str(e)}")
+            else:
+                logger.error(f"[数据库错误] sql={sql}, error={str(e)}")
+            raise RuntimeError(f"数据库操作失败: {str(e)}") from e
+        except Exception as e:
+            logger.error(f"[未知错误] sql={sql}, error={str(e)}")
+            raise RuntimeError(f"数据库操作失败: {str(e)}") from e
 
-    def _execute_update(self, sql: str, args: Optional[Tuple] = None) -> int:
+    def _execute_update(self, sql: str, args: Optional[Tuple] = None) -> int | None:
         """执行更新语句
         
         Args:
@@ -79,16 +95,16 @@ class BaseDBOperation:
         Returns:
             Optional[Dict]: 查询结果，如果未找到则返回 None
         """
-        ArgsValidator.validity_doc_id(doc_id)
+        ArgsValidator.validate_doc_id(doc_id)
         try:
             sql = f'SELECT * FROM {self.table_name} WHERE doc_id = %s'
             data = self._execute_query(sql, (doc_id,))
             return data[0] if data else None
         except Exception as e:
             logger.error(f"查询记录失败: {e}")
-            return None
+            raise e
 
-    def select_record(self, fields: Optional[List[str]] = None, conditions: Optional[Dict] = None) -> List[Dict]:
+    def select_record(self, fields: Optional[List[str]] = None, conditions: Optional[Dict] = None) -> List[Dict] | None:
         """查询记录
 
         Args:
@@ -105,7 +121,7 @@ class BaseDBOperation:
             # 构建 WHERE 子句
             args = None
             if conditions:
-                ArgsValidator.validity_type(conditions, dict, "conditions")
+                ArgsValidator.validate_type(conditions, dict, "conditions")
                 where_clause = ' AND '.join([f"{k} = %s" for k in conditions.keys()])
                 args = tuple(conditions.values())
                 sql = f'SELECT {select_clause} FROM {self.table_name} WHERE {where_clause}'
@@ -115,29 +131,7 @@ class BaseDBOperation:
             return self._execute_query(sql, args)
         except Exception as e:
             logger.error(f"查询记录失败: {e}")
-            return []
-
-    def select_doc_ids(self, conditions: Dict = None) -> List[str]:
-        """查询所有文档 ID
-
-        Args:
-            conditions (Dict, optional): 查询条件，默认为 None
-
-        Returns:
-            List[str]: 查询到的文档 ID 列表
-        """
-        try:
-            if conditions:
-                where_clause = ' AND '.join([f"{k} = %s" for k in conditions.keys()])
-                sql = f'SELECT doc_id FROM {self.table_name} WHERE {where_clause}'
-                data = self._execute_query(sql, tuple(conditions.values()))
-            else:
-                sql = f'SELECT doc_id FROM {self.table_name}'
-                data = self._execute_query(sql)
-            return [row['doc_id'] for row in data] if data else []
-        except Exception as e:
-            logger.error(f"查询文档 ID 失败: {e}")
-            return []
+            raise e
 
     def insert(self, data: Dict[str, Any]) -> bool:
         """插入单条记录
@@ -148,8 +142,8 @@ class BaseDBOperation:
         Returns:
             bool: 是否插入成功
         """
-        ArgsValidator.validity_not_empty(data, "data")
-        ArgsValidator.validity_type(data, dict, "data")
+        ArgsValidator.validate_not_empty(data, "data")
+        ArgsValidator.validate_type(data, dict, "data")
 
         try:
             columns = ', '.join(data.keys())
@@ -158,9 +152,27 @@ class BaseDBOperation:
             return self._execute_update(sql, tuple(data.values())) > 0
         except Exception as e:
             logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}")
-            return False
+            raise e
 
-    def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool:
+    def insert_many(self, data_list: List[Dict[str, Any]]) -> int:
+        """插入多条记录
+
+        Args:
+            data_list (List[Dict[str, Any]]): 要插入的数据列表，每个元素是一个字典
+
+        Returns:
+            影响的行数
+        """
+        if not data_list:
+            return 0
+        keys = data_list[0].keys()
+        columns = ', '.join(keys)
+        placeholders = ', '.join(['%s'] * len(keys))
+        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
+        values = [tuple(d[k] for k in keys) for d in data_list]
+        return self.mysql.executemany(sql, values)
+
+    def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool | None:
         """根据 doc_id 更新记录
 
         Args:
@@ -170,9 +182,9 @@ class BaseDBOperation:
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validity_doc_id(doc_id)
-        ArgsValidator.validity_not_empty(data, "data")
-        ArgsValidator.validity_type(data, dict, "data")
+        ArgsValidator.validate_doc_id(doc_id)
+        ArgsValidator.validate_not_empty(data, "data")
+        ArgsValidator.validate_type(data, dict, "data")
 
         try:
             set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
@@ -182,22 +194,28 @@ class BaseDBOperation:
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
             logger.error(f"更新记录失败: {e}")
-            return False
+            raise e
 
-    def delete_by_doc_id(self, doc_id: str) -> bool:
-        """根据 doc_id 删除记录
+    def _soft_delete_by_id(self, doc_id: str) -> int:
+        """基础软删除实现"""
+        sql = f"UPDATE {self.table_name} SET is_soft_deleted = TRUE, updated_at = %s WHERE doc_id = %s"
+        return self._execute_update(sql, (datetime.now(), doc_id))
 
-        Args:
-            doc_id (str): 文档ID
+    def _hard_delete_by_id(self, doc_id: str) -> int:
+        """基础硬删除实现"""
+        sql = f"DELETE FROM {self.table_name} WHERE doc_id = %s"
+        return self._execute_update(sql, (doc_id,))
 
-        Returns:
-            bool: 是否删除成功
-        """
-        ArgsValidator.validity_doc_id(doc_id)
-
+    def delete_by_doc_id(self, doc_id: str, soft_delete: bool) -> int:
+        """通用删除接口，支持软/硬删除"""
         try:
-            sql = f'DELETE FROM {self.table_name} WHERE doc_id = %s'
-            return self._execute_update(sql, (doc_id,)) > 0
+            if soft_delete:
+                return self._soft_delete_by_id(doc_id)
+            else:
+                return self._hard_delete_by_id(doc_id)
+        except pymysql.MySQLError as e:
+            logger.error(f"[删除记录失败] doc_id={doc_id}, soft_delete={soft_delete}, error={str(e)}")
+            raise RuntimeError(f"数据库删除失败: {str(e)}") from e
         except Exception as e:
-            logger.error(f"删除记录失败: {e}")
-            return False
+            logger.error(f"[未知错误] 删除记录失败, doc_id={doc_id}, soft_delete={soft_delete}, error={str(e)}")
+            raise e

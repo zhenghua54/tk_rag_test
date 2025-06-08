@@ -10,7 +10,7 @@ from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 
 from src.utils.common.logger import logger
-from src.utils.file.file_validator import validity_pdf_parse
+from src.utils.validate.file_validator import validate_pdf_parse
 from src.utils.file.doc_path import get_doc_output_path
 
 
@@ -36,7 +36,7 @@ def parse_pdf_file(file_path: str) -> bool | dict[str, str | dict | Any]:
 
     
     # 验证 PDF 文件结构是否合法
-    valid_res, valid_content = validity_pdf_parse(file_path)
+    valid_res, valid_content = validate_pdf_parse(file_path)
 
     if not valid_res:
         logger.error(f"文件 {file_path} 结构不合法, {valid_content}")

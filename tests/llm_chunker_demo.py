@@ -142,7 +142,7 @@ if __name__ == "__main__":
     # with open(
     #         '/Users/jason/PycharmProjects/tk_rag_demo/datas/output_data/1_1_竞争情况（天宽科技）/1_1_竞争情况（天宽科技）.md',
     #         'r', encoding='utf-8') as f:
-    #     text = f.read()
+    #     content = f.read()
 
     text = r"""
     发行人在行业中的竞争情况

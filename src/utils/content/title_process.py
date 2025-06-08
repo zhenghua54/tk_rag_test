@@ -1,11 +1,11 @@
 """最终文档内容处理模块"""
 import json
 from rich import print
-from src.utils.common.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 
 from src.utils.common.logger import logger
 from src.core.llm.extract_summary import extract_table_summary
-from src.utils.text.table_process import html_table_to_markdown
+from src.utils.content.table_process import html_table_to_markdown
 
 
 def fill_title(file_path: str) -> list:
@@ -17,8 +17,12 @@ def fill_title(file_path: str) -> list:
     Returns:
         list: 处理后的文档内容列表
     """
-    # 参数校验
-    ArgsValidator.validata_json_file(file_path)
+    try:
+        # 参数校验
+        ArgsValidator.validate_not_empty(file_path, 'file_path')
+        ArgsValidator.validate_type(file_path, str, 'file_path')
+    except ValueError as e:
+        raise e
 
     # 统计信息初始化
     table_total, table_cap, table_cap_up, table_cap_miss = 0, 0, 0, 0
@@ -58,8 +62,8 @@ def fill_title(file_path: str) -> list:
                 if last_item and last_item["type"] == "table":
                     caption = str(last_item.get("table_caption", "")[0]).strip()
                 # 使用上一个文本作为标题（短文本）
-                elif last_item and last_item["type"] == "text" and len(last_item["text"]) < 100:
-                    caption = str(last_item.get("text", "")).strip()
+                elif last_item and last_item["type"] == "content" and len(last_item["content"]) < 100:
+                    caption = str(last_item.get("content", "")).strip()
                 else:
                     # 使用 LLM 生成的标题
                     caption = table_summary["title"].strip()
@@ -85,8 +89,8 @@ def fill_title(file_path: str) -> list:
                 img_cap += 1
             else:
                 # 使用上一个文本作为标题（短文本）
-                if last_item and last_item["type"] == "text" and len(last_item["text"]) < 100:
-                    caption = str(last_item.get("text", "")).strip()
+                if last_item and last_item["type"] == "content" and len(last_item["content"]) < 100:
+                    caption = str(last_item.get("content", "")).strip()
 
                 if caption:
                     # 处理列表作为标题的异常情况

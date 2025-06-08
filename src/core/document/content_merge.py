@@ -10,11 +10,11 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(o
 sys.path.append(project_root)
 
 from src.utils.common.logger import logger
-from src.utils.common.args_validator import ArgsValidator
+from src.utils.validate.args_validator import ArgsValidator
 
 
 def merge_page(doc_content: list) -> dict[str:list]:
-    """解析 json 内容, 根据 page_idx 合并 text 元素
+    """解析 json 内容, 根据 page_idx 合并 content 元素
 
     Args:
         doc_content (list): MinerU 解析后的 json 内容列表
@@ -23,8 +23,8 @@ def merge_page(doc_content: list) -> dict[str:list]:
         merge_page_contents (dict): 按照 page_idx 进行合并的 json 内容, 格式为 {page_idx:[content,content,content], ...}
     """
     # 参数校验
-    ArgsValidator.validity_type(doc_content, list, "doc_content")
-    ArgsValidator.validity_list_not_empty(doc_content, "doc_content")
+    ArgsValidator.validate_type(doc_content, list, "doc_content")
+    ArgsValidator.validate_list_not_empty(doc_content, "doc_content")
 
     merge_page_contents = defaultdict(list)  # 初始化页面存储
     text_list = []  # 临时存储文本段
@@ -39,8 +39,8 @@ def merge_page(doc_content: list) -> dict[str:list]:
         if tmp_idx is not None and page_idx != tmp_idx:
             if text_list:
                 merge_page_contents[tmp_idx].append({
-                    "type": "text",
-                    "text": "".join(text_list),
+                    "type": "content",
+                    "content": "".join(text_list),
                     "page_idx": tmp_idx
                 })
                 text_list = []
@@ -49,14 +49,14 @@ def merge_page(doc_content: list) -> dict[str:list]:
         tmp_idx = page_idx
 
         # 处理同页内容
-        if content["type"] == "text":
-            text_list.append(content["text"])
+        if content["type"] == "content":
+            text_list.append(content["content"])
         # 非文本类型，保存积累的文本后保存该元素
         else:
             if text_list:
                 merge_page_contents[page_idx].append({
-                    "type": "text",
-                    "text": "".join(text_list),
+                    "type": "content",
+                    "content": "".join(text_list),
                     "page_idx": page_idx
                 })
                 text_list = []
@@ -65,8 +65,8 @@ def merge_page(doc_content: list) -> dict[str:list]:
     # 处理最后一页累积的文本
     if text_list:
         merge_page_contents[tmp_idx].append({
-            "type": "text",
-            "text": "".join(text_list),
+            "type": "content",
+            "content": "".join(text_list),
             "page_idx": tmp_idx
         })
 

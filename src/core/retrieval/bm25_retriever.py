@@ -50,7 +50,7 @@ class BM25Retriever:
                     metadata={
                         "segment_id": segment_id,
                         "doc_id": hit["_source"].get("doc_id", ""),
-                        "type": hit["_source"].get("type", "text"),
+                        "type": hit["_source"].get("type", "content"),
                         "score": hit["_score"]
                     }
                 )

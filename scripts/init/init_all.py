@@ -50,7 +50,7 @@ def test_connections():
     """测试所有数据库连接"""
     # 测试 MySQL 连接
     if not test_connect_mysql():
-        raise Exception("MySQL 数据库连接失败！")
+        raise Exception("MySQL 数据库连接失败！") 
 
     # 测试 Milvus 连接
     try:
@@ -97,7 +97,7 @@ def init_all():
         logger.info("项目环境初始化完成！")
     except Exception as e:
         logger.error(f"项目初始化失败: {e}")
-        raise
+        raise RuntimeError(f"项目初始化失败: {e}") from e
 
 
 if __name__ == "__main__":

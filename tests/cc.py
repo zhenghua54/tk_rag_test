@@ -1,8 +1,7 @@
-patha = "/usr/local/123.txt"
+data_list = [
+    {"id": 1, "name": "Alice", "age": 25},
+    {"id": 2, "name": "Bob", "age": 30},
+    {"id": 3, "name": "Charlie", "age": 22}
+]
 
-sup = ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt']
-
-file_ext = patha.split('.')[-1]
-print(file_ext)
-
-print(patha.endswith(sup))
+print(data_list[0].keys())

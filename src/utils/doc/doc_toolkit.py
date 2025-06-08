@@ -2,7 +2,14 @@
 
 import os
 import hashlib
+import shutil
+from pathlib import Path
+from typing import Optional
+
 from config.settings import Config
+from src.api.error_codes import ErrorCode
+from src.api.response import APIException
+from src.utils.common.logger import logger
 
 
 def _get_file_info(file: str) -> dict:
@@ -89,3 +96,21 @@ def compute_file_hash(file: str, algo: str = "sha256") -> str:
 
 
 
+def delete_path_safely(file_path: Optional[str], error_code: ErrorCode):
+    """文件或目录的硬删除"""
+    if not file_path or not isinstance(file_path, str):
+        return
+    path = Path(file_path)
+    if not path.exists():
+        logger.warning(f"[文件已不存在] path={path}")
+        return
+    try:
+        if path.is_file():
+            path.unlink()
+            logger.info(f"[硬删除] file={path}")
+        elif path.is_dir():
+            shutil.rmtree(path)
+            logger.info(f"[硬删除] dir={path}")
+    except Exception as e:
+        logger.error(f"[硬删除失败] path={path}, error_code={error_code.value}, error={str(e)}")
+        raise APIException(error_code, str(e)) from e

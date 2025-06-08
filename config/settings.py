@@ -21,7 +21,9 @@ class Config:
     # ---------- API info ----------
     API_TITLE = "RAG Demo API"
     API_DESCRIPTION = "RAG系统API文档"
-    API_VERSION = "1.0.0",
+    API_VERSION = "v1"
+    API_PREFIX = f"/api/{API_VERSION}"
+    USE_MOCK = True  # 是否使用 Mock 数据
 
     # ---------- Project Paths ----------
 
@@ -36,12 +38,6 @@ class Config:
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
     }
-
-    # ---------- API Config ----------
-    API_VERSION = "v1"
-    API_PREFIX = f"/api/{API_VERSION}"
-    USE_MOCK = True  # 是否使用mock服务
-    MAX_FILE_SIZE = 50 * 1024 * 1024  # 文件大小限制 (50MB)
 
     # ---------- Model Config ----------
     MODEL_PATHS = {
@@ -97,7 +93,7 @@ class Config:
         "permission_info_table": "permission_info",
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
     }
-    
+
     # ---------- ES Config ----------
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
@@ -114,7 +110,7 @@ class Config:
     # ---------- BM25 Config ----------
     BM25_CONFIG = {
         "batch_size": 1000,  # 每批处理的文档数量
-        "max_docs": 10000,   # 最大文档数量
+        "max_docs": 10000,  # 最大文档数量
         "memory_limit": 1024  # 内存限制（MB）
     }
 
@@ -125,6 +121,7 @@ class Config:
         "memory_limit": 1024,  # 内存限制（MB）
         "vector_batch_size": 10  # 向量生成的批处理大小
     }
+
 
 if __name__ == "__main__":
     # 打印当前配置

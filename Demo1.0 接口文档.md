@@ -69,7 +69,7 @@ application/json 作为请求与返回数据格式。
 
 ## **接口列表**
 
-### 1. 健康检查：`GET /api/v1/health`
+### 1. 健康检查：`GET /api/v1/health`2
 
 用于检查服务状态
 

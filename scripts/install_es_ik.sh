@@ -116,7 +116,7 @@ echo -e "--------------------------------------------------------\n"
 # 12. 测试 IK 分词器是否正常工作
 echo -e "\n--------------------------------------------------------"
 echo -e "正在测试 IK 分词器是否正常工作..."
-response=$(curl -s -X POST "http://localhost:9200/_analyze" -H 'Content-Type: application/json' -d'{"analyzer": "ik_smart","text": "中华人民共和国国歌"}')
+response=$(curl -s -X POST "http://localhost:9200/_analyze" -H 'Content-Type: application/json' -d'{"analyzer": "ik_smart","content": "中华人民共和国国歌"}')
 
 # 检查返回的结果是否包含 "tokens" 字段，判断 IK 插件是否正常工作
 if echo "$response" | grep -q '"tokens"'; then
