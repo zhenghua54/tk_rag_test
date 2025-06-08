@@ -1,7 +1,7 @@
 """数据库操作"""
 from typing import List, Dict, Optional
 from config.settings import Config
-from src.api.response import ErrorCode
+from src.api.response import ErrorCode, APIException
 from src.database.mysql.base import BaseDBOperation
 from src.utils.common.logger import logger
 
@@ -155,7 +155,7 @@ class PermissionOperation(BaseDBOperation):
         """
         res = self.insert(args)
         if not res:
-            raise ValueError(ErrorCode.MYSQL_INSERT_FAIL, ErrorCode.MYSQL_INSERT_FAIL)
+            raise APIException(ErrorCode.MYSQL_INSERT_FAIL)
         else:
             return res
 

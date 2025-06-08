@@ -20,7 +20,7 @@ def init_milvus():
         # 初始化 Milvus 数据库和集合
         milvus_conn.init_database()
 
-        logger.info("Milvus 数据库初始化成功")
+        logger.debug("Milvus 数据库初始化成功")
 
     except Exception as e:
         logger.error(f"Milvus 数据库初始化失败: {str(e)}")

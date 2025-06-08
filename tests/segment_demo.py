@@ -5,9 +5,9 @@ import json
 from typing import List, Dict
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from src.core.document.content_merge import html_table_to_markdown
+from src.utils.table_toolkit import html_table_to_markdown
 from src.utils.common.logger import logger
-from src.utils.validate.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text

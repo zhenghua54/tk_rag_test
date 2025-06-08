@@ -1,16 +1,8 @@
 """
 MinerU 官方 API 修改, 调整输出可选项和路径(备份)
 """
-from magic_pdf.config.enums import SupportedPdfParseMethod
-from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
-from magic_pdf.data.dataset import PymuDocDataset
-from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
-
-from src.utils.common.logger import logger
 from src.utils.pdf_valid import is_pdf_valid
-from src.utils.file.doc_path import get_doc_output_path
-
 
 # args: 初始化参数
 # pdf_file_name = "/Users/jason/Library/CloudStorage/OneDrive-个人/项目/新届泵业/客户资料/知识问答案例/企业标准（约2300条）/规章制度及设计、采购、产品标准等（约1500条）/QSG A0303008-2024 新界泵业应届大学生培养及管理办法.pdf"  # 替换为实际的 PDF 文件路径

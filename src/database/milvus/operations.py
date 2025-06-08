@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
-from src.utils.validate.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 
 
 class VectorOperation:

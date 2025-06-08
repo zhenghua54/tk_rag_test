@@ -6,9 +6,9 @@ from typing import List, Dict
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from src.core.document.content_merge import html_table_to_markdown
+from src.utils.table_toolkit import html_table_to_markdown
 from src.utils.common.logger import logger
-from src.utils.validate.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.embedding.embedder import embed_text
@@ -61,7 +61,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     Returns:
         List[Dict]: 分块结果列表
     """
-    logger.info(f"开始处理文档 {document_name} (doc_id: {doc_id}) 的分块...")
+    logger.debug(f"开始处理文档 {document_name} (doc_id: {doc_id}) 的分块...")
 
     # 参数验证
     ArgsValidator.validate_not_empty(document_name, "document_name")

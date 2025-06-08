@@ -10,10 +10,10 @@ from src.api.error_codes import ErrorCode
 
 # 自定义异常类
 class APIException(Exception):
-    def __init__(self, error_code: ErrorCode, message: str = None, extra_info: str = None):
+    def __init__(self, error_code: ErrorCode, message: str = None):
         self.code = error_code
         # 获取定义信息
-        self.message = message or ErrorCode.get_message(error_code, extra_info)
+        self.message = message or ErrorCode.get_message(error_code)
 
 
 # 响应构造工具类

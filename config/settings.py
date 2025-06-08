@@ -18,14 +18,14 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class Config:
     """配置类：用于管理项目的所有配置信息"""
-    # ---------- API info ----------
+    # API配置
     API_TITLE = "RAG Demo API"
     API_DESCRIPTION = "RAG系统API文档"
     API_VERSION = "v1"
     API_PREFIX = f"/api/{API_VERSION}"
-    USE_MOCK = True  # 是否使用 Mock 数据
+    USE_MOCK = False  # 是否使用 Mock 数据
 
-    # ---------- Project Paths ----------
+    # 项目目录配置
 
     BASE_DIR = Path(__file__).parent.absolute().parent
 
@@ -39,23 +39,28 @@ class Config:
         "libreoffice_path": "/usr/bin/libreoffice",
     }
 
-    # ---------- Model Config ----------
+    # 模型相关配置
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
         "llm": str(MODEL_BASE / "Qwen2.5-7B-Instruct-1M"),
         "rerank": str(MODEL_BASE / "bge-reranker-v2-m3")
     }
 
-    # ---------- File Processing Config ----------
+    # 文件处理配置
     SUPPORTED_FILE_TYPES = {
         "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
 
-    # ---------- System Config ----------
+    # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
+    UNSUPPORTED_FILENAME_CHARS = set(
+        '<>:"/\\|?*' + ''.join(chr(c) for c in range(0x00, 0x20))  # 控制字符
+    )
+
+    # 系统相关配置
     DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
 
-    # ---------- Database Config ----------
+    # 数据库配置
     MILVUS_CONFIG = {
         "uri": "http://localhost:19530/",
         "host": "localhost",
@@ -94,7 +99,6 @@ class Config:
         "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
     }
 
-    # ---------- ES Config ----------
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
         "timeout": 30,  # 请求超时时间（秒）
@@ -107,14 +111,14 @@ class Config:
         "verify_certs": False  # 是否验证证书
     }
 
-    # ---------- BM25 Config ----------
+    # BM25 配置
     BM25_CONFIG = {
         "batch_size": 1000,  # 每批处理的文档数量
         "max_docs": 10000,  # 最大文档数量
         "memory_limit": 1024  # 内存限制（MB）
     }
 
-    # ---------- Segment Config ----------
+    # 分块配置
     SEGMENT_CONFIG = {
         "batch_size": 10,  # 每批处理的记录数
         "max_text_length": 1000,  # 最大文本长度

@@ -30,7 +30,7 @@ def rerank_results(query: str, merged_results: List[Tuple[Document, float]], top
     logger.info(f"开始重排序,输入结果数量: {len(merged_results)}, top_k: {top_k}")
 
     # 初始化重排序模型
-    logger.info(f"初始化重排序模型...")
+    logger.debug(f"初始化重排序模型...")
     try:
         reranker = init_rerank_model()
     except Exception as e:

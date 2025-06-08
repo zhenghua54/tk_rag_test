@@ -1,4 +1,6 @@
 """FastAPI 应用入口"""
+import sys
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
@@ -8,6 +10,10 @@ from config.settings import Config
 from src.api.base import router as base_router
 from src.api import document_api
 from src.middleware.base_middleware import RequestMiddleware
+
+# 更新环境变量
+root_path = Path(__file__).resolve()
+sys.path.append(str(root_path))
 
 # 检查环境
 # # 检查 PyMuPDF

@@ -6,8 +6,10 @@ from typing import Dict
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from src.api.error_codes import ErrorCode
+from src.api.response import APIException
 from src.utils.common.logger import logger
-from src.utils.validate.args_validator import ArgsValidator
+from src.utils.validator.args_validator import ArgsValidator
 
 
 
@@ -51,7 +53,7 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
         json_text = re.sub(r'^```json\n|\n```$', '', cleaned_text).strip()
 
         if not json_text:
-            raise ValueError("清理后的 Json 文本为空， 无法解析")
+            raise APIException(ErrorCode.FILE_EXCEPTION,"清理后的 Json 文本为空， 无法解析")
 
             
         # 尝试直接解析 JSON
@@ -62,7 +64,7 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
             # 匹配最外层的花括号及其内容
             json_match = re.search(r'^\s*\{[^{}]*\}\s*$', json_text, re.DOTALL)
             if not json_match:
-                raise ValueError("无法从文本中提取 JSON 数据")
+                raise APIException(ErrorCode.FILE_EXCEPTION,"无法从文本中提取 JSON 数据")
             result = json.loads(json_match.group().strip())
 
 
@@ -139,7 +141,7 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
         
         # 获取摘要
         raw_summary = completion.choices[0].message.content
-        logger.info(f"表格摘要生成成功: {raw_summary[:100]}...")
+        logger.debug(f"表格摘要生成成功: {raw_summary[:100]}...")
         
         # 解析和清洗摘要
         return parse_table_summary(raw_summary)
@@ -188,7 +190,7 @@ def extract_text_summary(text: str) -> str:
         
         # 获取摘要
         summary = completion.choices[0].message.content
-        logger.info(f"文本摘要生成成功: {summary[:200]}...")
+        logger.debug(f"文本摘要生成成功: {summary[:200]}...")
         return summary
         
     except Exception as e:

@@ -14,9 +14,6 @@ from pathlib import Path
 from rich import print
 
 # 测试相似度
-from sentence_transformers import SentenceTransformer
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 
 # 添加项目根目录到 Python 路径
 project_root = Path(__file__).parent
@@ -39,20 +36,17 @@ from src.database.mysql.operations import select_non_pdf_files, select_pdf_files
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
 # from src.utils.table_toolkit.table_merge import TableMerge
-from src.core.document.content_merge import process_tables
+from src.core.document.content_processer import process_tables
 
 # 3. 测试图片标题提取
-from src.core.document.content_merge import process_images
+from src.core.document.content_processer import process_images
 
 # 4. 测试文档内容清洗
 from src.utils.content.title_process import clean_content
-from src.utils.file.doc_path import get_doc_output_path
-
-
-from src.database.milvus.connection import MilvusDB
+from src.utils.doc_toolkit import get_doc_output_path
 
 # 测试元素切割
-from src.core.document.content_merge import format_html_table_to_markdown
+from src.core.document.content_processer import format_html_table_to_markdown
 
 
 
@@ -71,18 +65,18 @@ def test_parse_file(pdf_file_paths: list[dict] = None):
     update_parse_file_records_in_db(output_paths)
     print(f'文件解析完成,共计{len(pdf_file_paths)}个文件')
 
-def files_translate_test(file_path: str):
+def files_translate_test(doc_path: str):
     """测试文件转换
     
     Args:
-        file_path (str): 文件路径
+        doc_path (str): 文件路径
     """
     
-    if file_path is None:
-        file_path = Config.PATHS['origin_data']
+    if doc_path is None:
+        doc_path = Config.PATHS['origin_data']
 
     # 过滤非法文件
-    file_infos = file_filter(file_path)
+    file_infos = file_filter(doc_path)
     # 将文件信息保存到数据库中
     update_file_records_in_db(file_infos)
 
