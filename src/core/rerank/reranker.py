@@ -82,9 +82,9 @@ if __name__ == '__main__':
     # 测试重排序功能
     test_query = "测试查询"
     test_docs = [
-        (Document(page_content="测试文档1", metadata={"type": "text"}), 0.8),
-        (Document(page_content="测试文档2", metadata={"type": "text"}), 0.6),
-        (Document(page_content="测试文档3", metadata={"type": "text"}), 0.9)
+        (Document(page_content="测试文档1", metadata={"type": "content"}), 0.8),
+        (Document(page_content="测试文档2", metadata={"type": "content"}), 0.6),
+        (Document(page_content="测试文档3", metadata={"type": "content"}), 0.9)
     ]
     
     results = rerank_results(test_query, test_docs, top_k=2)

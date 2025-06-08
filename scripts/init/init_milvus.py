@@ -17,13 +17,9 @@ def init_milvus():
         # 创建 Milvus 连接
         milvus_conn = MilvusDB()
 
-        # 检查集合是否存在
-        if milvus_conn.client.has_collection(milvus_conn.collection_name):
-            logger.info(f"集合 {milvus_conn.collection_name} 已存在，跳过创建")
-            return
+        # 初始化 Milvus 数据库和集合
+        milvus_conn.init_database()
 
-        # 创建集合（使用 connection.py 中的代码）
-        milvus_conn._create_collection()
         logger.info("Milvus 数据库初始化成功")
 
     except Exception as e:

@@ -1,0 +1,132 @@
+"""错误编码, 根据在线接口文档维护,如有修改,保持同步"""
+from enum import Enum
+
+
+class ErrorCode(Enum):
+    # 系统成功响应
+    SUCCESS = 0
+    INTERNAL_ERROR = 1
+    PARAM_ERROR = 2
+    DUPLICATE_OPERATION = 3
+
+    # 数据库相关错误
+    MYSQL_CONNECTION_FAIL = 1000
+    MYSQL_INSERT_FAIL = 1001
+    MYSQL_UPDATE_FAIL = 1002
+    MYSQL_DELETE_FAIL = 1003
+    MYSQL_QUERY_FAIL = 1004
+
+    # 权限相关错误
+    UNAUTHORIZED = 2000
+    PERMISSION_INVALID = 2001
+
+    # 系统相关错误
+    STORAGE_FULL = 3001
+    SYSTEM_BUSY = 3002
+    SYSTEM_MAINTENANCE = 3003
+    INTERNAL_ERROR_2 = 3004
+
+    # 文件相关错误
+    FILE_NOT_FOUND = 4000
+    UNSUPPORTED_FORMAT = 4001
+    FILE_TOO_LARGE = 4002
+    FILE_EMPTY = 4003
+    TOOLANG_FILENAME = 4004
+    INVALID_FILENAME = 4005
+    PDF_PARSE_ERROR = 4006
+    FILE_EXISTS = 4007
+    TOOLANG_FILEPATH = 4008
+    FILE_EXCEPTION = 4009
+    FILE_VALIDATION_ERROR = 4010
+    FILE_HARD_DELETE_ERROR = 4011
+    FILE_SOFT_DELETE_ERROR = 4012
+
+    # 会话相关错误
+    QUESTION_TOO_LONG = 5000
+    INVALID_SESSION = 5001
+    KB_MATCH_FAILED = 5002
+    CONTEXT_TOO_LONG = 5003
+    MODEL_TIMEOUT = 5004
+
+    @staticmethod
+    def get_message(error_code, extra_info="") -> str:
+        """获取错误码对应的提示信息
+
+        Args:
+            :param error_code: 错误码
+            :param extra_info: 可选的额外信息，如文件扩展名等
+        Return:
+            message (str): 错误提示信息
+        """
+        if isinstance(error_code, int):
+            try:
+                error_code = ErrorCode(error_code)
+            except ValueError:
+                return "转换error_code失败, 请检查错误码是否正确"
+
+        message = ERROR_MESSAGES.get(error_code, "未知错误")
+        return message
+
+
+# 错误信息对应的描述
+ERROR_MESSAGES = {
+    ErrorCode.SUCCESS: "success",
+    ErrorCode.INTERNAL_ERROR: "系统内部错误",
+    ErrorCode.PARAM_ERROR: "参数错误, 请检查请求参数是否完整且格式正确",
+    ErrorCode.DUPLICATE_OPERATION: "重复操作, 请勿重复提交请求",
+
+    ErrorCode.MYSQL_CONNECTION_FAIL: "数据库连接失败，请检查数据库连接配置",
+    ErrorCode.MYSQL_INSERT_FAIL: "数据新增失败，请检查插入数据是否符合要求",
+    ErrorCode.MYSQL_UPDATE_FAIL: "数据更新失败，请检查更新数据是否符合要求",
+    ErrorCode.MYSQL_DELETE_FAIL: "数据删除失败",
+    ErrorCode.MYSQL_QUERY_FAIL: "数据查询失败",
+
+    ErrorCode.UNAUTHORIZED: "未授权操作, 请重新登录",
+    ErrorCode.PERMISSION_INVALID: "权限无效, 请重新登录",
+
+    ErrorCode.STORAGE_FULL: "存储空间不足, 请检查服务器剩余存储空间",
+    ErrorCode.SYSTEM_BUSY: "系统繁忙，请稍后重试",
+    ErrorCode.SYSTEM_MAINTENANCE: "系统维护中，请等待维护完成",
+    ErrorCode.INTERNAL_ERROR_2: "系统内部错误，请联系系统管理员",
+
+    ErrorCode.FILE_NOT_FOUND: "文件不存在, 请检查文件路径是否正确",
+    ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持",
+    ErrorCode.FILE_TOO_LARGE: "文件过大, 最大支持 50MB 文件",
+    ErrorCode.FILE_EMPTY: "文件内容为空, 无法读取文件内容",
+    ErrorCode.TOOLANG_FILENAME: "文件名称超长, 长度应不超过 200字",
+    ErrorCode.INVALID_FILENAME: "文件名无效, 仅支持包含字母、数字、下划线",
+    ErrorCode.PDF_PARSE_ERROR: "PDF解析失败",
+    ErrorCode.FILE_EXISTS: "文件已存在, 请检查是否重复上传",
+    ErrorCode.TOOLANG_FILEPATH: "文件路径超长, 长度应不超过 1000 字",
+    ErrorCode.FILE_EXCEPTION: "",  # 不同异常单独返回
+    ErrorCode.FILE_VALIDATION_ERROR: "文件验证失败",
+    ErrorCode.FILE_HARD_DELETE_ERROR: "文件软删除失败",
+    ErrorCode.FILE_SOFT_DELETE_ERROR: "文件物理删除失败",
+
+    ErrorCode.QUESTION_TOO_LONG: "问题超长, 长度应不超过 2000 字",
+    ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",
+    ErrorCode.KB_MATCH_FAILED: "未检索到数据, 请尝试调整问题描述或确认是否启用了权限管理",
+    ErrorCode.CONTEXT_TOO_LONG: "上下文长度超限, 建议开启新的会话",
+    ErrorCode.MODEL_TIMEOUT: "模型响应超时, 请稍后重试或降低问题复杂度",
+
+}
+
+if __name__ == '__main__':
+    # 示例：在 API 响应中返回错误码和错误消息
+    def handle_error(error_code, extra_info=None):
+        error_message = ErrorCode.get_message(error_code, extra_info)
+        return {
+            "error_code": error_code,
+            "error_message": error_message
+        }
+
+
+    # 错误处理示例
+    response = handle_error(ErrorCode.MYSQL_INSERT_FAIL)
+    print(response)  # 输出：{'error_code': 1001, 'error_message': '数据新增失败，请检查插入数据是否符合要求'}
+
+    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT, extra_info="jpg")
+    print(response_with_extra)  # 输出：{'error_code': 4004, 'error_message': '不支持的文件格式，请使用支持的文件格式，jpg'}
+
+    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT)
+    print(response_with_extra)  # 输出：{'error_code': 4004, 'error_message': '不支持的文件格式，请使用支持的文件格式 $placeholder'}

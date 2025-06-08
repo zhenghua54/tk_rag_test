@@ -1,8 +1,8 @@
 """文档上传请求数据模型"""
-from pydantic import BaseModel, Field, validator
-from src.utils.common.args_validator import ArgsValidator
-from src.utils.file.file_validator import FileValidator
-from src.api.response import ErrorCode
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
+from src.api.response import APIException
+from src.api.error_codes import ErrorCode
 
 
 class DocumentUploadRequest(BaseModel):
@@ -14,73 +14,44 @@ class DocumentUploadRequest(BaseModel):
     """
     document_path: str = Field(
         ...,
-        description="文档路径",
-        min_length=1,
-        max_length=500
+        description="文档的存储路径，必须是一个有效的文件路径",
+        max_length=1000
     )
     department_id: str = Field(
         ...,
-        description="部门ID",
-        min_length=1,
-        max_length=50
+        description="部门ID，必须是一个有效的部门标识符",
+        min_length=32,
+        max_length=32,
     )
 
-    @validator('document_path')
-    def validate_document_path(cls, v):
-        """验证文档路径
-        
-        Args:
-            v: 文档路径
-            
-        Returns:
-            str: 验证后的路径
-            
-        Raises:
-            ValueError: 路径验证失败
-        """
-        try:
-            # 1. 基础参数校验
-            ArgsValidator.validity_not_empty(v, "document_path")
-            ArgsValidator.validity_type(v, str, "document_path")
-            
-            # 2. 文件校验
-            FileValidator.validity_file_exist(v)  # 文件存在性校验
-            FileValidator.validity_file_ext(v)  # 文件格式校验
-            FileValidator.validity_file_name(v)  # 文件名格式校验
-            FileValidator.validity_file_size(v)  # 文件大小校验
-            FileValidator.validity_file_normal(v)  # 文件可读性校验
-            
-            # 3. PDF特殊校验
-            if v.lower().endswith('.pdf'):
-                FileValidator.validity_pdf_parse(v)
-                
-            return v
-        except ValueError as e:
-            # 如果是FileValidator抛出的错误，直接重新抛出
-            if len(e.args) == 2 and isinstance(e.args[0], ErrorCode):
-                raise
-            # 如果是其他错误，包装成标准错误格式
-            raise ValueError(ErrorCode.PARAM_ERROR, str(e))
-
-    @validator('department_id')
-    def validate_department_id(cls, v):
-        """验证部门ID
-        
-        Args:
-            v: 部门ID
-            
-        Returns:
-            str: 验证后的部门ID
-            
-        Raises:
-            ValueError: 部门ID验证失败
-        """
-        try:
-            ArgsValidator.validity_department_id(v)
-            return v
-        except ValueError as e:
-            # 如果是ArgsValidator抛出的错误，直接重新抛出
-            if len(e.args) == 2 and isinstance(e.args[0], ErrorCode):
-                raise
-            # 如果是其他错误，包装成标准错误格式
-            raise ValueError(ErrorCode.PARAM_ERROR, str(e)) 
+    # 自定义异常捕获逻辑
+    # @field_validator('document_path')
+    # def document_path_length(cls, value: str) -> str:
+    #     """验证文档路径长度"""
+    #     if len(value) > 1000:
+    #         raise APIException(
+    #             error_code=ErrorCode.PARAM_ERROR,
+    #             message="document_path长度不能超过1000个字符"
+    #         )
+    #     return value
+    #
+    # @field_validator('department_id')
+    # def department_id_length(cls, value: str) -> str:
+    #     """验证部门ID长度"""
+    #     if len(value) != 32:
+    #         raise APIException(
+    #             error_code=ErrorCode.PARAM_ERROR,
+    #             message="部门ID必须是32个字符的字符串"
+    #         )
+    #     return value
+    #
+    # @classmethod
+    # def validate_request(cls, data: dict) -> 'DocumentUploadRequest':
+    #     """验证请求数据"""
+    #     try:
+    #         return cls(**data)
+    #     except ValidationError as e:
+    #         raise APIException(
+    #             error_code=ErrorCode.PARAM_ERROR,
+    #             message=str(e)
+    #         ) from e

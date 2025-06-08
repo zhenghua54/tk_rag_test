@@ -26,30 +26,34 @@ class MilvusDB:
         if self._initialized:
             return
 
+        self._collection = None
+
         try:
             self.client = MilvusClient(
                 uri=Config.MILVUS_CONFIG["uri"],
                 token=Config.MILVUS_CONFIG["token"]
             )
-            self.db_name = Config.MILVUS_CONFIG["db_name"]
 
             connections.connect(
                 alias="default",
                 host=Config.MILVUS_CONFIG["host"],
                 port=Config.MILVUS_CONFIG["port"],
                 token=Config.MILVUS_CONFIG["token"],
-                db_name=self.db_name
             )
+
+            self.db_name = Config.MILVUS_CONFIG["db_name"]
             self.collection_name = Config.MILVUS_CONFIG["collection_name"]
-            
-            # 初始化数据库和集合
-            self.init_database()
-            logger.info("Milvus 客户端初始化完成")
             self._initialized = True
-            
         except Exception as e:
             logger.error(f"Milvus 客户端初始化失败: {str(e)}")
             raise
+
+    @property
+    def collection(self) -> Collection:
+        """获取当前集合实例"""
+        if self._collection is None or self._collection.name != self.collection_name:
+            self._collection = Collection(self.collection_name)
+        return self._collection
 
     def _load_schema(self) -> Dict:
         """加载 Milvus schema 配置"""
@@ -57,35 +61,27 @@ class MilvusDB:
         with open(schema_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
-    def init_database(self) -> None:
-        """初始化数据库和集合"""
+    def init_database(self):
+        """项目初始化时调用一次,初始化数据库和集合"""
         # 创建数据库（如果不存在）
         db_list = self.client.list_databases()
         if self.db_name not in db_list:
             logger.info(f"数据库 {self.db_name} 不存在，正在创建...")
             self.client.create_database(db_name=self.db_name)
-
         # 切换到指定数据库
-        logger.info(f"切换到数据库 {self.db_name}...")
         self.client.using_database(self.db_name)
 
-        # 检查集合是否存在
+        # 检查并创建集合
         collections = self.client.list_collections()
         if self.collection_name not in collections:
-            # 如果集合不存在，则创建新的集合
             logger.info(f"集合 {self.collection_name} 不存在，正在创建...")
             self._create_collection()
-        else:
-            logger.info(f"集合 {self.collection_name} 已存在，跳过创建")
-
-        # 初始化完成后设置 collection 实例
-        self.collection = Collection(self.collection_name)
 
     def _create_collection(self) -> None:
         """创建集合和索引"""
         # 加载 schema 配置
         schema_config = self._load_schema()
-        
+
         # 创建字段
         fields = []
         for field_config in schema_config["fields"]:
@@ -94,7 +90,7 @@ class MilvusDB:
                 dtype=getattr(DataType, field_config["type"]),
                 description=field_config.get("description", ""),
                 is_primary=field_config.get("is_primary", False),
-                **{k: v for k, v in field_config.items() 
+                **{k: v for k, v in field_config.items()
                    if k not in ["name", "type", "description", "is_primary"]}
             )
             fields.append(field)
@@ -145,7 +141,7 @@ class MilvusDB:
         # 加载 schema 配置
         schema_config = self._load_schema()
         required_fields = [field["name"] for field in schema_config["fields"]]
-        
+
         # 验证数据格式
         for idx, item in enumerate(data):
             missing_fields = set(required_fields) - set(item.keys())

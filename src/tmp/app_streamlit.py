@@ -268,11 +268,11 @@ def main():
             max-width: 180px;
             white-space: normal;
             overflow: hidden;
-            text-overflow: ellipsis;
+            content-overflow: ellipsis;
             vertical-align: middle;
             border: 1px solid #b3d4fc;
             transition: background 0.2s;
-            text-align: left;
+            content-align: left;
             word-break: break-all;
         }
 

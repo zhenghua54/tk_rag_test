@@ -23,7 +23,7 @@ def test_faiss_db():
     metadata = [
         {
             'id': i,
-            'text': f'这是第 {i} 条测试文本',
+            'content': f'这是第 {i} 条测试文本',
             'source': 'test_source',
             'timestamp': f'2024-04-{i % 30 + 1:02d}'
         }
@@ -49,7 +49,7 @@ def test_faiss_db():
         print(f"\n结果 {i + 1}:")
         print(f"距离: {distance:.4f}")
         print(f"ID: {result['id']}")
-        print(f"文本: {result['text']}")
+        print(f"文本: {result['content']}")
         print(f"来源: {result['source']}")
         print(f"时间戳: {result['timestamp']}")
 

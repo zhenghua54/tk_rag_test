@@ -1,10 +1,10 @@
 """聊天API实现
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from typing import Optional
 from pydantic import BaseModel, Field, validator
 from src.api.response import ResponseBuilder, ErrorCode
-from src.server.chat import ChatService
+from src.services.chat_server import ChatService
 
 router = APIRouter(prefix="/api/v1")
 
@@ -58,26 +58,15 @@ async def rag_chat(request: ChatRequest):
         return ResponseBuilder.success(data=result)
         
     except ValueError as e:
-        return ResponseBuilder.error(
-            code=ErrorCode.PARAM_ERROR,
-            message=str(e)
-        )
+        return ResponseBuilder.error(error_code=ErrorCode.PARAM_ERROR)
     except TimeoutError:
-        return ResponseBuilder.error(
-            code=ErrorCode.MODEL_TIMEOUT,
-            message="模型响应超时",
-            data={
-                "timeout": request.timeout,
-                "session_id": request.session_id,
-                "suggestion": "请简化问题或分多次询问"
-            }
-        )
+        return ResponseBuilder.error(error_code=ErrorCode.MODEL_TIMEOUT, data={
+            "timeout": request.timeout,
+            "session_id": request.session_id,
+            "suggestion": "请简化问题或分多次询问"
+        })
     except Exception as e:
         # 记录未预期的错误
         import logging
         logging.exception("Chat error")
-        return ResponseBuilder.error(
-            code=ErrorCode.KB_MATCH_FAILED,
-            message="知识库匹配失败",
-            data={"error": str(e)}
-        ) 
+        return ResponseBuilder.error(error_code=ErrorCode.KB_MATCH_FAILED.value, data={"error": str(e)})

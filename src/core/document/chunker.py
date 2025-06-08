@@ -128,7 +128,7 @@ def segment_content(model: SentenceTransformer, file_content: str) -> Dict[str, 
                     chunks['chunks'].append({
                         "segment_id": segment_id,
                         "content": chunk,
-                        "type": "text",
+                        "type": "content",
                         "page": current_page
                     })
 
@@ -166,7 +166,7 @@ def segment_content(model: SentenceTransformer, file_content: str) -> Dict[str, 
                 chunks['chunks'].append({
                     "segment_id": segment_id,
                     "content": chunk,
-                    "type": "text",
+                    "type": "content",
                     "page": current_page
                 })
     

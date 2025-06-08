@@ -66,7 +66,7 @@ class VectorRetriever:
                     metadata={
                         "segment_id": segment_id,
                         "doc_id": doc.metadata.get("doc_id", ""),
-                        "type": doc.metadata.get("type", "text"),
+                        "type": doc.metadata.get("type", "content"),
                         "score": score
                     }
                 )
