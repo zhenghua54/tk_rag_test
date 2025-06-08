@@ -9,13 +9,14 @@
 
 import sys
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # 添加项目根目录到 Python 路径
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(root_path)
+root_path = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(root_path))
 
 from pymilvus import connections, Collection
 from src.database.elasticsearch.operations import ElasticsearchOperation
@@ -30,7 +31,7 @@ from scripts.init.init_es import init_es
 
 def ensure_directories():
     """确保所有必要的目录存在"""
-    logger.info("创建必要的目录结构...")
+    logger.debug("创建必要的目录结构...")
 
     # 创建数据目录
     for path in Config.PATHS.values():
@@ -38,7 +39,7 @@ def ensure_directories():
             logger.warning(f"跳过已存在文件路径: {path}")
             continue
         os.makedirs(path, exist_ok=True)
-        logger.info(f"创建目录: {path}")
+        logger.debug(f"创建目录: {path}")
 
     # 创建模型目录
     for path in Config.MODEL_PATHS.values():

@@ -43,7 +43,7 @@ class CustomRetriever(BaseRetriever):
         Document]:
         # 防止空 query 跳过检索的问题
         if not query or not query.strip():
-            logger.info("检索器收到空 query, 跳过检索")
+            logger.warning("检索器收到空 query, 跳过检索")
             return []
 
         # 使用向量检索

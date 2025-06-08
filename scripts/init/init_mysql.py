@@ -8,7 +8,7 @@ from src.utils.common.logger import logger
 
 def init_mysql():
     """初始化 MySQL 数据库"""
-    logger.info("开始初始化 MySQL 数据库...")
+    logger.debug("开始初始化 MySQL 数据库...")
 
     # 读取初始化 SQL 文件
     init_sql_path = Config.MYSQL_CONFIG['schema_path']
@@ -34,7 +34,7 @@ def init_mysql():
                 if sql.strip():
                     cursor.execute(sql)
             conn.commit()
-        logger.info("MySQL 数据库初始化完成！")
+        logger.debug("MySQL 数据库初始化完成！")
     except Exception as e:
         logger.error(f"MySQL 数据库初始化失败: {e}")
         raise

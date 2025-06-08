@@ -35,45 +35,45 @@ def generate_doc_id(text: str) -> str:
     return doc_id
 
 
-def get_file_content(file_path: str) -> str:
+def get_file_content(doc_path: str) -> str:
     """根据文件类型加载文件内容
     
     Args:
-        file_path: 文件路径
+        doc_path: 文件路径
 
     Returns:
         content: 文件内容
     """
-    file_ext = os.path.splitext(file_path)[1].lower()
+    file_ext = os.path.splitext(doc_path)[1].lower()
 
     try:
         if file_ext == '.pdf':
-            loader = PyPDFLoader(file_path)
+            loader = PyPDFLoader(doc_path)
             pages = loader.load()
             return "\n".join([page.page_content for page in pages])
         elif file_ext == '.docx':
-            loader = Docx2txtLoader(file_path)
+            loader = Docx2txtLoader(doc_path)
             return loader.load()[0].page_content
         elif file_ext == '.txt':
-            loader = TextLoader(file_path, encoding='utf-8')
+            loader = TextLoader(doc_path, encoding='utf-8')
             return loader.load()[0].page_content
         else:
             raise ValueError(f"不支持的文件类型: {file_ext}")
     except Exception as e:
-        print(f"读取文件 {file_path} 时出错: {str(e)}")
+        print(f"读取文件 {doc_path} 时出错: {str(e)}")
         return ""
 
 
-def get_text_splitter(file_path: str) -> Any:
+def get_text_splitter(doc_path: str) -> Any:
     """根据文件类型返回对应的分块器
     
     Args:
-        file_path: 文件路径
+        doc_path: 文件路径
 
     Returns:
         text_splitter: 分块器
     """
-    file_ext = os.path.splitext(file_path)[1].lower()
+    file_ext = os.path.splitext(doc_path)[1].lower()
 
     if file_ext == '.pdf':
         # PDF 文件使用较小的块大小，因为通常包含更多格式化内容
@@ -131,18 +131,18 @@ def get_current_max_id(milvus_db: MilvusDB) -> int:
         return -1
 
 
-def process_file(file_path: str) -> List[Dict[str, Any]]:
+def process_file(merge_json_doc_path: str) -> List[Dict[str, Any]]:
     """处理单个文件并返回分块结果
     
     Args:
-        file_path: 文件路径
+        merge_json_doc_path: 最终处理完的 json 文件路径
 
     Returns:
         results: 分块结果
     """
 
     # 获取文件内容
-    content = get_file_content(file_path)
+    content = get_file_content(merge_json_doc_path)
     if not content:
         return []
 
@@ -150,7 +150,7 @@ def process_file(file_path: str) -> List[Dict[str, Any]]:
     doc_id = generate_doc_id(content)
 
     # 获取对应的分块器
-    text_splitter = get_text_splitter(file_path)
+    text_splitter = get_text_splitter(merge_json_doc_path)
 
     # 分块
     chunks = text_splitter.split_text(content)
@@ -164,14 +164,14 @@ def process_file(file_path: str) -> List[Dict[str, Any]]:
         results.append({
             'id': current_id,
             'text_chunk': chunk,
-            'document_source': os.path.basename(file_path),
+            'document_source': os.path.basename(merge_json_doc_path),
             'partment': '',  # 可以根据需要设置
             'role': '',  # 可以根据需要设置
             'doc_id': doc_id  # 所有分块共享同一个 doc_id
         })
         current_id += 1
 
-    print(f"文件 {file_path} 被分成 {len(chunks)} 个块")
+    print(f"文件 {merge_json_doc_path} 被分成 {len(chunks)} 个块")
     return results
 
 

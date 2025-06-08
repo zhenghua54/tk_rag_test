@@ -73,7 +73,7 @@ class VectorRetriever:
                 vector_results.append((new_doc, score))
                 logger.debug(f"向量检索结果 - segment_id: {segment_id}, score: {score:.4f}")
 
-            logger.info(f"向量检索完成,获取到 {len(vector_results)} 条有效结果")
+            logger.debug(f"向量检索完成,获取到 {len(vector_results)} 条有效结果")
             return vector_results
             
         except Exception as error:
@@ -84,11 +84,11 @@ class VectorRetriever:
 if __name__ == '__main__':
 
     # # 初始化 embeddings
-    # logger.info("初始化 embeddings 模型...")
+    # logger.debug("初始化 embeddings 模型...")
     # embeddings = init_langchain_embeddings()
 
     # # 创建 Milvus 向量存储
-    # logger.info("初始化 Milvus 向量存储...")
+    # logger.debug("初始化 Milvus 向量存储...")
     # # 使用 langchain 框架加载 Milvus 数据库工具包
     # milvus_vectorstore = Milvus(
     #     embedding_function=embeddings,  # 指定向量模型
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     # query_text = "公司"
     # k=10
 
-    # logger.info("开始检索")
+    # logger.debug("开始检索")
 
     # results = vector_retriever.search(
     #     query=query_text,

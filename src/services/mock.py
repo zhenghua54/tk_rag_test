@@ -45,11 +45,11 @@ class MockData:
         }
     
     @staticmethod
-    def document_upload_response(file_path: str, **kwargs) -> Dict[str, Any]:
+    def document_upload_response(doc_path: str, **kwargs) -> Dict[str, Any]:
         """生成文档上传测试响应
         
         Args:
-            file_path: 文件路径
+            doc_path: 文件路径
             **kwargs: 其他参数
             
         Returns:

@@ -1,6 +1,8 @@
 """错误编码, 根据在线接口文档维护,如有修改,保持同步"""
 from enum import Enum
 
+from config.settings import Config
+
 
 class ErrorCode(Enum):
     # 系统成功响应
@@ -21,10 +23,11 @@ class ErrorCode(Enum):
     PERMISSION_INVALID = 2001
 
     # 系统相关错误
-    STORAGE_FULL = 3001
-    SYSTEM_BUSY = 3002
-    SYSTEM_MAINTENANCE = 3003
-    INTERNAL_ERROR_2 = 3004
+    STORAGE_FULL = 3000
+    SYSTEM_BUSY = 3001
+    SYSTEM_MAINTENANCE = 3002
+    INTERNAL_ERROR_2 = 3003
+    ENVIRONMENT_DEFICIT = 3004
 
     # 文件相关错误
     FILE_NOT_FOUND = 4000
@@ -40,6 +43,7 @@ class ErrorCode(Enum):
     FILE_VALIDATION_ERROR = 4010
     FILE_HARD_DELETE_ERROR = 4011
     FILE_SOFT_DELETE_ERROR = 4012
+    FILE_READ_FAILED = 4013
 
     # 会话相关错误
     QUESTION_TOO_LONG = 5000
@@ -48,13 +52,16 @@ class ErrorCode(Enum):
     CONTEXT_TOO_LONG = 5003
     MODEL_TIMEOUT = 5004
 
+    # 服务相关错误
+    CONVERT_FAILED = 6000
+
+
     @staticmethod
-    def get_message(error_code, extra_info="") -> str:
+    def get_message(error_code) -> str:
         """获取错误码对应的提示信息
 
         Args:
             :param error_code: 错误码
-            :param extra_info: 可选的额外信息，如文件扩展名等
         Return:
             message (str): 错误提示信息
         """
@@ -88,13 +95,14 @@ ERROR_MESSAGES = {
     ErrorCode.SYSTEM_BUSY: "系统繁忙，请稍后重试",
     ErrorCode.SYSTEM_MAINTENANCE: "系统维护中，请等待维护完成",
     ErrorCode.INTERNAL_ERROR_2: "系统内部错误，请联系系统管理员",
+    ErrorCode.ENVIRONMENT_DEFICIT: "环境缺失",
 
     ErrorCode.FILE_NOT_FOUND: "文件不存在, 请检查文件路径是否正确",
     ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持",
     ErrorCode.FILE_TOO_LARGE: "文件过大, 最大支持 50MB 文件",
     ErrorCode.FILE_EMPTY: "文件内容为空, 无法读取文件内容",
     ErrorCode.TOOLANG_FILENAME: "文件名称超长, 长度应不超过 200字",
-    ErrorCode.INVALID_FILENAME: "文件名无效, 仅支持包含字母、数字、下划线",
+    ErrorCode.INVALID_FILENAME: f"文件名无效, 仅支持: {Config.UNSUPPORTED_FILENAME_CHARS}",
     ErrorCode.PDF_PARSE_ERROR: "PDF解析失败",
     ErrorCode.FILE_EXISTS: "文件已存在, 请检查是否重复上传",
     ErrorCode.TOOLANG_FILEPATH: "文件路径超长, 长度应不超过 1000 字",
@@ -102,6 +110,7 @@ ERROR_MESSAGES = {
     ErrorCode.FILE_VALIDATION_ERROR: "文件验证失败",
     ErrorCode.FILE_HARD_DELETE_ERROR: "文件软删除失败",
     ErrorCode.FILE_SOFT_DELETE_ERROR: "文件物理删除失败",
+    ErrorCode.FILE_READ_FAILED: "文件读取失败, 请检查文件是否存在或格式是否正确",
 
     ErrorCode.QUESTION_TOO_LONG: "问题超长, 长度应不超过 2000 字",
     ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",
@@ -109,6 +118,7 @@ ERROR_MESSAGES = {
     ErrorCode.CONTEXT_TOO_LONG: "上下文长度超限, 建议开启新的会话",
     ErrorCode.MODEL_TIMEOUT: "模型响应超时, 请稍后重试或降低问题复杂度",
 
+    ErrorCode.CONVERT_FAILED: "转换PDF失败",
 }
 
 if __name__ == '__main__':

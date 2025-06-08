@@ -84,11 +84,11 @@ class HybridRetriever(BaseRetriever):
 
             # 3. 合并结果
             merged_results = merge_search_results(vector_results, bm25_results)
-            logger.info(f"合并结果完成,共 {len(merged_results)} 条")
+            logger.debug(f"合并结果完成,共 {len(merged_results)} 条")
 
             # 4. 重排序
             reranked_results = rerank_results(query=query, results=merged_results, top_k=top_k)
-            logger.info(f"重排序完成,返回 {len(reranked_results)} 条结果")
+            logger.debug(f"重排序完成,返回 {len(reranked_results)} 条结果")
 
             # 提取文档列表
             return [doc for doc, _ in reranked_results]

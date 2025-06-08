@@ -1,15 +1,12 @@
 """文档内容校验"""
+from src.api.response import APIException
 
 """使用 PyMuPDF 检查 pdf 文件结构, 避免 MinerU 解析崩溃"""
 import json
-import os
 import fitz
 
 from src.api.error_codes import ErrorCode
 from src.utils.common.logger import logger
-from config.settings import Config
-from src.utils.doc.doc_toolkit import  compute_file_hash
-from src.database.mysql.operations import FileInfoOperation
 
 
 # # 检查 PyMuPDF
@@ -23,18 +20,18 @@ from src.database.mysql.operations import FileInfoOperation
 class ContentValidator:
 
     @staticmethod
-    def validate_json_file(file_path: str) -> None:
-        """json文件内容格式校验"""
-        # 读取 JSON 文件
-        try:
-            with open(file=file_path, mode='r', encoding='utf-8') as f:
-                doc_content = json.load(f)
+    def validate_json_file(json_content: str) -> None:
+        """json文件内容格式校验: [{}, {}]，每个元素为一个字典。
 
-            # 验证内容类型
-            if not isinstance(doc_content, list):
-                raise ValueError("JSON 内容必须是列表类型")
-        except json.JSONDecodeError as e:
-            raise ValueError(f"JSON 解析错误: {str(e)}")
+        Args:
+            json_content (str): JSON 文件内容字符串
+        """
+        if not isinstance(json_content, list):
+            raise APIException(ErrorCode.FILE_EXCEPTION, "JSON 文件内容格式错误，应该是一个列表")
+        if not isinstance(json_content[0], dict):
+            raise APIException(ErrorCode.FILE_EXCEPTION, "JSON 文件内容格式错误，列表内应该是各元素的字典信息组成")
+
+
 
 
     @staticmethod
@@ -58,14 +55,14 @@ class ContentValidator:
                 # 检查文件是否可以打开
                 if doc.is_encrypted:
                     logger.error("PDF 文件已加密")
-                    raise ValueError(ErrorCode.FILE_PARSE_ERROR, "PDF 文件已加密")
+                    raise APIException(ErrorCode.FILE_EXCEPTION, "PDF 文件已加密")
 
                 # 检查页数
                 page_count = doc.page_count
                 logger.info(f"PDF 总页数: {page_count}")
                 if page_count == 0:
                     logger.error("PDF 文件没有页数")
-                    raise ValueError(ErrorCode.FILE_PARSE_ERROR, "PDF 文件内容为空")
+                    raise APIException(ErrorCode.FILE_EMPTY)
 
                 # 尝试读取第一页，验证基本结构
                 try:
@@ -85,12 +82,11 @@ class ContentValidator:
 
                 except Exception as e:
                     logger.error(f"读取第一页失败: {str(e)}")
-                    raise ValueError(ErrorCode.FILE_PARSE_ERROR, f"无法读取 PDF: {str(e)}")
+                    raise APIException(ErrorCode.FILE_EXCEPTION, f"无法读取 PDF: {str(e)}")
 
         except Exception as e:
-            raise ValueError(ErrorCode.FILE_PARSE_ERROR, f"PDF 文件结构检查失败: {str(e)}")
+            raise APIException(ErrorCode.FILE_EXCEPTION, f"PDF 文件结构检查失败: {str(e)}")
 
-        logger.info("PDF 文件检查通过")
 
 
 if __name__ == '__main__':

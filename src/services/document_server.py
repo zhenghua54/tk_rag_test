@@ -1,26 +1,26 @@
 """文档服务"""
-import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any
+import httpx
 
 from src.services.base import BaseService
 from src.utils.common.logger import logger
-from src.utils.doc.doc_toolkit import compute_file_hash
+from src.utils.doc_toolkit import compute_file_hash
 from src.utils.common.unit_convert import convert_bytes
 from src.api.response import ErrorCode, APIException
 from src.utils.validator.system_validator import SystemValidator
 from src.utils.validator.file_validator import FileValidator
 from src.utils.validator.content_validator import ContentValidator
 from src.database.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation
-from src.utils.doc.doc_toolkit import delete_path_safely
+from src.utils.doc_toolkit import delete_path_safely
 
 
 class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_path: str, department_id: str) -> dict:
+    async def upload_file(document_path: str, department_id: str, callback_url: str = None) -> dict:
         """上传文档"""
         try:
             # 路径转换
@@ -28,7 +28,7 @@ class DocumentService(BaseService):
 
             # 文件验证
             FileValidator.validate_filepath_exist(str(path))  # 文件存在校验
-            FileValidator.validate_file_ext(str(path))  # 文件格式校验
+            FileValidator.validate_file_convert_ext(str(path))  # 文件格式校验
             FileValidator.validate_file_size(str(path))  # 文件大小校验
             FileValidator.validate_file_name(str(path))  # 文件名称校验
             SystemValidator.validate_storage_space(str(path))  # 存储空间校验
@@ -81,29 +81,37 @@ class DocumentService(BaseService):
                 logger.info(f"[权限入库] doc_id={doc_id}, department={permission_info}")
 
             # 返回成功
-            return {
+            result ={
                 "doc_id": doc_id,
                 "doc_name": f"{doc_name}{doc_ext}",
                 "status": "completed",
                 "department_id": department_id,
             }
+            # 回调接口
+            if callback_url:
+                async with httpx.AsyncClient() as client:
+                    await client.post(callback_url, json=result)
+            return  result
 
         except APIException:
             raise
         except ValueError as e:
             # 来自验证器的结构化错误
-            error_code, error_msg = e.args if len(e.args) == 2 else (ErrorCode.INTERNAL_ERROR, str(e))
+            error_code = e.args[0] if len(e.args) >= 1 else ErrorCode.INTERNAL_ERROR
+            # 优先用 error_code 的 message，没有就用 str(e)
+            error_msg = ErrorCode.get_message(error_code) or str(e)
             raise APIException(error_code, error_msg)
         except Exception as e:
             raise APIException(ErrorCode.FILE_VALIDATION_ERROR, str(e))
 
     @staticmethod
-    async def delete_file(doc_id: str, is_soft_delete: bool = True) -> Dict[str, Any]:
+    async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> Dict[str, Any]:
         """删除文档服务
         
         Args:
             doc_id: 文档ID
             is_soft_delete: 是否软删除（仅标记删除状态，不删除文件和数据库记录）
+            callback_url: 删除完成后的回调URL
 
         Returns:
             Dict: 删除响应数据
@@ -151,11 +159,17 @@ class DocumentService(BaseService):
                     raise APIException(ErrorCode.MYSQL_DELETE_FAIL, str(e)) from e
 
             # 4. 返回成功响应
-            return {
+            result = {
                 "doc_id": doc_id,
                 "status": "deleted",
                 "delete_type": "soft" if is_soft_delete else "hard"
             }
+            # 异步回调
+            if callback_url:
+                async with httpx.AsyncClient() as client:
+                    await client.post(callback_url, json=result)
+
+            return result
         except APIException:
             raise
         except ValueError as e:
@@ -165,21 +179,24 @@ class DocumentService(BaseService):
             logger.error(f"[删除失败] error_code={ErrorCode.INTERNAL_ERROR.value}, error={str(e)}")
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
+
 # Mock 实现（用于测试环境）
 class MockDocumentService(DocumentService):
     @staticmethod
-    async def upload_file(document_path: str, department_id: str) -> dict:
+    async def upload_file(document_path: str, department_id: str, callback_url: str = None) -> dict:
         return {
             "doc_id": "假数据： doc_id",
             "doc_name": "假数据： mock_document.pdf",
             "status": "completed",
             "department_id": department_id,
+            "callback_url": callback_url
         }
 
     @staticmethod
-    async def delete_file(doc_id: str, is_soft_delete: bool = True) -> Dict[str, Any]:
+    async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> Dict[str, Any]:
         return {
             "doc_id": doc_id,
             "status": "deleted",
-            "delete_type": "soft" if is_soft_delete else "hard"
+            "delete_type": "soft" if is_soft_delete else "hard",
+            "callback_url": callback_url
         }
