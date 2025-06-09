@@ -7,20 +7,21 @@ from src.api.error_codes import ErrorCode
 
 class DocumentUploadRequest(BaseModel):
     """文档上传请求参数
-    
+
     Attributes:
-        document_path: 文档路径
+        document_http_url: 文档的 http 访问路径
         department_id: 部门ID
     """
-    document_path: str = Field(
+    document_http_url: str = Field(
         ...,
-        description="文档的存储路径，必须是一个有效的文件路径",
+        description="文档的存储路径，必须是一个可访问的 HTTP 路径",
+        min_length=1,
         max_length=1000
     )
     department_id: str = Field(
         ...,
         description="部门ID，必须是一个有效的部门标识符",
-        min_length=32,
+        min_length=1,
         max_length=32,
     )
 

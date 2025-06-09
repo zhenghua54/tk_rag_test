@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import tempfile
+import traceback
 from collections import defaultdict
 
 import diskcache
@@ -13,6 +14,7 @@ from src.api.error_codes import ErrorCode
 from src.api.response import APIException
 from src.core.document.doc_convert import convert_office_file
 from src.core.document.doc_parser import mineru_toolkit
+from src.database.mysql.operations import FileInfoOperation
 from src.utils.validator.content_validator import ContentValidator
 from src.utils.validator.file_validator import FileValidator
 
@@ -24,6 +26,7 @@ from src.utils.table_toolkit import html_table_to_markdown
 # 初始化摘要缓存
 cache = diskcache.Cache()
 
+
 def get_table_summary_cached(markdown_table: str) -> dict:
     # 使用表格的markdown格式哈希值作为缓存键
     key = f"summary_{hash(markdown_table)}"
@@ -33,7 +36,8 @@ def get_table_summary_cached(markdown_table: str) -> dict:
     cache[key] = summary
     return summary
 
-def process_doc_by_page(json_doc_path: str) :
+
+def process_doc_by_page(json_doc_path: str):
     """读取MinerU解析后的 JSON 文档, 填充表格和图片标题, 并按页合并内容
 
     Args:
@@ -56,7 +60,7 @@ def process_doc_by_page(json_doc_path: str) :
     img_total, img_cap, img_cap_up, img_cap_miss = 0, 0, 0, 0
 
     try:
-        for idx,item in enumerate(json_content):
+        for idx, item in enumerate(json_content):
             # 获取页码
             page_idx = item.get("page_idx", idx)
             # 如果页码已经处理过，跳过
@@ -142,20 +146,24 @@ def process_doc_by_page(json_doc_path: str) :
         logger.error(f"处理异常: {str(e)},进度已保存到 {progress_file}")
         raise
 
-    # 合并所有缓存页
-    logger.debug("所有页内容汇总完成, 开始合并后的内容...")
-    merged = []
-    # 遍历临时目录中的所有页面文件，按页码顺序合并内容
-    for page_file in sorted(temp_dir.glob("page_*.json"),key=lambda x : int(x.stem.split('_')[1])):
-        with open(page_file, "r", encoding="utf-8") as pf:
-            merged.append(json.load(pf))
+    try:
+        # 合并所有缓存页
+        logger.debug("所有页内容汇总完成, 开始合并后的内容...")
+        merged = []
+        # 遍历临时目录中的所有页面文件，按页码顺序合并内容
+        for page_file in sorted(temp_dir.glob("page_*.json"), key=lambda x: int(x.stem.split('_')[1])):
+            with open(page_file, "r", encoding="utf-8") as pf:
+                merged.append(json.load(pf))
 
-    logger.debug("所有页内容汇总完成, 开始保存合并后的内容...")
-    save_path = Path(json_doc_path).parent / f"{Path(json_doc_path).stem}_merged.json"
-    with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(merged, f, ensure_ascii=False, indent=2)
-    logger.debug(f"合并后的文档内容已保存到: {save_path}")
-
+        logger.debug("所有页内容汇总完成, 开始保存合并后的内容...")
+        save_path = Path(json_doc_path).parent / f"{Path(json_doc_path).stem}_merged.json"
+        with open(save_path, "w", encoding="utf-8") as f:
+            json.dump(merged, f, ensure_ascii=False, indent=2)
+        logger.debug(f"合并后的文档内容已保存到: {save_path}")
+        return str(save_path)
+    except Exception as e:
+        logger.error(f"[文件保存失败] operation=合并处理文件， error_msg={str(e)}")
+        raise APIException(ErrorCode.FILE_SAVE_FAILED, str(e))
 
 
 # def fill_title(json_doc_path: str) -> list:
@@ -360,9 +368,45 @@ def process_doc_by_page(json_doc_path: str) :
 #     except Exception as e:
 #         raise APIException(ErrorCode.FILE_EXCEPTION, f"文档内容合并失败: {str(e)}") from e
 
+# 定义文档处理后台任务函数
+def background_process_document(doc_path: str, doc_id: str):
+    """后台处理文档内容
+
+    Args:
+        doc_path: 文档路径
+        doc_id: 文档ID
+    """
+    try:
+        logger.info(f"[开始后台处理文档] doc_id={doc_id}")
+        # 调用文档处理方法
+        save_path = process_doc_content(doc_path)
+        # 更新处理结果
+        logger.info(f"[文档处理完成] doc_id={doc_id}, result={save_path}")
+
+        # 更新数据库
+        with FileInfoOperation() as file_op:
+            values = {
+                "doc_process_path": save_path,
+                "process_status": "completed"
+            }
+            file_op.update_by_doc_id(doc_id, values)
+
+    except Exception as e:
+        logger.error(f"[文档处理失败] doc_id={doc_id}, error={str(e)}")
+        # 记录详细的错误堆栈
+        logger.error(f"[错误详情] doc_id={doc_id}, error={traceback.format_exc()}")
+
+        # 更新数据库状态为失败
+        with FileInfoOperation() as file_op:
+            values = {
+                "process_status": "failed",
+                "error_message": str(e)[:255]  # 限制错误信息长度
+            }
+            file_op.update_by_doc_id(doc_id, values)
+
 
 # 入口函数
-def process_doc_content(doc_path: str):
+def process_doc_content(doc_path: str) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
@@ -371,10 +415,12 @@ def process_doc_content(doc_path: str):
     Args:
         doc_path (str): 源文档路径
 
+    Returns:
+        save_path (str): 处理后的文档路径
     """
     # 验证参数
     ArgsValidator.validate_type(doc_path, str, "pdf_doc_path")  # 参数类型验证
-    FileValidator.validate_filepath_exist(doc_path)  # 文件路径验证
+    FileValidator.validate_local_filepath_exist(doc_path)  # 文件路径验证
     FileValidator.validate_file_convert_ext(doc_path)
 
     doc_path = Path(doc_path)
@@ -387,7 +433,9 @@ def process_doc_content(doc_path: str):
     out_info = mineru_toolkit(pdf_path)
 
     # 填充表格和图片标题并按页合并
-    process_doc_by_page(out_info["json_path"])
+    save_path = process_doc_by_page(out_info["json_path"])
+
+    return save_path
 
 
 if __name__ == '__main__':
