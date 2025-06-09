@@ -5,8 +5,11 @@ from typing import Dict, Any
 import httpx
 
 from src.services.base import BaseService
-from src.utils.common.logger import logger
-from src.utils.doc_toolkit import compute_file_hash
+from src.utils.common.logger import (
+    log_operation_start, log_operation_success,
+    log_operation_error, log_business_info, log_exception
+)
+from src.utils.doc_toolkit import download_file_step_by_step
 from src.utils.common.unit_convert import convert_bytes
 from src.api.response import ErrorCode, APIException
 from src.utils.validator.system_validator import SystemValidator
@@ -14,21 +17,37 @@ from src.utils.validator.file_validator import FileValidator
 from src.utils.validator.content_validator import ContentValidator
 from src.database.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation
 from src.utils.doc_toolkit import delete_path_safely
+from src.core.document.content_processer import process_doc_content
+from src.utils.validator.args_validator import ArgsValidator
 
 
 class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_path: str, department_id: str, callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, department_id: str, callback_url: str = None) -> dict:
         """上传文档"""
+        # 参数验证
+        ArgsValidator.validate_not_empty(document_http_url, "document_http_url")
+        ArgsValidator.validate_not_empty(department_id, "department_id")
+        if callback_url:
+            ArgsValidator.validate_not_empty(callback_url, "callback_url")
+
+        start_time = log_operation_start("文档上传",
+                                       document_url=document_http_url,
+                                       department_id=department_id)
+
         try:
+            # 校验 HTTP 文档
+            FileValidator.validate_http_filepath_exist(document_http_url)
+            doc_ext = f".{document_http_url.split('.')[-1].lower()}"  # 确保 URL 有后缀名
+            FileValidator.validate_file_ext(doc_ext=doc_ext)  # 文件格式校验
+            doc_path = download_file_step_by_step(url=document_http_url)  # 下载文件到本地
+
             # 路径转换
-            path = Path(document_path)
+            path = Path(doc_path)
 
             # 文件验证
-            FileValidator.validate_filepath_exist(str(path))  # 文件存在校验
-            FileValidator.validate_file_convert_ext(str(path))  # 文件格式校验
             FileValidator.validate_file_size(str(path))  # 文件大小校验
             FileValidator.validate_file_name(str(path))  # 文件名称校验
             SystemValidator.validate_storage_space(str(path))  # 存储空间校验
@@ -38,14 +57,8 @@ class DocumentService(BaseService):
             if path.suffix.lower().endswith('.pdf'):
                 ContentValidator.validate_pdf_content_parse(str(path))
 
-            # 计算文档 doc_id
-            doc_id = compute_file_hash(document_path)
-
-            # 去重校验
-            with FileInfoOperation() as file_op:
-                res_data = file_op.get_file_by_doc_id(doc_id)
-                if res_data:
-                    raise APIException(error_code=ErrorCode.FILE_EXISTS)
+            # 数据库查重,未重复返回 doc_id
+            doc_id = FileValidator.validate_file_exist(str(path))
 
             # 文档元信息
             doc_name = path.stem  # 文档名称
@@ -56,42 +69,64 @@ class DocumentService(BaseService):
             now = datetime.now()
 
             # 插入数据库
-            with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                file_info = {
-                    "doc_id": doc_id,
-                    "doc_name": doc_name,
-                    "doc_ext": doc_ext,
-                    "doc_size": doc_size,
-                    "doc_path": abs_path,
-                    "doc_pdf_path": doc_pdf_path,
-                    "created_at": now,
-                    "updated_at": now,
-                }
-                file_op.insert_datas(file_info)
-                logger.info(f"[文档入库] doc_id={doc_id}, path={file_info}")
+            try:
+                with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
+                    file_info = {
+                        "doc_id": doc_id,
+                        "doc_name": doc_name,
+                        "doc_ext": doc_ext,
+                        "doc_size": doc_size,
+                        "doc_http_url": document_http_url,
+                        "doc_path": abs_path,
+                        "doc_pdf_path": doc_pdf_path,
+                        "process_status": "pending",
+                        "created_at": now,
+                        "updated_at": now,
+                    }
+                    file_op.insert_datas(file_info)
+                    log_business_info("文档入库", doc_id=doc_id, file_info=file_info)
 
-                # 插入权限信息到数据库
-                permission_info = {
-                    "department_id": department_id,
-                    "doc_id": doc_id,
-                    "created_at": now,
-                    "updated_at": now,
-                }
-                permission_op.insert_datas(permission_info)
-                logger.info(f"[权限入库] doc_id={doc_id}, department={permission_info}")
+                    # 插入权限信息到数据库
+                    permission_info = {
+                        "department_id": department_id,
+                        "doc_id": doc_id,
+                        "created_at": now,
+                        "updated_at": now,
+                    }
+                    permission_op.insert_datas(permission_info)
+                    log_business_info("权限入库", doc_id=doc_id, department_id=department_id)
+            except Exception as e:
+                log_operation_error("数据库操作失败",
+                                  error_code=ErrorCode.MYSQL_INSERT_FAIL.value,
+                                  error_msg=str(e),
+                                  doc_id=doc_id)
+                raise APIException(ErrorCode.MYSQL_INSERT_FAIL, str(e))
 
             # 返回成功
-            result ={
+            result = {
                 "doc_id": doc_id,
                 "doc_name": f"{doc_name}{doc_ext}",
                 "status": "completed",
                 "department_id": department_id,
             }
+
             # 回调接口
             if callback_url:
-                async with httpx.AsyncClient() as client:
-                    await client.post(callback_url, json=result)
-            return  result
+                try:
+                    async with httpx.AsyncClient() as client:
+                        await client.post(callback_url, json=result)
+                except Exception as e:
+                    log_operation_error("回调通知失败",
+                                      error_code=ErrorCode.CALLBACK_ERROR.value,
+                                      error_msg=str(e),
+                                      callback_url=callback_url)
+                    # 回调失败不影响主流程
+
+            log_operation_success("文档上传", start_time,
+                                doc_id=doc_id,
+                                doc_name=f"{doc_name}{doc_ext}",
+                                department_id=department_id)
+            return result
 
         except APIException:
             raise
@@ -100,14 +135,25 @@ class DocumentService(BaseService):
             error_code = e.args[0] if len(e.args) >= 1 else ErrorCode.INTERNAL_ERROR
             # 优先用 error_code 的 message，没有就用 str(e)
             error_msg = ErrorCode.get_message(error_code) or str(e)
+            log_operation_error("文档上传",
+                              error_code=error_code,
+                              error_msg=error_msg,
+                              document_url=document_http_url,
+                              department_id=department_id)
             raise APIException(error_code, error_msg)
         except Exception as e:
+            log_operation_error("文档上传",
+                              error_code=ErrorCode.FILE_VALIDATION_ERROR.value,
+                              error_msg=str(e),
+                              document_url=document_http_url,
+                              department_id=department_id)
+            log_exception("文档上传异常", e)
             raise APIException(ErrorCode.FILE_VALIDATION_ERROR, str(e))
 
     @staticmethod
     async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> Dict[str, Any]:
         """删除文档服务
-        
+
         Args:
             doc_id: 文档ID
             is_soft_delete: 是否软删除（仅标记删除状态，不删除文件和数据库记录）
@@ -116,6 +162,15 @@ class DocumentService(BaseService):
         Returns:
             Dict: 删除响应数据
         """
+        # 参数验证
+        ArgsValidator.validate_doc_id(doc_id)
+        if callback_url:
+            ArgsValidator.validate_not_empty(callback_url, "callback_url")
+
+        start_time = log_operation_start("文档删除",
+                                       doc_id=doc_id,
+                                       is_soft_delete=is_soft_delete)
+
         try:
             # 数据查重
             with FileInfoOperation() as file_op, \
@@ -129,7 +184,10 @@ class DocumentService(BaseService):
                     if not file_info:
                         raise APIException(ErrorCode.FILE_NOT_FOUND)
                 except ValueError as e:
-                    logger.error(f"[获取文件信息失败] doc_id={doc_id}, error={str(e)}")
+                    log_operation_error("获取文件信息",
+                                      error_code=ErrorCode.PARAM_ERROR.value,
+                                      error_msg=str(e),
+                                      doc_id=doc_id)
                     raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
 
                 error_code = ErrorCode.FILE_SOFT_DELETE_ERROR if is_soft_delete else ErrorCode.FILE_HARD_DELETE_ERROR
@@ -143,9 +201,12 @@ class DocumentService(BaseService):
                         try:
                             delete_path_safely(path, error_code)
                         except FileNotFoundError:
-                            logger.warning(f"[文件不存在] path={path}")
+                            log_business_info("文件不存在", path=path)
                         except OSError as e:
-                            logger.error(f"[系统IO错误] path={path}, error={str(e)}")
+                            log_operation_error("系统IO错误",
+                                              error_code=error_code.value,
+                                              error_msg=str(e),
+                                              path=path)
                             raise APIException(error_code, str(e)) from e
 
                 # 删除数据库记录或软删除
@@ -155,35 +216,57 @@ class DocumentService(BaseService):
                     permission_op.delete_by_doc_id(doc_id, soft_delete=is_soft_delete)
                     chunk_op.delete_by_doc_id(doc_id, soft_delete=is_soft_delete)
                 except Exception as e:
-                    logger.error(f"[数据库删除失败] doc_id={doc_id}, error={str(e)}")
+                    log_operation_error("数据库删除",
+                                      error_code=ErrorCode.MYSQL_DELETE_FAIL.value,
+                                      error_msg=str(e),
+                                      doc_id=doc_id)
                     raise APIException(ErrorCode.MYSQL_DELETE_FAIL, str(e)) from e
 
-            # 4. 返回成功响应
+            # 返回成功响应
             result = {
                 "doc_id": doc_id,
                 "status": "deleted",
                 "delete_type": "soft" if is_soft_delete else "hard"
             }
+
             # 异步回调
             if callback_url:
-                async with httpx.AsyncClient() as client:
-                    await client.post(callback_url, json=result)
+                try:
+                    async with httpx.AsyncClient() as client:
+                        await client.post(callback_url, json=result)
+                except Exception as e:
+                    log_operation_error("回调通知失败",
+                                      error_code=ErrorCode.CALLBACK_ERROR.value,
+                                      error_msg=str(e),
+                                      callback_url=callback_url)
+                    # 回调失败不影响主流程
 
+            log_operation_success("文档删除", start_time,
+                                doc_id=doc_id,
+                                delete_type="soft" if is_soft_delete else "hard")
             return result
+
         except APIException:
             raise
         except ValueError as e:
-            logger.error(f"[参数错误] error_code={ErrorCode.PARAM_ERROR.value}, error_msg={str(e)}")
+            log_operation_error("参数错误",
+                              error_code=ErrorCode.PARAM_ERROR.value,
+                              error_msg=str(e),
+                              doc_id=doc_id)
             raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
         except Exception as e:
-            logger.error(f"[删除失败] error_code={ErrorCode.INTERNAL_ERROR.value}, error={str(e)}")
+            log_operation_error("删除失败",
+                              error_code=ErrorCode.INTERNAL_ERROR.value,
+                              error_msg=str(e),
+                              doc_id=doc_id)
+            log_exception("文档删除异常", e)
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
 
 # Mock 实现（用于测试环境）
 class MockDocumentService(DocumentService):
     @staticmethod
-    async def upload_file(document_path: str, department_id: str, callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, department_id: str, callback_url: str = None) -> dict:
         return {
             "doc_id": "假数据： doc_id",
             "doc_name": "假数据： mock_document.pdf",

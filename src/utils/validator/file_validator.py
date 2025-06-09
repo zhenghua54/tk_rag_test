@@ -1,8 +1,7 @@
 """使用 PyMuPDF 检查 pdf 文件结构, 避免 MinerU 解析崩溃"""
 import os
 from pathlib import Path
-from typing import Union
-
+import requests
 import fitz
 
 from src.api.error_codes import ErrorCode
@@ -29,18 +28,26 @@ class FileValidator:
             raise APIException(ErrorCode.TOOLANG_FILEPATH)
 
     @staticmethod
-    def validate_filepath_exist(doc_path: str):
+    def validate_local_filepath_exist(doc_path: str):
         """验证文件路径是否存在"""
         doc_path = Path(doc_path)
         if not doc_path.is_file():
             raise APIException(ErrorCode.FILE_NOT_FOUND)
 
     @staticmethod
-    def validate_file_ext(doc_path: str):
+    def validate_http_filepath_exist(doc_url: str):
+        """验证 HTTP 文件路径是否存在"""
+        response = requests.head(doc_url)
+        if response.status_code != 200:
+            raise APIException(ErrorCode.HTTP_FILE_NOT_FOUND)
+
+    @staticmethod
+    def validate_file_ext(doc_path: str=None,doc_ext: str=None):
         """验证文件格式"""
-        doc_path = Path(doc_path)
+        if doc_path:
+            doc_ext = str(Path(doc_path).suffix)
         support_ext = Config.SUPPORTED_FILE_TYPES.get("all")
-        if doc_path.suffix not in support_ext:
+        if doc_ext.lower() not in support_ext:
             raise APIException(ErrorCode.UNSUPPORTED_FORMAT)
 
     @staticmethod
@@ -131,6 +138,7 @@ class FileValidator:
         with FileInfoOperation() as file_op:
             if file_op.get_file_by_doc_id(doc_id):
                 raise APIException(ErrorCode.FILE_EXISTS)
+        return doc_id
 
 if __name__ == '__main__':
     pass

@@ -10,6 +10,7 @@ class ErrorCode(Enum):
     INTERNAL_ERROR = 1
     PARAM_ERROR = 2
     DUPLICATE_OPERATION = 3
+    CALLBACK_ERROR = 4
 
     # 数据库相关错误
     MYSQL_CONNECTION_FAIL = 1000
@@ -44,6 +45,9 @@ class ErrorCode(Enum):
     FILE_HARD_DELETE_ERROR = 4011
     FILE_SOFT_DELETE_ERROR = 4012
     FILE_READ_FAILED = 4013
+    HTTP_FILE_NOT_FOUND = 4014
+    FILE_SAVE_FAILED = 4015
+    DOC_PROCESS_ERROR = 4016
 
     # 会话相关错误
     QUESTION_TOO_LONG = 5000
@@ -81,6 +85,8 @@ ERROR_MESSAGES = {
     ErrorCode.INTERNAL_ERROR: "系统内部错误",
     ErrorCode.PARAM_ERROR: "参数错误, 请检查请求参数是否完整且格式正确",
     ErrorCode.DUPLICATE_OPERATION: "重复操作, 请勿重复提交请求",
+    ErrorCode.CALLBACK_ERROR: "回调通知失败",
+
 
     ErrorCode.MYSQL_CONNECTION_FAIL: "数据库连接失败，请检查数据库连接配置",
     ErrorCode.MYSQL_INSERT_FAIL: "数据新增失败，请检查插入数据是否符合要求",
@@ -88,17 +94,18 @@ ERROR_MESSAGES = {
     ErrorCode.MYSQL_DELETE_FAIL: "数据删除失败",
     ErrorCode.MYSQL_QUERY_FAIL: "数据查询失败",
 
+
     ErrorCode.UNAUTHORIZED: "未授权操作, 请重新登录",
     ErrorCode.PERMISSION_INVALID: "权限无效, 请重新登录",
 
-    ErrorCode.STORAGE_FULL: "存储空间不足, 请检查服务器剩余存储空间",
+    ErrorCode.STORAGE_FULL: "存储空间不足, 为确保后续文件处理正常进行， 请检查RAG服务器剩余存储空间",
     ErrorCode.SYSTEM_BUSY: "系统繁忙，请稍后重试",
     ErrorCode.SYSTEM_MAINTENANCE: "系统维护中，请等待维护完成",
     ErrorCode.INTERNAL_ERROR_2: "系统内部错误，请联系系统管理员",
     ErrorCode.ENVIRONMENT_DEFICIT: "环境缺失",
 
     ErrorCode.FILE_NOT_FOUND: "文件不存在, 请检查文件路径是否正确",
-    ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持",
+    ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持: {','.join(Config.SUPPORTED_FILE_TYPES.get('all')).replace('.', '')}",
     ErrorCode.FILE_TOO_LARGE: "文件过大, 最大支持 50MB 文件",
     ErrorCode.FILE_EMPTY: "文件内容为空, 无法读取文件内容",
     ErrorCode.TOOLANG_FILENAME: "文件名称超长, 长度应不超过 200字",
@@ -111,6 +118,9 @@ ERROR_MESSAGES = {
     ErrorCode.FILE_HARD_DELETE_ERROR: "文件软删除失败",
     ErrorCode.FILE_SOFT_DELETE_ERROR: "文件物理删除失败",
     ErrorCode.FILE_READ_FAILED: "文件读取失败, 请检查文件是否存在或格式是否正确",
+    ErrorCode.HTTP_FILE_NOT_FOUND: "HTTP文件未找到, 请检查文件URL是否正确",
+    ErrorCode.FILE_SAVE_FAILED: "文件保存失败",
+    ErrorCode.DOC_PROCESS_ERROR: "文档处理失败",
 
     ErrorCode.QUESTION_TOO_LONG: "问题超长, 长度应不超过 2000 字",
     ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",
