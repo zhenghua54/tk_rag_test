@@ -1,0 +1,23 @@
+[
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/508f25e18d47b93edf224e67c90a026131eeb5b52ed917a7acdba94ed856489c.jpg",
+    "table_caption": "总    结 113",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">服务作业指导书</td><td>文件编号</td><td>QES-002-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td></td><td></td><td></td><td></td><td>实施日期</td><td>2025年01月24日</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>批准</td><td>卢晓飞</td></tr></table></body></html>\n\n",
+    "page_idx": 26,
+    "summary": "文件管理流程涉及服务作业指导书的编制、审核及批准；包括文件编号QES-002-2025、版本A/1及实施日期2025年01月24日；由质量与安全管理部编制并经相关负责人审核、批准（卢晓飞）。"
+  },
+  {
+    "type": "text",
+    "text": "前    言\n本说明书主要介绍杭州天宽科技有限公司服务中心（以下简称“服务中心”）相关服务流程与规范，用于指导服务交付工作，以提升客户满意度，保障客户网络安全与隐私安全。\n服务规范与流程包含了十一大部分，分别为交付服务流程及规范、现场维护流程及规范、巡检服务流程及规范、整改服务流程及规范、单次服务流程及规范、驻场服务流程及规范、POC 测试流程及规范、变更流程及规范、技术支持订阅服务流程及规范、业务上云服务流程及规范、AI 持续运营服务流程及规范。\n其中，涉及华为系统三个，分别为项目交付平台 eISDP、维护数字化平台 NetCare、PO订单系统ISC；涉及天宽 IT 信息管理系统一个，为工时 2.0 管理系统。",
+    "page_idx": 26
+  },
+  {
+    "type": "image",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/ce3c6ee496083169aab7360f878fbc0b84a92d50665ccd9b5aaa489339e1125d.jpg",
+    "img_caption": "其中，涉及华为系统三个，分别为项目交付平台 eISDP、维护数字化平台 NetCare、PO订单系统ISC；涉及天宽 IT 信息管理系统一个，为工时 2.0 管理系统。",
+    "img_footnote": [],
+    "page_idx": 26
+  }
+]

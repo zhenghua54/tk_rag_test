@@ -1,0 +1,16 @@
+[
+  {
+    "type": "text",
+    "text": "服务质量体系手册目录",
+    "page_idx": 4
+  },
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/a292698e6d0829fc7063bd317618f4a6cbeb9056eca7e49f978025ddbeaa5b26.jpg",
+    "table_caption": "服务质量体系手册目录",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td>类别</td><td>序号</td><td>文档编号</td><td>版本/次</td><td>文档名称</td><td>开始页</td></tr><tr><td rowspan=\"3\">总纲</td><td>1</td><td rowspan=\"4\">QES-001-2025</td><td rowspan=\"4\">A/1</td><td>质量管理总纲</td><td>第6页</td></tr><tr><td>2</td><td>企业愿景、使命、战略与核心价值观</td><td>第11页</td></tr><tr><td>3</td><td>质量管理方针、质量管理战略、质量管理目标</td><td>第14页</td></tr><tr><td>4</td><td>质量组织架构</td><td>第18页</td></tr><tr><td rowspan=\"2\">组织 架构</td><td>5</td><td></td><td></td><td>质量岗位职责</td><td>第20页</td></tr><tr><td>6</td><td>QES-002-2025</td><td>A/1</td><td>服务作业指导书</td><td>第23页</td></tr><tr><td rowspan=\"11\">预案 机制 及制 度</td><td>7</td><td>QES-003-2025</td><td>A/1</td><td>网络安全&信息安全与隐私保护管理制度</td><td>第114页</td></tr><tr><td>8</td><td>QES-004-2025</td><td>A/1</td><td>EHS安全管理制度</td><td>第143页</td></tr><tr><td>9</td><td>QES-005-2025</td><td>A/1</td><td>问题处理与升级通报制度</td><td>第161页</td></tr><tr><td>10</td><td>QES-006-2025</td><td>A/1</td><td>诚信廉洁与合规自律管理规定</td><td>第178页</td></tr><tr><td>11</td><td>QES-007-2025</td><td>A/3</td><td>备品备件管理规定</td><td>第198页</td></tr><tr><td>12</td><td>QES-008-2025</td><td>A/1</td><td>作业人员资质管理制度</td><td>第209页</td></tr><tr><td>13</td><td>QES-009-2025</td><td>A/1</td><td>质量奖惩制度</td><td>第218页</td></tr><tr><td>14</td><td>QES-010-2025</td><td>A/1</td><td>质量培训制度</td><td>第246页</td></tr><tr><td>15</td><td>QES-011-2025</td><td>A/1</td><td>质量检查制度</td><td>第253页</td></tr><tr><td>16</td><td>QES-012-2025</td><td>A/1</td><td>工时系统2.0履行管理规范</td><td>第263页</td></tr><tr><td>17</td><td>QES-013-2025</td><td>A/1</td><td>内部评审和持续改进机制</td><td>第282页</td></tr><tr><td rowspan=\"3\">质量 日常 管理</td><td>18</td><td>QES-014-2025</td><td>A/1</td><td>服务人员日常行为规范</td><td>第295页</td></tr><tr><td>19</td><td>N/A</td><td>/</td><td>质量例行管理动作</td><td>第307页</td></tr><tr><td>20</td><td>N/A</td><td>/</td><td>分支机构日常质量管理</td><td>第310页</td></tr></table></body></html>\n\n",
+    "page_idx": 4,
+    "summary": "变更管理流程;质量组织架构与岗位职责;服务作业指导书;网络安全及信息安全制度;EHS安全管理制度;问题处理与升级通报制度;诚信廉洁与合规管理;备品备件管理;作业人员资质管理;质量奖惩制度;质量培训制度;质量检查制度;工时系统履行管理;内部评审与持续改进;服务人员日常行为规范;质量例行管理动作;分支机构质量管理。"
+  }
+]

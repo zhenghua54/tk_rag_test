@@ -1,6 +1,7 @@
 """处理文档内容, 包括表格、图片、文本等"""
 import json
 import os
+import shutil
 import traceback
 import time
 import hashlib
@@ -31,15 +32,9 @@ def process_doc_by_page(json_doc_path: str):
         json_content = json.load(f)
 
     doc_hash = hashlib.md5(json_doc_path.encode("utf-8")).hexdigest()
-    temp_dir = Path("page_cache") / doc_hash
+    temp_root = Path("page_cache")
+    temp_dir = temp_root / doc_hash
     temp_dir.mkdir(parents=True, exist_ok=True)
-    # progress_file = temp_dir / "progress.jsonl"
-
-    # if progress_file.exists():
-    #     with open(progress_file, "r", encoding="utf-8") as pf:
-    #         processed_pages = set(json.load(pf).get("processed_pages", []))
-    # else:
-    #     processed_pages = set()
 
     # 统计信息初始化
     table_total, table_cap, table_cap_up, table_cap_miss = 0, 0, 0, 0
@@ -54,7 +49,6 @@ def process_doc_by_page(json_doc_path: str):
 
         for idx, item in enumerate(json_content):
             page_idx = item.get("page_idx")
-
 
             # 如果遇到新页面, 保存上一页的内容
             if current_page is not None and current_page != page_idx:
@@ -147,12 +141,6 @@ def process_doc_by_page(json_doc_path: str):
                 # 保存修改后的图片元素
                 page_contents.append(item)
 
-            # 实时保存进度
-            # with open(progress_file, "w", encoding="utf-8") as pf:
-            #     json.dump({"processed_pages": list(processed_pages)}, pf)
-
-            # print(processed_pages)
-
         # 处理最后一页遗留的文本
         if current_page is not None:
             if text_buffer:
@@ -165,7 +153,6 @@ def process_doc_by_page(json_doc_path: str):
                 page_file = temp_dir / f"page_{current_page}.json"
                 with open(page_file, "w", encoding="utf-8") as pf:
                     json.dump(page_contents, pf, indent=2, ensure_ascii=False)
-                # processed_pages.add(current_page)
 
         log_operation_success("内容汇总",
                               start_time=time.time(),
@@ -188,14 +175,23 @@ def process_doc_by_page(json_doc_path: str):
                 # 读取每页的列表合并到 merged中
                 merged[str(page_idx)] = json.load(pf)
 
-        log_operation_start("保存缓存文件", start_time=time.time())
+        start_time = log_operation_start("保存缓存文件", start_time=time.time())
         # 保存合并后的文件
         save_path = Path(json_doc_path).parent / f"{Path(json_doc_path).stem}_merged.json"
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(merged, f, ensure_ascii=False, indent=2)
 
-        log_operation_success("缓存文件保存完成", start_time=time.time(), save_path=save_path)
+        log_operation_success("保存缓存文件", start_time=start_time, save_path=save_path)
 
+        try:
+            start_time = log_operation_start("清理缓存文件", temp_root=str(temp_root.resolve()))
+            shutil.rmtree(temp_root)
+            log_operation_success("清理缓存文件", start_time=start_time)
+        except Exception as e:
+            log_operation_error("清理缓存文件",
+                                error_code=ErrorCode.FILE_SOFT_DELETE_ERROR.value,
+                                error_msg=str(e))
+            raise ValueError(f"缓存清理失败, 缓存路径: {str(temp_root.resolve())}, 失败原因: {str(e)}")
         return str(save_path)
 
     except Exception as e:
@@ -220,122 +216,126 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
     """
     try:
         if doc_id:
-            log_operation_start("处理文档",
-                                doc_id=doc_id)
+            process_start_time = log_operation_start("文档处理",
+                                                     doc_id=doc_id)
 
         # 验证参数
         ArgsValidator.validate_type(doc_path, str, "pdf_doc_path")  # 参数类型验证
         FileValidator.validate_local_filepath_exist(doc_path)  # 文件路径验证
-        FileValidator.validate_file_convert_ext(doc_path)
-
         doc_path = Path(doc_path)
-        # 非PDF文件先转换
-        pdf_path = convert_office_file(str(doc_path.resolve())) if doc_path.suffix != '.pdf' else str(doc_path)
 
-        ContentValidator.validate_pdf_content_parse(pdf_path)  # 验证 PDF 文档内容解析
+        if doc_path.suffix == ".pdf":
+            pdf_path = doc_path
+        else:
+            # 非PDF验证是否支持转换
+            FileValidator.validate_file_convert_ext(doc_path.suffix)
+            pdf_path = convert_office_file(str(doc_path.resolve()))
+
+        # ContentValidator.validate_pdf_content_parse(pdf_path)  # 验证 PDF 文档内容解析
 
         # 使用MinerU 解析 PDF 文档
         try:
+            start_time = log_operation_start("MinerU解析", pdf_path=pdf_path)
+
             out_info = mineru_toolkit(pdf_path)
             if os.path.exists(out_info["json_path"]):
-                log_operation_success("MinerU 解析完成",
-                                      start_time=time.time(),
+                log_operation_success("MinerU解析",
+                                      start_time=start_time,
                                       doc_id=doc_id,
-                                      save_path=out_info["json_path"])
+                                      save_path=out_info)
                 values = {
                     "doc_json_path": out_info["json_path"],
                     "doc_images_path": out_info["image_path"],
                     "doc_pdf_path": pdf_path,
                     "process_status": "parsed"
                 }
+                # 数据库文件状态更新
+                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id, values=values)
                 with FileInfoOperation() as file_op:
                     file_op.update_by_doc_id(doc_id, values)
                 log_operation_success("数据库文件状态更新",
-                                      start_time=time.time(),
+                                      start_time=start_time,
                                       doc_id=doc_id,
                                       status="-> parsed")
             else:
                 log_operation_error("MinerU 解析失败",
                                     error_msg=traceback.format_exc(),
                                     doc_id=doc_id)
+                # 数据库文件状态更新
+                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
                 with FileInfoOperation() as file_op:
                     values = {
                         "process_status": "parse_failed"
                     }
                     file_op.update_by_doc_id(doc_id, values)
-                log_operation_error("数据库文件状态更新",
-                                    doc_id=doc_id,
-                                    status="-> parse_failed")
+                log_operation_success("数据库文件状态更新",
+                                      start_time=start_time,
+                                      doc_id=doc_id,
+                                      status="-> parse_failed")
         except Exception as e:
             log_operation_error("MinerU 解析失败",
                                 error_msg=str(e),
                                 doc_id=doc_id,
                                 pdf_path=pdf_path)
+            start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
             with FileInfoOperation() as file_op:
                 values = {
                     "process_status": "parse_failed"
                 }
                 file_op.update_by_doc_id(doc_id, values)
-                log_operation_error("数据库文件状态更新",
-                                    doc_id=doc_id,
-                                    status="-> parse_failed")
+                log_operation_success("数据库文件状态更新",
+                                      start_time=start_time,
+                                      doc_id=doc_id,
+                                      status="-> parse_failed")
             raise
-
-        # try:
-        #     # 填充表格和图片标题
-        #     log_operation_start("标题完善",
-        #                         start_time=time.time(),
-        #                         doc_id=doc_id,
-        #                         json_path=out_info["json_path"],
-        #                         )
-        #     json_content = fill_title(out_info["json_path"])
-        #     log_operation_success("标题完善",
-        #                           start_time=time.time())
-        # except Exception as e:
-        #     log_operation_error("填充表格和图片标题失败",
-        #                         error_msg=str(e),
-        #                         doc_id=doc_id,
-        #                         json_path=out_info["json_path"])
-        #     raise e
 
         try:
             # 合并页面内容
-            log_operation_start("合并页面内容",
-                                start_time=time.time(),
-                                doc_id=doc_id,
-                                json_path=out_info["json_path"],
-                                )
+            start_time = log_operation_start("页面合并",
+                                             doc_id=doc_id,
+                                             json_path=out_info["json_path"],
+                                             )
             save_path = process_doc_by_page(out_info["json_path"])
-            log_operation_success("合并完成",
-                                  start_time=time.time(),
+            log_operation_success("页面合并",
+                                  start_time=start_time,
                                   save_path=save_path)
 
             # 如果提供了 doc_id，更新数据库状态
             if doc_id:
-                log_operation_success("文档处理完成",
-                                      start_time=time.time(),
+                log_operation_success("文档处理",
+                                      start_time=process_start_time,
                                       doc_id=doc_id,
                                       save_path=save_path)
+
+                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
                 with FileInfoOperation() as file_op:
                     values = {
                         "doc_process_path": save_path,
                         "process_status": "merged"
                     }
                     file_op.update_by_doc_id(doc_id, values)
+                log_operation_success("数据库文件状态更新",
+                                      start_time=start_time,
+                                      doc_id=doc_id,
+                                      status="-> merged"
+                                      )
 
             return save_path
         except Exception as e:
             log_operation_error("合并页面内容失败",
                                 error_msg=str(e),
                                 doc_id=doc_id)
+            start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
             with FileInfoOperation() as file_op:
                 values = {
                     "process_status": "merge_failed"
                 }
                 file_op.update_by_doc_id(doc_id, values)
-                log_operation_error("数据库文件状态更新",
-                                    doc_id=doc_id,
-                                    status="-> merge_failed")
+                log_operation_success("数据库文件状态更新",
+                                      start_time=start_time,
+                                      doc_id=doc_id,
+                                      status="-> merge_failed"
+                                      )
             raise
 
     except Exception as e:

@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field, validator
 from src.api.response import ResponseBuilder, ErrorCode
 from src.services.chat_server import ChatService
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix="/chat",
+                   tags=["聊天相关"])
+
 
 class ChatRequest(BaseModel):
     """聊天请求模型
@@ -21,12 +23,13 @@ class ChatRequest(BaseModel):
     department_id: str = Field(..., description="部门UUID")
     session_id: Optional[str] = Field(None, description="会话ID(保持上下文)")
     timeout: Optional[int] = Field(30, ge=1, le=120, description="超时时间(秒)")
-    
+
     @validator("query")
     def validate_query(cls, v):
         if len(v.strip()) == 0:
             raise ValueError("问题不能为空")
         return v.strip()
+
 
 @router.post("/rag_chat")
 async def rag_chat(request: ChatRequest):
@@ -46,7 +49,7 @@ async def rag_chat(request: ChatRequest):
     try:
         # 获取服务实例
         chat_service = ChatService.get_instance()
-        
+
         # 调用聊天服务
         result = await chat_service.chat(
             query=request.query,
@@ -54,9 +57,9 @@ async def rag_chat(request: ChatRequest):
             session_id=request.session_id,
             timeout=request.timeout
         )
-        
+
         return ResponseBuilder.success(data=result)
-        
+
     except ValueError as e:
         return ResponseBuilder.error(error_code=ErrorCode.PARAM_ERROR)
     except TimeoutError:

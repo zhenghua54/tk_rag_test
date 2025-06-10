@@ -1,0 +1,28 @@
+[
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/1c140aec973ca598f712bd8c341772cd9dad83c72b2bafec65f797c8edd58c3a.jpg",
+    "table_caption": "文件管理流程",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">服务作业指导书</td><td>文件编号</td><td>QES-002-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td></td><td></td><td></td><td></td><td>实施日期</td><td>2025年01月24日</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>批准</td><td>卢晓飞</td></tr></table></body></html>\n\n",
+    "page_idx": 30,
+    "summary": "文件管理涉及服务作业指导书编制、审核及批准等环节；明确实施日期为2025年01月24日，由质量与安全管理部负责编制，审核和批准由指定人员完成。"
+  },
+  {
+    "type": "text",
+    "text": "四、 交付服务流程规范要求",
+    "page_idx": 30
+  },
+  {
+    "type": "image",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/8c916bab0541a464b693d683ce13b977007230b6cb49b1b7bdafd4d68a4f0daa.jpg",
+    "img_caption": "四、 交付服务流程规范要求",
+    "img_footnote": [],
+    "page_idx": 30
+  },
+  {
+    "type": "text",
+    "text": "4.1 服务准备阶段\n(1) 计划沟通",
+    "page_idx": 30
+  }
+]

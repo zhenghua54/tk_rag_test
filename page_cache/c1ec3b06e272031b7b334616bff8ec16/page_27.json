@@ -1,0 +1,39 @@
+[
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/ae7f90cf71808c4d2bf3fee2412399f896786e4e8d55894a462bf1e3a3b984f2.jpg",
+    "table_caption": "文件编制与审批流程",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">服务作业指导书</td><td>文件编号</td><td>QES-002-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td></td><td></td><td>实施日期</td><td>2025年01月24日</td></tr><tr><td></td><td></td><td>审核</td><td></td><td>批准</td><td>卢晓飞</td></tr></table></body></html>\n\n",
+    "page_idx": 27,
+    "summary": "文件编制由质量与安全管理部负责；审核、批准涉及多级审批，最终由卢晓飞批准；实施日期为2025年01月24日。"
+  },
+  {
+    "type": "text",
+    "text": "服务流程对应的作业 IT 系统",
+    "page_idx": 27
+  },
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/08e8be65343017b66632ce93a911872c8136e21d2db0664356c96ac309d0bbcf.jpg",
+    "table_caption": "服务流程对应的作业 IT 系统",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td>序号</td><td>流程名称</td><td>华为IT系统</td><td>天宽IT信息管理系 统</td></tr><tr><td>1</td><td>交付服务流程</td><td>eISDP、ISC</td><td>工时2.0管理系统</td></tr><tr><td>2</td><td>现场维护流程</td><td>NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>3</td><td>巡检服务流程</td><td>NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>4</td><td>整改服务流程</td><td>NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>5</td><td>单次服务流程</td><td>NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>6</td><td>驻场服务流程</td><td>NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>7</td><td>POC 测试服务流程</td><td>ISC</td><td>工时2.0管理系统</td></tr><tr><td>8</td><td>变更流程</td><td>NetCare</td><td>工时2.0管理系统</td></tr><tr><td>9</td><td>平软及上云业务服务流程</td><td>eISDP、 NetCare、ISC</td><td>工时2.0管理系统</td></tr><tr><td>10</td><td>AI持续运营服务流程</td><td>/</td><td>工时2.0管理系统</td></tr></table></body></html>\n\n",
+    "page_idx": 27,
+    "summary": "变更流程;交付服务流程;现场维护流程;巡检服务流程;整改服务流程;单次服务流程;驻场服务流程;POC测试服务流程;平软及上云业务服务流程;AI持续运营服务流程;涉及NetCare、ISC、eISDP等多个IT系统及工时2.0管理系统。"
+  },
+  {
+    "type": "text",
+    "text": "二、 华为系统各角色介绍",
+    "page_idx": 27
+  },
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系手册-V1.0 (定稿_打印版)_20250225/images/ee4cb7c7f46312cd05a923788ed0bbddc41d2f8c3e7a1824593e2540988031b1.jpg",
+    "table_caption": "二、 华为系统各角色介绍",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td>英文全称</td><td>缩写</td><td>中文名称</td></tr><tr><td>Customer Care Representative</td><td>CCR</td><td>客户关怀代表</td></tr><tr><td>Customer Support Engineer</td><td>CSE</td><td>客户服务工程师</td></tr><tr><td>Service Dispatcher</td><td>MSD</td><td>调度员</td></tr><tr><td>Field Service Interface Person</td><td>FSIP</td><td>维护经理</td></tr><tr><td>Field Service Engineer</td><td>FSE</td><td>现场服务工程师</td></tr><tr><td>Document Administrator</td><td>DA</td><td>文档管理员</td></tr><tr><td>Quality Assurance Engineer</td><td>QA</td><td>质量保证工程师</td></tr></table></body></html>\n\n",
+    "page_idx": 27,
+    "summary": "客户服务与技术支持团队包含多个角色：客户关怀代表(CCR)、客户服务工程师(CSE)、调度员(MSD)、维护经理(FSIP)、现场服务工程师(FSE)、文档管理员(DA)、质量保证工程师(QA)。各角色职责明确，涵盖客户服务、技术支持、文档管理和质量保障等领域。"
+  }
+]

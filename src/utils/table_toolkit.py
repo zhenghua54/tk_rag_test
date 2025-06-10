@@ -25,7 +25,7 @@ def html_table_to_markdown(table_html: str) -> str:
     ArgsValidator.validate_not_empty(table_html, "table_html")
     ArgsValidator.validate_type(table_html, str, "table_html")
 
-    logger.info("开始转换表格（html -> markdown）...")
+    # logger.info("开始转换表格（html -> markdown）...")
     soup = BeautifulSoup(table_html, "lxml")
     table = soup.find("table")
     if not table:

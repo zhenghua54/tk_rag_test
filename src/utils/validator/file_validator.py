@@ -52,11 +52,10 @@ class FileValidator:
             raise APIException(ErrorCode.UNSUPPORTED_FORMAT)
 
     @staticmethod
-    def validate_file_convert_ext(doc_path: str):
+    def validate_file_convert_ext(doc_ext: str):
         """验证文件格式"""
-        doc_path = Path(doc_path)
         support_ext = Config.SUPPORTED_FILE_TYPES.get("libreoffice")
-        if doc_path.suffix not in support_ext:
+        if doc_ext not in support_ext:
             raise APIException(ErrorCode.UNSUPPORTED_FORMAT)
 
     @staticmethod
