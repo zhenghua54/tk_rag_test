@@ -9,6 +9,7 @@ from config.settings import Config
 from src.api.response import APIException
 from src.utils.doc_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
+from src.utils.common.logger import log_operation_error, logger
 
 
 # # 检查 PyMuPDF
@@ -25,7 +26,7 @@ class FileValidator:
     def validate_filepath_len(doc_path: str, max_len: int = 1000):
         """验证文件路径长度"""
         if len(doc_path) > max_len:
-            raise APIException(ErrorCode.TOOLANG_FILEPATH)
+            raise APIException(ErrorCode.FILEPATH_TOOLONG)
 
     @staticmethod
     def validate_local_filepath_exist(doc_path: str):
@@ -42,7 +43,7 @@ class FileValidator:
             raise APIException(ErrorCode.HTTP_FILE_NOT_FOUND)
 
     @staticmethod
-    def validate_file_ext(doc_path: str=None,doc_ext: str=None):
+    def validate_file_ext(doc_path: str = None, doc_ext: str = None):
         """验证文件格式"""
         if doc_path:
             doc_ext = str(Path(doc_path).suffix)
@@ -74,7 +75,7 @@ class FileValidator:
     def validate_filename_len(doc_path: str, max_len: int = 200):
         """验证文件名长度"""
         if len(doc_path) > max_len:
-            raise APIException(ErrorCode.TOOLANG_FILENAME)
+            raise APIException(ErrorCode.FILENAME_TOOLONG)
 
     @staticmethod
     def validate_file_name(doc_path: str, replacement: str = "_", is_replace_name: bool = False):
@@ -120,25 +121,70 @@ class FileValidator:
                 with fitz.open(abs_file_path) as doc:
                     if doc.is_encrypted:
                         raise APIException(ErrorCode.FILE_EXCEPTION,
-                                         "PDF文件已加密"
-                                         )
+                                           "PDF文件已加密"
+                                           )
                     if doc.page_count == 0:
                         raise APIException(ErrorCode.FILE_EMPTY)
 
         except Exception as e:
             raise APIException(ErrorCode.FILE_EXCEPTION,
-                             f"文件无法正常打开: {str(e)}"
-                             )
+                               f"文件无法正常打开: {str(e)}"
+                               )
 
     @staticmethod
     def validate_file_exist(doc_path: str):
-        """验证文件是否已上传"""
-        doc_id = compute_file_hash(doc_path)
+        """验证文件是否已上传
 
-        with FileInfoOperation() as file_op:
-            if file_op.get_file_by_doc_id(doc_id):
-                raise APIException(ErrorCode.FILE_EXISTS)
-        return doc_id
+        Args:
+            doc_path: 文档路径
+
+        Returns:
+            dict: 如果文件存在，返回文件信息， 如果文件处理失败，返回 "failed"，否则返回 doc_id
+        """
+        doc_id = compute_file_hash(doc_path)
+        if not doc_id:
+            log_operation_error("文件哈希计算失败",
+                                error_code=ErrorCode.FILE_HASH_FAIL.value,
+                                error_msg=str(e),
+                                doc_id=doc_id)
+            raise APIException(ErrorCode.FILE_HASH_FAIL)
+
+        # 校验状态结果
+        result = {
+            "doc_id": doc_id,
+            "process_status": None,
+            "doc_info": None
+        }
+        try:
+            with FileInfoOperation() as file_op:
+                doc_info = file_op.get_file_by_doc_id(doc_id)
+            if not doc_info:
+                return result
+
+            process_status = doc_info.get("process_status")
+            if not process_status:
+                logger.warning(f"文档状态为空: doc_id={doc_id}")            
+                return result
+            
+            # 文件状态异常,重新上传
+            if process_status in Config.FILE_STATUS.get("error"):
+                    result["process_status"] = process_status
+                    result["doc_info"] = doc_info
+            # 文件状态正常,限制重复上传
+            elif process_status in Config.FILE_STATUS.get("normal"):
+                raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
+
+            return result
+            
+        except APIException:
+            raise
+        except Exception as e:
+            log_operation_error("文档查重",
+                                error_code=ErrorCode.MYSQL_QUERY_FAIL.value,
+                                error_msg=str(e),
+                                doc_id=doc_id)
+            raise APIException(ErrorCode.MYSQL_QUERY_FAIL, f"文档查重失败: {str(e)}")
+
 
 if __name__ == '__main__':
     pass

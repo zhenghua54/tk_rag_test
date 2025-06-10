@@ -36,17 +36,17 @@ from src.database.mysql.operations import select_non_pdf_files, select_pdf_files
 # 2. 测试跨页表格合并
 from src.utils.json_parser import parse_json_file
 # from src.utils.table_toolkit.table_merge import TableMerge
-from src.core.document.content_processer import process_tables
+from src.core.document.content_merger import process_tables
 
 # 3. 测试图片标题提取
-from src.core.document.content_processer import process_images
+from src.core.document.content_merger import process_images
 
 # 4. 测试文档内容清洗
 from src.utils.content.title_process import clean_content
 from src.utils.doc_toolkit import get_doc_output_path
 
 # 测试元素切割
-from src.core.document.content_processer import format_html_table_to_markdown
+from src.core.document.content_merger import format_html_table_to_markdown
 
 
 

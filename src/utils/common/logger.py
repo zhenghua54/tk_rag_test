@@ -11,7 +11,7 @@ import os
 import logging
 import time
 from logging.handlers import RotatingFileHandler
-from typing import Optional, Dict, Any
+from typing import Optional
 from config.settings import Config
 
 # 创建日志目录
@@ -25,7 +25,7 @@ formatter = logging.Formatter(
 # 普通日志处理器
 file_handler = RotatingFileHandler(
     os.path.join(Config.PATHS['log_dir'], 'app.log'),
-    maxBytes=10*1024*1024,  # 10MB
+    maxBytes=10 * 1024 * 1024,  # 10MB
     backupCount=5,
     encoding='utf-8'
 )
@@ -43,7 +43,7 @@ logger.addHandler(console_handler)
 # --- 新增异常日志记录器 ---
 error_file_handler = RotatingFileHandler(
     os.path.join(Config.PATHS['log_dir'], 'error.log'),
-    maxBytes=10*1024*1024,
+    maxBytes=10 * 1024 * 1024,
     backupCount=5,
     encoding='utf-8'
 )
@@ -52,6 +52,7 @@ error_file_handler.setFormatter(formatter)
 error_logger = logging.getLogger('tk_rag_error')
 error_logger.setLevel(logging.ERROR)
 error_logger.addHandler(error_file_handler)
+
 
 def log_exception(msg: str, exc: Exception):
     """
@@ -64,7 +65,7 @@ def log_exception(msg: str, exc: Exception):
 
 # --- 结构化日志工具函数 ---
 
-def mask_sensitive_info(text: str, max_length: int = 50) -> str:
+def mask_sensitive_info(text: str, max_length: int = 200) -> str:
     """脱敏处理敏感信息"""
     if not text:
         return ""
@@ -94,7 +95,7 @@ def log_operation_success(operation: str, start_time: float, **context) -> None:
 
 
 def log_operation_error(operation: str, error_code: Optional[str] = None,
-                       error_msg: Optional[str] = None, **context) -> None:
+                        error_msg: Optional[str] = None, **context) -> None:
     """记录操作错误"""
     context_params = format_log_params(**context)
     error_params = format_log_params(error_code=error_code, error_msg=mask_sensitive_info(str(error_msg)))

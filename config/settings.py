@@ -51,6 +51,11 @@ class Config:
         "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
+    FILE_STATUS = {
+        "normal": ["uploaded", "parsed", "merged", "chunked"],
+        "error": ["parse_failed", "merge_failed", "chunk_failed", "error"],
+    }
+
 
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(

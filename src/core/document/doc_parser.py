@@ -80,7 +80,6 @@ def mineru_toolkit(pdf_doc_path: str) ->  dict:
 
         return result
     except Exception as e:
-        logger.error(f"[PDF解析失败] file_path={pdf_doc_path}, error_msg={e}")
         raise APIException(ErrorCode.PDF_PARSE_ERROR, str(e)) from e
 
 

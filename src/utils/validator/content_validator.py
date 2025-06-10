@@ -79,6 +79,7 @@ class ContentValidator:
 
                     if text_length == 0:
                         logger.warning("第一页没有文本内容，可能是扫描件或图片")
+                    return True, "OK"
 
                 except Exception as e:
                     logger.error(f"读取第一页失败: {str(e)}")

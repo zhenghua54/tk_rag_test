@@ -6,7 +6,7 @@ from src.utils.file.mineru_parser import parse_pdf_file, convert_office_file
 from src.utils.common.logger import logger
 from src.utils.file.file_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
-from src.core.document.content_processer import process_json_file
+from src.core.document.content_merger import process_json_file
 from src.utils.content.title_process import merge_page
 from src.database.elasticsearch.operations import ElasticsearchOperation
 from src.core.document.segment import segment_text_content

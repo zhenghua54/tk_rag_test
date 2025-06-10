@@ -67,7 +67,7 @@ class BaseDBOperation:
                 logger.error(f"[数据库错误] 唯一约束冲突，sql={sql}, error={str(e)}")
             else:
                 logger.error(f"[数据库错误] sql={sql}, error={str(e)}")
-            raise RuntimeError(f"数据库操作失败: {str(e)}") from e
+            raise
         except Exception as e:
             logger.error(f"[未知错误] sql={sql}, error={str(e)}")
             raise RuntimeError(f"数据库操作失败: {str(e)}") from e
@@ -206,16 +206,16 @@ class BaseDBOperation:
         sql = f"DELETE FROM {self.table_name} WHERE doc_id = %s"
         return self._execute_update(sql, (doc_id,))
 
-    def delete_by_doc_id(self, doc_id: str, soft_delete: bool) -> int:
+    def delete_by_doc_id(self, doc_id: str, is_soft_deleted: bool = False) -> int:
         """通用删除接口，支持软/硬删除"""
         try:
-            if soft_delete:
+            if is_soft_deleted:
                 return self._soft_delete_by_id(doc_id)
             else:
                 return self._hard_delete_by_id(doc_id)
         except pymysql.MySQLError as e:
-            logger.error(f"[删除记录失败] doc_id={doc_id}, soft_delete={soft_delete}, error={str(e)}")
+            logger.error(f"[删除记录失败] doc_id={doc_id}, is_soft_deleted={is_soft_deleted}, error={str(e)}")
             raise RuntimeError(f"数据库删除失败: {str(e)}") from e
         except Exception as e:
-            logger.error(f"[未知错误] 删除记录失败, doc_id={doc_id}, soft_delete={soft_delete}, error={str(e)}")
+            logger.error(f"[未知错误] 删除记录失败, doc_id={doc_id}, is_soft_deleted={is_soft_deleted}, error={str(e)}")
             raise e

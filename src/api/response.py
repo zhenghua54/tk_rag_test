@@ -26,7 +26,7 @@ class ResponseBuilder(BaseModel):
 
     @classmethod
     def success(cls, error_code: int = 0, data: Optional[Any] = None,
-                request_id: str = None) -> "ResponseBuilder":
+                request_id: str = None):
         """生成成功响应"""
         return cls(
             code=error_code,
@@ -36,12 +36,12 @@ class ResponseBuilder(BaseModel):
         )
 
     @classmethod
-    def error(cls, error_code: int, extra_info: str = None, error_message: str = None,
+    def error(cls, error_code: int, error_message: str = None,
               data: Optional[Any] = None, request_id: str = None):
         """生成错误响应"""
         return cls(
             code=error_code,
-            message=error_message or ErrorCode.get_message(error_code, extra_info),
+            message=error_message or ErrorCode.get_message(error_code),
             request_id=request_id,
             data=data  # 预留字段
         )

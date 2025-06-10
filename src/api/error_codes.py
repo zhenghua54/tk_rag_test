@@ -35,11 +35,11 @@ class ErrorCode(Enum):
     UNSUPPORTED_FORMAT = 4001
     FILE_TOO_LARGE = 4002
     FILE_EMPTY = 4003
-    TOOLANG_FILENAME = 4004
+    FILENAME_TOOLONG = 4004
     INVALID_FILENAME = 4005
     PDF_PARSE_ERROR = 4006
-    FILE_EXISTS = 4007
-    TOOLANG_FILEPATH = 4008
+    FILE_EXISTS_PROCESSED = 4007
+    FILEPATH_TOOLONG = 4008
     FILE_EXCEPTION = 4009
     FILE_VALIDATION_ERROR = 4010
     FILE_HARD_DELETE_ERROR = 4011
@@ -48,6 +48,8 @@ class ErrorCode(Enum):
     HTTP_FILE_NOT_FOUND = 4014
     FILE_SAVE_FAILED = 4015
     DOC_PROCESS_ERROR = 4016
+    FILE_EXISTS_PENDING = 4017
+    FILE_HASH_FAIL= 4018
 
     # 会话相关错误
     QUESTION_TOO_LONG = 5000
@@ -73,7 +75,7 @@ class ErrorCode(Enum):
             try:
                 error_code = ErrorCode(error_code)
             except ValueError:
-                return "转换error_code失败, 请检查错误码是否正确"
+                return f"转换error_code失败, 请检查错误码是否正确,error_code={error_code}"
 
         message = ERROR_MESSAGES.get(error_code, "未知错误")
         return message
@@ -108,11 +110,11 @@ ERROR_MESSAGES = {
     ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持: {','.join(Config.SUPPORTED_FILE_TYPES.get('all')).replace('.', '')}",
     ErrorCode.FILE_TOO_LARGE: "文件过大, 最大支持 50MB 文件",
     ErrorCode.FILE_EMPTY: "文件内容为空, 无法读取文件内容",
-    ErrorCode.TOOLANG_FILENAME: "文件名称超长, 长度应不超过 200字",
+    ErrorCode.FILENAME_TOOLONG: "文件名称超长, 长度应不超过 200字",
     ErrorCode.INVALID_FILENAME: f"文件名无效, 仅支持: {Config.UNSUPPORTED_FILENAME_CHARS}",
     ErrorCode.PDF_PARSE_ERROR: "PDF解析失败",
-    ErrorCode.FILE_EXISTS: "文件已存在, 请检查是否重复上传",
-    ErrorCode.TOOLANG_FILEPATH: "文件路径超长, 长度应不超过 1000 字",
+    ErrorCode.FILE_EXISTS_PROCESSED: "文件已存在, 请检查是否重复上传",
+    ErrorCode.FILEPATH_TOOLONG: "文件路径超长, 长度应不超过 1000 字",
     ErrorCode.FILE_EXCEPTION: "",  # 不同异常单独返回
     ErrorCode.FILE_VALIDATION_ERROR: "文件验证失败",
     ErrorCode.FILE_HARD_DELETE_ERROR: "文件软删除失败",
@@ -121,6 +123,8 @@ ERROR_MESSAGES = {
     ErrorCode.HTTP_FILE_NOT_FOUND: "HTTP文件未找到, 请检查文件URL是否正确",
     ErrorCode.FILE_SAVE_FAILED: "文件保存失败",
     ErrorCode.DOC_PROCESS_ERROR: "文档处理失败",
+    ErrorCode.FILE_EXISTS_PENDING: "文件已上传，等待后续处理",
+    ErrorCode.FILE_HASH_FAIL: "哈希值计算失败",
 
     ErrorCode.QUESTION_TOO_LONG: "问题超长, 长度应不超过 2000 字",
     ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",

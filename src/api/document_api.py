@@ -5,7 +5,7 @@ from src.services.document_server import DocumentService
 from src.api.request.document_delete_request import DocumentDeleteRequest
 from src.api.request.document_upload_request import DocumentUploadRequest
 from src.utils.common.logger import (
-    logger, log_operation_start, log_operation_success, log_operation_error,
+    log_operation_start, log_operation_success, log_operation_error,
     log_business_info, mask_sensitive_info, log_exception
 )
 
