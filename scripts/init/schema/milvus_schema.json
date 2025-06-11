@@ -30,7 +30,7 @@
     {
       "name": "seg_content",
       "type": "VARCHAR",
-      "max_length": 1024,
+      "max_length": 4096,
       "description": "摘要内容，用于后验展示"
     },
     {

@@ -53,7 +53,7 @@ class VectorRetriever:
                     continue
 
                 # 从MySQL获取原文
-                original_text = get_seg_content(segment_id=seg_id, chunk_op=chunk_op)
+                original_text = get_seg_content(seg_id=seg_id, chunk_op=chunk_op)
                 if not original_text:
                     logger.warning(f"无法获取seg_id {seg_id} 的原文内容")
                     continue
@@ -124,9 +124,9 @@ if __name__ == '__main__':
     from pymilvus import connections, Collection
     connections.connect(host='localhost', port=19530, token='root:Milvus', db_name='default')
     collection = Collection('tk_rag')
-    results = collection.query(expr="", output_fields=["segment_id", "vector"], limit=5)
+    results = collection.query(expr="", output_fields=["seg_id", "vector"], limit=5)
     for r in results:
-        print(r["segment_id"], len(r["vector"]), r["vector"][:5])  # 打印前5维
+        print(r["seg_id"], len(r["vector"]), r["vector"][:5])  # 打印前5维
         
     print(collection.indexes)
 
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         anns_field="vector",
         param={"metric_type": "IP", "params": {"nprobe": 50}},
         limit=10,
-        output_fields=["segment_id"]
+        output_fields=["seg_id"]
     )
     print(results)
     

@@ -26,17 +26,17 @@ def merge_search_results(
 
     # 添加向量检索结果
     for doc, score in vector_results:
-        segment_id = doc.metadata.get("segment_id")
-        if segment_id and segment_id not in seen_ids:
+        seg_id = doc.metadata.get("seg_id")
+        if seg_id and seg_id not in seen_ids:
             merged_results.append((doc, score))
-            seen_ids.add(segment_id)
+            seen_ids.add(seg_id)
 
     # 添加 BM25 检索结果
     for doc, score in bm25_results:
-        segment_id = doc.metadata.get("segment_id")
-        if segment_id and segment_id not in seen_ids:
+        seg_id = doc.metadata.get("seg_id")
+        if seg_id and seg_id not in seen_ids:
             merged_results.append((doc, score))
-            seen_ids.add(segment_id)
+            seen_ids.add(seg_id)
 
     return merged_results
 

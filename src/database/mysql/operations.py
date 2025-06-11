@@ -115,23 +115,22 @@ class ChunkOperation(BaseDBOperation):
             bool: 插入是否成功
         """
         try:
-            return self.insert_many(chunks)
+            return self.insert(chunks)
         except Exception as e:
-            logger.error(f"插入分块失败: {e}")
             raise e
 
-    def delete_chunk_by_segment_id(self, segment_id: str) -> Optional[Dict]:
+    def delete_chunk_by_seg_id(self, seg_id: str) -> Optional[Dict]:
         """根据分段ID删除分块
 
         Args:
-            segment_id (str): 分段ID
+            seg_id (str): 分段ID
 
         Returns:
             Optional[Dict]: 删除操作的结果，如果成功则返回删除的记录数，否则返回 None
         """
         try:
-            sql = f'DELETE FROM %s WHERE segment_id = %s'
-            result = self._execute_update(sql, (self.table_name, segment_id))
+            sql = f'DELETE FROM %s WHERE seg_id = %s'
+            result = self._execute_update(sql, (self.table_name, seg_id))
             return {'affected_rows': result}
         except Exception as e:
             logger.error(f"删除分块失败: {e}")

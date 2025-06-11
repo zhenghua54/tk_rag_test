@@ -4,7 +4,7 @@ from typing import List, Dict
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from src.utils.doc_toolkit import generate_segment_id, truncate_summary
+from src.utils.doc_toolkit import generate_seg_id, truncate_summary
 from src.utils.table_toolkit import html_table_to_markdown
 from src.utils.common.logger import logger, log_operation_start, log_operation_success, log_operation_error
 from src.database.mysql.operations import ChunkOperation
@@ -27,7 +27,6 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
             "users": ["user1", "user2"]
         }
     """
-    start_time = log_operation_start("文档分块", doc_id=doc_id, document_name=document_name)
 
     # 将权限数据转换为JSON字符串
     permission_ids_str = json.dumps(permission_ids, ensure_ascii=False)
@@ -42,11 +41,19 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
     )
     logger.info("文本分块器初始化完成")
 
+    # 初始化数据库操作实例
+    chunk_op = ChunkOperation()
+    vector_op = VectorOperation()
+    es_op = ElasticsearchOperation()
+
     # 分批处理结果
     batch_size = Config.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
     milvus_batch = []  # 独立的 milvus 批次
     mysql_batch = []  # 独立的 mysql 批次
     es_batch = []  # 独立的 ES 批次
+
+    # 初始化计数器
+    total_records = 0
 
     try:
         with open(doc_process_path, "r", encoding="utf-8") as f:
@@ -64,7 +71,8 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     text_content = content["text"]
                     if len(text_content) <= text_splitter._chunk_size:
                         # 文本长度小于chunk_size，直接处理不分块
-                        logger.info(f"文本长度({len(text_content)})小于分块大小({text_splitter._chunk_size})，不进行分块")
+                        logger.info(
+                            f"文本长度({len(text_content)})小于分块大小({text_splitter._chunk_size})，不进行分块")
                         text_chunks = [text_content]
                     else:
                         # 文本长度超过chunk_size，需要分块
@@ -82,7 +90,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 logger.warning(f"跳过空文本块: '{chunk}'")
                                 continue
 
-                            seg_id = generate_segment_id(chunk)  # 片段 ID
+                            seg_id = generate_seg_id(chunk)  # 片段 ID
                             vector = embed_text(chunk)  # 片段向量
 
                             # 向量验证
@@ -111,10 +119,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 "seg_id": seg_id,
                                 "seg_parent_id": "",
                                 "seg_content": str(chunk),
-                                "seg_len": len(chunk),
+                                "seg_len": str(len(chunk)),
                                 "seg_type": "text",
                                 "seg_page_idx": str(page_idx),
-                                "doc_id": doc_id,
+                                "doc_id": doc_id
                             }
                             mysql_batch.append(text_mysql_res)
 
@@ -144,7 +152,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     logger.debug(f"表格转换为 Markdown 格式，长度: {len(table_markdown)}")
 
                     # 获取表格内容 Seg_id, seg_vector
-                    table_seg_id = generate_segment_id(table_body)
+                    table_seg_id = generate_seg_id(table_body)
                     # 根据表格长度选择所用内容，并 Embedding
                     segment_content = content.get('summary', table_markdown) if len(
                         table_markdown) > 1000 else table_markdown
@@ -187,10 +195,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         "seg_image_path": content.get("img_path", ""),
                         "seg_caption": table_caption,
                         "seg_footnote": content.get("table_footnote", ""),
-                        "seg_len": len(table_markdown),
+                        "seg_len": str(len(table_markdown)),
                         "seg_type": "table",
                         "seg_page_idx": str(page_idx),
-                        "doc_id": doc_id,
+                        "doc_id": doc_id
                     }
                     mysql_batch.append(parent_mysql_res)
 
@@ -218,7 +226,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 continue
 
                             sub_table_vector = embed_text(table_segment)
-                            sub_seg_id = generate_segment_id(table_segment)
+                            sub_seg_id = generate_seg_id(table_segment)
 
                             # 向量验证
                             if not isinstance(sub_table_vector, list) or len(sub_table_vector) != 1024:
@@ -246,10 +254,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 "seg_id": sub_seg_id,
                                 "seg_parent_id": table_seg_id,
                                 "seg_content": table_segment,
-                                "seg_len": len(table_segment),
+                                "seg_len": str(len(table_segment)),
                                 "seg_type": "table",
                                 "seg_page_idx": str(page_idx),
-                                "doc_id": doc_id,
+                                "doc_id": doc_id
                             }
                             mysql_batch.append(sub_mysql_res)
 
@@ -292,7 +300,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                             f"图片向量生成异常: {image_title}, 长度={len(image_vector) if isinstance(image_vector, list) else 'not a list'}, 内容={image_title}")
                         continue
 
-                    image_seg_id = generate_segment_id(image_title)
+                    image_seg_id = generate_seg_id(image_title)
 
                     # 组装图片 milvus 元数据
                     image_milvus_res = {
@@ -317,10 +325,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         "seg_image_path": content.get("img_path", ""),
                         "seg_caption": img_caption,  # 保持原始格式
                         "seg_footnote": content.get("img_footnote", ""),
-                        "seg_len": len(image_title),
+                        "seg_len": str(len(image_title)),
                         "seg_type": "image",
                         "seg_page_idx": str(page_idx),
-                        "doc_id": doc_id,
+                        "doc_id": doc_id
                     }
                     mysql_batch.append(image_mysql_res)
 
@@ -339,88 +347,63 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                 # 当批次达到指定大小时，保存到数据库
                 if len(milvus_batch) >= batch_size or len(mysql_batch) >= batch_size or len(es_batch) >= batch_size:
                     # 分别保存各个数据库的批次
-                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch)
+                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+                    total_records += len(mysql_batch)
                     milvus_batch = []
                     mysql_batch = []
                     es_batch = []
-                    logger.info(f"已保存 {batch_size} 条记录")
 
         # 保存剩余的批次
         if milvus_batch or mysql_batch or es_batch:
-            save_batch_to_databases(milvus_batch, mysql_batch, es_batch)
-            logger.info(f"已保存剩余记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
+            save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+            total_records += len(mysql_batch)
+            logger.info(f"已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
+            logger.info(f"文档处理完成，共处理 {total_records} 条记录")
 
-        log_operation_success("文档分块", start_time=start_time, doc_id=doc_id, document_name=document_name)
         return True
 
     except Exception as e:
-        log_operation_error("文档分块失败", error_msg=str(e), doc_id=doc_id)
-        logger.error(f"文档分块处理异常: {str(e)}")
+        logger.error(f"[文档处理失败] request_id={doc_id}, error={str(e)}")
         raise
 
 
-def save_batch_to_databases(milvus_batch: List[Dict], mysql_batch: List[Dict], es_batch: List[Dict]) -> bool:
+def save_batch_to_databases(milvus_batch: List[Dict],
+                            mysql_batch: List[Dict],
+                            es_batch: List[Dict],
+                            chunk_op: ChunkOperation,
+                            vector_op: VectorOperation,
+                            es_op: ElasticsearchOperation
+                            ) -> None:
     """保存一批数据到各个数据库
 
     Args:
         milvus_batch: Milvus 数据批次
         mysql_batch: MySQL 数据批次
         es_batch: ES 数据批次
+        chunk_op: 分MySQL 操作实例
+        vector_op: Milvus 操作实例
+        es_op: ES 操作实例
 
     Returns:
         bool: 保存是否成功
     """
-    success = True
+    try:
+        # 1. 保存到 MySQL(原文)
+        if mysql_batch:
+            chunk_op.insert_chunks(mysql_batch)
 
-    # 1. 保存到 MySQL(原文) - 使用批量插入
-    if mysql_batch:
-        try:
-            # 记录详细的MySQL数据
-            logger.debug(f"MySQL批量插入数据示例(第一条): {json.dumps(mysql_batch[0], ensure_ascii=False)}")
-            logger.debug(f"MySQL批量插入数据字段: {list(mysql_batch[0].keys())}")
-            
-            # 检查数据完整性
-            for i, item in enumerate(mysql_batch):
-                if any(v is None for v in item.values()):
-                    logger.warning(f"第{i}条MySQL数据存在None值: {item}")
-                    # 将None值转换为空字符串
-                    for k, v in item.items():
-                        if v is None:
-                            item[k] = ""
-                            logger.debug(f"将字段{k}的None值转换为空字符串")
-            
-            with ChunkOperation() as chunk_op:
-                # 批量插入所有数据
-                inserted_count = chunk_op.insert_chunks(mysql_batch)
-                logger.info(f"MySQL 数据批量插入完成，成功插入 {inserted_count} 条记录")
-        except Exception as e:
-            logger.error(f"MySQL 批量插入失败: {str(e)}")
-            success = False
-
-    # 2. 保存到 Milvus(向量和元数据)
-    if milvus_batch:
-        try:
-            vector_op = VectorOperation()
-            # 插入数据
+        # 2. 保存到 Milvus(向量和元数据)
+        if milvus_batch:
             vector_op.insert_data(milvus_batch)
-            # 执行 flush 操作
-            vector_op.flush()
-            logger.info(f"Milvus 数据插入完成，成功插入 {len(milvus_batch)} 条记录")
-        except Exception as e:
-            logger.error(f"Milvus 操作失败: {str(e)}")
-            success = False
+            vector_op.flush()  # 执行 flush 操作
 
-    # 3. 保存到 ES(用于 BM25 检索)
-    if es_batch:
-        try:
-            es_op = ElasticsearchOperation()
+        # 3. 保存到 ES(用于 BM25 检索)
+        if es_batch:
             es_op.insert_data(es_batch)
-            logger.info(f"ES 数据插入完成，成功插入 {len(es_batch)} 条记录")
-        except Exception as e:
-            logger.error(f"ES 操作失败: {str(e)}")
-            success = False
+    except Exception as e:
+        logger.error(f"保存批次数据失败: {str(e)}")
+        raise
 
-    return success
 
 if __name__ == '__main__':
     # 初始化分块器

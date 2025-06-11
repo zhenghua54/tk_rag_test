@@ -3,7 +3,6 @@ import os
 import json
 import re
 from typing import Dict
-from dotenv import load_dotenv
 from openai import OpenAI
 
 from src.api.error_codes import ErrorCode
@@ -15,7 +14,6 @@ from src.utils.validator.args_validator import ArgsValidator
 
 
 # 检查环境变量
-load_dotenv(verbose=True)
 HUNYUAN_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 if not HUNYUAN_API_KEY:
     raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")

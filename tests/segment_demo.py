@@ -13,7 +13,7 @@ from src.database.milvus.operations import VectorOperation
 from src.core.rag.embedder import embed_text
 
 
-def generate_segment_id(content: str) -> str:
+def generate_seg_id(content: str) -> str:
     """生成片段ID
 
     Args:
@@ -87,14 +87,14 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 
                 # 生成各分块的片段 id
                 for chunk in text_chunks:
-                    segment_id = generate_segment_id(chunk)  # 片段 ID
+                    seg_id = generate_seg_id(chunk)  # 片段 ID
                     vector = embed_text(chunk)  # 片段向量
-                    logger.debug(f"生成文本片段向量，segment_id: {segment_id}")
+                    logger.debug(f"生成文本片段向量，seg_id: {seg_id}")
                     
                     # 构建milvus存储结果
                     text_milvus_res = {
                         "vector": vector,
-                        "segment_id": segment_id,
+                        "seg_id": seg_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": chunk,
@@ -111,8 +111,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     text_mysql_res = {
                         "segment_text": str(chunk),
                         "doc_id": doc_id,
-                        "segment_id": segment_id,
-                        "parent_segment_id": None,
+                        "seg_id": seg_id,
+                        "parent_seg_id": None,
                     }
                     mysql_res_list.append(text_mysql_res)
 
@@ -133,13 +133,13 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     logger.info("表格内容较长，进行分块处理...")
                     # 保存母表信息：
                     table_table_vector = embed_text(content['table_summary'])
-                    parent_segment_id = generate_segment_id(content["table_body"])
-                    logger.debug(f"生成母表向量，parent_segment_id: {parent_segment_id}")
+                    parent_seg_id = generate_seg_id(content["table_body"])
+                    logger.debug(f"生成母表向量，parent_seg_id: {parent_seg_id}")
 
                     # 封装 milvus 元数据
                     parent_milvus_res = {
                         "vector": table_table_vector,
-                        "segment_id": parent_segment_id,
+                        "seg_id": parent_seg_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": content['table_summary'],
@@ -160,7 +160,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
 
                     # 封装 mysql 元数据
                     parent_mysql_res = {
-                        "seg_id": parent_segment_id,
+                        "seg_id": parent_seg_id,
                         "seg_content": table_html,
                         "seg_image_path"
                         "seg_caption"
@@ -172,8 +172,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "is_soft_deleted"
                         "segment_text": str(table_html),
                         "doc_id": doc_id,
-                        "segment_id": parent_segment_id,
-                        "parent_segment_id": None
+                        "seg_id": parent_seg_id,
+                        "parent_seg_id": None
                     }
                     mysql_res_list.append(table_mysql_res)
 
@@ -183,13 +183,13 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     
                     for table_segment in sub_table_chunks:
                         sub_table_vector = embed_text(table_segment)
-                        sub_segment_id = generate_segment_id(table_segment)
-                        logger.debug(f"生成子表向量，sub_segment_id: {sub_segment_id}")
+                        sub_seg_id = generate_seg_id(table_segment)
+                        logger.debug(f"生成子表向量，sub_seg_id: {sub_seg_id}")
                         
                         # 构建子表信息
                         sub_milvus_res = {
                             "vector": sub_table_vector,
-                            "segment_id": sub_segment_id,
+                            "seg_id": sub_seg_id,
                             "doc_id": doc_id,
                             "document_name": document_name,
                             "summary_text": "",
@@ -200,7 +200,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                             "update_time": "",  # 插入数据时更新
                             "metadata": {
                                 "table_raw": table_segment,
-                                "raw_table_segment_id": parent_segment_id,
+                                "raw_table_seg_id": parent_seg_id,
                                 "table_token_length": len(table_segment),
                             }
                         }
@@ -208,20 +208,20 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         sub_mysql_res = {
                             "segment_text": str(table_segment),
                             "doc_id": doc_id,
-                            "segment_id": sub_segment_id,
-                            "parent_segment_id": parent_segment_id,
+                            "seg_id": sub_seg_id,
+                            "parent_seg_id": parent_seg_id,
                         }
                         mysql_res_list.append(sub_mysql_res)
                 else:
                     logger.info("表格内容较短，直接处理...")
                     # 表格长度小于1000，正常进行分块
                     table_vector = embed_text(table_markdown)
-                    table_segment_id = generate_segment_id(content["table_body"])
-                    logger.debug(f"生成表格向量，table_segment_id: {table_segment_id}")
+                    table_seg_id = generate_seg_id(content["table_body"])
+                    logger.debug(f"生成表格向量，table_seg_id: {table_seg_id}")
                     
                     table_milvus_res = {
                         "vector": table_vector,
-                        "segment_id": table_segment_id,
+                        "seg_id": table_seg_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": content['table_summary'],
@@ -242,8 +242,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     table_mysql_res = {
                         "segment_text": str(table_html),
                         "doc_id": doc_id,
-                        "segment_id": table_segment_id,
-                        "parent_segment_id": None,
+                        "seg_id": table_seg_id,
+                        "parent_seg_id": None,
                     }
                     mysql_res_list.append(table_mysql_res)
 
@@ -257,14 +257,14 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 
                 # 生成各分块的片段 id
                 for chunk in text_chunks:
-                    segment_id = generate_segment_id(chunk)  # 片段 ID
+                    seg_id = generate_seg_id(chunk)  # 片段 ID
                     vector = embed_text(chunk)  # 片段向量
-                    logger.debug(f"生成文本片段向量，segment_id: {segment_id}")
+                    logger.debug(f"生成文本片段向量，seg_id: {seg_id}")
                     
                     # 构建milvus存储结果
                     text_milvus_res = {
                         "vector": vector,
-                        "segment_id": segment_id,
+                        "seg_id": seg_id,
                         "doc_id": doc_id,
                         "document_name": document_name,
                         "summary_text": chunk,
@@ -281,8 +281,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     text_mysql_res = {
                         "segment_text": str(chunk),
                         "doc_id": doc_id,
-                        "segment_id": segment_id,
-                        "parent_segment_id": None,
+                        "seg_id": seg_id,
+                        "parent_seg_id": None,
                     }
                     mysql_res_list.append(text_mysql_res)
 
@@ -296,12 +296,12 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 logger.info(f"处理第 {page_idx} 页的图片内容...")
                 image_title = content["img_caption"]    # 图片标题
                 image_vector = embed_text(image_title)
-                image_segment_id = generate_segment_id(image_title)
-                logger.debug(f"生成图片向量，image_segment_id: {image_segment_id}")
+                image_seg_id = generate_seg_id(image_title)
+                logger.debug(f"生成图片向量，image_seg_id: {image_seg_id}")
                 
                 image_milvus_res = {
                     "vector": image_vector,
-                    "segment_id": image_segment_id,
+                    "seg_id": image_seg_id,
                     "doc_id": doc_id,
                     "document_name": document_name,
                     "summary_text": None,
@@ -321,8 +321,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                 image_mysql_res = {
                     "segment_text": json.dumps(img_segment_text),
                     "doc_id": doc_id,
-                    "segment_id": image_segment_id,
-                    "parent_segment_id": None,
+                    "seg_id": image_seg_id,
+                    "parent_seg_id": None,
                 }
                 mysql_res_list.append(image_mysql_res)
             else:
@@ -356,8 +356,8 @@ def save_segments(segments: Dict) -> bool:
                 chunk_info = {
                     "segment_text": segment["segment_text"],
                     "doc_id": segment["doc_id"],
-                    "segment_id": segment["segment_id"],
-                    "parent_segment_id": segment["parent_segment_id"],
+                    "seg_id": segment["seg_id"],
+                    "parent_seg_id": segment["parent_seg_id"],
                 }
                 chunk_op.insert(chunk_info)
         logger.info(f"成功保存 {len(segments['mysql_res_list'])} 个分块到 MySQL")

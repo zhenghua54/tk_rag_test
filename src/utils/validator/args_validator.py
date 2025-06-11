@@ -67,23 +67,23 @@ class ArgsValidator:
             raise ValueError("doc_id 必须是64位哈希值字符串")
 
     @staticmethod
-    def validate_seg_id(segment_id: str):
+    def validate_seg_id(seg_id: str):
         """验证段落ID格式
         
         Args:
-            segment_id: 要验证的段落ID
+            seg_id: 要验证的段落ID
             
         Raises:
             ValueError: 当段落ID格式不正确时
         """
-        if not isinstance(segment_id, str):
-            raise ValueError(f"段落ID必须是字符串，而不是 {type(segment_id)}")
+        if not isinstance(seg_id, str):
+            raise ValueError(f"段落ID必须是字符串，而不是 {type(seg_id)}")
         
-        if not segment_id:
+        if not seg_id:
             raise ValueError("段落ID不能为空")
         
-        if not re.match(r'^[a-zA-Z0-9_-]+$', segment_id) and not re.match(r'^[a-f0-9]{64}$', segment_id):
-            raise ValueError(f"段落ID格式不正确: {segment_id}")
+        if not re.match(r'^[a-zA-Z0-9_-]+$', seg_id) and not re.match(r'^[a-f0-9]{64}$', seg_id):
+            raise ValueError(f"段落ID格式不正确: {seg_id}")
 
     @staticmethod
     def validate_department_id(department_id: str) -> None:

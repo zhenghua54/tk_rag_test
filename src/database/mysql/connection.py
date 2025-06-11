@@ -7,7 +7,45 @@ from pymysql.cursors import DictCursor
 
 from config.settings import Config
 from src.utils.common.logger import logger
+from dbutils.pooled_db import PooledDB
+import pymysql
 
+class MySQLConnectionPool:
+    _instance = None
+    _pool = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if self._pool is None:
+            self._pool = PooledDB(
+                creator=pymysql,
+                maxconnections=6,  # 连接池最大连接数
+                mincached=2,       # 初始化时创建的连接数
+                maxcached=5,       # 连接池最大空闲连接数
+                maxshared=3,       # 共享连接的最大数量
+                blocking=True,     # 连接池中如果没有可用连接后是否阻塞等待
+                maxusage=None,     # 一个连接最多被重复使用的次数
+                setsession=[],     # 开始会话前执行的命令列表
+                ping=0,           # ping MySQL服务端确保连接有效
+                host=Config.MYSQL_CONFIG['host'],
+                user=Config.MYSQL_CONFIG['user'],
+                password=Config.MYSQL_CONFIG['password'],
+                database=Config.MYSQL_CONFIG['database'],
+                charset=Config.MYSQL_CONFIG['charset']
+            )
+            logger.info("MySQL 连接池初始化成功")
+
+    def get_connection(self):
+        return self._pool.connection()
+
+    def close(self):
+        if self._pool:
+            self._pool.close()
+            logger.info("MySQL 连接池已关闭")
 
 class MySQLConnect:
     """MySQL 数据库连接类"""

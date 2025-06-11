@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS segment_info
 (
     cid             INT AUTO_INCREMENT PRIMARY KEY,                                  -- 分块记录的唯一ID
     seg_id          VARCHAR(64) NOT NULL,                                            -- 分块的唯一ID
-    seg_parent_id   VARCHAR(64),                                                     -- 分块的父表 segment_ID
+    seg_parent_id   VARCHAR(64),                                                     -- 分块的父表 seg_id
     seg_content     TEXT        NOT NULL,                                            -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
     seg_image_path  VARCHAR(1024),                                                   -- 分块对应的图片路径
     seg_caption     TEXT,                                                            -- 分块的标题，表格标题、图片标题
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS segment_info
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
     INDEX idx_doc_id (doc_id),                                                       -- 针对 doc_id 的索引
     FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE,             -- 外键约束
-    INDEX idx_segment_id (seg_id)                                                    -- 为 segment_id 增加索引以优化查询
+    INDEX idx_seg_id (seg_id)                                                    -- 为 seg_id 增加索引以优化查询
 );
 
 

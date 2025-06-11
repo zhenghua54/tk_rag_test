@@ -188,7 +188,7 @@ def main():
         search_params={
             "metric_type": Config.MILVUS_CONFIG["index_params"]["metric_type"],
             "params": Config.MILVUS_CONFIG["search_params"], },
-        # text_field="summary_text", # 不传, Document.page_content 为空, 使用segment_id 通过 mysql 提取原文内容.
+        # text_field="summary_text", # 不传, Document.page_content 为空, 使用seg_id 通过 mysql 提取原文内容.
     )
 
     # 初始化 BM25 检索器

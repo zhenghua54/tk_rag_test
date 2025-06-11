@@ -50,7 +50,7 @@ def init_rag_chain():
         search_params={
             "metric_type": Config.MILVUS_CONFIG["index_params"]["metric_type"],
             "params": Config.MILVUS_CONFIG["search_params"], },
-        # text_field="text_chunk", # 不传, Document.page_content 为空, 使用segment_id 通过 mysql 提取原文内容.
+        # text_field="text_chunk", # 不传, Document.page_content 为空, 使用seg_id 通过 mysql 提取原文内容.
     )
 
     # 初始化 BM25 规则检索器

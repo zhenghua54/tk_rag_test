@@ -154,10 +154,10 @@ class MilvusDB:
                 data=data
             )
             inserted_ids = result['ids']
-            logger.info(f"Milvus 数据插入成功, 共计 {len(data)} 条")
+            logger.info(f"Milvus 数据插入成功, 共 {len(data)} 条")
             return inserted_ids
         except Exception as e:
-            logger.info(f"插入数据时出错: {str(e)}")
+            logger.info(f"Milvus 数据插入出错: {str(e)}")
             raise
 
     def drop_collection(self, force: bool = False) -> None:
@@ -185,17 +185,6 @@ class MilvusDB:
         except Exception as e:
             logger.error(f"删除集合时出错: {str(e)}")
             raise
-
-    # def get_all_text_chunks(self) -> List[str]:
-    #     """从 Milvus 集合中获取所有 text_chunk 字段内容"""
-    #     # 查询所有记录的 text_chunk 字段
-    #     results = self.collection.query(
-    #         expr="",  # 无过滤条件,返回所有
-    #         output_fields=["text_chunk"],
-    #         limit=16384  # 设置一个足够大的限制
-    #     )
-    #     logger.info(f"从 Milvus 中获取到 {len(results)} 个 text_chunk 文本块")
-    #     return [r["text_chunk"] for r in results if "text_chunk" in r]
 
 
 def create_milvus_db() -> MilvusDB:

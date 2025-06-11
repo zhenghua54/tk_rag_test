@@ -17,6 +17,8 @@ class VectorOperation:
         try:
             # 初始化 Milvus 数据库连接
             self.milvus = MilvusDB()
+            # 初始化数据库和集合
+            self.milvus.init_database()
             logger.info("向量库操作类初始化完成")
             
         except Exception as e:
@@ -94,7 +96,6 @@ class VectorOperation:
             if not inserted_ids:
                 raise ValueError("插入数据失败：未返回插入ID")
             
-            logger.info(f"Milvus 数据插入成功, 共 {len(data)} 条")
             return inserted_ids
         except Exception as e:
             logger.error(f"插入数据失败: {str(e)}")
@@ -107,7 +108,7 @@ class VectorOperation:
             data (Dict[str, Any]): 要插入的数据
 
         Returns:
-            Optional[str]: 插入成功的 segment_id，失败返回 None
+            Optional[str]: 插入成功的 seg_id，失败返回 None
         """
         ArgsValidator.validate_type(data, dict, "data")
         result = self.insert_data([data])
@@ -134,7 +135,7 @@ class VectorOperation:
             logger.error(f"根据文档ID检索失败: {e}")
             return []
 
-    def search_by_segment_id(self, seg_id: str) -> Optional[Dict[str, Any]]:
+    def search_by_seg_id(self, seg_id: str) -> Optional[Dict[str, Any]]:
         """根据段落ID检索数据
 
         Args:
@@ -183,7 +184,7 @@ class VectorOperation:
             logger.error(f"更新数据失败: {e}")
             return False
 
-    def update_by_segment_id(self, seg_id: str, data: Dict[str, Any]) -> bool:
+    def update_by_seg_id(self, seg_id: str, data: Dict[str, Any]) -> bool:
         """根据段落ID更新数据
 
         Args:
@@ -232,7 +233,7 @@ class VectorOperation:
             logger.error(f"删除数据失败: {e}")
             return False
 
-    def delete_by_segment_id(self, seg_id: str) -> bool:
+    def delete_by_seg_id(self, seg_id: str) -> bool:
         """根据段落ID删除数据
 
         Args:
@@ -281,7 +282,7 @@ def test_milvus_operations():
     doc_results = vector_op.search_by_doc_id("test_doc_001")
     assert len(doc_results) > 0, "根据文档ID检索失败"
     
-    segment_result = vector_op.search_by_segment_id("test_seg_001")
+    segment_result = vector_op.search_by_seg_id("test_seg_001")
     assert segment_result is not None, "根据段落ID检索失败"
     
     # 测试更新
@@ -291,7 +292,7 @@ def test_milvus_operations():
         "metadata": {"key": "updated_value"}
     }
     assert vector_op.update_by_doc_id("test_doc_001", update_data), "更新文档数据失败"
-    assert vector_op.update_by_segment_id("test_seg_001", update_data), "更新段落数据失败"
+    assert vector_op.update_by_seg_id("test_seg_001", update_data), "更新段落数据失败"
     
     # 验证更新结果
     updated_doc = vector_op.search_by_doc_id("test_doc_001")[0]

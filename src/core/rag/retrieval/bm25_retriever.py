@@ -40,7 +40,7 @@ class BM25Retriever:
             for hit in es_results:
                 seg_id = hit["_source"]["seg_id"]
                 # 从MySQL获取原文
-                original_text = get_seg_content(segment_id=seg_id, chunk_op=chunk_op)
+                original_text = get_seg_content(seg_id=seg_id, chunk_op=chunk_op)
                 if not original_text:
                     logger.warning(f"无法获取seg_id {seg_id} 的原文内容")
                     continue

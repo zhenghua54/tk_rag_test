@@ -102,9 +102,9 @@ class ElasticsearchOperation:
                 
             # 执行批量插入
             self.client.bulk(body=actions)
-            logger.info(f"成功插入 {len(data)} 条数据到 ES")
+            logger.info(f"ES 数据插入成功, 共 {len(data)} 条")
         except Exception as e:
-            logger.error(f"ES 插入数据失败: {str(e)}")
+            logger.error(f"ES 数据插入失败: {str(e)}")
             raise
 
     def search(self, query: str, top_k: int = 5):
@@ -175,7 +175,7 @@ class ElasticsearchOperation:
             logger.error(f"删除文档 {doc_id} 失败: {str(e)}")
             return False
 
-    def delete_by_segment_id(self, seg_id: str) -> bool:
+    def delete_by_seg_id(self, seg_id: str) -> bool:
         """根据片段ID删除数据
         
         Args:
@@ -419,9 +419,9 @@ if __name__ == '__main__':
     # res = es_op.search(query="管理规定")
     # print(res)
 
-    # segment_id = "3b792c3cd80dd67d375c68c08f5e2ff3781c5948e7825ff7c6f8e2deaacedbab"
-    # 根据 segment_id 删除文档
-    # es_op.delete_by_segment_id(segment_id)
+    # seg_id = "3b792c3cd80dd67d375c68c08f5e2ff3781c5948e7825ff7c6f8e2deaacedbab"
+    # 根据 seg_id 删除文档
+    # es_op.delete_by_seg_id(seg_id)
     # 根据 doc_id 删除文档
     # doc_id = "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
     # es_op.delete_by_doc_id(doc_id)

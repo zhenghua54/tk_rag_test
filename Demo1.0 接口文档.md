@@ -112,14 +112,14 @@ application/json 作为请求与返回数据格式。
             {
                 "doc_id": "abcdef1234567890...",
                 "doc_name": "服务质量手册.pdf",
-                "segment_id": "seg_00042",
+                "seg_id": "seg_00042",
                 "page_idx":"1",
                 "confidence": 0.95
             },
             {
                 "doc_id": "abcdef1234567890...",
                 "doc_name": "服务质量手册.pdf",
-                "segment_id": "seg_00042",
+                "seg_id": "seg_00042",
                 "page_idx":"2",
                 "confidence": 0.95
             }

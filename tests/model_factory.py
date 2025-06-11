@@ -1,15 +1,11 @@
 import os
 from typing import Optional, Literal
-from dotenv import load_dotenv
 from openai import OpenAI
 
 class ModelFactory:
     """模型工厂类，用于创建和管理不同类型的NLP模型"""
     
     def __init__(self):
-        # 加载环境变量
-        load_dotenv(verbose=True)
-        
         # 支持的模型类型
         self.supported_models = {
             "hunyuan": {

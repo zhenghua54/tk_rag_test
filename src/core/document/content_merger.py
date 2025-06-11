@@ -153,7 +153,7 @@ def process_doc_by_page(json_doc_path: str):
                 with open(page_file, "w", encoding="utf-8") as pf:
                     json.dump(page_contents, pf, indent=2, ensure_ascii=False)
 
-        log_operation_success("内容汇总",
+        log_operation_success("内容合并",
                               start_time=time.time(),
                               info=f"标题更新情况: 图片 {img_total} 张, 无需更新: {img_cap}, 已更新: {img_cap_up}, 缺少标题: {img_cap_miss} | "
                                    f"表格 {table_total} 张, 已有标题: {table_cap}, 已更新: {table_cap_up}, 缺少标题: {table_cap_miss}")
@@ -174,18 +174,16 @@ def process_doc_by_page(json_doc_path: str):
                 # 读取每页的列表合并到 merged中
                 merged[str(page_idx)] = json.load(pf)
 
-        start_time = log_operation_start("保存缓存文件", start_time=time.time())
+        start_time = log_operation_start("处理缓存文件", start_time=time.time())
         # 保存合并后的文件
         save_path = Path(json_doc_path).parent / f"{Path(json_doc_path).stem}_merged.json"
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(merged, f, ensure_ascii=False, indent=2)
 
-        log_operation_success("保存缓存文件", start_time=start_time, save_path=save_path)
 
         try:
-            start_time = log_operation_start("清理缓存文件", temp_root=str(temp_root.resolve()))
             shutil.rmtree(temp_root)
-            log_operation_success("清理缓存文件", start_time=start_time)
+            log_operation_success("处理缓存文件", start_time=start_time)
         except Exception as e:
             log_operation_error("清理缓存文件",
                                 error_code=ErrorCode.FILE_SOFT_DELETE_ERROR.value,

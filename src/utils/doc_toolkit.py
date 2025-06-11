@@ -64,7 +64,7 @@ def compute_file_hash(doc_path: str, add_title: bool = True, algo: str = "sha256
 
     return hasher.hexdigest()
 
-def generate_segment_id(content: str) -> str:
+def generate_seg_id(content: str) -> str:
     """生成片段ID
 
     Args:
