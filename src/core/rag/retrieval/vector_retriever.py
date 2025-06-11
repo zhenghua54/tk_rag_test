@@ -7,11 +7,9 @@ from typing import List, Tuple
 from langchain_core.documents import Document
 from langchain_milvus import Milvus
 from src.utils.common.logger import logger
-from src.core.retrieval.text_retriever import get_segment_text
+from src.core.rag.retrieval.text_retriever import get_seg_content
 import numpy as np
 
-from config.settings import Config
-from src.core.embedding.embedder import init_langchain_embeddings
 
 class VectorRetriever:
     """向量检索器类"""
@@ -48,30 +46,31 @@ class VectorRetriever:
 
             # 处理检索结果
             for doc, score in raw_results:
-                # 获取segment_id
-                segment_id = doc.metadata.get("segment_id")
-                if not segment_id:
-                    logger.warning(f"向量检索结果缺少segment_id: {doc.metadata}")
+                # 获取seg_id
+                seg_id = doc.metadata.get("seg_id")
+                if not seg_id:
+                    logger.warning(f"向量检索结果缺少seg_id: {doc.metadata}")
                     continue
 
                 # 从MySQL获取原文
-                original_text = get_segment_text(segment_id=segment_id, chunk_op=chunk_op)
+                original_text = get_seg_content(segment_id=seg_id, chunk_op=chunk_op)
                 if not original_text:
-                    logger.warning(f"无法获取segment_id {segment_id} 的原文内容")
+                    logger.warning(f"无法获取seg_id {seg_id} 的原文内容")
                     continue
 
                 # 构建新的Document对象
                 new_doc = Document(
                     page_content=original_text,
                     metadata={
-                        "segment_id": segment_id,
+                        "seg_id": seg_id,
+                        "seg_parent_id": doc.metadata.get("seg_parent_id"),
                         "doc_id": doc.metadata.get("doc_id", ""),
-                        "type": doc.metadata.get("type", "content"),
+                        "seg_type": doc.metadata.get("seg_type", "text"),
                         "score": score
                     }
                 )
                 vector_results.append((new_doc, score))
-                logger.debug(f"向量检索结果 - segment_id: {segment_id}, score: {score:.4f}")
+                logger.debug(f"向量检索结果 - seg_id: {seg_id}, score: {score:.4f}")
 
             logger.debug(f"向量检索完成,获取到 {len(vector_results)} 条有效结果")
             return vector_results

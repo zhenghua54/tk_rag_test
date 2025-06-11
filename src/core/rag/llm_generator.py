@@ -1,4 +1,4 @@
-"""使用 langchain+LLM 完成 RAG 生成内容"""
+"""使用 langchain+LLM 完成 rag 生成内容"""
 
 import os
 from typing import List
@@ -69,7 +69,7 @@ def create_llm_chain():
     """初始化 LLM、记忆和提示模板"""
 
     # 创建问题重写模板
-    logger.info("初始化 RAG prompt 模板...")
+    logger.info("初始化 rag prompt 模板...")
 
     # 使用langchain集成智谱 AI,可更换为其他模型
     logger.info("初始化 LLM 模型...")

@@ -4,7 +4,7 @@ from src.utils.common.logger import logger
 from src.database.mysql.operations import ChunkOperation
 
 
-def get_segment_text(segment_id: str, chunk_op: Optional[ChunkOperation] = None) -> str:
+def get_seg_content(segment_id: str, chunk_op: Optional[ChunkOperation] = None) -> str:
     """从 MySQL 获取 segment 原文内容
     
     Args:
@@ -17,17 +17,15 @@ def get_segment_text(segment_id: str, chunk_op: Optional[ChunkOperation] = None)
     try:
         if chunk_op is not None:
             chunk_info = chunk_op.select_record(
-                fields=["segment_text"],
-                conditions={"segment_id": segment_id}
+                conditions={"seg_id": segment_id}
             )
-            return chunk_info[0]["segment_text"] if chunk_info else ""
+            return chunk_info[0]["seg_content"] if chunk_info else ""
         else:
             with ChunkOperation() as temp_op:
                 chunk_info = temp_op.select_record(
-                    fields=["segment_text"],
-                    conditions={"segment_id": segment_id}
+                    conditions={"seg_id": segment_id}
                 )
-                return chunk_info[0]["segment_text"] if chunk_info else ""
+                return chunk_info[0]["seg_content"] if chunk_info else ""
     except Exception as error:
         logger.error(f"获取 segment 原文失败: {str(error)}")
         return "" 

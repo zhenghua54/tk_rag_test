@@ -2,8 +2,8 @@
 from typing import List, Tuple
 from langchain_core.documents import Document
 from src.utils.common.logger import logger
+from src.core.rag.retrieval.text_retriever import get_seg_content
 from src.database.elasticsearch.operations import ElasticsearchOperation
-from src.core.retrieval.text_retriever import get_segment_text
 
 
 class BM25Retriever:
@@ -13,7 +13,7 @@ class BM25Retriever:
         """初始化BM25检索器
         
         Args:
-            es_retriever: ES检索器实例
+            es_retriever: ES检索实例
         """
         self._es_retriever = es_retriever
 
@@ -23,7 +23,7 @@ class BM25Retriever:
         Args:
             query: 查询文本
             k: 检索数量
-            chunk_op: ChunkOperation实例
+            chunk_op: Mysql 的 ChunkOperation实例
             
         Returns:
             List[Tuple[Document, float]]: 检索结果列表
@@ -38,24 +38,25 @@ class BM25Retriever:
 
             # 处理检索结果
             for hit in es_results:
-                segment_id = hit["_source"]["segment_id"]
+                seg_id = hit["_source"]["seg_id"]
                 # 从MySQL获取原文
-                original_text = get_segment_text(segment_id=segment_id, chunk_op=chunk_op)
+                original_text = get_seg_content(segment_id=seg_id, chunk_op=chunk_op)
                 if not original_text:
-                    logger.warning(f"无法获取segment_id {segment_id} 的原文内容")
+                    logger.warning(f"无法获取seg_id {seg_id} 的原文内容")
                     continue
 
                 doc = Document(
                     page_content=original_text,
                     metadata={
-                        "segment_id": segment_id,
+                        "seg_id": seg_id,
+                        "seg_parent_id": hit["_source"].get("seg_parent_id"),
                         "doc_id": hit["_source"].get("doc_id", ""),
-                        "type": hit["_source"].get("type", "content"),
+                        "seg_type": hit["_source"].get("seg_type", "text"),
                         "score": hit["_score"]
                     }
                 )
                 bm25_results.append((doc, hit["_score"]))
-                logger.debug(f"BM25检索结果 - segment_id: {segment_id}, score: {hit['_score']:.4f}")
+                logger.debug(f"BM25检索结果 - seg_id: {seg_id}, score: {hit['_score']:.4f}")
                 
             logger.info(f"BM25检索完成,获取到 {len(bm25_results)} 条有效结果")
             return bm25_results

@@ -7,24 +7,24 @@ USE {{DB_NAME}};
 -- 创建文件信息表
 CREATE TABLE IF NOT EXISTS doc_info
 (
-    fid              INT AUTO_INCREMENT PRIMARY KEY,                                  -- 文件记录唯一ID
-    doc_id           VARCHAR(64)   NOT NULL,                                          -- 文档ID，确保每个文件唯一
-    doc_name         VARCHAR(512)  NOT NULL,                                          -- 文档名称
-    doc_ext          VARCHAR(100),                                                    -- 文档类型
-    doc_path         VARCHAR(1024) NOT NULL,                                          -- 文档路径
-    doc_size         VARCHAR(100),                                                    -- 文档大小
-    doc_http_url     VARCHAR(1024),                                                   -- 文档的源 HTTP 地址
-    doc_pdf_path     VARCHAR(1024),                                                   -- PDF路径
-    doc_json_path    VARCHAR(1024),                                                   -- JSON路径
-    doc_images_path  VARCHAR(1024),                                                   -- 图片路径
-    doc_process_path VARCHAR(1024),                                                   -- 合并后的文档路径
-    process_status   VARCHAR(20),                                                     -- 文档处理状态：见配置文件中的 FILE_STATUS 定义
-    error_message    VARCHAR(255) DEFAULT NULL,                                       -- 处理错误信息
-    is_soft_deleted  BOOL      DEFAULT FALSE,                                         -- 是否软删除，默认为 false
-    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- 创建时间， 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
-    UNIQUE (doc_id),                                                                  -- 唯一的文档ID
-    INDEX idx_doc_id (doc_id)                                                         -- 为doc_id增加索引以优化查询
+    fid              INT AUTO_INCREMENT PRIMARY KEY,                                     -- 文件记录唯一ID
+    doc_id           VARCHAR(64)   NOT NULL,                                             -- 文档ID，确保每个文件唯一
+    doc_name         VARCHAR(512)  NOT NULL,                                             -- 文档名称
+    doc_ext          VARCHAR(100),                                                       -- 文档类型
+    doc_path         VARCHAR(1024) NOT NULL,                                             -- 文档路径
+    doc_size         VARCHAR(100),                                                       -- 文档大小
+    doc_http_url     VARCHAR(1024),                                                      -- 文档的源 HTTP 地址
+    doc_pdf_path     VARCHAR(1024),                                                      -- PDF路径
+    doc_json_path    VARCHAR(1024),                                                      -- JSON路径
+    doc_images_path  VARCHAR(1024),                                                      -- 图片路径
+    doc_process_path VARCHAR(1024),                                                      -- 合并后的文档路径
+    process_status   VARCHAR(20),                                                        -- 文档处理状态：见配置文件中的 FILE_STATUS 定义
+    error_message    VARCHAR(255) DEFAULT NULL,                                          -- 处理错误信息
+    is_soft_deleted  BOOL         DEFAULT FALSE,                                         -- 是否软删除，默认为 false
+    created_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,                             -- 创建时间， 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    updated_at       TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
+    UNIQUE (doc_id),                                                                     -- 唯一的文档ID
+    INDEX idx_doc_id (doc_id)                                                            -- 为doc_id增加索引以优化查询
 );
 
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS segment_info
     seg_type        VARCHAR(100),                                                    -- 分块源元素类型
     seg_page_idx    VARCHAR(100),                                                    -- 分块所在页码
     doc_id          VARCHAR(64) NOT NULL,                                            -- 与文件关联的文档ID
-    is_soft_deleted BOOL      DEFAULT FALSE,                                         -- 是否软删除，默认为 false
+    is_soft_deleted BOOL      DEFAULT NULL,                                          -- 是否软删除，默认为空
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- 创建时间， 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
     INDEX idx_doc_id (doc_id),                                                       -- 针对 doc_id 的索引

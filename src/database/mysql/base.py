@@ -161,16 +161,47 @@ class BaseDBOperation:
             data_list (List[Dict[str, Any]]): 要插入的数据列表，每个元素是一个字典
 
         Returns:
-            影响的行数
+            int: 影响的行数
         """
         if not data_list:
             return 0
-        keys = data_list[0].keys()
-        columns = ', '.join(keys)
-        placeholders = ', '.join(['%s'] * len(keys))
-        sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
-        values = [tuple(d[k] for k in keys) for d in data_list]
-        return self.mysql.executemany(sql, values)
+            
+        try:
+            # 确保所有记录有相同的字段
+            keys = list(data_list[0].keys())
+            
+            # 使用反引号包裹字段名以避免关键字冲突
+            columns = ', '.join(f'`{k}`' for k in keys)
+            placeholders = ', '.join(['%s'] * len(keys))
+            
+            # 确保SQL语句格式正确
+            sql = f'INSERT INTO `{self.table_name}` ({columns}) VALUES ({placeholders})'
+            
+            # 使用循环逐条插入而不是使用executemany
+            affected_rows = 0
+            for data in data_list:
+                # 确保按照相同的顺序提取值
+                values = []
+                for k in keys:
+                    val = data.get(k, "")
+                    # 确保None值被转换为空字符串
+                    if val is None:
+                        val = ""
+                    values.append(val)
+                
+                # 执行插入
+                try:
+                    affected_rows += self.mysql.execute(sql, tuple(values))
+                except Exception as e:
+                    # 输出详细错误信息以便调试
+                    logger.error(f"执行SQL失败: {sql}")
+                    logger.error(f"参数值: {values}")
+                    raise
+            
+            return affected_rows
+        except Exception as e:
+            logger.error(f"MySQL 批量数据插入失败，表 {self.table_name}: {e}")
+            raise e
 
     def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool | None:
         """根据 doc_id 更新记录

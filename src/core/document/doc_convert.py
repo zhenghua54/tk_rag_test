@@ -14,6 +14,12 @@ from config.settings import Config
 from src.utils.doc_toolkit import get_doc_output_path
 from src.utils.validator.file_validator import FileValidator
 
+# 添加新的导入
+import docx
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
 
 def check_system_requirements() -> Tuple[bool, str]:
     """
@@ -74,6 +80,51 @@ def check_system_requirements() -> Tuple[bool, str]:
 
     except Exception as e:
         return False, f"检查系统环境时发生错误: {str(e)}"
+
+
+def docx_to_pdf_python(docx_path: str, output_path: str) -> str:
+    """
+    使用Python库将DOCX转换为PDF
+    
+    Args:
+        docx_path (str): DOCX文件路径
+        output_path (str): PDF输出目录
+        
+    Returns:
+        str: 生成的PDF文件路径
+    """
+    try:
+        logger.debug(f"尝试使用Python库将DOCX转换为PDF: {docx_path}")
+        # 确保输出目录存在
+        os.makedirs(output_path, exist_ok=True)
+        
+        # 构建输出文件路径
+        docx_filename = Path(docx_path).stem
+        pdf_path = os.path.join(output_path, f"{docx_filename}.pdf")
+        
+        # 读取DOCX文件
+        doc = docx.Document(docx_path)
+        
+        # 创建PDF文档
+        pdf = SimpleDocTemplate(pdf_path, pagesize=letter)
+        styles = getSampleStyleSheet()
+        flowables = []
+        
+        # 处理文档内容
+        for para in doc.paragraphs:
+            if para.text:
+                p = Paragraph(para.text, styles['Normal'])
+                flowables.append(p)
+                flowables.append(Spacer(1, 12))
+        
+        # 构建PDF
+        pdf.build(flowables)
+        
+        logger.debug(f"使用Python库成功将DOCX转换为PDF: {pdf_path}")
+        return pdf_path
+    except Exception as e:
+        logger.error(f"使用Python库转换DOCX到PDF失败: {str(e)}")
+        raise APIException(ErrorCode.CONVERT_FAILED, str(e))
 
 
 def libreoffice_convert_toolkit(office_doc_path: str, output_dir: Optional[str] = None) -> Optional[str]:
@@ -182,8 +233,28 @@ def convert_office_file(office_doc_path: str) -> Optional[str]:
                                                 output_path["doc_name"]
                                                 )
     logger.debug(f"开始转换为 PDF 文件: {office_doc_path}, 输出路径: {output_path}")
-    pdf_path = libreoffice_convert_toolkit(office_doc_path, output_path)
-    if pdf_path:  # 检查转换是否成功
-        logger.debug(f"文件转换成功: {pdf_path}")
-        return pdf_path
+    
+    # 首先尝试使用LibreOffice转换
+    try:
+        pdf_path = libreoffice_convert_toolkit(office_doc_path, output_path)
+        if pdf_path:  # 检查转换是否成功
+            logger.debug(f"文件转换成功: {pdf_path}")
+            return pdf_path
+    except APIException as e:
+        # 如果是DOCX文件，尝试使用Python库进行转换
+        if Path(office_doc_path).suffix.lower() == '.docx':
+            logger.info(f"LibreOffice转换失败，尝试使用Python库转换DOCX文件: {office_doc_path}")
+            try:
+                pdf_path = docx_to_pdf_python(office_doc_path, output_path)
+                if pdf_path and os.path.exists(pdf_path):
+                    logger.debug(f"使用Python库转换成功: {pdf_path}")
+                    return pdf_path
+            except Exception as python_e:
+                logger.error(f"Python库转换也失败: {str(python_e)}")
+                # 继续向上抛出原始异常
+                raise e
+        else:
+            # 非DOCX文件，直接抛出异常
+            raise
+    
     return None

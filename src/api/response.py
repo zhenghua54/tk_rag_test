@@ -2,7 +2,7 @@
 
 包含API响应、错误码等基础组件
 """
-from typing import Any, Optional, Dict
+from typing import Any, Optional
 
 from pydantic import BaseModel
 from src.api.error_codes import ErrorCode

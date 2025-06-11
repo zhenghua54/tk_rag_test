@@ -3,9 +3,9 @@ from typing import List, Tuple, Set
 from langchain_core.documents import Document
 from langchain.schema import BaseRetriever
 from src.utils.common.logger import logger
-from src.core.retrieval.vector_retriever import VectorRetriever
-from src.core.retrieval.bm25_retriever import BM25Retriever
-from src.core.rerank.reranker import rerank_results
+from src.core.rag.retrieval.vector_retriever import VectorRetriever
+from src.core.rag.retrieval.bm25_retriever import BM25Retriever
+from src.core.rag.reranker import rerank_results
 
 
 def merge_search_results(

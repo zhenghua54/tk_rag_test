@@ -13,18 +13,24 @@
   },
   "mappings": {
     "properties": {
-      "segment_id": {
+      "seg_id": {
+        "type": "keyword"
+      },
+      "seg_parent_id": {
         "type": "keyword"
       },
       "doc_id": {
         "type": "keyword"
       },
-      "segment_text": {
+      "seg_content": {
         "type": "text",
         "analyzer": "ik_smart_analyzer",
         "search_analyzer": "ik_smart_analyzer"
       },
-      "type": {
+      "seg_type": {
+        "type": "keyword"
+      },
+      "seg_page_idx": {
         "type": "keyword"
       },
       "update_time": {

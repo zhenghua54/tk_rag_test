@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from .chat import router as chat_router
+from .chat_api import router as chat_router
 from .document_api import router as document_router
 
 def create_app() -> FastAPI:
     """创建FastAPI应用"""
     app = FastAPI(
-        title="RAG Demo API",
+        title="rag Demo API",
         description="RAG聊天演示系统API",
         version="1.0.0"
     )

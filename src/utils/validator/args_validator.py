@@ -2,6 +2,7 @@
 import json
 import os.path
 from typing import Any, List, Union
+import re
 
 
 class ArgsValidator:
@@ -66,19 +67,23 @@ class ArgsValidator:
             raise ValueError("doc_id 必须是64位哈希值字符串")
 
     @staticmethod
-    def validate_segment_id(segment_id: str) -> None:
-        """验证分段ID格式
+    def validate_seg_id(segment_id: str):
+        """验证段落ID格式
         
         Args:
-            segment_id: 分段ID
+            segment_id: 要验证的段落ID
             
         Raises:
-            ValueError: 当分段ID格式不正确时抛出
+            ValueError: 当段落ID格式不正确时
         """
-        ArgsValidator.validate_not_empty(segment_id, "segment_id")
-        ArgsValidator.validate_type(segment_id, str, "segment_id")
-        if len(segment_id) != 64:
-            raise ValueError("segment_id 必须是64位哈希值字符串")
+        if not isinstance(segment_id, str):
+            raise ValueError(f"段落ID必须是字符串，而不是 {type(segment_id)}")
+        
+        if not segment_id:
+            raise ValueError("段落ID不能为空")
+        
+        if not re.match(r'^[a-zA-Z0-9_-]+$', segment_id) and not re.match(r'^[a-f0-9]{64}$', segment_id):
+            raise ValueError(f"段落ID格式不正确: {segment_id}")
 
     @staticmethod
     def validate_department_id(department_id: str) -> None:

@@ -6,6 +6,9 @@ import httpx
 import asyncio  # 异步操作
 from concurrent.futures import ThreadPoolExecutor  # 线程池管理
 import pymysql
+import os
+import json
+import time
 
 from src.services.base import BaseService
 from src.utils.common.logger import (
@@ -22,6 +25,7 @@ from src.utils.validator.content_validator import ContentValidator
 from src.database.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation
 from src.utils.doc_toolkit import delete_path_safely
 from src.core.document.content_merger import process_doc_content
+from src.core.document.content_chunker import segment_text_content
 from src.utils.validator.args_validator import ArgsValidator
 
 # 创建线程池执行器
@@ -76,11 +80,13 @@ class DocumentService(BaseService):
             doc_info = check_result.get("doc_info")
 
             if process_status in Config.FILE_STATUS.get("error"):
+                start_time = log_operation_start("删除记录", doc_id=doc_id)
                 # 删除所有相关记录
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op, ChunkOperation() as chunk_op:
                     file_op.delete_by_doc_id(doc_id)
                     permission_op.delete_by_doc_id(doc_id)
                     chunk_op.delete_by_doc_id(doc_id)
+                log_operation_success("删除记录", start_time=start_time, doc_info=doc_info)
             elif process_status in Config.FILE_STATUS.get("normal"):
                 raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
 
@@ -98,10 +104,10 @@ class DocumentService(BaseService):
                 "doc_name": doc_name,
                 "doc_ext": doc_ext,
                 "doc_size": doc_size,
-                "doc_http_url": document_http_url if path_type=="http_path" else "",
+                "doc_http_url": document_http_url if path_type == "http_path" else "",
                 "doc_path": abs_path,
                 "doc_pdf_path": doc_pdf_path,
-                "process_status": "pending",
+                "process_status": "uploaded",
                 "created_at": now,
                 "updated_at": now,
             }
@@ -118,7 +124,8 @@ class DocumentService(BaseService):
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
                     file_op.insert_datas(doc_info)
-                    log_business_info("文档入库", doc_id=doc_id, file_info=doc_info)
+                    log_business_info("文档入库", doc_id=doc_id)
+                    # log_business_info("文档入库", doc_id=doc_id, file_info=doc_info)
                     # 插入权限信息到数据库
                     permission_op.insert_datas(permission_info)
                     log_business_info("权限入库", doc_id=doc_id, department_id=department_id)
@@ -136,7 +143,7 @@ class DocumentService(BaseService):
             result = {
                 "doc_id": doc_id,
                 "doc_name": f"{doc_name}{doc_ext}",
-                "status": "pending",
+                "status": "uploaded",
                 "department_id": department_id,
             }
 
@@ -145,6 +152,13 @@ class DocumentService(BaseService):
                 process_doc_content,
                 abs_path,
                 doc_id
+            ))
+            
+            # 启动后台监听文档转换状态，完成后开始文档切块
+            asyncio.create_task(DocumentService._monitor_doc_process_and_segment(
+                doc_id=doc_id,
+                document_name=doc_name,
+                department_id=department_id
             ))
 
             # 回调接口
@@ -302,24 +316,117 @@ class DocumentService(BaseService):
             log_exception("文档删除异常", e)
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
-
-# Mock 实现（用于测试环境）
-class MockDocumentService(DocumentService):
     @staticmethod
-    async def upload_file(document_http_url: str, department_id: str, callback_url: str = None) -> dict:
-        return {
-            "doc_id": "假数据： doc_id",
-            "doc_name": "假数据： mock_document.pdf",
-            "status": "completed",
-            "department_id": department_id,
-            "callback_url": callback_url
-        }
+    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, department_id: str):
+        """监控文档处理状态，完成后启动文档切块
 
-    @staticmethod
-    async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> Dict[str, Any]:
-        return {
-            "doc_id": doc_id,
-            "status": "deleted",
-            "delete_type": "soft" if is_soft_delete else "hard",
-            "callback_url": callback_url
-        }
+        Args:
+            doc_id (str): 文档ID
+            document_name (str): 文档名称
+            department_id (str): 部门ID
+        """
+        try:
+            max_attempts = 60  # 最大尝试次数，相当于30分钟
+            attempt_interval = 30  # 检查间隔（秒）
+            
+            log_operation_start("文档处理状态监控", 
+                               doc_id=doc_id, 
+                               document_name=document_name)
+            
+            for attempt in range(max_attempts):
+                # 等待一段时间
+                await asyncio.sleep(attempt_interval)
+                
+                # 检查文档处理状态
+                with FileInfoOperation() as file_op:
+                    file_info = file_op.get_file_by_doc_id(doc_id)
+                    
+                    # 如果文档不存在或处理失败，停止监控
+                    if not file_info:
+                        log_operation_error("文档处理状态监控", 
+                                           error_msg="文档不存在", 
+                                           doc_id=doc_id)
+                        return
+                    
+                    process_status = file_info.get("process_status")
+                    
+                    # 如果处理失败，停止监控
+                    if process_status in Config.FILE_STATUS.get("error"):
+                        log_operation_error("文档处理状态监控", 
+                                           error_msg=f"文档处理失败: {process_status}", 
+                                           doc_id=doc_id)
+                        return
+                    
+                    # 如果处理已完成（merged状态），启动文档切块
+                    if process_status == "merged":
+                        log_operation_success("文档处理完成", 
+                                             start_time=time.time(), 
+                                             doc_id=doc_id, 
+                                             process_status=process_status)
+                        
+                        # 开始文档切块处理
+                        start_time = log_operation_start("文档切块", 
+                                                       doc_id=doc_id, 
+                                                       document_name=document_name)
+                        try:
+                            # 读取合并后的文档内容
+                            doc_process_path = file_info.get("doc_process_path")
+                            if not doc_process_path or not os.path.exists(doc_process_path):
+                                raise ValueError(f"处理后的文档路径不存在: {doc_process_path}")
+
+                            # 设置权限信息
+                            permission_ids = {
+                                "departments": [department_id],
+                                "roles": [],
+                                "users": []
+                            }
+                            
+                            # 执行文档切块
+                            await asyncio.to_thread(
+                                segment_text_content,
+                                doc_id,
+                                document_name,
+                                doc_process_path,
+                                permission_ids
+                            )
+                            
+                            # 更新数据库状态为已切块
+                            with FileInfoOperation() as file_op:
+                                values = {
+                                    "process_status": "chunked"
+                                }
+                                file_op.update_by_doc_id(doc_id, values)
+                            
+                            log_operation_success("文档切块", 
+                                                start_time=start_time, 
+                                                doc_id=doc_id)
+                            return
+                            
+                        except Exception as e:
+                            # 更新数据库状态为切块失败
+                            with FileInfoOperation() as file_op:
+                                values = {
+                                    "process_status": "chunk_failed"
+                                }
+                                file_op.update_by_doc_id(doc_id, values)
+                                
+                            log_operation_error("文档切块", 
+                                              error_code=ErrorCode.INTERNAL_ERROR.value,
+                                              error_msg=str(e),
+                                              doc_id=doc_id)
+                            log_exception("文档切块异常", e)
+                            return
+            
+            # 如果超过最大尝试次数仍未完成，记录超时
+            log_operation_error("文档处理状态监控", 
+                               error_msg="监控超时，文档处理未完成", 
+                               doc_id=doc_id,
+                               max_attempts=max_attempts,
+                               total_time=f"{max_attempts * attempt_interval} 秒")
+            
+        except Exception as e:
+            log_operation_error("文档处理状态监控", 
+                               error_code=ErrorCode.INTERNAL_ERROR.value,
+                               error_msg=str(e),
+                               doc_id=doc_id)
+            log_exception("文档处理状态监控异常", e)

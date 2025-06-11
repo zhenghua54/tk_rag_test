@@ -9,10 +9,16 @@
       "description": "主向量字段，使用 BGE-M3 生成"
     },
     {
-      "name": "segment_id",
+      "name": "seg_id",
       "type": "VARCHAR",
       "max_length": 64,
       "description": "段落ID（使用哈希值）"
+    },
+    {
+      "name": "seg_parent_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "父段落ID，用于子表引用主表"
     },
     {
       "name": "doc_id",
@@ -22,13 +28,13 @@
       "description": "唯一文档ID（哈希值）"
     },
     {
-      "name": "segment_content",
+      "name": "seg_content",
       "type": "VARCHAR",
       "max_length": 1024,
       "description": "摘要内容，用于后验展示"
     },
     {
-      "name": "type",
+      "name": "seg_type",
       "type": "VARCHAR",
       "max_length": 32,
       "description": "片段类型，如 text / table / image"

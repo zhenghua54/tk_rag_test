@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
 
+from src.api import chat_api
 from src.api.response import ResponseBuilder, ErrorCode
 from config.settings import Config
 from src.api.base import router as base_router
@@ -53,6 +54,7 @@ app.add_middleware(RequestMiddleware)
 # 注册路由
 app.include_router(base_router)
 app.include_router(document_api.router)
+app.include_router(chat_api.router)
 
 # for route in app.routes:
 #     print(f"路由: {route.path}  方法: {route.methods}")

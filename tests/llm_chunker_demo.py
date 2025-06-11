@@ -59,7 +59,7 @@ def segment_text(md_text: str):
     print_memory_usage()
 
     # 定义 Prompt，用于指导 LLM 进行智能分块
-    # PROMPT_TEMPLATE = """你是一位专业的文本分析师，擅长对长文档进行智能语义分块，尤其针对 RAG（Retrieval-Augmented Generation）任务。你的目标是根据内容逻辑合理拆分文档，确保每个段落独立清晰，便于检索和理解。
+    # PROMPT_TEMPLATE = """你是一位专业的文本分析师，擅长对长文档进行智能语义分块，尤其针对 rag（Retrieval-Augmented Generation）任务。你的目标是根据内容逻辑合理拆分文档，确保每个段落独立清晰，便于检索和理解。
     #
     # 请遵循以下严格要求：
     #
@@ -76,7 +76,7 @@ def segment_text(md_text: str):
     # """
 
     instruction = """[INSTRUCTION]
-    你是一位专业的文本分析师，擅长对长文档进行智能语义分块，尤其针对 RAG 任务。你的目标是根据内容逻辑合理拆分文档，确保每个段落独立清晰，便于检索和理解。
+    你是一位专业的文本分析师，擅长对长文档进行智能语义分块，尤其针对 rag 任务。你的目标是根据内容逻辑合理拆分文档，确保每个段落独立清晰，便于检索和理解。
     请遵循：
     1. 保持语义完整
     2. 段落合理

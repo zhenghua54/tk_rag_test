@@ -52,7 +52,7 @@ def get_hybrid_search_results(query: str, vectorstore: Milvus, bm25_retriever: B
     vector_results = vectorstore.similarity_search_with_score(
         query=query, 
         k=k, 
-        filter={"principal_ids": ["1"]
+        filter={"permission_ids": ["1"]
         }
     )
     # 1.1 获取检索到的文档的相似度分数

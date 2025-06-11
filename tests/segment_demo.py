@@ -10,7 +10,7 @@ from src.utils.common.logger import logger
 from src.utils.validator.args_validator import ArgsValidator
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
-from src.core.embedding.embedder import embed_text
+from src.core.rag.embedder import embed_text
 
 
 def generate_segment_id(content: str) -> str:
@@ -31,14 +31,14 @@ def generate_segment_id(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, principal_ids: List[str]):
+def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, permission_ids: List[str]):
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
         document_name (str): 文档名称
         page_content_dict (dict[idx:[content]]): 文本内容列表，每条记录为单页内容字典
-        principal_ids (List[str]): 权限ID列表
+        permission_ids (List[str]): 权限ID列表
 
     Returns:
         List[Dict]: 分块结果列表
@@ -49,7 +49,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
     ArgsValidator.validate_not_empty(document_name, "document_name")
     ArgsValidator.validate_doc_id(doc_id)
     ArgsValidator.validate_type(page_content_dict, dict, "page_content_dict")
-    ArgsValidator.validate_list_not_empty(principal_ids, "principal_ids")
+    ArgsValidator.validate_list_not_empty(permission_ids, "permission_ids")
 
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
@@ -100,7 +100,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "summary_text": chunk,
                         "type": "content",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "permission_ids": permission_ids,
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {}
@@ -135,7 +135,8 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     table_table_vector = embed_text(content['table_summary'])
                     parent_segment_id = generate_segment_id(content["table_body"])
                     logger.debug(f"生成母表向量，parent_segment_id: {parent_segment_id}")
-                    
+
+                    # 封装 milvus 元数据
                     parent_milvus_res = {
                         "vector": table_table_vector,
                         "segment_id": parent_segment_id,
@@ -144,7 +145,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "summary_text": content['table_summary'],
                         "type": "parent_table",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "permission_ids": permission_ids,
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {
@@ -156,7 +157,19 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         }
                     }
                     milvus_res_list.append(parent_milvus_res)
-                    table_mysql_res = {
+
+                    # 封装 mysql 元数据
+                    parent_mysql_res = {
+                        "seg_id": parent_segment_id,
+                        "seg_content": table_html,
+                        "seg_image_path"
+                        "seg_caption"
+                        "seg_footnote"
+                        "seg_len"
+                        "seg_type"
+                        "seg_page_idx"
+                        "doc_id"
+                        "is_soft_deleted"
                         "segment_text": str(table_html),
                         "doc_id": doc_id,
                         "segment_id": parent_segment_id,
@@ -182,7 +195,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                             "summary_text": "",
                             "type": "sub_table",
                             "page_idx": int(page_idx),
-                            "principal_ids": principal_ids,
+                            "permission_ids": permission_ids,
                             "create_time": "",  # 插入数据时更新
                             "update_time": "",  # 插入数据时更新
                             "metadata": {
@@ -214,7 +227,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "summary_text": content['table_summary'],
                         "type": "table",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "permission_ids": permission_ids,
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {
@@ -257,7 +270,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                         "summary_text": chunk,
                         "type": "content",
                         "page_idx": int(page_idx),
-                        "principal_ids": principal_ids,
+                        "permission_ids": permission_ids,
                         "create_time": "",  # 插入数据时更新
                         "update_time": "",  # 插入数据时更新
                         "metadata": {}
@@ -294,7 +307,7 @@ def segment_text_content(doc_id: str, document_name: str, page_content_dict: dic
                     "summary_text": None,
                     "type": "image",
                     "page_idx": int(page_idx),
-                    "principal_ids": principal_ids,
+                    "permission_ids": permission_ids,
                     "create_time": "",  # 插入数据时更新
                     "update_time": "",  # 插入数据时更新
                     "metadata": {

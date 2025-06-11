@@ -77,7 +77,7 @@ def rerank_results(query: str, merged_results: List[Tuple[Document, float]], top
 
 if __name__ == '__main__':
     import sys
-    sys.path.append("/home/wumingxing/tk_rag")
+    sys.path.append("/")
 
     # 测试重排序功能
     test_query = "测试查询"

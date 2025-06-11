@@ -2,7 +2,6 @@
 """
 from typing import Dict, Any, Optional
 from src.services.base import BaseService
-from src.services.mock import MockData
 
 class ChatService(BaseService):
     """聊天服务类
@@ -26,17 +25,3 @@ class ChatService(BaseService):
         """
         # TODO: 实现真实的聊天逻辑
         raise NotImplementedError("真实聊天服务尚未实现")
-
-class MockChatService(ChatService):
-    """Mock聊天服务类"""
-    
-    async def chat(self, query: str, department_id: str,
-                  session_id: Optional[str] = None,
-                  timeout: int = 30) -> Dict[str, Any]:
-        """生成 mock 聊天响应"""
-        return MockData.chat_response(
-            query=query,
-            department_id=department_id,
-            session_id=session_id,
-            timeout=timeout
-        ) 

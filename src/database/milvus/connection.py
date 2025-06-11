@@ -57,7 +57,7 @@ class MilvusDB:
 
     def _load_schema(self) -> Dict:
         """加载 Milvus schema 配置"""
-        schema_path = Config.MILVUS_CONFIG["schema_path"]
+        schema_path = Config.PATHS.get("milvus_schema_path")
         with open(schema_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 

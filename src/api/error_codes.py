@@ -57,6 +57,7 @@ class ErrorCode(Enum):
     KB_MATCH_FAILED = 5002
     CONTEXT_TOO_LONG = 5003
     MODEL_TIMEOUT = 5004
+    CHAT_EXCEPTION = 5005
 
     # 服务相关错误
     CONVERT_FAILED = 6000
@@ -131,14 +132,15 @@ ERROR_MESSAGES = {
     ErrorCode.KB_MATCH_FAILED: "未检索到数据, 请尝试调整问题描述或确认是否启用了权限管理",
     ErrorCode.CONTEXT_TOO_LONG: "上下文长度超限, 建议开启新的会话",
     ErrorCode.MODEL_TIMEOUT: "模型响应超时, 请稍后重试或降低问题复杂度",
+    ErrorCode.CHAT_EXCEPTION:"聊天异常",
 
     ErrorCode.CONVERT_FAILED: "转换PDF失败",
 }
 
 if __name__ == '__main__':
     # 示例：在 API 响应中返回错误码和错误消息
-    def handle_error(error_code, extra_info=None):
-        error_message = ErrorCode.get_message(error_code, extra_info)
+    def handle_error(error_code):
+        error_message = ErrorCode.get_message(error_code)
         return {
             "error_code": error_code,
             "error_message": error_message
@@ -149,7 +151,7 @@ if __name__ == '__main__':
     response = handle_error(ErrorCode.MYSQL_INSERT_FAIL)
     print(response)  # 输出：{'error_code': 1001, 'error_message': '数据新增失败，请检查插入数据是否符合要求'}
 
-    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT, extra_info="jpg")
+    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT)
     print(response_with_extra)  # 输出：{'error_code': 4004, 'error_message': '不支持的文件格式，请使用支持的文件格式，jpg'}
 
     response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT)

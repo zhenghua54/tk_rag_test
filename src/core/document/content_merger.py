@@ -13,12 +13,11 @@ from src.api.response import APIException
 from src.core.document.doc_convert import convert_office_file
 from src.core.document.doc_parser import mineru_toolkit
 from src.database.mysql.operations import FileInfoOperation
-from src.utils.validator.content_validator import ContentValidator
 from src.utils.validator.file_validator import FileValidator
 
 from src.utils.common.logger import log_operation_success, log_operation_start, log_operation_error
 from src.utils.validator.args_validator import ArgsValidator
-from src.core.llm.extract_summary import extract_table_summary
+from src.utils.extract_summary import extract_table_summary
 from src.utils.table_toolkit import html_table_to_markdown
 
 
@@ -215,9 +214,7 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
         save_path (str): 处理后的文档路径
     """
     try:
-        if doc_id:
-            process_start_time = log_operation_start("文档处理",
-                                                     doc_id=doc_id)
+        process_start_time = log_operation_start("文档处理")
 
         # 验证参数
         ArgsValidator.validate_type(doc_path, str, "pdf_doc_path")  # 参数类型验证
@@ -230,8 +227,6 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
             # 非PDF验证是否支持转换
             FileValidator.validate_file_convert_ext(doc_path.suffix)
             pdf_path = convert_office_file(str(doc_path.resolve()))
-
-        # ContentValidator.validate_pdf_content_parse(pdf_path)  # 验证 PDF 文档内容解析
 
         # 使用MinerU 解析 PDF 文档
         try:

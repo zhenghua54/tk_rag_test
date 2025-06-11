@@ -14,10 +14,10 @@ from config.settings import Config
 from src.utils.common.logger import logger
 from src.database.milvus.operations import VectorOperation
 from src.database.mysql.operations import ChunkOperation
-from src.core.embedding.embedder import init_langchain_embeddings
-from src.core.retrieval.vector_retriever import VectorRetriever
-from src.core.retrieval.bm25_retriever import BM25Retriever
-from src.core.retrieval.hybrid_retriever import HybridRetriever
+from src.core.rag.embedder import init_langchain_embeddings
+from src.core.rag.retrieval.vector_retriever import VectorRetriever
+from src.core.rag.retrieval.bm25_retriever import BM25Retriever
+from src.core.rag.hybrid_retriever import HybridRetriever
 from src.database.elasticsearch.operations import ElasticsearchOperation
 
 

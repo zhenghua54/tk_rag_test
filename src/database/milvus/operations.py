@@ -5,6 +5,8 @@ from datetime import datetime
 from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
 from src.utils.validator.args_validator import ArgsValidator
+from config.settings import Config
+import json
 
 
 class VectorOperation:
@@ -39,23 +41,34 @@ class VectorOperation:
         Raises:
             ValueError: 当数据格式不符合要求时抛出
         """
+        # 从配置文件中读取 Milvus schema 以获取必需字段
+        schema_path = Config.PATHS.get("milvus_schema_path")
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            schema_config = json.load(f)
+        
+        # 提取字段名作为必需字段列表
+        required_fields = [field["name"] for field in schema_config["fields"]]
+        
         for idx, item in enumerate(data):
             # 验证必需字段
-            required_fields = ["vector", "segment_id", "doc_id", "document_name", "summary_text", 
-                             "type", "page_idx", "principal_ids", "create_time", "update_time", "metadata"]
             missing_fields = [field for field in required_fields if field not in item]
             if missing_fields:
                 raise ValueError(f"第 {idx + 1} 条数据缺少必需字段: {missing_fields}")
 
-            # 验证字段类型
+            # 验证字段类型和格式
             if not isinstance(item["vector"], list) or len(item["vector"]) != 1024:
                 raise ValueError(f"第 {idx + 1} 条数据的 vector 字段必须是 1024 维的浮点数列表")
-            if not isinstance(item["page_idx"], int):
-                raise ValueError(f"第 {idx + 1} 条数据的 page_idx 字段必须是整数")
-            if not isinstance(item["segment_id"], str):
-                raise ValueError(f"第 {idx + 1} 条数据的 segment_id 字段必须是字符串")
-            if not isinstance(item["doc_id"], str):
-                raise ValueError(f"第 {idx + 1} 条数据的 doc_id 字段必须是字符串")
+                
+            # 验证字符串类型字段
+            string_fields = ["seg_id", "seg_parent_id", "doc_id", "seg_content", 
+                           "seg_type", "permission_ids", "create_time", "update_time"]
+            for field in string_fields:
+                if field in item and not isinstance(item[field], str):
+                    raise ValueError(f"第 {idx + 1} 条数据的 {field} 字段必须是字符串")
+                    
+            # 验证 metadata 字段
+            if "metadata" in item and not isinstance(item["metadata"], dict):
+                raise ValueError(f"第 {idx + 1} 条数据的 metadata 字段必须是字典")
 
     def insert_data(self, data: List[Dict[str, Any]]) -> List[str]:
         """批量插入数据
@@ -64,7 +77,7 @@ class VectorOperation:
             data (List[Dict[str, Any]]): 要插入的数据列表
 
         Returns:
-            List[str]: 插入成功的 segment_id 列表
+            List[str]: 插入成功的 seg_id 列表
 
         Raises:
             ValueError: 当数据格式不符合要求时抛出
@@ -121,20 +134,20 @@ class VectorOperation:
             logger.error(f"根据文档ID检索失败: {e}")
             return []
 
-    def search_by_segment_id(self, segment_id: str) -> Optional[Dict[str, Any]]:
+    def search_by_segment_id(self, seg_id: str) -> Optional[Dict[str, Any]]:
         """根据段落ID检索数据
 
         Args:
-            segment_id (str): 段落ID
+            seg_id (str): 段落ID
 
         Returns:
             Optional[Dict[str, Any]]: 检索结果，未找到返回 None
         """
-        ArgsValidator.validate_segment_id(segment_id)
+        ArgsValidator.validate_seg_id(seg_id)
         try:
             results = self.milvus.client.query(
                 collection_name=self.milvus.collection_name,
-                expr=f'segment_id == "{segment_id}"',
+                expr=f'seg_id == "{seg_id}"',
                 output_fields=["*"]
             )
             return results[0] if results else None
@@ -170,17 +183,17 @@ class VectorOperation:
             logger.error(f"更新数据失败: {e}")
             return False
 
-    def update_by_segment_id(self, segment_id: str, data: Dict[str, Any]) -> bool:
+    def update_by_segment_id(self, seg_id: str, data: Dict[str, Any]) -> bool:
         """根据段落ID更新数据
 
         Args:
-            segment_id (str): 段落ID
+            seg_id (str): 段落ID
             data (Dict[str, Any]): 要更新的数据
 
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validate_segment_id(segment_id)
+        ArgsValidator.validate_seg_id(seg_id)
         ArgsValidator.validate_type(data, dict, "data")
 
         try:
@@ -190,9 +203,9 @@ class VectorOperation:
             # 更新数据
             self.milvus.client.upsert(
                 collection_name=self.milvus.collection_name,
-                data=[{**data, 'segment_id': segment_id}]
+                data=[{**data, 'seg_id': seg_id}]
             )
-            logger.info(f"成功更新段落 {segment_id} 的数据")
+            logger.info(f"成功更新段落 {seg_id} 的数据")
             return True
         except Exception as e:
             logger.error(f"更新数据失败: {e}")
@@ -209,26 +222,32 @@ class VectorOperation:
         """
         ArgsValidator.validate_doc_id(doc_id)
         try:
-            self.milvus.client.delete_file()
+            self.milvus.client.delete(
+                collection_name=self.milvus.collection_name,
+                expr=f'doc_id == "{doc_id}"'
+            )
             logger.info(f"成功删除文档 {doc_id} 的数据")
             return True
         except Exception as e:
             logger.error(f"删除数据失败: {e}")
             return False
 
-    def delete_by_segment_id(self, segment_id: str) -> bool:
+    def delete_by_segment_id(self, seg_id: str) -> bool:
         """根据段落ID删除数据
 
         Args:
-            segment_id (str): 段落ID
+            seg_id (str): 段落ID
 
         Returns:
             bool: 是否删除成功
         """
-        ArgsValidator.validate_segment_id(segment_id)
+        ArgsValidator.validate_seg_id(seg_id)
         try:
-            self.milvus.client.delete_file()
-            logger.info(f"成功删除段落 {segment_id} 的数据")
+            self.milvus.client.delete(
+                collection_name=self.milvus.collection_name,
+                expr=f'seg_id == "{seg_id}"'
+            )
+            logger.info(f"成功删除段落 {seg_id} 的数据")
             return True
         except Exception as e:
             logger.error(f"删除数据失败: {e}")
@@ -241,20 +260,21 @@ def test_milvus_operations():
     # 测试数据
     test_data = {
         "doc_id": "test_doc_001",
-        "segment_id": "test_seg_001",
+        "seg_id": "test_seg_001",
+        "seg_parent_id": "test_parent_001",
         "vector": [0.1] * 1024,  # 1024维向量
-        "document_name": "测试文档",
-        "summary_text": "这是一个测试文档的摘要",
-        "type": "content",
-        "page_idx": 1,
-        "principal_ids": "['dept1', 'dept2']",
+        "seg_content": "这是一个测试文档的内容",
+        "seg_type": "text",
+        "permission_ids": "['dept1', 'dept2']",
+        "create_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "metadata": {"key": "value"}
     }
     
     # 测试插入
     logger.info("测试插入数据...")
-    segment_id = vector_op.insert_single(test_data)
-    assert segment_id is not None, "插入数据失败"
+    seg_id = vector_op.insert_single(test_data)
+    assert seg_id is not None, "插入数据失败"
     
     # 测试检索
     logger.info("测试检索数据...")
@@ -267,7 +287,7 @@ def test_milvus_operations():
     # 测试更新
     logger.info("测试更新数据...")
     update_data = {
-        "summary_text": "更新后的摘要",
+        "seg_content": "更新后的内容",
         "metadata": {"key": "updated_value"}
     }
     assert vector_op.update_by_doc_id("test_doc_001", update_data), "更新文档数据失败"
@@ -275,7 +295,7 @@ def test_milvus_operations():
     
     # 验证更新结果
     updated_doc = vector_op.search_by_doc_id("test_doc_001")[0]
-    assert updated_doc["summary_text"] == "更新后的摘要", "文档更新验证失败"
+    assert updated_doc["seg_content"] == "更新后的内容", "文档更新验证失败"
     
     # 测试删除
     logger.info("测试删除数据...")
@@ -284,8 +304,6 @@ def test_milvus_operations():
     # 验证删除结果
     deleted_doc = vector_op.search_by_doc_id("test_doc_001")
     assert len(deleted_doc) == 0, "文档删除验证失败"
-    
-    logger.info("所有测试通过！")
 
 
 def run_all_tests():

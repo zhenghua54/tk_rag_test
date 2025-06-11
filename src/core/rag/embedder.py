@@ -4,7 +4,10 @@ from torch import Tensor
 import numpy as np
 from langchain_huggingface import HuggingFaceEmbeddings
 
+
 from config.settings import Config
+from src.utils.common.logger import logger
+
 
 
 def init_embedding_model() -> SentenceTransformer:
@@ -37,21 +40,25 @@ def embed_text(text: str) -> list:
     Returns:
         list: 1024维的浮点数列表
     """
-    model = init_embedding_model()
-    # 获取向量
-    vector = model.encode(text)
-    # 如果是tensor,转换为numpy数组
-    if isinstance(vector, Tensor):
-        vector = vector.numpy()
-    # 如果是numpy数组,转换为list
-    if isinstance(vector, np.ndarray):
-        vector = vector.tolist()
-    return vector
+    try:
+        model = init_embedding_model()
+        # 获取向量
+        vector = model.encode(text)
+        # 如果是tensor,转换为numpy数组
+        if isinstance(vector, Tensor):
+            vector = vector.numpy()
+        # 如果是numpy数组,转换为list
+        if isinstance(vector, np.ndarray):
+            vector = vector.tolist()
+        return vector
+    except Exception as e:
+        logger.error(f"文本向量化失败: {str(e)}")
+        raise
 
 
 if __name__ == '__main__':
     import sys
-    sys.path.append("/home/wumingxing/tk_rag")
+    sys.path.append("/")
 
     query = 'Ni好啊'
     result = embed_text(query)

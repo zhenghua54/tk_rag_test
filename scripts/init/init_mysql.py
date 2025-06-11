@@ -11,7 +11,7 @@ def init_mysql():
     logger.debug("开始初始化 MySQL 数据库...")
 
     # 读取初始化 SQL 文件
-    init_sql_path = Config.MYSQL_CONFIG['schema_path']
+    init_sql_path = Config.PATHS.get("mysql_schema_path")
     with open(init_sql_path, 'r') as f:
         init_sql = f.read()
 

@@ -1,6 +1,6 @@
 """MySQL 数据库的初始化和连接配置文件"""
 from contextlib import contextmanager
-from typing import  Optional, Tuple
+from typing import  Optional, Tuple, List
 
 import pymysql
 from pymysql.cursors import DictCursor
@@ -74,9 +74,20 @@ class MySQLConnect:
         Returns:
             int: 影响的行数
         """
+        # 输出完整的SQL和参数，用于调试
+        logger.debug(f"执行SQL: {sql}")
+        logger.debug(f"参数: {args}")
+        
         with self.get_connection() as cursor:
-            cursor.execute(sql, args)
-            return cursor.rowcount
+            try:
+                cursor.execute(sql, args)
+                return cursor.rowcount
+            except Exception as e:
+                # 详细记录错误
+                logger.error(f"SQL执行错误: {e}")
+                logger.error(f"完整SQL: {sql}")
+                logger.error(f"参数: {args}")
+                raise
 
     def close(self):
         """关闭数据库连接"""

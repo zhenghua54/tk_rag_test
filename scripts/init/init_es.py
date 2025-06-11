@@ -9,7 +9,7 @@ from config.settings import Config
 
 def load_schema():
     """加载 ES schema 配置"""
-    schema_path = Config.ES_CONFIG['schema_path']
+    schema_path = Config.PATHS.get("es_schema_path")
     with open(schema_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 

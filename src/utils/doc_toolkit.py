@@ -11,40 +11,6 @@ from src.api.response import APIException
 from src.utils.common.logger import logger
 
 
-def get_file_info(doc_path: str) -> dict:
-    """获取文件信息
-
-    Args:
-        doc_path (str): 文件路径
-
-    Returns:
-        dict: 文件信息，包含 doc_id、source_document_name、source_document_type 等
-    """
-    doc_path = Path(doc_path)
-
-    # 获取文件 SHA256 哈希值
-    file_sha256 = compute_file_hash(str(doc_path.resolve()))
-
-    # 构建文件信息数据
-    # PDF 文件直接更新 PDF 文件路径
-    if doc_path.suffix == '.pdf':
-        file_info = {
-            'doc_id': file_sha256,
-            'source_document_name': doc_path.stem,
-            'source_document_type': doc_path.suffix,
-            'source_document_pdf_path': str(doc_path.resolve()),
-        }
-    else:
-        file_info = {
-            'doc_id': file_sha256,
-            'source_document_name': doc_path.stem,
-            'source_document_type': doc_path.suffix,
-            'source_document_path': str(doc_path.resolve()),
-        }
-
-    return file_info
-
-
 def get_doc_output_path(doc_path: str) -> dict:
     """
     获取文档的输出目录
@@ -72,28 +38,6 @@ def get_doc_output_path(doc_path: str) -> dict:
     }
 
 
-def file_filter(doc_dir: str) -> list[dict]:
-    """文档过滤, 去除系统文件和配置文件中未指定的文件格式
-
-    Args:
-        doc_dir (str): 源文件路径
-
-    Returns:
-        list[dict]: 文件信息列表
-    """
-    file_infos = []
-    doc_dir = Path(doc_dir)
-    # 递归获取指定目录下的所有文件及文件夹
-    for file in doc_dir.rglob("*"):
-        # 非文件或以 '.' 开头的文件（如隐藏文件）直接跳过
-        if not file.is_file() or file.name.startswith('.'):
-            continue
-        if file.suffix not in Config.SUPPORTED_FILE_TYPES["all"]:
-            continue
-        file_info = get_file_info(str(file.resolve()))
-        file_infos.append(file_info)
-    return file_infos
-
 
 def compute_file_hash(doc_path: str, add_title: bool = True, algo: str = "sha256") -> str:
     """计算文件内容的哈希值
@@ -119,6 +63,35 @@ def compute_file_hash(doc_path: str, add_title: bool = True, algo: str = "sha256
         hasher.update(str(doc_path.name).encode('utf-8'))
 
     return hasher.hexdigest()
+
+def generate_segment_id(content: str) -> str:
+    """生成片段ID
+
+    Args:
+        content (str): 片段内容
+
+    Returns:
+        str: 片段ID（SHA256哈希值）
+    """
+    return hashlib.sha256(content.encode()).hexdigest()
+
+
+def truncate_summary(text: str, max_length: int = 4096) -> str:
+    """截断摘要文本，确保不超过最大长度
+
+    Args:
+        text: 原始文本
+        max_length: 最大长度限制，默认4096字符
+
+    Returns:
+        截断后的文本
+    """
+    if not text:
+        return ""
+    if len(text) <= max_length:
+        return text
+    # 在最大长度处截断，并添加省略号
+    return text[:max_length - 3] + "..."
 
 
 def delete_path_safely(doc_path: str, error_code: ErrorCode):

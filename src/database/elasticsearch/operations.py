@@ -15,14 +15,23 @@ class ElasticsearchOperation:
         """初始化 ES 客户端"""
         try:
             # 创建 ES 客户端实例，使用配置中的连接信息
-            self.client = Elasticsearch(
-                hosts=Config.ES_CONFIG['host'],  # 使用配置的 host
-                request_timeout=Config.ES_CONFIG["timeout"],  # 超时设置
-                # 7.x版本使用http_auth而不是basic_auth
-                http_auth=(Config.ES_CONFIG.get('username', ''), 
-                          Config.ES_CONFIG.get('password', '')),  # 用户名密码认证
-                verify_certs=Config.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
-            )
+            es_username = Config.ES_CONFIG.get('username', '')
+            es_password = Config.ES_CONFIG.get('password', '')
+            
+            # 创建ES客户端配置
+            es_params = {
+                "hosts": Config.ES_CONFIG['host'],  # 使用配置的 host
+                "request_timeout": Config.ES_CONFIG["timeout"],  # 超时设置
+                "verify_certs": Config.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
+            }
+            
+            # 添加认证信息，基于ES版本选择合适的认证方式
+            if es_username and es_password:
+                # 使用basic_auth而不是已弃用的http_auth
+                es_params["basic_auth"] = (es_username, es_password)
+            
+            self.client = Elasticsearch(**es_params)
+            
             # 获取索引名称
             self.index_name = Config.ES_CONFIG["index_name"]
             
@@ -72,10 +81,10 @@ class ElasticsearchOperation:
         
         Args:
             data: 要插入的数据列表，每条数据包含：
-                - segment_id: 片段ID
+                - seg_id: 段落ID
                 - doc_id: 文档ID
-                - type: 文档类型
-                - summary_text: 文本内容
+                - seg_type: 文档类型
+                - seg_content: 文本内容
         """
         try:
             # 准备批量插入数据
@@ -85,7 +94,7 @@ class ElasticsearchOperation:
                 action = {
                     "index": {
                         "_index": self.index_name,
-                        "_id": doc["segment_id"]
+                        "_id": doc["seg_id"]
                     }
                 }
                 actions.append(action)
@@ -118,7 +127,7 @@ class ElasticsearchOperation:
                 body={
                     "query": {
                         "match": {
-                            "segment_text": {
+                            "seg_content": {
                                 "query": query,
                                 "operator": "and"  # 使用 AND 操作符提高精确度
                             }
@@ -166,11 +175,11 @@ class ElasticsearchOperation:
             logger.error(f"删除文档 {doc_id} 失败: {str(e)}")
             return False
 
-    def delete_by_segment_id(self, segment_id: str) -> bool:
+    def delete_by_segment_id(self, seg_id: str) -> bool:
         """根据片段ID删除数据
         
         Args:
-            segment_id: 要删除的片段ID
+            seg_id: 要删除的片段ID
             
         Returns:
             bool: 是否删除成功
@@ -179,18 +188,18 @@ class ElasticsearchOperation:
             # 执行删除
             response = self.client.delete(
                 index=self.index_name,
-                id=segment_id
+                id=seg_id
             )
             
             if response.get('result') == 'deleted':
-                logger.info(f"成功删除片段 {segment_id}")
+                logger.info(f"成功删除片段 {seg_id}")
                 return True
             else:
-                logger.warning(f"片段 {segment_id} 不存在或删除失败")
+                logger.warning(f"片段 {seg_id} 不存在或删除失败")
                 return False
                 
         except Exception as e:
-            logger.error(f"删除片段 {segment_id} 失败: {str(e)}")
+            logger.error(f"删除片段 {seg_id} 失败: {str(e)}")
             return False
 
     def clear_index(self) -> bool:
@@ -343,9 +352,9 @@ class ElasticsearchOperation:
                 doc = hit["_source"]
                 logger.info(f"文档 ID: {hit['_id']}")
                 logger.info(f"- doc_id: {doc.get('doc_id', 'unknown')}")
-                logger.info(f"- segment_id: {doc.get('segment_id', 'unknown')}")
-                logger.info(f"- 文本长度: {len(doc.get('segment_text', ''))}")
-                logger.info(f"- 文本内容: {doc.get('segment_text', 'unknown')}")
+                logger.info(f"- seg_id: {doc.get('seg_id', 'unknown')}")
+                logger.info(f"- 文本长度: {len(doc.get('seg_content', ''))}")
+                logger.info(f"- 文本内容: {doc.get('seg_content', 'unknown')}")
                 logger.info("---")
             
             return hits
@@ -375,11 +384,11 @@ class ElasticsearchOperation:
                         },
                         "mappings": {
                             "properties": {
-                                "segment_id": {"type": "keyword"},
+                                "seg_id": {"type": "keyword"},
                                 "doc_id": {"type": "keyword"},
-                                "type": {"type": "keyword"},
-                                "summary_text": {
-                                    "type": "content",
+                                "seg_type": {"type": "keyword"},
+                                "seg_content": {
+                                    "type": "text",
                                     "analyzer": "ik_max_word",
                                     "search_analyzer": "ik_max_word"
                                 }
@@ -400,3 +409,28 @@ class ElasticsearchOperation:
         except Exception as e:
             logger.error(f"初始化ES索引失败: {str(e)}")
             raise
+
+if __name__ == '__main__':
+    es_op = ElasticsearchOperation()
+    # 先获取统计信息
+    stats = es_op.get_stats()
+
+    # 查询文档
+    # res = es_op.search(query="管理规定")
+    # print(res)
+
+    # segment_id = "3b792c3cd80dd67d375c68c08f5e2ff3781c5948e7825ff7c6f8e2deaacedbab"
+    # 根据 segment_id 删除文档
+    # es_op.delete_by_segment_id(segment_id)
+    # 根据 doc_id 删除文档
+    # doc_id = "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
+    # es_op.delete_by_doc_id(doc_id)
+
+    # 清除所有文档
+    # es_op.clear_index()
+
+    # 先获取统计信息
+    # stats = es_op.get_stats()
+
+    # 然后列出所有文档
+    docs = es_op.list_all_documents()

@@ -2,7 +2,7 @@
 
 该模块提供了本地大模型的管理功能，支持两种主要场景：
 1. 摘要生成：用于提取表格标题和内容摘要，需要确定性输出
-2. RAG 生成：用于检索增强生成，需要更多样化的输出
+2. rag 生成：用于检索增强生成，需要更多样化的输出
 """
 
 import os
@@ -62,7 +62,7 @@ class LocalModelManager:
                 temperature=Config.VLLM_CONFIG.get("summary_temperature", 0.3),  # 较低的温度，使输出更确定
                 max_tokens=Config.VLLM_CONFIG.get("summary_max_tokens", 1024),  # 限制生成长度，摘要通常不需要太长
             ),
-            # RAG 生成场景：需要更多样化的输出
+            # rag 生成场景：需要更多样化的输出
             "rag": SamplingParams(
                 temperature=Config.VLLM_CONFIG.get("rag_temperature", 0.7),  # 较高的温度，使输出更多样
                 top_p=Config.VLLM_CONFIG.get("rag_top_p", 0.95),  # 控制采样的概率阈值
@@ -128,7 +128,7 @@ class LocalModelManager:
         """获取模型、分词器和采样参数
         
         Args:
-            scene: 使用场景，可选值：summary（摘要生成）, rag（RAG 生成）
+            scene: 使用场景，可选值：summary（摘要生成）, rag（rag 生成）
             
         Returns:
             Tuple[LLM, AutoTokenizer, SamplingParams]: 模型实例、分词器和采样参数

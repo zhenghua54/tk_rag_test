@@ -1,4 +1,4 @@
-"""使用 streamlit web 框架部署 RAG 问答系统"""
+"""使用 streamlit web 框架部署 rag 问答系统"""
 
 import sys
 from typing import List, Any
@@ -20,7 +20,7 @@ from src.utils.query_process import init_bm25_retriever
 
 # Streamlit 页面配置
 st.set_page_config(
-    page_title="天宽 RAG 智能问答",
+    page_title="天宽 rag 智能问答",
     page_icon="http://www.xinchan.cn/file/upload/202110/16/1731354666.png",
     layout="wide",
 )
@@ -171,7 +171,7 @@ def clear_history():
 
 
 def main():
-    st.title("天宽 RAG 企业知识问答系统")
+    st.title("天宽 rag 企业知识问答系统")
     
     # 添加全局CSS和JavaScript
     st.markdown(

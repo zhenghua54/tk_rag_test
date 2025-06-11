@@ -10,7 +10,7 @@ from config.settings import Config
 class BaseService(ABC):
     """服务接口基类
     
-    所有服务类都应该继承此类，并实现相应的抽象方法
+    所有服务类都继承此类，并实现相应的抽象方法
     """
 
     @classmethod
@@ -18,14 +18,21 @@ class BaseService(ABC):
         """根据配置返回 mock 或真实服务实例"""
         if Config.USE_MOCK:
             mock_class_name = f"Mock{cls.__name__}"  # 例：MockDocumentService
-            module_name = cls.__module__  # 获取子类定义的模块名
+            # module_name = cls.__module__  # 获取子类定义的模块名
             try:
-                module = importlib.import_module(module_name)
-                mock_cls = getattr(module, mock_class_name, None)
+                # 从 Mock 模块中查找 Mock 实现类
+                mock_module = importlib.import_module("src.services.mock")
+                mock_cls = getattr(mock_module, mock_class_name, None)
+
+
+                # module = importlib.import_module(module_name)
+                # mock_cls = getattr(module, mock_class_name, None)
                 if mock_cls:
                     return mock_cls()
                 else:
-                    raise NotImplementedError(f"未定义 Mock 类: {mock_class_name} in {module_name}")
+                    # raise NotImplementedError(f"mock.py 中未定义 Mock 类: {mock_class_name} in {module_name}")
+                    raise NotImplementedError(f"mock.py 中未定义 Mock 类: {mock_class_name}")
             except ImportError as e:
-                raise ImportError(f"导入模块失败: {module_name}, 原因: {str(e)}")
+                # raise ImportError(f"导入模块失败: {module_name}, 原因: {str(e)}")
+                raise ImportError(f"导入 mock 模块失败, 原因: {str(e)}")
         return cls()

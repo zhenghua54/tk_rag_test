@@ -19,24 +19,24 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 class Config:
     """配置类：用于管理项目的所有配置信息"""
     # API配置
-    API_TITLE = "RAG Demo API"
+    API_TITLE = "rag Demo API"
     API_DESCRIPTION = "RAG系统API文档"
     API_VERSION = "v1"
     API_PREFIX = f"/api/{API_VERSION}"
     USE_MOCK = False  # 是否使用 Mock 数据
 
     # 项目目录配置
-
     BASE_DIR = Path(__file__).parent.absolute().parent
-
     MODEL_BASE = BASE_DIR / "models"  # 模型根目录
-
     PATHS = {
         "origin_data": str(BASE_DIR / "datas/raw"),
         "processed_data": str(BASE_DIR / "datas/processed"),
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
+        "mysql_schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
+        "milvus_schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "milvus_schema.json"),
+        "es_schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),  # schema 配置文件路径
     }
 
     # 模型相关配置
@@ -56,7 +56,6 @@ class Config:
         "error": ["parse_failed", "merge_failed", "chunk_failed", "error"],
     }
 
-
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(
         '<>:"/\\|?*' + ''.join(chr(c) for c in range(0x00, 0x20))  # 控制字符
@@ -66,19 +65,17 @@ class Config:
     DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
 
     # 数据库配置
+    DB_NAME = 'tk_rag'
     MILVUS_CONFIG = {
         "uri": "http://localhost:19530/",
         "host": "localhost",
         "port": 19530,
         "token": "root:Milvus",
-        # "db_name": "default",
-        "db_name": "default_new",
+        "db_name": DB_NAME,
         "collection_name": "rag_collection",
-        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "milvus_schema.json"),
         "vector_field": "vector",
         "vector_dim": 1024,
-        "output_fields": ["segment_id", "doc_id", "document_name", "summary_text", "type", "page_idx", "principal_ids",
-                          "metadata"],
+        "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
         "index_params": {
             "field_name": "vector",
             "index_type": "IVF_FLAT",
@@ -96,21 +93,17 @@ class Config:
         "password": "Tk@654321",
         "port": 3306,
         "charset": "utf8mb4",
-        # "database": "rag_db",
-        "database": "rag_db_new",
+        "database": DB_NAME,
         "file_info_table": "doc_info",
         "segment_info_table": "segment_info",
         "permission_info_table": "permission_info",
-        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "mysql_schema.sql"),
     }
 
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
         "timeout": 30,  # 请求超时时间（秒）
-        # "index_name": "rag_index",  # ES 索引（数据库）名称
-        "index_name": "rag_index_new",  # ES 索引（数据库）名称
-        "schema_path": str(BASE_DIR / "scripts" / "init" / "schema" / "es_schema.json"),  # schema 配置文件路径
-        # 安全配置
+        # "index_name": "rag_index", "rag_index_new",  # ES 索引（数据库）名称
+        "index_name": DB_NAME,  # ES 索引（数据库）名称
         "username": os.getenv("ES_USER"),  # ES 用户名
         "password": os.getenv("ES_PASSWORD"),  # ES 密码
         "verify_certs": False  # 是否验证证书
