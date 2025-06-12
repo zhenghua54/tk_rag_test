@@ -34,7 +34,8 @@ def ensure_directories():
     logger.debug("创建必要的目录结构...")
 
     # 创建数据目录
-    for path in Config.PATHS.values():
+    data_path = [Config.PATHS.get("origin_data"), Config.PATHS.get("processed_data"), Config.PATHS.get("log_dir")]
+    for path in data_path:
         if os.path.isfile(path) or os.path.exists(path):
             logger.warning(f"跳过已存在文件路径: {path}")
             continue
@@ -42,9 +43,8 @@ def ensure_directories():
         logger.debug(f"创建目录: {path}")
 
     # 创建模型目录
-    for path in Config.MODEL_PATHS.values():
-        os.makedirs(path, exist_ok=True)
-        logger.info(f"创建目录: {path}")
+    os.makedirs(Config.PATHS.get('model_base'), exist_ok=True)
+    logger.info(f"创建目录: {path}")
 
 
 def test_connections():

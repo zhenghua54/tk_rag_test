@@ -9,14 +9,14 @@ class ChatService(BaseService):
     处理聊天相关的业务逻辑
     """
     
-    async def chat(self, query: str, department_id: str, 
+    async def chat(self, query: str, permission_ids: str, 
                   session_id: Optional[str] = None,
                   timeout: int = 30) -> Dict[str, Any]:
         """处理聊天请求
         
         Args:
             query: 用户问题
-            department_id: 部门ID
+            permission_ids: 部门ID
             session_id: 会话ID
             timeout: 超时时间(秒)
             

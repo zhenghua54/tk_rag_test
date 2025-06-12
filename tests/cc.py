@@ -38,10 +38,17 @@
 
 
 
-from pathvalidate._base import BaseFile
+# from pathvalidate._base import BaseFile
+#
+# # POSIX (Linux / macOS)
+# print("POSIX非法字符:", BaseFile._INVALID_FILENAME_CHARS)
+#
+# # Windows
+# print("Windows非法字符:", BaseFile._INVALID_WIN_FILENAME_CHARS)
 
-# POSIX (Linux / macOS)
-print("POSIX非法字符:", BaseFile._INVALID_FILENAME_CHARS)
+# a = []
+# print(True if a else False)
 
-# Windows
-print("Windows非法字符:", BaseFile._INVALID_WIN_FILENAME_CHARS)
+a = '1'
+for b in a.split(","):
+    print(b)

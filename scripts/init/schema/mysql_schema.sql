@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS segment_info
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
     INDEX idx_doc_id (doc_id),                                                       -- 针对 doc_id 的索引
     FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE,             -- 外键约束
-    INDEX idx_seg_id (seg_id)                                                    -- 为 seg_id 增加索引以优化查询
+    INDEX idx_seg_id (seg_id)                                                        -- 为 seg_id 增加索引以优化查询
 );
 
 
@@ -55,10 +55,10 @@ CREATE TABLE IF NOT EXISTS segment_info
 CREATE TABLE IF NOT EXISTS permission_info
 (
     pid             INT AUTO_INCREMENT PRIMARY KEY,                                  -- 权限记录唯一ID
-    department_id   VARCHAR(64) NOT NULL,                                            -- 部门ID
+    permission_ids  VARCHAR(64) NOT NULL,                                            -- 部门ID
     doc_id          VARCHAR(64) NOT NULL,                                            -- 文档ID
     is_soft_deleted BOOL      DEFAULT FALSE,                                         -- 是否软删除，默认为 false
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- 权限创建时间
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 权限更新时间
-    INDEX idx_department_doc (department_id, doc_id)                                 -- 针对部门ID和文档ID建立索引
+    INDEX idx_department_doc (permission_ids, doc_id)                                 -- 针对部门ID和文档ID建立索引
 );

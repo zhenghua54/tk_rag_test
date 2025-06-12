@@ -3,11 +3,10 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 
 
-from typing import List, Tuple
-from langchain_core.documents import Document
+from collections import OrderedDict
+from typing import List
 from langchain_milvus import Milvus
 from src.utils.common.logger import logger
-from src.core.rag.retrieval.text_retriever import get_seg_content
 import numpy as np
 
 
@@ -22,55 +21,66 @@ class VectorRetriever:
         """
         self._vectorstore = vectorstore
 
-    def search(self, query: str, k: int = 5, chunk_op=None) -> List[Tuple[Document, float]]:
+    def search(self, query: str, permission_ids: str = None, k: int = 5, chunk_op=None) -> dict[str, float]:
         """执行 milvus 向量检索
         
         Args:
             query: 查询文本
+            permission_ids: 权限ID
             k: 检索数量
             chunk_op: Mysql 的 ChunkOperation实例
             
         Returns:
-            List[Tuple[Document, float]]: 检索结果列表
+            dict[str, float]: 检索结果字典(seg_id, score)
         """
-        logger.info(f"开始向量检索,查询: {query}, k: {k}")
-        vector_results = []
+        logger.info(f"开始向量检索,查询: {query}, 权限ID: {permission_ids}, k: {k}")
+        vector_results = OrderedDict()  # 使用OrderedDict保持顺序
+        seen_parent_ids = set()  # 用于记录已处理过的父片段ID
         
         try:
-            # 执行向量检索
-            raw_results = self._vectorstore.similarity_search_with_score(
+            # 不带权限过滤的检索
+            raw_result = self._vectorstore.similarity_search_with_score(
                 query=query,
-                k=k
+                k=k,
+                output_fields=["seg_id", "seg_parent_id", "doc_id", "permission_ids", "seg_type"]
             )
-            logger.info(f"向量检索原始结果数量: {len(raw_results)}")
-
+            logger.info("=== 不带权限过滤的检索结果 ===")
+            for doc, score in raw_result:
+                logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                          f"片段ID: {doc.metadata.get('seg_id')}, "
+                          f"权限ID: {doc.metadata.get('permission_ids')}, "
+                          f"相似度分数: {score:.4f}")
+            
+            # 带权限过滤的检索
+            permission_results = self._vectorstore.similarity_search_with_score(
+                query=query,
+                k=k,
+                expr=f'permission_ids in {permission_ids}',
+                output_fields=["seg_id", "seg_parent_id", "doc_id", "permission_ids", "seg_type"]
+            )
+            logger.info("=== 带权限过滤的检索结果 ===")
+            for doc, score in permission_results:
+                logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                          f"片段ID: {doc.metadata.get('seg_id')}, "
+                          f"权限ID: {doc.metadata.get('permission_ids')}, "
+                          f"相似度分数: {score:.4f}")
+                
             # 处理检索结果
-            for doc, score in raw_results:
-                # 获取seg_id
-                seg_id = doc.metadata.get("seg_id")
+            for doc, score in permission_results:
+                seg_id = doc.metadata.get("seg_id") # 片段ID
+                doc_id = doc.metadata.get("doc_id") # 文档ID，用来检索权限
+                logger.debug(f"向量检索结果 - seg_id: {seg_id}, doc_id: {doc_id}, score: {score:.4f}")
                 if not seg_id:
                     logger.warning(f"向量检索结果缺少seg_id: {doc.metadata}")
-                    continue
-
-                # 从MySQL获取原文
-                original_text = get_seg_content(seg_id=seg_id, chunk_op=chunk_op)
-                if not original_text:
-                    logger.warning(f"无法获取seg_id {seg_id} 的原文内容")
-                    continue
-
-                # 构建新的Document对象
-                new_doc = Document(
-                    page_content=original_text,
-                    metadata={
-                        "seg_id": seg_id,
-                        "seg_parent_id": doc.metadata.get("seg_parent_id"),
-                        "doc_id": doc.metadata.get("doc_id", ""),
-                        "seg_type": doc.metadata.get("seg_type", "text"),
-                        "score": score
-                    }
-                )
-                vector_results.append((new_doc, score))
-                logger.debug(f"向量检索结果 - seg_id: {seg_id}, score: {score:.4f}")
+                    continue            
+                # 添加子块结果    
+                vector_results[seg_id] = score
+                # 添加父块结果
+                seg_parent_id = doc.metadata.get("seg_parent_id", "").strip()
+                if seg_parent_id and seg_parent_id not in seen_parent_ids:
+                    seen_parent_ids.add(seg_parent_id)
+                    logger.debug(f"向量检索结果 - 检测到父片段ID: {seg_parent_id}")
+                    vector_results[seg_parent_id] = score * 0.1  # 父块的分数为子块的 10%
 
             logger.debug(f"向量检索完成,获取到 {len(vector_results)} 条有效结果")
             return vector_results

@@ -4,6 +4,7 @@ import requests
 import hashlib
 import shutil
 from pathlib import Path
+from typing import List
 
 from config.settings import Config
 from src.api.error_codes import ErrorCode
@@ -38,7 +39,6 @@ def get_doc_output_path(doc_path: str) -> dict:
     }
 
 
-
 def compute_file_hash(doc_path: str, add_title: bool = True, algo: str = "sha256") -> str:
     """计算文件内容的哈希值
 
@@ -63,6 +63,7 @@ def compute_file_hash(doc_path: str, add_title: bool = True, algo: str = "sha256
         hasher.update(str(doc_path.name).encode('utf-8'))
 
     return hasher.hexdigest()
+
 
 def generate_seg_id(content: str) -> str:
     """生成片段ID
@@ -154,3 +155,17 @@ def download_file_step_by_step(url: str, local_path: str = None, chunk_size: int
         return local_path
     except Exception as e:
         raise APIException(ErrorCode.HTTP_FILE_NOT_FOUND, str(e)) from e
+
+
+def convert_permission_ids_to_list(perm_ids: str) -> List[str]:
+    """处理权限ID字符串
+
+    Args:
+        perm_ids: 权限ID字符串，可能是 "1" 或 "1,2" 或 None
+
+    Returns:
+        List[str]: 处理后的权限ID列表
+    """
+    if not perm_ids:
+        return []
+    return [p.strip() for p in perm_ids.split(',') if p.strip()]

@@ -1,12 +1,15 @@
 """Elasticsearch 数据库操作类"""
-import os
 import json
+import os
 from typing import List, Dict
+
+from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 
 from config.settings import Config
 from src.utils.common.logger import logger
 
+load_dotenv(verbose=True)
 
 class ElasticsearchOperation:
     """Elasticsearch 操作类"""
@@ -410,7 +413,22 @@ class ElasticsearchOperation:
             logger.error(f"初始化ES索引失败: {str(e)}")
             raise
 
+    @staticmethod
+    def _delete_index():
+        hosts = Config.ES_CONFIG.get("host")
+        basic_auth = (os.getenv("ES_USER"), os.getenv("ES_PASSWORD"))
+        es = Elasticsearch(hosts, basic_auth=basic_auth)
+
+        index_name = Config.ES_CONFIG.get("index_name")
+
+        if es.indices.exists(index=index_name):
+            es.indices.delete(index=index_name)
+            print(f"索引 '{index_name}' 删除成功")
+        else:
+            print(f"索引 '{index_name}' 不存在")
+
 if __name__ == '__main__':
+    load_dotenv(verbose=True)
     es_op = ElasticsearchOperation()
     # 先获取统计信息
     stats = es_op.get_stats()
@@ -433,4 +451,10 @@ if __name__ == '__main__':
     # stats = es_op.get_stats()
 
     # 然后列出所有文档
-    docs = es_op.list_all_documents()
+    # docs = es_op.list_all_documents()
+
+    # 删除索引
+    es_op._delete_index()
+
+    # bash 执行
+    # 删除索引：curl -X DELETE "http://localhost:9200/your_index_name" -u elastic:your_password

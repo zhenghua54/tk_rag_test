@@ -47,12 +47,12 @@ class MockChatService(ChatService):
 class MockDocumentService(DocumentService):
 
     @staticmethod
-    async def upload_file(document_http_url: str, department_id: str, callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, permission_ids: str, callback_url: str = None) -> dict:
         return {
             "doc_id": "文件内容+标题的哈希值",
             "doc_name": "mock_document.pdf",
             "status": "uploaded",
-            "department_id": department_id,
+            "permission_ids": permission_ids,
         }
 
     @staticmethod

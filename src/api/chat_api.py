@@ -6,6 +6,7 @@ from src.api.request.chat_ragchat_request import ChatRequest
 from src.api.response import ResponseBuilder, ErrorCode, APIException
 from src.services.chat_server import ChatService
 from src.utils.common.logger import log_exception, log_operation_start, log_business_info, log_operation_success
+from src.core.rag.llm_generator import RAGGenerator
 
 router = APIRouter(
     prefix="/chat",
@@ -38,22 +39,27 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
         log_business_info("rag 对话",
                           endpoint="/chat/rag_chat",
                           request_id=request_id,
-                          department_id=request.department_id,
+                          permission_ids=request.permission_ids,
                           session_id=request.session_id,
                           )
 
         chat_start_time = log_operation_start("对话",
                                               request_id=request_id,
-                                              department_id=request.department_id,
+                                              permission_ids=request.permission_ids,
                                               session_id=request.session_id,
                                               )
         # 调用聊天服务
-        result = await chat_service.chat(
+        # 初始化 RAG 生成器
+        rag_generator = RAGGenerator(retriever=retriever)
+        result = rag_generator.generate_response(
             query=request.query,
-            department_id=request.department_id,
             session_id=request.session_id,
+            permission_ids=request.permission_ids,
         )
-        log_operation_success("rag 对话", start_time=chat_start_time, result=result)
+        log_operation_success("rag 对话", start_time=chat_start_time, session_id=request.session_id)
+        
+        if result.get("status") == "error":
+            raise APIException(error_code=ErrorCode.CHAT_EXCEPTION.value, message=result.get("message"))
 
         return ResponseBuilder.success(data=result)
 

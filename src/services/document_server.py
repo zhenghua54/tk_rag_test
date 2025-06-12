@@ -16,7 +16,7 @@ from src.utils.common.logger import (
     log_operation_error, log_business_info, log_exception
 )
 from config.settings import Config
-from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path
+from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path, convert_permission_ids_to_list
 from src.utils.common.unit_convert import convert_bytes
 from src.api.response import ErrorCode, APIException
 from src.utils.validator.system_validator import SystemValidator
@@ -36,17 +36,20 @@ class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_http_url: str, department_id: str, callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, permission_ids: str, callback_url: str = None) -> dict:
         """上传文档"""
         # 参数验证
         ArgsValidator.validate_not_empty(document_http_url, "document_http_url")
-        ArgsValidator.validate_not_empty(department_id, "department_id")
+        ArgsValidator.validate_not_empty(permission_ids, "permission_ids")
         if callback_url:
             ArgsValidator.validate_not_empty(callback_url, "callback_url")
 
+        # 对 permission_ids 做转换处理，并字符化处理
+        # permission_ids = json.dumps(convert_permission_ids_to_list(permission_ids))
+
         start_time = log_operation_start("文档上传",
                                          document_url=document_http_url,
-                                         department_id=department_id)
+                                         permission_ids=permission_ids)
 
         try:
             if document_http_url.startswith("http"):
@@ -114,7 +117,7 @@ class DocumentService(BaseService):
 
             # 组装permission_info
             permission_info = {
-                "department_id": department_id,
+                "permission_ids": permission_ids,
                 "doc_id": doc_id,
                 "created_at": now,
                 "updated_at": now,
@@ -128,7 +131,7 @@ class DocumentService(BaseService):
                     # log_business_info("文档入库", doc_id=doc_id, file_info=doc_info)
                     # 插入权限信息到数据库
                     permission_op.insert_datas(permission_info)
-                    log_business_info("权限入库", doc_id=doc_id, department_id=department_id)
+                    log_business_info("权限入库", doc_id=doc_id, permission_ids=permission_ids)
             except pymysql.IntegrityError as e:
                 if e.args[0] == 1062:
                     # 唯一约束冲突
@@ -144,7 +147,7 @@ class DocumentService(BaseService):
                 "doc_id": doc_id,
                 "doc_name": f"{doc_name}{doc_ext}",
                 "status": "uploaded",
-                "department_id": department_id,
+                "permission_ids": permission_ids,
             }
 
             # 启动后台处理流程
@@ -158,7 +161,7 @@ class DocumentService(BaseService):
             asyncio.create_task(DocumentService._monitor_doc_process_and_segment(
                 doc_id=doc_id,
                 document_name=doc_name,
-                department_id=department_id
+                permission_ids=permission_ids
             ))
 
             # 回调接口
@@ -176,7 +179,7 @@ class DocumentService(BaseService):
             log_operation_success("文档上传", start_time,
                                   doc_id=doc_id,
                                   doc_name=f"{doc_name}{doc_ext}",
-                                  department_id=department_id)
+                                  permission_ids=permission_ids)
             return result
 
         except APIException:
@@ -190,14 +193,14 @@ class DocumentService(BaseService):
                                 error_code=error_code,
                                 error_msg=error_msg,
                                 document_url=document_http_url,
-                                department_id=department_id)
+                                permission_ids=permission_ids)
             raise APIException(error_code, error_msg)
         except Exception as e:
             log_operation_error("文档上传",
                                 error_code=ErrorCode.FILE_VALIDATION_ERROR.value,
                                 error_msg=str(e),
                                 document_url=document_http_url,
-                                department_id=department_id)
+                                permission_ids=permission_ids)
             log_exception("文档上传异常", e)
             raise APIException(ErrorCode.FILE_VALIDATION_ERROR, str(e))
 
@@ -317,13 +320,13 @@ class DocumentService(BaseService):
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
     @staticmethod
-    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, department_id: str):
+    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str):
         """监控文档处理状态，完成后启动文档切块
 
         Args:
             doc_id (str): 文档ID
             document_name (str): 文档名称
-            department_id (str): 部门ID
+            permission_ids (str): 部门ID
         """
         try:
             max_attempts = 60  # 最大尝试次数，相当于30分钟
@@ -376,7 +379,7 @@ class DocumentService(BaseService):
 
                             # 设置权限信息
                             permission_ids = {
-                                "departments": [department_id],
+                                "departments": [permission_ids],
                                 "roles": [],
                                 "users": []
                             }

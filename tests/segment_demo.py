@@ -31,7 +31,7 @@ def generate_seg_id(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, permission_ids: List[str]):
+def segment_text_content(doc_id: str, document_name: str, page_content_dict: dict, permission_ids: str):
     """分块文本内容
 
     Args:

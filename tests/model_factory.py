@@ -12,6 +12,10 @@ class ModelFactory:
                 "api_key_env": "HUNYUAN_API_KEY",
                 "base_url": "https://api.hunyuan.cloud.tencent.com/v1"
             },
+            "dashscope": {
+                "api_key_env": "DASHSCOPE_API_KEY",
+                "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+            },
             "openai": {
                 "api_key_env": "OPENAI_API_KEY",
                 "base_url": "https://api.openai.com/v1"

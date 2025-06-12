@@ -1,9 +1,12 @@
 """FastAPI 应用入口"""
 from dotenv import load_dotenv
+
 load_dotenv(verbose=True)
 
-import sys
+import sys, os
 from pathlib import Path
+from openai import OpenAI
+
 # 更新环境变量
 root_path = Path(__file__).resolve()
 sys.path.append(str(root_path))
@@ -20,7 +23,6 @@ from src.api import document_api
 from src.middleware.base_middleware import RequestMiddleware
 from src.core.lifecycle import lifespan
 
-
 # 检查环境
 # # 检查 PyMuPDF
 # try:
@@ -28,6 +30,9 @@ from src.core.lifecycle import lifespan
 # except ImportError:
 #     logger.error("缺少依赖: PyMuPDF (fitz)")
 #     raise ImportError("请安装 PyMuPDF: pip install PyMuPDF")
+
+
+
 
 # 创建FastAPI应用实例
 app = FastAPI(
@@ -49,7 +54,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             error_code=ErrorCode.PARAM_ERROR.value,
             error_message="参数错误, 请检查请求参数是否完整且格式正确",
             request_id=getattr(request.state, "request_id", None),
-            data = exc.errors()
+            data=exc.errors()
         ).model_dump()
     )
 

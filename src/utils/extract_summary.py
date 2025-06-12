@@ -5,32 +5,11 @@ import re
 from typing import Dict
 from openai import OpenAI
 
+from src.core.rag.llm import llm_client
 from src.api.error_codes import ErrorCode
 from src.api.response import APIException
 from src.utils.common.logger import logger
 from src.utils.validator.args_validator import ArgsValidator
-
-
-
-
-# 检查环境变量
-HUNYUAN_API_KEY = os.getenv("DASHSCOPE_API_KEY")
-if not HUNYUAN_API_KEY:
-    raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")
-
-# # 混元 API
-# client = OpenAI(
-#     api_key=HUNYUAN_API_KEY,
-#     base_url="https://api.hunyuan.cloud.tencent.com/v1",
-# )
-
-# 阿里云百炼 API
-client = OpenAI(
-    # 若没有配置环境变量，请用百炼API Key将下行替换为：api_key="sk-xxx",
-    api_key=os.getenv("DASHSCOPE_API_KEY"),
-    # 如何获取API Key：https://help.aliyun.com/zh/model-studio/developer-reference/get-api-key
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-)
 
 
 def parse_table_summary(summary: str) -> Dict[str, str]:
@@ -51,9 +30,8 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
         json_text = re.sub(r'^```json\n|\n```$', '', cleaned_text).strip()
 
         if not json_text:
-            raise APIException(ErrorCode.FILE_EXCEPTION,"清理后的 Json 文本为空， 无法解析")
+            raise APIException(ErrorCode.FILE_EXCEPTION, "清理后的 Json 文本为空， 无法解析")
 
-            
         # 尝试直接解析 JSON
         try:
             result = json.loads(json_text)
@@ -62,30 +40,30 @@ def parse_table_summary(summary: str) -> Dict[str, str]:
             # 匹配最外层的花括号及其内容
             json_match = re.search(r'^\s*\{[^{}]*\}\s*$', json_text, re.DOTALL)
             if not json_match:
-                raise APIException(ErrorCode.FILE_EXCEPTION,"无法从文本中提取 JSON 数据")
+                raise APIException(ErrorCode.FILE_EXCEPTION, "无法从文本中提取 JSON 数据")
             result = json.loads(json_match.group().strip())
-
 
         # 验证结果格式
         if not isinstance(result, dict):
             raise ValueError("解析结果不是字典类型")
-            
+
         if "title" not in result or "summary" not in result:
             raise ValueError("解析结果缺少必要字段")
-            
+
         # 清理字段值
         result["title"] = result["title"].strip()
         result["summary"] = result["summary"].strip()
-        
+
         # 验证字段值非空
         if not result["title"] or not result["summary"]:
             raise ValueError("标题或摘要为空")
-            
+
         return result
-        
+
     except Exception as e:
         logger.error(f"解析表格摘要失败: {str(e)}")
         raise ValueError(f"解析表格摘要失败: {str(e)}")
+
 
 def extract_table_summary(table_html: str) -> Dict[str, str]:
     """提取表格摘要
@@ -99,7 +77,7 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
     # 参数验证
     ArgsValidator.validate_not_empty(table_html, "table_html")
     ArgsValidator.validate_type(table_html, str, "table_html")
-    
+
     # 构建 prompt
     prompt = """你是一个表格摘要生成助手，负责从 HTML 表格中提取表格的核心主题，并输出结构化的摘要结果，用于标题生成和内容嵌入。
 
@@ -127,8 +105,8 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
 """
 
     try:
-        # 调用混元 API
-        completion = client.chat.completions.create(
+        # 调用千问 API
+        completion = llm_client.chat.completions.create(
             model='qwen-turbo',
             stream=False,
             messages=[
@@ -136,17 +114,18 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
                 {"role": "user", "content": prompt.format(table_html=table_html)}
             ]
         )
-        
+
         # 获取摘要
         raw_summary = completion.choices[0].message.content
         logger.debug(f"表格摘要生成成功: {raw_summary[:100]}...")
-        
+
         # 解析和清洗摘要
         return parse_table_summary(raw_summary)
-        
+
     except Exception as e:
         logger.error(f"生成表格摘要失败: {str(e)}")
         raise ValueError(f"生成表格摘要失败: {str(e)}")
+
 
 def extract_text_summary(text: str) -> str:
     """提取文本摘要
@@ -160,7 +139,7 @@ def extract_text_summary(text: str) -> str:
     # 参数验证
     ArgsValidator.validate_not_empty(text, "content")
     ArgsValidator.validate_type(text, str, "content")
-    
+
     # 构建 prompt
     prompt = """你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。
 
@@ -177,7 +156,7 @@ def extract_text_summary(text: str) -> str:
 
     try:
         # 调用混元 API
-        completion = client.chat.completions.create(
+        completion = llm_client.chat.completions.create(
             model='qwen-turbo',
             stream=False,
             messages=[
@@ -185,15 +164,16 @@ def extract_text_summary(text: str) -> str:
                 {"role": "user", "content": prompt.format(text=text)}
             ]
         )
-        
+
         # 获取摘要
         summary = completion.choices[0].message.content
         logger.debug(f"文本摘要生成成功: {summary[:200]}...")
         return summary
-        
+
     except Exception as e:
         logger.error(f"生成文本摘要失败: {str(e)}")
         return "抱歉，生成文本摘要时发生错误。"
+
 
 if __name__ == '__main__':
     # 测试摘要提取

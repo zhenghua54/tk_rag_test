@@ -7,7 +7,7 @@ def test_chat_success(client, test_department_id, test_session_id):
         "/api/v1/rag_chat",
         json={
             "query": "这是一个测试问题",
-            "department_id": test_department_id,
+            "permission_ids": test_department_id,
             "session_id": test_session_id,
             "timeout": 30
         }
@@ -29,7 +29,7 @@ def test_chat_question_too_long(client, test_department_id):
         "/api/v1/rag_chat",
         json={
             "query": "测试" * 1000,  # 2000字符以上
-            "department_id": test_department_id
+            "permission_ids": test_department_id
         }
     )
     
@@ -45,7 +45,7 @@ def test_chat_missing_params(client):
         "/api/v1/rag_chat",
         json={
             "query": "这是一个测试问题"
-            # 缺少 department_id
+            # 缺少 permission_ids
         }
     )
     
@@ -57,7 +57,7 @@ def test_chat_invalid_department(client):
         "/api/v1/rag_chat",
         json={
             "query": "这是一个测试问题",
-            "department_id": "invalid_id"
+            "permission_ids": "invalid_id"
         }
     )
     
@@ -72,7 +72,7 @@ def test_chat_invalid_timeout(client, test_department_id, timeout):
         "/api/v1/rag_chat",
         json={
             "query": "这是一个测试问题",
-            "department_id": test_department_id,
+            "permission_ids": test_department_id,
             "timeout": timeout
         }
     )

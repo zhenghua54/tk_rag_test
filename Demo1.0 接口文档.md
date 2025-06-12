@@ -96,7 +96,7 @@ application/json 作为请求与返回数据格式。
 | 参数名           | 类型      | 必填 | 示例值            | 说明                 |
 |---------------|---------|----|----------------|--------------------|
 | query         | string  | 是  | "请介绍服务质量流程"    | 用户输入问题(最大长度2000字符) |
-| department_id | string  | 是  | "7e96498e-..." | 部门UUID             |
+| permission_ids | string  | 是  | "7e96498e-..." | 部门UUID             |
 | session_id    | string  | 否  | "sess_123..."  | 会话ID(保持上下文)        |
 | timeout       | integer | 否  | 30             | 超时时间(秒),默认30秒      |
 
@@ -139,7 +139,7 @@ application/json 作为请求与返回数据格式。
 | 参数名           | 类型     | 必填 | 示例值              | 说明     |
 |---------------|--------|----|------------------|--------|
 | document_path | string | 是  | "/home/user/..." | 文件路径   |
-| department_id | string | 是  | "7e96498e-..."   | 所属部门ID |
+| permission_ids | string | 是  | "7e96498e-..."   | 所属部门ID |
 
 #### 文件限制
 
@@ -157,7 +157,7 @@ application/json 作为请求与返回数据格式。
         "doc_id": "doc_789xyz",
         "doc_name": "服务质量手册.pdf",
         "status": "completed",
-        "department_id": "7e96498e-..."
+        "permission_ids": "7e96498e-..."
     }
 }
 ```

@@ -7,7 +7,7 @@ class ChatRequest(BaseModel):
 
     Attributes:
         query: 用户问题
-        department_id: 部门ID
+        permission_ids: 部门ID
         session_id: 会话ID(可选)
     """
     query: str = Field(
@@ -16,7 +16,7 @@ class ChatRequest(BaseModel):
         min_length=1,
         max_length=2000,
     )
-    department_id: str = Field(
+    permission_ids: str = Field(
         ...,
         description="用户所属部门 ID",
         min_length=1,

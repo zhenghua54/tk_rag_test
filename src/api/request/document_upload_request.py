@@ -10,7 +10,7 @@ class DocumentUploadRequest(BaseModel):
 
     Attributes:
         document_http_url: 文档的 http 访问路径
-        department_id: 部门ID
+        permission_ids: 部门ID
     """
     document_http_url: str = Field(
         ...,
@@ -18,7 +18,7 @@ class DocumentUploadRequest(BaseModel):
         min_length=1,
         max_length=1000
     )
-    department_id: str = Field(
+    permission_ids: str = Field(
         ...,
         description="部门ID，必须是一个有效的部门标识符",
         min_length=1,
@@ -36,7 +36,7 @@ class DocumentUploadRequest(BaseModel):
     #         )
     #     return value
     #
-    # @field_validator('department_id')
+    # @field_validator('permission_ids')
     # def department_id_length(cls, value: str) -> str:
     #     """验证部门ID长度"""
     #     if len(value) != 32:

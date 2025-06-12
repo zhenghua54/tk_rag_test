@@ -42,7 +42,7 @@ class Config:
     # 模型相关配置
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "bge-m3"),
-        "llm": str(MODEL_BASE / "Qwen2.5-7B-Instruct-1M"),
+        # "llm": str(MODEL_BASE / "Qwen2.5-7B-Instruct-1M"),
         "rerank": str(MODEL_BASE / "bge-reranker-v2-m3")
     }
 

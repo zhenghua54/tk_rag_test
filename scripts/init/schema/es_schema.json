@@ -24,8 +24,8 @@
       },
       "seg_content": {
         "type": "text",
-        "analyzer": "ik_smart_analyzer",
-        "search_analyzer": "ik_smart_analyzer"
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
       },
       "seg_type": {
         "type": "keyword"

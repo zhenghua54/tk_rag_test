@@ -54,7 +54,7 @@ class FileInfoOperation(BaseDBOperation):
 
             raise e
 
-    def insert_datas(self, args: Dict) -> Optional[bool]:
+    def insert_datas(self, args: Dict):
         """插入文件信息
 
         Args:

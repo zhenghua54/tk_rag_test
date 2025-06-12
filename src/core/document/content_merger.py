@@ -15,7 +15,7 @@ from src.core.document.doc_parser import mineru_toolkit
 from src.database.mysql.operations import FileInfoOperation
 from src.utils.validator.file_validator import FileValidator
 
-from src.utils.common.logger import log_operation_success, log_operation_start, log_operation_error
+from src.utils.common.logger import log_operation_success, log_operation_start, log_operation_error, log_business_info
 from src.utils.validator.args_validator import ArgsValidator
 from src.utils.extract_summary import extract_table_summary
 from src.utils.table_toolkit import html_table_to_markdown
@@ -180,7 +180,6 @@ def process_doc_by_page(json_doc_path: str):
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(merged, f, ensure_ascii=False, indent=2)
 
-
         try:
             shutil.rmtree(temp_root)
             log_operation_success("处理缓存文件", start_time=start_time)
@@ -312,6 +311,7 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
                                       doc_id=doc_id,
                                       status="-> merged"
                                       )
+                log_business_info("等待开始内容合并...")
 
             return save_path
         except Exception as e:
