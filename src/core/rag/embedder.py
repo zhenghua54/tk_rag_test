@@ -6,6 +6,8 @@ from langchain_huggingface import HuggingFaceEmbeddings
 
 
 from config.settings import Config
+from src.api.error_codes import ErrorCode
+from src.api.response import APIException
 from src.utils.common.logger import logger
 
 
@@ -16,7 +18,12 @@ def init_embedding_model() -> SentenceTransformer:
     Returns:
         SentenceTransformer: 向量化模型实例
     """
-    return SentenceTransformer(Config.MODEL_PATHS["embedding"])
+    try:
+        embed_model = SentenceTransformer(Config.MODEL_PATHS["embedding"])
+    except Exception as e :
+        raise APIException(ErrorCode.EMBEDDING_MODEL_LOAD_FAILED,str(e))
+    return embed_model
+
 
 
 def init_langchain_embeddings() -> HuggingFaceEmbeddings:
@@ -58,7 +65,6 @@ def embed_text(text: str) -> list:
 
 if __name__ == '__main__':
     import sys
-    sys.path.append("/")
 
     query = 'Ni好啊'
     result = embed_text(query)

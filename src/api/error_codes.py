@@ -56,11 +56,16 @@ class ErrorCode(Enum):
     INVALID_SESSION = 5001
     KB_MATCH_FAILED = 5002
     CONTEXT_TOO_LONG = 5003
-    MODEL_TIMEOUT = 5004
+
     CHAT_EXCEPTION = 5005
 
     # 服务相关错误
     CONVERT_FAILED = 6000
+
+    # 模型相关错误
+    MODEL_TIMEOUT = 7000
+    EMBEDDING_MODEL_LOAD_FAILED = 7001
+    EMBEDDING_FAILED = 7002
 
 
     @staticmethod
@@ -131,10 +136,14 @@ ERROR_MESSAGES = {
     ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",
     ErrorCode.KB_MATCH_FAILED: "未检索到数据, 请尝试调整问题描述或确认是否启用了权限管理",
     ErrorCode.CONTEXT_TOO_LONG: "上下文长度超限, 建议开启新的会话",
-    ErrorCode.MODEL_TIMEOUT: "模型响应超时, 请稍后重试或降低问题复杂度",
+
     ErrorCode.CHAT_EXCEPTION:"聊天异常",
 
     ErrorCode.CONVERT_FAILED: "转换PDF失败",
+
+    ErrorCode.MODEL_TIMEOUT: "模型响应超时, 请稍后重试或降低问题复杂度",
+    ErrorCode.EMBEDDING_MODEL_LOAD_FAILED: "Embedding模型初始化失败",
+    ErrorCode.EMBEDDING_FAILED: "Embedding 失败"
 }
 
 if __name__ == '__main__':

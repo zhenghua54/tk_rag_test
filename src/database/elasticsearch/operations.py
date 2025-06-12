@@ -129,11 +129,49 @@ class ElasticsearchOperation:
                 index=self.index_name,  # 指定索引名
                 body={
                     "query": {
-                        "match": {
-                            "seg_content": {
-                                "query": query,
-                                "operator": "and"  # 使用 AND 操作符提高精确度
-                            }
+                        "bool": {
+                            "should": [
+                                # 精确短语匹配，权重高
+                                {
+                                    "match_phrase": {
+                                        "seg_content": {
+                                            "query": query,
+                                            "boost": 3.0  # 提高精确匹配的权重
+                                        }
+                                    }
+                                },
+                                # 使用term查询，直接匹配分词后的结果
+                                {
+                                    "term": {
+                                        "seg_content": {
+                                            "value": query,
+                                            "boost": 2.5
+                                        }
+                                    }
+                                },
+                                # 标准匹配，使用OR操作符增加召回率
+                                {
+                                    "match": {
+                                        "seg_content": {
+                                            "query": query,
+                                            "operator": "or",
+                                            "boost": 1.0,
+                                            "fuzziness": "AUTO"  # 允许模糊匹配
+                                        }
+                                    }
+                                },
+                                # 标准匹配，使用AND操作符提高精度
+                                {
+                                    "match": {
+                                        "seg_content": {
+                                            "query": query,
+                                            "operator": "and",
+                                            "boost": 2.0
+                                        }
+                                    }
+                                }
+                            ],
+                            "minimum_should_match": 1  # 至少匹配一个should条件
                         }
                     },
                     "size": top_k  # 返回结果数量

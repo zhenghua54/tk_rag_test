@@ -7,7 +7,7 @@ class ChatRequest(BaseModel):
 
     Attributes:
         query: 用户问题
-        permission_ids: 部门ID
+        permission_ids: 权限ID，JSON格式字符串，可选
         session_id: 会话ID(可选)
     """
     query: str = Field(
@@ -16,14 +16,12 @@ class ChatRequest(BaseModel):
         min_length=1,
         max_length=2000,
     )
-    permission_ids: str = Field(
-        ...,
-        description="用户所属部门 ID",
-        min_length=1,
-        max_length=32,
-    )
-    session_id: Optional[str] = Field(
+    permission_ids: Optional[str] = Field(
         None,
+        description="权限ID列表，多个ID用逗号分隔",
+    )
+    session_id: str = Field(
+        ...,
         description="会话 ID，可保持上下文",
     )
     timeout: int = Field(

@@ -6,7 +6,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from src.utils.doc_toolkit import generate_seg_id, truncate_summary
 from src.utils.table_toolkit import html_table_to_markdown
-from src.utils.common.logger import logger, log_operation_start, log_operation_success, log_operation_error
+from src.utils.common.logger import logger
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
 from src.core.rag.embedder import embed_text
@@ -14,22 +14,23 @@ from src.database.elasticsearch.operations import ElasticsearchOperation
 from config.settings import Config
 
 
-def segment_text_content(doc_id: str, document_name: str, doc_process_path: str, permission_ids: Dict[str, List[str]]):
+def segment_text_content(doc_id: str, document_name: str, doc_process_path: str, permission_ids: str):
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
         document_name (str): 文档名称
         doc_process_path (str): 聚合处理后的文档，格式为 dict[idx:[content]]
-        permission_ids (Dict[str, List[str]]): 权限ID字典，格式为 {
-            "departments": ["dept1", "dept2"],
-            "roles": ["role1", "role2"],
-            "users": ["user1", "user2"]
-        }
+        permission_ids (str): 权限ID JSON字符串，格式为:
+            '{"departments": ["1"], "roles": [], "users": []}'
     """
 
-    # 将权限数据转换为JSON字符串
-    permission_ids_str = json.dumps(permission_ids, ensure_ascii=False)
+    # 确保权限数据是JSON字符串
+    if not isinstance(permission_ids, str):
+        permission_ids_str = json.dumps(permission_ids, ensure_ascii=False)
+    else:
+        permission_ids_str = permission_ids
+        
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # 初始化分块器
@@ -370,7 +371,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
 def save_batch_to_databases(milvus_batch: List[Dict],
                             mysql_batch: List[Dict],
                             es_batch: List[Dict],
-                            chunk_op: ChunkOperation,
+                            chunk_op,
                             vector_op: VectorOperation,
                             es_op: ElasticsearchOperation
                             ) -> None:

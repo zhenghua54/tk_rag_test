@@ -10,7 +10,7 @@ class DocumentUploadRequest(BaseModel):
 
     Attributes:
         document_http_url: 文档的 http 访问路径
-        permission_ids: 部门ID
+        department_id: 部门ID
     """
     document_http_url: str = Field(
         ...,
@@ -18,7 +18,7 @@ class DocumentUploadRequest(BaseModel):
         min_length=1,
         max_length=1000
     )
-    permission_ids: str = Field(
+    department_id: str = Field(
         ...,
         description="部门ID，必须是一个有效的部门标识符",
         min_length=1,

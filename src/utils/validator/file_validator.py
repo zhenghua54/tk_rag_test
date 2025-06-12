@@ -140,11 +140,12 @@ class FileValidator:
         Returns:
             dict: 如果文件存在，返回文件信息， 如果文件处理失败，返回 "failed"，否则返回 doc_id
         """
+        # from src.database.mysql.operations import FileInfoOperation
+
         doc_id = compute_file_hash(doc_path)
         if not doc_id:
-            log_operation_error("文件哈希计算失败",
+            log_operation_error("文件哈希计算",
                                 error_code=ErrorCode.FILE_HASH_FAIL.value,
-                                error_msg=str(e),
                                 doc_id=doc_id)
             raise APIException(ErrorCode.FILE_HASH_FAIL)
 
@@ -152,7 +153,7 @@ class FileValidator:
         result = {
             "doc_id": doc_id,
             "process_status": None,
-            "doc_info": None
+            "doc_info" : dict()
         }
         try:
             with FileInfoOperation() as file_op:
@@ -162,9 +163,9 @@ class FileValidator:
 
             process_status = doc_info.get("process_status")
             if not process_status:
-                logger.warning(f"文档状态为空: doc_id={doc_id}")            
+                logger.warning(f"文档状态为空: doc_id={doc_id}")
                 return result
-            
+
             # 文件状态异常,重新上传
             if process_status in Config.FILE_STATUS.get("error"):
                     result["process_status"] = process_status
@@ -174,7 +175,7 @@ class FileValidator:
                 raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
 
             return result
-            
+
         except APIException:
             raise
         except Exception as e:

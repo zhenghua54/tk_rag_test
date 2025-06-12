@@ -276,8 +276,8 @@ check_es_version() {
         fi
 
         if [ $i -lt 6 ]; then
-            info "等待Elasticsearch服务响应中... 再等待5秒"
-            sleep 5
+        info "等待Elasticsearch服务响应中... 再等待5秒"
+        sleep 5
         fi
     done
 
@@ -336,11 +336,11 @@ install_kibana() {
     # 如果没有wget，使用curl下载并显示进度
     elif command -v curl &> /dev/null; then
         if curl -# -L -o "$TEMP_DEB" "$KIBANA_URL"; then
-            success "Kibana下载完成"
-        else
-            error "Kibana下载失败"
-            exit 1
-        fi
+        success "Kibana下载完成"
+    else
+        error "Kibana下载失败"
+        exit 1
+    fi
     else
         error "未找到wget或curl命令，无法下载Kibana"
         exit 1
@@ -392,9 +392,9 @@ check_kibana_running() {
                 break
             fi
         else
-            if curl -s http://localhost:5601/api/status | grep -q "kibana"; then
-                success "Kibana已成功运行"
-                break
+        if curl -s http://localhost:5601/api/status | grep -q "kibana"; then
+            success "Kibana已成功运行"
+            break
             fi
         fi
         

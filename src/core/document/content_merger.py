@@ -210,6 +210,9 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
     Returns:
         save_path (str): 处理后的文档路径
     """
+
+    # from src.database.mysql.operations import FileInfoOperation
+
     try:
         process_start_time = log_operation_start("文档处理")
 

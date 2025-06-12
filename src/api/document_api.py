@@ -37,23 +37,23 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
     start_time = log_operation_start("文档上传",
                                      request_id=request_id,
                                      document_url=mask_sensitive_info(request.document_http_url),
-                                     permission_ids=request.permission_ids)
+                                     permission_ids=request.department_id)
 
     try:
         # 记录业务信息
         log_business_info("API调用",
                           endpoint="/documents/upload",
                           request_id=request_id,
-                          permission_ids=request.permission_ids)
+                          permission_ids=request.department_id)
 
         data = await doc_service.upload_file(document_http_url=request.document_http_url,
-                                             permission_ids=request.permission_ids)
+                                             permission_ids=request.department_id)
 
         # 记录操作成功
         log_operation_success("文档上传", start_time,
                               request_id=request_id,
                               doc_id=data.get('doc_id'),
-                              permission_ids=request.permission_ids)
+                              permission_ids=request.department_id)
 
         return ResponseBuilder.success(data=data, request_id=request_id).model_dump()
 
@@ -62,7 +62,7 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
                             error_code=e.code.value,
                             error_msg=str(e),
                             request_id=request_id,
-                            permission_ids=request.permission_ids)
+                            permission_ids=request.department_id)
         return ResponseBuilder.error(
             error_code=e.code.value,
             error_message=e.message,
@@ -73,7 +73,7 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
                             error_code=ErrorCode.INTERNAL_ERROR.value,
                             error_msg=str(e),
                             request_id=request_id,
-                            permission_ids=request.permission_ids)
+                            permission_ids=request.department_id)
         log_exception("文档上传异常", e)
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,

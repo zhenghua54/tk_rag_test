@@ -7,11 +7,16 @@ from src.api.response import ResponseBuilder, ErrorCode, APIException
 from src.services.chat_server import ChatService
 from src.utils.common.logger import log_exception, log_operation_start, log_business_info, log_operation_success
 from src.core.rag.llm_generator import RAGGenerator
+from src.core.rag.hybrid_retriever import HybridRetriever, init_retrievers
 
 router = APIRouter(
     prefix="/chat",
     tags=["聊天相关"],
 )
+
+# 全局初始化混合检索器，避免每次请求都重新初始化
+vector_retriever, bm25_retriever = init_retrievers()
+hybrid_retriever = HybridRetriever(vector_retriever, bm25_retriever)
 
 
 @router.post("/rag_chat")
@@ -50,18 +55,16 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
                                               )
         # 调用聊天服务
         # 初始化 RAG 生成器
-        rag_generator = RAGGenerator(retriever=retriever)
+        rag_generator = RAGGenerator(retriever=hybrid_retriever)
         result = rag_generator.generate_response(
             query=request.query,
             session_id=request.session_id,
             permission_ids=request.permission_ids,
+            request_id=request_id
         )
         log_operation_success("rag 对话", start_time=chat_start_time, session_id=request.session_id)
         
-        if result.get("status") == "error":
-            raise APIException(error_code=ErrorCode.CHAT_EXCEPTION.value, message=result.get("message"))
-
-        return ResponseBuilder.success(data=result)
+        return result
 
     except ValueError as e:
         return APIException(error_code=ErrorCode.PARAM_ERROR, message=str(e))

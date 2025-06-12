@@ -26,7 +26,12 @@ class RequestMiddleware(BaseHTTPMiddleware):
             Response: FastAPI响应对象
         """
         # 1. 注入请求ID
-        request_id = str(uuid.uuid4())
+        # 先从请求头中获取
+        request_id = request.headers.get('X-Request-ID')
+        if not request_id:
+            # 如果请求头中没有，则生成一个
+            request_id = str(uuid.uuid4())
+        
         request.state.request_id = request_id
 
         # 调试输出请求ID和请求内容

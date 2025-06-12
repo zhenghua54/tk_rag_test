@@ -7,8 +7,8 @@ import asyncio  # 异步操作
 from concurrent.futures import ThreadPoolExecutor  # 线程池管理
 import pymysql
 import os
-import json
 import time
+import json
 
 from src.services.base import BaseService
 from src.utils.common.logger import (
@@ -16,7 +16,7 @@ from src.utils.common.logger import (
     log_operation_error, log_business_info, log_exception
 )
 from config.settings import Config
-from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path, convert_permission_ids_to_list
+from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path
 from src.utils.common.unit_convert import convert_bytes
 from src.api.response import ErrorCode, APIException
 from src.utils.validator.system_validator import SystemValidator
@@ -35,6 +35,8 @@ thread_pool = ThreadPoolExecutor(max_workers=4)
 class DocumentService(BaseService):
     """文档服务类"""
 
+
+
     @staticmethod
     async def upload_file(document_http_url: str, permission_ids: str, callback_url: str = None) -> dict:
         """上传文档"""
@@ -45,7 +47,19 @@ class DocumentService(BaseService):
             ArgsValidator.validate_not_empty(callback_url, "callback_url")
 
         # 对 permission_ids 做转换处理，并字符化处理
-        # permission_ids = json.dumps(convert_permission_ids_to_list(permission_ids))
+        # 将简单的权限ID转换为统一的JSON格式
+        try:
+            # 尝试解析传入的permission_ids，看是否已经是JSON格式
+            json.loads(permission_ids)
+            # 如果能成功解析，说明已经是JSON格式，不需要再转换
+        except (json.JSONDecodeError, TypeError):
+            # 如果不是JSON格式，则转换为统一的JSON格式
+            permission_ids = json.dumps({
+                "departments": [permission_ids],
+                "roles": [],
+                "users": []
+            })
+            log_business_info("权限ID格式转换", original=permission_ids, converted=permission_ids)
 
         start_time = log_operation_start("文档上传",
                                          document_url=document_http_url,
@@ -83,6 +97,7 @@ class DocumentService(BaseService):
             doc_info = check_result.get("doc_info")
 
             if process_status in Config.FILE_STATUS.get("error"):
+
                 start_time = log_operation_start("删除记录", doc_id=doc_id)
                 # 删除所有相关记录
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op, ChunkOperation() as chunk_op:
@@ -326,7 +341,7 @@ class DocumentService(BaseService):
         Args:
             doc_id (str): 文档ID
             document_name (str): 文档名称
-            permission_ids (str): 部门ID
+            permission_ids (str): 权限ID，已格式化为JSON字符串
         """
         try:
             max_attempts = 60  # 最大尝试次数，相当于30分钟
@@ -377,14 +392,14 @@ class DocumentService(BaseService):
                             if not doc_process_path or not os.path.exists(doc_process_path):
                                 raise ValueError(f"处理后的文档路径不存在: {doc_process_path}")
 
-                            # 设置权限信息
-                            permission_ids = {
-                                "departments": [permission_ids],
-                                "roles": [],
-                                "users": []
-                            }
-                            
-                            # 执行文档切块
+                            # 直接使用已经格式化的权限ID
+                            # 从permission_info表中获取权限信息
+                            with PermissionOperation() as permission_op:
+                                permission_info = permission_op.select_by_id(doc_id)
+                                if permission_info:
+                                    permission_ids = permission_info.get("permission_ids", permission_ids)
+
+                            # 执行文档切块，直接传入权限ID字符串，不再进行转换
                             await asyncio.to_thread(
                                 segment_text_content,
                                 doc_id,

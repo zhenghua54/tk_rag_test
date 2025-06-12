@@ -1,8 +1,4 @@
 """向量检索模块"""
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
-
-
 from collections import OrderedDict
 from typing import List
 from langchain_milvus import Milvus
@@ -39,10 +35,14 @@ class VectorRetriever:
         
         try:
             # 不带权限过滤的检索
+            search_params = {
+                "search_type": "similarity",
+                "k": k
+            }
+            
             raw_result = self._vectorstore.similarity_search_with_score(
                 query=query,
-                k=k,
-                output_fields=["seg_id", "seg_parent_id", "doc_id", "permission_ids", "seg_type"]
+                **search_params
             )
             logger.info("=== 不带权限过滤的检索结果 ===")
             for doc, score in raw_result:
@@ -52,18 +52,28 @@ class VectorRetriever:
                           f"相似度分数: {score:.4f}")
             
             # 带权限过滤的检索
-            permission_results = self._vectorstore.similarity_search_with_score(
-                query=query,
-                k=k,
-                expr=f'permission_ids in {permission_ids}',
-                output_fields=["seg_id", "seg_parent_id", "doc_id", "permission_ids", "seg_type"]
-            )
-            logger.info("=== 带权限过滤的检索结果 ===")
-            for doc, score in permission_results:
-                logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
-                          f"片段ID: {doc.metadata.get('seg_id')}, "
-                          f"权限ID: {doc.metadata.get('permission_ids')}, "
-                          f"相似度分数: {score:.4f}")
+            permission_results = raw_result
+            if permission_ids:
+                try:
+                    search_params = {
+                        "search_type": "similarity",
+                        "k": k
+                    }
+                    if permission_ids:
+                        search_params["filter"] = f'permission_ids == "{permission_ids}"'
+                    
+                    permission_results = self._vectorstore.similarity_search_with_score(
+                        query=query,
+                        **search_params
+                    )
+                    logger.info("=== 带权限过滤的检索结果 ===")
+                    for doc, score in permission_results:
+                        logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                                  f"片段ID: {doc.metadata.get('seg_id')}, "
+                                  f"权限ID: {doc.metadata.get('permission_ids')}, "
+                                  f"相似度分数: {score:.4f}")
+                except Exception as e:
+                    logger.warning(f"带权限过滤检索失败，使用不带权限的结果: {str(e)}")
                 
             # 处理检索结果
             for doc, score in permission_results:
@@ -87,7 +97,7 @@ class VectorRetriever:
             
         except Exception as error:
             logger.error(f"向量检索失败: {str(error)}")
-            return []
+            return {}  # 返回空字典而不是空列表
 
 
 if __name__ == '__main__':

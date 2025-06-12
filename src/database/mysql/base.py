@@ -17,36 +17,6 @@ from src.utils.validator.args_validator import ArgsValidator
 class BaseDBOperation:
     """数据库操作基类"""
 
-    # def __init__(self, table_name: str):
-    #     """初始化数据库操作类
-
-    #     Args:
-    #         table_name (str): 表名
-    #     """
-    #     self.table_name = table_name
-    #     self.mysql = None
-    #     self._connection_count = 0 # 添加连接计数器
-
-    # def __enter__(self):
-    #     """上下文管理器入口"""
-    #     if self._connection_count == 0:
-    #         self.mysql = MySQLConnect(
-    #             host=Config.MYSQL_CONFIG['host'],
-    #             user=Config.MYSQL_CONFIG['user'],
-    #             password=Config.MYSQL_CONFIG['password'],
-    #             charset=Config.MYSQL_CONFIG['charset'],
-    #             database=Config.MYSQL_CONFIG['database']
-    #         )
-    #         self.mysql.use_db()
-    #     self._connection_count += 1
-    #     return self
-
-    # def __exit__(self, exc_type, exc_val, exc_tb):
-    #     """上下文管理器出口"""
-    #     self._connection_count -= 1
-    #     if self._connection_count == 0 and self.mysql: # 最后一次退出时关闭连接
-    #         self.mysql.close()
-    #         self.mysql = None
     def __init__(self, table_name: str):
         self.table_name = table_name
         self._pool = MySQLConnectionPool()
