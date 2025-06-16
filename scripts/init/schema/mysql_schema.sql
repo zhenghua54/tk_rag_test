@@ -31,24 +31,24 @@ CREATE TABLE IF NOT EXISTS doc_info
 -- 创建文件分块表
 CREATE TABLE IF NOT EXISTS segment_info
 (
-    cid             INT AUTO_INCREMENT PRIMARY KEY,                                  -- 分块记录的唯一ID
+    cid             BIGINT AUTO_INCREMENT PRIMARY KEY,                                  -- 分块记录的唯一ID
     seg_id          VARCHAR(64) NOT NULL,                                            -- 分块的唯一ID
     seg_parent_id   VARCHAR(64),                                                     -- 分块的父表 seg_id
-    seg_content     TEXT        NOT NULL,                                            -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
-    seg_image_path  VARCHAR(1024),                                                   -- 分块对应的图片路径
-    seg_caption     TEXT,                                                            -- 分块的标题，表格标题、图片标题
-    seg_footnote    TEXT,                                                            -- 分块的脚注，表格脚注、图片脚注
-    seg_len         VARCHAR(100),                                                    -- 分块字符长度
-    seg_type        VARCHAR(100),                                                    -- 分块源元素类型
-    seg_page_idx    VARCHAR(100),                                                    -- 分块所在页码
+    seg_content     LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
+    seg_image_path  VARCHAR(255),                                                   -- 分块对应的图片路径
+    seg_caption     LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的标题，表格标题、图片标题
+    seg_footnote    LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的脚注，表格脚注、图片脚注
+    seg_len         VARCHAR(10),                                                    -- 分块字符长度
+    seg_type        VARCHAR(20),                                                    -- 分块源元素类型
+    seg_page_idx    VARCHAR(10),                                                    -- 分块所在页码
     doc_id          VARCHAR(64) NOT NULL,                                            -- 与文件关联的文档ID
-    is_soft_deleted BOOL      DEFAULT NULL,                                          -- 是否软删除，默认为空
+    is_soft_deleted BOOL      DEFAULT FALSE,                                          -- 是否软删除，默认为空
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- 创建时间， 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
     INDEX idx_doc_id (doc_id),                                                       -- 针对 doc_id 的索引
     FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE,             -- 外键约束
     INDEX idx_seg_id (seg_id)                                                        -- 为 seg_id 增加索引以优化查询
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 -- 创建权限表

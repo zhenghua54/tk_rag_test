@@ -5,6 +5,7 @@ import re
 from typing import Dict
 
 from src.core.rag.llm import llm_client
+from src.utils.llm_utils import llm_manager
 from src.api.error_codes import ErrorCode
 from src.api.response import APIException
 from src.utils.common.logger import logger
@@ -104,18 +105,26 @@ def extract_table_summary(table_html: str) -> Dict[str, str]:
 """
 
     try:
-        # 调用千问 API
-        completion = llm_client.chat.completions.create(
-            model='qwen-turbo-1101',
-            stream=False,
-            messages=[
-                {"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
-                {"role": "user", "content": prompt.format(table_html=table_html)}
-            ]
+        
+        raw_summary = llm_manager.invoke(
+            prompt=prompt.format(table_html=table_html),
+            temperature=0,
+            system_prompt="你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"
         )
+        
+        
+        # # 调用千问 API
+        # completion = llm_client.chat.completions.create(
+        #     model='qwen-turbo-1101',
+        #     stream=False,
+        #     messages=[
+        #         {"role": "system", "content": "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"},
+        #         {"role": "user", "content": prompt.format(table_html=table_html)}
+        #     ]
+        # )
 
         # 获取摘要
-        raw_summary = completion.choices[0].message.content
+        # raw_summary = completion.choices[0].message.content
         logger.debug(f"表格摘要生成成功: {raw_summary[:100]}...")
 
         # 解析和清洗摘要
@@ -154,18 +163,22 @@ def extract_text_summary(text: str) -> str:
 请生成摘要："""
 
     try:
-        # 调用混元 API
-        completion = llm_client.chat.completions.create(
-            model='qwen-turbo-1101',
-            stream=False,
-            messages=[
-                {"role": "system", "content": "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。"},
-                {"role": "user", "content": prompt.format(text=text)}
-            ]
+        raw_summary = llm_manager.invoke(
+            prompt=prompt.format(text=text),
+            system_prompt="你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。"
         )
+        # # 调用混元 API
+        # completion = llm_client.chat.completions.create(
+        #     model='qwen-turbo-1101',
+        #     stream=False,
+        #     messages=[
+        #         {"role": "system", "content": "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。"},
+        #         {"role": "user", "content": prompt.format(text=text)}
+        #     ]
+        # )
 
-        # 获取摘要
-        summary = completion.choices[0].message.content
+        # # 获取摘要
+        # summary = completion.choices[0].message.content
         logger.debug(f"文本摘要生成成功: {summary[:200]}...")
         return summary
 

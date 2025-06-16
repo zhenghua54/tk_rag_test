@@ -168,12 +168,22 @@ class BaseDBOperation:
                 placeholders = ', '.join(['%s'] * len(fields))
                 columns = ', '.join(fields)
                 
+                # 构建批量插入的 SQL
                 sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
                 
+                # 准备所有记录的值
+                all_values = []
                 for record in data:
-                    # 对所有字段进行补齐，保持顺序一致
-                    values = [record.get(field, "") for field in fields]
-                    affected_rows += self._execute_update(sql, tuple(values))
+                    # 对所有字段进行补齐，使用 None 代替空字符串
+                    values = [record.get(field) for field in fields]
+                    all_values.append(tuple(values))
+                
+                # 执行批量插入
+                with self._pool.get_connection() as conn:
+                    with conn.cursor() as cursor:
+                        cursor.executemany(sql, all_values)
+                        conn.commit()
+                        affected_rows = cursor.rowcount
 
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:

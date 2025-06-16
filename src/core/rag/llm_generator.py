@@ -1,14 +1,13 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import PromptTemplate
-from langchain.schema import BaseRetriever, Document
+from langchain.schema import BaseRetriever
 from langchain_openai import ChatOpenAI
 
 from src.api.response import ResponseBuilder, ErrorCode
 from src.utils.common.logger import logger
-from src.core.rag.llm import DASHSCOPE_API_KEY
-
+from src.utils.llm_utils import  llm_manager
 
 class RAGGenerator:
     """RAG 生成器，处理用户查询并生成回答"""
@@ -31,11 +30,14 @@ class RAGGenerator:
         """初始化 LLM 和提示模板"""
         logger.info("初始化 LLM 模型...")
 
+        # 获取LLM管理器实例
+        # llm_manager = LLMManager.get_instance()
+
         # 初始化 LLM
         llm = ChatOpenAI(
             temperature=0,
             model='qwen-turbo-1101',
-            openai_api_key=DASHSCOPE_API_KEY,
+            openai_api_key=llm_manager.api_key,
             openai_api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
         )
 

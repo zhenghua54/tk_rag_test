@@ -23,15 +23,6 @@ from src.api import document_api
 from src.middleware.base_middleware import RequestMiddleware
 from src.core.lifecycle import lifespan
 
-# 检查环境
-# # 检查 PyMuPDF
-# try:
-#     import fitz
-# except ImportError:
-#     logger.error("缺少依赖: PyMuPDF (fitz)")
-#     raise ImportError("请安装 PyMuPDF: pip install PyMuPDF")
-
-
 
 
 # 创建FastAPI应用实例

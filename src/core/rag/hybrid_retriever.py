@@ -1,9 +1,4 @@
 """混合检索模块"""
-from dotenv import load_dotenv
-load_dotenv()
-
-import os,sys
-sys.path.append('/home/jason/tk_rag')
 from typing import List, Any, Dict, OrderedDict
 
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -17,7 +12,7 @@ from src.utils.common.logger import logger
 from src.core.rag.retrieval.text_retriever import get_segment_contents
 from src.core.rag.retrieval.vector_retriever import VectorRetriever
 from src.core.rag.retrieval.bm25_retriever import BM25Retriever
-from src.core.rag.reranker import rerank_results
+from src.utils.llm_utils import  rerank_manager
 
 
 def init_retrievers():
@@ -231,11 +226,26 @@ class HybridRetriever(BaseRetriever):
             logger.debug(f"[混合检索] rerank_input 共有 {len(rerank_input)} 条结果")
 
             # 重排序
-            reranked_results = rerank_results(query=query, merged_results=rerank_input, top_k=top_k)
-            logger.debug(f"[重排序] 重排完成, 返回 {len(reranked_results)} 条结果")
+            reranked_result = []
+            if rerank_input:
+                scores = rerank_manager.rerank(
+                    query=query, 
+                    passages=[doc.page_content for doc in rerank_input]
+                    )
+                # 将分数与文档配对
+                reranked_result = [
+                    (doc, score) for doc, score in zip(rerank_input, scores)
+                ]
+                
+                # 按分数排序并提取前 tok_k 个
+                reranked_result.sort(key=lambda x: x[1], reverse=True)
+                reranked_result = reranked_result[:top_k]
+                
+            # reranked_result = rerank_results(query=query, merged_results=rerank_input, top_k=top_k)
+            logger.debug(f"[重排序] 重排完成, 返回 {len(reranked_result)} 条结果")
 
             # 提取文档列表
-            return [doc for doc, _ in reranked_results]
+            return [doc for doc, _ in reranked_result]
 
         except Exception as error:
             logger.error(f"混合检索失败: {str(error)}")

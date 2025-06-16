@@ -9,7 +9,7 @@ from src.utils.table_toolkit import html_table_to_markdown
 from src.utils.common.logger import logger
 from src.database.mysql.operations import ChunkOperation
 from src.database.milvus.operations import VectorOperation
-from src.core.rag.embedder import embed_text
+from src.utils.llm_utils import embedding_manager
 from src.database.elasticsearch.operations import ElasticsearchOperation
 from config.settings import Config
 
@@ -92,7 +92,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 continue
 
                             seg_id = generate_seg_id(chunk)  # 片段 ID
-                            vector = embed_text(chunk)  # 片段向量
+                            vector = embedding_manager.embed_text(chunk)  # 片段向量
 
                             # 向量验证
                             if not isinstance(vector, list) or len(vector) != 1024:
@@ -157,7 +157,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     # 根据表格长度选择所用内容，并 Embedding
                     segment_content = content.get('summary', table_markdown) if len(
                         table_markdown) > 1000 else table_markdown
-                    table_vector = embed_text(segment_content)
+                    table_vector = embedding_manager.embed_text(segment_content)
 
                     # 向量验证
                     if not isinstance(table_vector, list) or len(table_vector) != 1024:
@@ -226,7 +226,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                                 logger.warning(f"跳过空的子表块: '{table_segment}'")
                                 continue
 
-                            sub_table_vector = embed_text(table_segment)
+                            sub_table_vector = embedding_manager.embed_text(table_segment)
                             sub_seg_id = generate_seg_id(table_segment)
 
                             # 向量验证
@@ -293,7 +293,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         logger.warning(f"图片标题为空，使用默认标题")
                         image_title = f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
 
-                    image_vector = embed_text(image_title)
+                    image_vector = embedding_manager.embed_text(image_title)
 
                     # 向量验证
                     if not isinstance(image_vector, list) or len(image_vector) != 1024:
