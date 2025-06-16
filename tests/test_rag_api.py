@@ -10,9 +10,8 @@ import requests
 from pathlib import Path
 
 # 设置环境变量
-root_path = Path(__file__).resolve().parent
+root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
-
 
 from config.settings import Config
 

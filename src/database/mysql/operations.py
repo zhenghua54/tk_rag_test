@@ -6,6 +6,34 @@ from src.database.mysql.base import BaseDBOperation
 from src.utils.common.logger import logger
 
 
+def normalize_records(records: List[Dict]) -> List[Dict]:
+    """
+    规范化多条字典记录，确保每条记录字段一致，不存在字段缺失。
+    对缺失字段使用 None 补齐，方便批量数据库插入时字段对齐。
+
+    Args:
+        records (List[Dict]): 输入的多条字典记录，字段可能不一致。
+
+    Returns:
+        List[Dict]: 规范化后的记录列表，每条记录字段完全一致。
+    """
+
+    # 收集所有记录中出现的字段, 形成完整集合
+    all_fields = set()
+    for record in records:
+        all_fields.update(record.keys())
+
+    # 对字段排序,保证字段顺序一致(可选, 可修改)
+    fields = sorted(all_fields)
+
+    normalize = []
+    for record in records:
+        # 按照排序后的字段顺序, 遍历每条记录缺失的字段, 以 None 补齐
+        normalize.append({field: record.get(field, None) for field in fields})
+
+    return normalize
+
+
 class FileInfoOperation(BaseDBOperation):
     """文件信息表(file_info)操作类"""
 
@@ -54,7 +82,7 @@ class FileInfoOperation(BaseDBOperation):
 
             raise e
 
-    def insert_datas(self, args: Dict):
+    def insert_data(self, args: Dict):
         """插入文件信息
 
         Args:
@@ -115,6 +143,8 @@ class ChunkOperation(BaseDBOperation):
             bool: 插入是否成功
         """
         try:
+            # 统一字段
+            chunks = normalize_records(chunks)
             return self.insert(chunks)
         except Exception as e:
             raise e

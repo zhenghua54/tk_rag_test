@@ -141,7 +141,7 @@ class DocumentService(BaseService):
             # 插入数据库元信息
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                    file_op.insert_datas(doc_info)
+                    file_op.insert_data(doc_info)
                     log_business_info("文档入库", doc_id=doc_id)
                     # log_business_info("文档入库", doc_id=doc_id, file_info=doc_info)
                     # 插入权限信息到数据库

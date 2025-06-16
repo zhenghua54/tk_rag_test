@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS segment_info
     cid             BIGINT AUTO_INCREMENT PRIMARY KEY,                                  -- 分块记录的唯一ID
     seg_id          VARCHAR(64) NOT NULL,                                            -- 分块的唯一ID
     seg_parent_id   VARCHAR(64),                                                     -- 分块的父表 seg_id
-    seg_content     LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
+    seg_content     JSON,                                                           -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
     seg_image_path  VARCHAR(255),                                                   -- 分块对应的图片路径
     seg_caption     LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的标题，表格标题、图片标题
     seg_footnote    LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的脚注，表格脚注、图片脚注

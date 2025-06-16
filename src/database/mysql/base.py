@@ -133,7 +133,7 @@ class BaseDBOperation:
             raise e
 
     def insert(self, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> int:
-        """插入记录(单条或多条)
+        """插入记录(单条或多条),请确保所有数据的字段一致
 
         Args:
             data (Union[Dict[str, Any], List[Dict[str, Any]]]): 要插入的数据,单条=dict,多条=list[dict]
@@ -145,6 +145,7 @@ class BaseDBOperation:
             APIException: 数据插入失败时抛出
         """
         affected_rows = 0
+
         # 单条数据
         if isinstance(data, dict):
             try:
@@ -154,41 +155,35 @@ class BaseDBOperation:
                 affected_rows = self._execute_update(sql, tuple(data.values()))
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
-                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}")
+                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}, 数据: {data}")
                 raise APIException(ErrorCode.DB_INSERT_ERROR, f"数据插入失败: {str(e)}")
         # 多条数据
         elif isinstance(data, list) and len(data) > 0:
             try:
-                # 获取所有字段
-                all_fields = set()
-                for record in data:
-                    all_fields.update(record.keys())
-                
-                fields = sorted(all_fields)
-                placeholders = ', '.join(['%s'] * len(fields))
+                # 获取字段列表
+                fields = list(data[0].keys())
                 columns = ', '.join(fields)
+                placeholders = ', '.join(['%s'] * len(fields))
                 
-                # 构建批量插入的 SQL
+                # 构建SQL语句
                 sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
                 
-                # 准备所有记录的值
-                all_values = []
-                for record in data:
-                    # 对所有字段进行补齐，使用 None 代替空字符串
-                    values = [record.get(field) for field in fields]
-                    all_values.append(tuple(values))
+                # 准备批量插入的数据
+                values = [tuple(record[field] for field in fields) for record in data]
                 
                 # 执行批量插入
                 with self._pool.get_connection() as conn:
                     with conn.cursor() as cursor:
-                        cursor.executemany(sql, all_values)
+                        logger.debug(f"SQL: {sql}")
+                        logger.debug(f"VALUES[0]: {values[0]}")
+                        cursor.executemany(sql, values)
                         conn.commit()
                         affected_rows = cursor.rowcount
 
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
-                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}, 共 {len(data)} 条记录")
-                raise APIException(ErrorCode.DB_INSERT_ERROR, f"批量数据插入失败: {str(e)}")
+                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {str(e)}, 共 {len(data)} 条记录")
+                raise ValueError(f"批量数据插入失败: {str(e)}")
         return affected_rows
 
 

@@ -1,0 +1,35 @@
+[
+  {
+    "type": "table",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/ee35125264525177647eb306a9dcf3251202032746b1ccce0773417914f94037.jpg",
+    "table_caption": "质量管理文件编制流程",
+    "table_footnote": [],
+    "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
+    "page_idx": 17,
+    "summary": "质量管理总纲（QES-001-2025）由质量与安全管理部编制，经审核后于2025年01月24日批准实施。"
+  },
+  {
+    "type": "text",
+    "text": "五、 质量组织架构、质量组织人员、质量岗位职责\n5.1 公司组织架构",
+    "page_idx": 17
+  },
+  {
+    "type": "image",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/6964f8fa75d418cbdf1c09e4eabd63a63ad6c519dc035df329fd57fe6c5b067e.jpg",
+    "img_caption": "5.1 公司组织架构",
+    "img_footnote": [],
+    "page_idx": 17
+  },
+  {
+    "type": "text",
+    "text": "5.2 质量管理组织架构",
+    "page_idx": 17
+  },
+  {
+    "type": "image",
+    "img_path": "/home/jason/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/212bb3dbb6812953cc5d4480440fb87c670f9d3dc5eea8f973ca24f63c06aaf2.jpg",
+    "img_caption": "5.2 质量管理组织架构",
+    "img_footnote": [],
+    "page_idx": 17
+  }
+]
