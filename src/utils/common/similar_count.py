@@ -1,7 +1,7 @@
 """相似度分数计算"""
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from config import Config
+from config.settings import Config
 
 
 class SimilarCount:

@@ -1,0 +1,46 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "analysis": {
+      "analyzer": {
+        "ik_smart_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_smart"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "seg_id": {
+        "type": "keyword"
+      },
+      "seg_parent_id": {
+        "type": "keyword"
+      },
+      "doc_id": {
+        "type": "keyword"
+      },
+      "seg_content": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "seg_type": {
+        "type": "keyword"
+      },
+      "seg_page_idx": {
+        "type": "keyword"
+      },
+      "update_time": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||epoch_millis"
+      },
+      "metadata": {
+        "type": "object",
+        "enabled": true
+      }
+    }
+  }
+}

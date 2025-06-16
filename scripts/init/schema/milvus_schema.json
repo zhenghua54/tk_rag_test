@@ -1,0 +1,66 @@
+{
+  "collection_name": "rag_collection",
+  "fields": [
+    {
+      "name": "vector",
+      "type": "FLOAT_VECTOR",
+      "dim": 1024,
+      "is_primary": false,
+      "description": "主向量字段，使用 BGE-M3 生成"
+    },
+    {
+      "name": "seg_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "段落ID（使用哈希值）"
+    },
+    {
+      "name": "seg_parent_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "父段落ID，用于子表引用主表"
+    },
+    {
+      "name": "doc_id",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "is_primary": true,
+      "description": "唯一文档ID（哈希值）"
+    },
+    {
+      "name": "seg_content",
+      "type": "VARCHAR",
+      "max_length": 4096,
+      "description": "摘要内容，用于后验展示"
+    },
+    {
+      "name": "seg_type",
+      "type": "VARCHAR",
+      "max_length": 32,
+      "description": "片段类型，如 text / table / image"
+    },
+    {
+      "name": "permission_ids",
+      "type": "VARCHAR",
+      "max_length": 1024,
+      "description": "权限ID列表，JSON格式，包含departments、roles、users等权限信息"
+    },
+    {
+      "name": "create_time",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "嵌入创建时间"
+    },
+    {
+      "name": "update_time",
+      "type": "VARCHAR",
+      "max_length": 64,
+      "description": "嵌入更新时间"
+    },
+    {
+      "name": "metadata",
+      "type": "JSON",
+      "description": "可选扩展字段"
+      }
+    ]
+  }
