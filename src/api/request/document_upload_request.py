@@ -19,7 +19,7 @@ class DocumentUploadRequest(BaseModel):
         max_length=1000
     )
     department_id: str = Field(
-        ...,
+        None,
         description="部门ID，必须是一个有效的部门标识符",
         min_length=1,
         max_length=32,

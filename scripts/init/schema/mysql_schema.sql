@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS segment_info
     cid             BIGINT AUTO_INCREMENT PRIMARY KEY,                                  -- 分块记录的唯一ID
     seg_id          VARCHAR(64) NOT NULL,                                            -- 分块的唯一ID
     seg_parent_id   VARCHAR(64),                                                     -- 分块的父表 seg_id
-    seg_content     JSON,                                                           -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
+    seg_content     TEXT,                                                           -- 分块的元内容，表格 html，图片标题（暂时，增加标识），文本内容
     seg_image_path  VARCHAR(255),                                                   -- 分块对应的图片路径
-    seg_caption     LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的标题，表格标题、图片标题
-    seg_footnote    LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,        -- 分块的脚注，表格脚注、图片脚注
+    seg_caption     TEXT,                                                           -- 分块的标题，表格标题、图片标题
+    seg_footnote    TEXT,                                                           -- 分块的脚注，表格脚注、图片脚注
     seg_len         VARCHAR(10),                                                    -- 分块字符长度
     seg_type        VARCHAR(20),                                                    -- 分块源元素类型
     seg_page_idx    VARCHAR(10),                                                    -- 分块所在页码
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS segment_info
 CREATE TABLE IF NOT EXISTS permission_info
 (
     pid             INT AUTO_INCREMENT PRIMARY KEY,                                  -- 权限记录唯一ID
-    permission_ids  VARCHAR(64) NOT NULL,                                            -- 部门ID
+    permission_ids  VARCHAR(64),                                                     -- 部门ID, 允许为空，为空代表不限制
     doc_id          VARCHAR(64) NOT NULL,                                            -- 文档ID
     is_soft_deleted BOOL      DEFAULT FALSE,                                         -- 是否软删除，默认为 false
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,                             -- 权限创建时间

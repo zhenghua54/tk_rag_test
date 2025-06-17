@@ -1,4 +1,6 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
+
+from langchain_core.documents import Document
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import PromptTemplate
@@ -7,7 +9,8 @@ from langchain_openai import ChatOpenAI
 
 from src.api.response import ResponseBuilder, ErrorCode
 from src.utils.common.logger import logger
-from src.utils.llm_utils import  llm_manager
+from src.utils.llm_utils import llm_manager
+
 
 class RAGGenerator:
     """RAG 生成器，处理用户查询并生成回答"""
@@ -45,7 +48,7 @@ class RAGGenerator:
         system_prompt = """你的任务是基于企业知识库中的信息，准确并清晰地回答用户提出的问题。"""
         chat_prompt = PromptTemplate(
             input_variables=["context", "chat_history", "question"],
-            template="""你是一个专业且严谨的企业知识问答助手。
+            template="""你是一个专业且严谨的企业知识问答助手，你的名字叫‘天宽认知助手’
 
 请遵循以下规则：
 
@@ -83,7 +86,7 @@ class RAGGenerator:
         # 如果该会话ID已有记忆实例，直接返回
         if session_id in self._memory_store:
             return self._memory_store[session_id]
-        
+
         # 否则创建新的记忆实例
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history",
@@ -94,10 +97,10 @@ class RAGGenerator:
             human_prefix="用户",
             ai_prefix="助手",
         )
-        
+
         # 存储到类级别的记忆存储中
         self._memory_store[session_id] = memory
-        
+
         return memory
 
     def _create_chain(self, session_id: str) -> ConversationalRetrievalChain:
@@ -111,7 +114,7 @@ class RAGGenerator:
         """
         # 获取会话对应的记忆实例
         self.memory = self._get_memory(session_id)
-        
+
         # 创建对话链
         chain = ConversationalRetrievalChain.from_llm(
             llm=self.llm,
@@ -123,7 +126,7 @@ class RAGGenerator:
             return_source_documents=True,
             verbose=True,
         )
-        
+
         return chain
 
     def generate_response(self,
@@ -155,35 +158,15 @@ class RAGGenerator:
             self.chain = self._create_chain(session_id)
 
             # 使用权限ID进行检索
-            docs = self.retriever._get_relevant_documents(query, permission_ids=permission_ids)
-            
-            # 如果没有找到相关文档，直接返回提示信息
-            if not docs:
-                return ResponseBuilder.success(
-                    data={
-                        "answer": "抱歉，知识库中没有找到相关信息",
-                        "session_id": session_id,
-                        "metadata": [],
-                        "chat_history": [
-                            {
-                                "role": "human",
-                                "content": query
-                            },
-                            {
-                                "role": "ai",
-                                "content": "抱歉，知识库中没有找到相关信息"
-                            }
-                        ]
-                    },
-                    request_id=request_id
-                )
+            docs: List[Document] = self.retriever.get_relevant_documents(query, permission_ids=permission_ids)
+            print(f"检索到的文档数量: {len(docs)}")
 
             # 手动构建上下文
             context = "\n\n".join([doc.page_content for doc in docs])
-            
+
             # 获取历史对话
             chat_history = self.memory.load_memory_variables({}).get("chat_history", [])
-            
+
             # 使用LLM直接生成回答
             response_text = self.llm.invoke(
                 self.chat_prompt.format(
@@ -192,10 +175,10 @@ class RAGGenerator:
                     question=query
                 )
             ).content
-            
+
             # 更新对话记忆
             self.memory.save_context({"question": query}, {"answer": response_text})
-            
+
             # 提取源文档元数据
             metadata = []
             for doc in docs:

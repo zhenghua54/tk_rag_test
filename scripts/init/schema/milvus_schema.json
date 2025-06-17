@@ -43,7 +43,7 @@
       "name": "permission_ids",
       "type": "VARCHAR",
       "max_length": 1024,
-      "description": "权限ID列表，JSON格式，包含departments、roles、users等权限信息"
+      "description": "权限ID列表，部门 ID，后续可能扩展角色和账号信息"
     },
     {
       "name": "create_time",

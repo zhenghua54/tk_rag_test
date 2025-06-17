@@ -18,6 +18,18 @@ class ErrorCode(Enum):
     MYSQL_UPDATE_FAIL = 1002
     MYSQL_DELETE_FAIL = 1003
     MYSQL_QUERY_FAIL = 1004
+    MILVUS_CONNECTION_FAIL = 1100
+
+    MILVUS_INSERT_FAIL = 1101
+    MILVUS_UPDATE_FAIL = 1102
+    MILVUS_DELETE_FAIL = 1103
+    MILVUS_QUERY_FAIL = 1104
+
+    ES_CONNECTION_FAIL = 1200
+    ES_INSERT_FAIL = 1201
+    ES_UPDATE_FAIL = 1202
+    ES_DELETE_FAIL = 1203
+    ES_QUERY_FAIL = 1204
 
     # 权限相关错误
     UNAUTHORIZED = 2000
@@ -49,7 +61,7 @@ class ErrorCode(Enum):
     FILE_SAVE_FAILED = 4015
     DOC_PROCESS_ERROR = 4016
     FILE_EXISTS_PENDING = 4017
-    FILE_HASH_FAIL= 4018
+    FILE_HASH_FAIL = 4018
 
     # 会话相关错误
     QUESTION_TOO_LONG = 5000
@@ -66,7 +78,6 @@ class ErrorCode(Enum):
     MODEL_TIMEOUT = 7000
     EMBEDDING_MODEL_LOAD_FAILED = 7001
     EMBEDDING_FAILED = 7002
-
 
     @staticmethod
     def get_message(error_code) -> str:
@@ -95,13 +106,23 @@ ERROR_MESSAGES = {
     ErrorCode.DUPLICATE_OPERATION: "重复操作, 请勿重复提交请求",
     ErrorCode.CALLBACK_ERROR: "回调通知失败",
 
+    ErrorCode.MYSQL_CONNECTION_FAIL: "mysql 连接失败，请检查数据库连接配置",
+    ErrorCode.MYSQL_INSERT_FAIL: "mysql 数据新增失败，请检查插入数据是否符合要求",
+    ErrorCode.MYSQL_UPDATE_FAIL: "mysql 数据更新失败，请检查更新数据是否符合要求",
+    ErrorCode.MYSQL_DELETE_FAIL: "mysql 数据删除失败",
+    ErrorCode.MYSQL_QUERY_FAIL: "mysql 数据查询失败",
 
-    ErrorCode.MYSQL_CONNECTION_FAIL: "数据库连接失败，请检查数据库连接配置",
-    ErrorCode.MYSQL_INSERT_FAIL: "数据新增失败，请检查插入数据是否符合要求",
-    ErrorCode.MYSQL_UPDATE_FAIL: "数据更新失败，请检查更新数据是否符合要求",
-    ErrorCode.MYSQL_DELETE_FAIL: "数据删除失败",
-    ErrorCode.MYSQL_QUERY_FAIL: "数据查询失败",
+    ErrorCode.MILVUS_CONNECTION_FAIL: "Milvus 连接失败，请检查数据库连接配置",
+    ErrorCode.MILVUS_INSERT_FAIL: "Milvus 数据新增失败，请检查插入数据是否符合要求",
+    ErrorCode.MILVUS_UPDATE_FAIL: "Milvus 数据更新失败，请检查更新数据是否符合要求",
+    ErrorCode.MILVUS_DELETE_FAIL: "Milvus 数据删除失败",
+    ErrorCode.MILVUS_QUERY_FAIL: "Milvus 数据查询失败",
 
+    ErrorCode.ES_CONNECTION_FAIL: "Elasticsearch 连接失败，请检查数据库连接配置",
+    ErrorCode.ES_INSERT_FAIL: "ES 数据新增失败，请检查插入数据是否符合要求",
+    ErrorCode.ES_UPDATE_FAIL: "ES 数据更新失败，请检查更新数据是否符合要求",
+    ErrorCode.ES_DELETE_FAIL: "ES 数据删除失败",
+    ErrorCode.ES_QUERY_FAIL: "ES 数据查询失败",
 
     ErrorCode.UNAUTHORIZED: "未授权操作, 请重新登录",
     ErrorCode.PERMISSION_INVALID: "权限无效, 请重新登录",
@@ -137,7 +158,7 @@ ERROR_MESSAGES = {
     ErrorCode.KB_MATCH_FAILED: "未检索到数据, 请尝试调整问题描述或确认是否启用了权限管理",
     ErrorCode.CONTEXT_TOO_LONG: "上下文长度超限, 建议开启新的会话",
 
-    ErrorCode.CHAT_EXCEPTION:"聊天异常",
+    ErrorCode.CHAT_EXCEPTION: "聊天异常",
 
     ErrorCode.CONVERT_FAILED: "转换PDF失败",
 

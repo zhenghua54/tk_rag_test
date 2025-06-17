@@ -193,6 +193,22 @@ class ElasticsearchOperation:
             bool: 是否删除成功
         """
         try:
+            # 先检查是否存在数据
+            search_response = self.client.search(
+                index=self.index_name,
+                body={
+                    "query": {
+                        "term": {
+                            "doc_id": doc_id
+                        }
+                    },
+                    "size": 1
+                }
+            )
+            
+            if search_response["hits"]["total"]["value"] == 0:
+                return False
+
             # 构建删除查询
             query = {
                 "query": {
@@ -202,18 +218,38 @@ class ElasticsearchOperation:
                 }
             }
             
-            # 执行删除
+            # 执行删除并等待完成
             response = self.client.delete_by_query(
                 index=self.index_name,
-                body=query
+                body=query,
+                wait_for_completion=True,  # 等待删除完成
+                refresh=True,  # 立即刷新索引
+                conflicts="proceed"  # 遇到冲突时继续执行
             )
             
-            deleted_count = response.get('deleted', 0)
-            logger.info(f"成功删除文档 {doc_id} 相关的 {deleted_count} 条数据")
-            return True
+            # 验证删除是否成功
+            verify_response = self.client.search(
+                index=self.index_name,
+                body={
+                    "query": {
+                        "term": {
+                            "doc_id": doc_id
+                        }
+                    },
+                    "size": 1
+                }
+            )
+            
+            if verify_response["hits"]["total"]["value"] == 0:
+                deleted_count = response.get('deleted', 0)
+                logger.info(f"成功删除ES文档记录: {doc_id}, 删除数量: {deleted_count}")
+                return True
+            else:
+                logger.error(f"ES文档删除验证失败: {doc_id}")
+                return False
             
         except Exception as e:
-            logger.error(f"删除文档 {doc_id} 失败: {str(e)}")
+            logger.error(f"删除ES数据失败: {str(e)}")
             return False
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
@@ -466,14 +502,16 @@ class ElasticsearchOperation:
             print(f"索引 '{index_name}' 不存在")
 
 if __name__ == '__main__':
+    from rich import print
     load_dotenv(verbose=True)
     es_op = ElasticsearchOperation()
     # 先获取统计信息
     stats = es_op.get_stats()
+    # print(stats)
 
     # 查询文档
-    # res = es_op.search(query="管理规定")
-    # print(res)
+    res = es_op.search(query="天宽科技")
+    print(res)
 
     # seg_id = "3b792c3cd80dd67d375c68c08f5e2ff3781c5948e7825ff7c6f8e2deaacedbab"
     # 根据 seg_id 删除文档
@@ -490,9 +528,10 @@ if __name__ == '__main__':
 
     # 然后列出所有文档
     # docs = es_op.list_all_documents()
+    # print(docs)
 
     # 删除索引
-    es_op._delete_index()
+    # es_op._delete_index()
 
     # bash 执行
     # 删除索引：curl -X DELETE "http://localhost:9200/your_index_name" -u elastic:your_password

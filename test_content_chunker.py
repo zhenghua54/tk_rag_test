@@ -1,4 +1,3 @@
-import json
 from src.core.document.content_chunker import segment_text_content
 
 def test_segment_text_content():
@@ -14,7 +13,6 @@ def test_segment_text_content():
         # 执行文档切块
         result = segment_text_content(
             doc_id=doc_id,
-            document_name=document_name,
             doc_process_path=doc_process_path,
             permission_ids=permission_ids
         )

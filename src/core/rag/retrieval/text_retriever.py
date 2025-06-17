@@ -1,5 +1,6 @@
 """原文检索模块"""
 from typing import Optional, Dict, Any, List
+import json
 from src.utils.common.logger import logger
 from src.database.mysql.operations import ChunkOperation
 
@@ -50,7 +51,7 @@ def get_segment_contents(seg_ids: List[str] = None, doc_ids: List[str] = None, p
             logger.error("必须提供 seg_ids 或 doc_ids 参数")
             return []
             
-        # 构建关联查询SQL
+        # 构建关联查询SQL - 使用二进制比较避免字符集冲突
         sql = """
         SELECT 
             s.*,  -- 片段信息表的所有字段
@@ -59,8 +60,8 @@ def get_segment_contents(seg_ids: List[str] = None, doc_ids: List[str] = None, p
             f.updated_at as doc_updated_at,
             p.permission_ids  -- 权限信息表的字段
         FROM segment_info s
-        LEFT JOIN doc_info f ON s.doc_id = f.doc_id
-        LEFT JOIN permission_info p ON s.doc_id = p.doc_id
+        LEFT JOIN doc_info f ON BINARY s.doc_id = BINARY f.doc_id
+        LEFT JOIN permission_info p ON BINARY s.doc_id = BINARY p.doc_id
         WHERE 1=1
         """
         
@@ -83,7 +84,12 @@ def get_segment_contents(seg_ids: List[str] = None, doc_ids: List[str] = None, p
                 placeholders = ', '.join(['%s'] * len(doc_ids))
                 sql += f" AND s.doc_id IN ({placeholders})"
                 params.extend(doc_ids)
-                
+        
+        # 如果提供了权限ID，直接在SQL中添加权限过滤
+        if permission_ids:
+            sql += " AND (p.permission_ids = %s OR p.permission_ids IS NULL)"
+            params.append(permission_ids)
+
         # 执行查询
         segment_info = []
         if chunk_op is not None:
@@ -96,12 +102,18 @@ def get_segment_contents(seg_ids: List[str] = None, doc_ids: List[str] = None, p
         if not segment_info:
             return []
         
+        logger.info(f"mysql 查询到 {len(segment_info)} 条记录")
+        
         # 转换结果格式
         results = []
         for record in segment_info:
-            # 如果指定了权限ID，则进行过滤
-            if permission_ids and record.get("permission_ids") != permission_ids:
-                logger.debug(f"权限过滤: 跳过文档 {record.get('seg_id')}, 权限不匹配 (需要: {permission_ids}, 实际: {record.get('permission_ids')})")
+            # 记录权限信息用于调试
+            record_permission = record.get("permission_ids")
+            logger.debug(f"记录权限信息: {record_permission}, 用户权限: {permission_ids}")
+            
+            # 如果指定了权限ID，则进行过滤 (这里作为双重保险，实际上SQL已经过滤过了)
+            if permission_ids and record_permission and record_permission != permission_ids:
+                logger.debug(f"权限过滤: 跳过文档 {record.get('seg_id')}, 权限不匹配 (需要: {permission_ids}, 实际: {record_permission})")
                 continue
                 
             result = {

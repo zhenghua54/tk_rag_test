@@ -48,7 +48,6 @@ def test_document_chunk():
         # 执行分块
         result = segment_text_content(
             doc_id=doc_id,
-            document_name=document_name,
             doc_process_path=doc_process_path,
             permission_ids=permission_ids
         )

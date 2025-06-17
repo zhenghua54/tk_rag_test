@@ -85,17 +85,5 @@ class ArgsValidator:
         if not re.match(r'^[a-zA-Z0-9_-]+$', seg_id) and not re.match(r'^[a-f0-9]{64}$', seg_id):
             raise ValueError(f"段落ID格式不正确: {seg_id}")
 
-    @staticmethod
-    def validate_department_id(permission_ids: str) -> None:
-        """验证部门ID格式
-        
-        Args:
-            permission_ids: 部门ID
-            
-        Raises:
-            ValueError: 当部门ID格式不正确时抛出
-        """
-        ArgsValidator.validate_not_empty(permission_ids, "permission_ids")
-        ArgsValidator.validate_type(permission_ids, str, "permission_ids")
 
     

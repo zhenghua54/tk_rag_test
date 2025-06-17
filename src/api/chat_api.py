@@ -4,20 +4,15 @@ from fastapi import APIRouter, Request
 
 from src.api.request.chat_ragchat_request import ChatRequest
 from src.api.response import ResponseBuilder, ErrorCode, APIException
-from src.services.chat_server import ChatService
+# from src.services.chat_server import ChatService
 from src.utils.common.logger import log_exception, log_operation_start, log_business_info, log_operation_success
 from src.core.rag.llm_generator import RAGGenerator
-from src.core.rag.hybrid_retriever import HybridRetriever, init_retrievers
+from src.core.rag.hybrid_retriever import hybrid_retriever
 
 router = APIRouter(
     prefix="/chat",
     tags=["聊天相关"],
 )
-
-# 全局初始化混合检索器，避免每次请求都重新初始化
-vector_retriever, bm25_retriever = init_retrievers()
-hybrid_retriever = HybridRetriever(vector_retriever, bm25_retriever)
-
 
 @router.post("/rag_chat")
 async def rag_chat(request: ChatRequest, fastapi_request=Request):
@@ -37,7 +32,7 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
     """
     try:
         # 获取服务实例
-        chat_service = ChatService.get_instance()
+        # chat_service = ChatService.get_instance()
         # 获取请求ID
         request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, 'request_id') else None
         print(request_id)

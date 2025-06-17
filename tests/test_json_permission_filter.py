@@ -38,7 +38,7 @@ def test_json_permission_filter():
             print(f"\n\n===== 查询: '{query}', 权限ID: '{permission_ids}' =====")
             
             # 执行混合检索
-            docs = hybrid_retriever._get_relevant_documents(
+            docs = hybrid_retriever.get_relevant_documents(
                 query, 
                 top_k=5, 
                 permission_ids=permission_ids

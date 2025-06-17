@@ -174,8 +174,6 @@ class BaseDBOperation:
                 # 执行批量插入
                 with self._pool.get_connection() as conn:
                     with conn.cursor() as cursor:
-                        logger.debug(f"SQL: {sql}")
-                        logger.debug(f"VALUES[0]: {values[0]}")
                         cursor.executemany(sql, values)
                         conn.commit()
                         affected_rows = cursor.rowcount

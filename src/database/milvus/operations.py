@@ -4,7 +4,6 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from src.database.milvus.connection import MilvusDB
 from src.utils.common.logger import logger
-from src.utils.validator.args_validator import ArgsValidator
 from config.settings import Config
 import json
 
@@ -66,7 +65,7 @@ class VectorOperation:
                            "seg_type", "permission_ids", "create_time", "update_time"]
             for field in string_fields:
                 if field in item and not isinstance(item[field], str):
-                    raise ValueError(f"第 {idx + 1} 条数据的 {field} 字段必须是字符串")
+                    raise ValueError(f"第 {idx + 1} 条数据的 {field} 字段必须是字符串, 内容: {item[field]}, 类型: {type(item[field])}")
                     
             # 验证 metadata 字段
             if "metadata" in item and not isinstance(item["metadata"], dict):
@@ -84,8 +83,6 @@ class VectorOperation:
         Raises:
             ValueError: 当数据格式不符合要求时抛出
         """
-        ArgsValidator.validate_list_not_empty(data, "data")
-        ArgsValidator.validate_type(data, list, "data")
 
         try:
             # 验证数据格式
@@ -110,7 +107,6 @@ class VectorOperation:
         Returns:
             Optional[str]: 插入成功的 seg_id，失败返回 None
         """
-        ArgsValidator.validate_type(data, dict, "data")
         result = self.insert_data([data])
         return result[0] if result else None
 
@@ -123,12 +119,11 @@ class VectorOperation:
         Returns:
             List[Dict[str, Any]]: 检索结果列表
         """
-        ArgsValidator.validate_doc_id(doc_id)
         try:
-            results = self.milvus.client.query(
+            results = self.milvus.client.get(
                 collection_name=self.milvus.collection_name,
-                expr=f'doc_id == "{doc_id}"',
-                output_fields=["*"]
+                ids=doc_id,
+                output_fields=["*"],
             )
             return results
         except Exception as e:
@@ -142,16 +137,15 @@ class VectorOperation:
             seg_id (str): 段落ID
 
         Returns:
-            Optional[Dict[str, Any]]: 检索结果，未找到返回 None
+            Optional[Dict[str, Any]]: 检索到的实体结果，未找到返回 None
         """
-        ArgsValidator.validate_seg_id(seg_id)
         try:
-            results = self.milvus.client.query(
+            results = self.milvus.client.get(
                 collection_name=self.milvus.collection_name,
-                expr=f'seg_id == "{seg_id}"',
-                output_fields=["*"]
+                ids=seg_id,
+                output_fields=["*"],
             )
-            return results[0] if results else None
+            return None
         except Exception as e:
             logger.error(f"根据段落ID检索失败: {e}")
             return None
@@ -166,9 +160,6 @@ class VectorOperation:
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validate_doc_id(doc_id)
-        ArgsValidator.validate_type(data, dict, "data")
-
         try:
             # 添加更新时间
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -194,9 +185,6 @@ class VectorOperation:
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validate_seg_id(seg_id)
-        ArgsValidator.validate_type(data, dict, "data")
-
         try:
             # 添加更新时间
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -221,16 +209,35 @@ class VectorOperation:
         Returns:
             bool: 是否删除成功
         """
-        ArgsValidator.validate_doc_id(doc_id)
         try:
+            # 先查询是否存在数据
+            results = self.search_by_doc_id(doc_id)
+            
+            if not results:
+                logger.info(f"Milvus中未找到文档记录: {doc_id}")
+                return False
+
+            # 执行删除
             self.milvus.client.delete(
                 collection_name=self.milvus.collection_name,
-                expr=f'doc_id == "{doc_id}"'
+                ids=doc_id
             )
-            logger.info(f"成功删除文档 {doc_id} 的数据")
-            return True
+            
+            # 确保删除操作被持久化
+            self.flush()
+            
+            # 验证删除是否成功
+            verify_results = self.search_by_doc_id(doc_id)
+
+            if not verify_results:
+                logger.info(f"成功删除Milvus文档记录: {doc_id}")
+                return True
+            else:
+                logger.error(f"Milvus文档删除验证失败: {doc_id}")
+                return False
+                
         except Exception as e:
-            logger.error(f"删除数据失败: {e}")
+            logger.error(f"删除Milvus数据失败: {e}")
             return False
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
@@ -242,11 +249,10 @@ class VectorOperation:
         Returns:
             bool: 是否删除成功
         """
-        ArgsValidator.validate_seg_id(seg_id)
         try:
             self.milvus.client.delete(
                 collection_name=self.milvus.collection_name,
-                expr=f'seg_id == "{seg_id}"'
+                filter=f'seg_id == "{seg_id}"'
             )
             logger.info(f"成功删除段落 {seg_id} 的数据")
             return True

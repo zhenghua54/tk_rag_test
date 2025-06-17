@@ -77,7 +77,7 @@ def generate_seg_id(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def truncate_summary(text: str, max_length: int = 4096) -> str:
+def truncate_summary(text: str, max_length: int = 3000) -> str:
     """截断摘要文本，确保不超过最大长度
 
     Args:
@@ -169,3 +169,5 @@ def convert_permission_ids_to_list(perm_ids: str) -> List[str]:
     if not perm_ids:
         return []
     return [p.strip() for p in perm_ids.split(',') if p.strip()]
+
+

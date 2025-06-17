@@ -1,6 +1,6 @@
 """文档内容分块"""
 import json
-from typing import List, Dict
+from typing import List, Dict, Union
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -14,28 +14,37 @@ from src.database.elasticsearch.operations import ElasticsearchOperation
 from config.settings import Config
 
 
-def segment_text_content(doc_id: str, document_name: str, doc_process_path: str, permission_ids: str):
+def format_table_caption_footnote(value: Union[str, List]):
+    """处理标题和脚注为列表或者空的问题"""
+    if isinstance(value, str) and value.strip() is None:
+        return None
+    elif isinstance(value, list):
+        return None if len(value) == 0 else ",".join(str(item) for item in value)
+    return value
+
+
+def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str):
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
-        document_name (str): 文档名称
         doc_process_path (str): 聚合处理后的文档，格式为 dict[idx:[content]]
-        permission_ids (str): 权限ID JSON字符串，格式为:
-            '{"departments": ["1"], "roles": [], "users": []}'
+        permission_ids (str): 权限ID，统一使用简单字符串格式，如 "1"
     """
-
-    # 确保权限数据是JSON字符串
-    if not isinstance(permission_ids, str):
-        permission_ids_str = json.dumps(permission_ids, ensure_ascii=False)
+    # 处理空权限情况
+    if permission_ids is None:
+        permission_ids_str = ""  # 空字符串表示公开访问
+        logger.info(f"未提供权限ID，使用空字符串表示公开访问")
     else:
         permission_ids_str = permission_ids
-        
+
+    logger.info(f"统一后的权限ID: {permission_ids_str}")
+
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
+        chunk_size=Config.SEGMENT_CONFIG.get("max_text_length", 500),
         chunk_overlap=100,
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
@@ -70,10 +79,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                 if content["type"] == "text":
                     # 检查文本长度是否需要分块
                     text_content = content["text"]
-                    if len(text_content) <= text_splitter._chunk_size:
+                    if len(text_content) <= Config.SEGMENT_CONFIG.get("max_text_length", 500):
                         # 文本长度小于chunk_size，直接处理不分块
                         logger.info(
-                            f"文本长度({len(text_content)})小于分块大小({text_splitter._chunk_size})，不进行分块")
+                            f"文本长度({len(text_content)})小于分块大小({Config.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块")
                         text_chunks = [text_content]
                     else:
                         # 文本长度超过chunk_size，需要分块
@@ -169,9 +178,8 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     chunk_table = False if len(table_markdown) <= 1000 else True
 
                     # 处理表格标题 - 可能是字符串或列表
-                    table_caption = content.get("table_caption", "")
-                    if isinstance(table_caption, list):
-                        table_caption = "\n".join(table_caption)
+                    table_caption = format_table_caption_footnote(content.get("table_caption", ""))
+                    table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
 
                     # 组装表格 milvus 元数据
                     table_milvus_res = {
@@ -179,7 +187,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_summary(segment_content),
+                        "seg_content": truncate_summary(table_markdown),
                         "seg_type": "table",
                         "permission_ids": permission_ids_str,
                         "create_time": current_time,
@@ -192,10 +200,10 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     parent_mysql_res = {
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
-                        "seg_content": json.dumps(table_body, ensure_ascii=False),
+                        "seg_content": table_markdown,
                         "seg_image_path": content.get("img_path", ""),
                         "seg_caption": table_caption,
-                        "seg_footnote": content.get("table_footnote", ""),
+                        "seg_footnote": table_footnote,
                         "seg_len": str(len(table_markdown)),
                         "seg_type": "table",
                         "seg_page_idx": str(page_idx),
@@ -254,7 +262,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                             sub_mysql_res = {
                                 "seg_id": sub_seg_id,
                                 "seg_parent_id": table_seg_id,
-                                "seg_content": json.dumps(table_segment, ensure_ascii=False),
+                                "seg_content": table_segment,
                                 "seg_len": str(len(table_segment)),
                                 "seg_type": "table",
                                 "seg_page_idx": str(page_idx),
@@ -283,25 +291,22 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     logger.info(f"处理第 {page_idx} 页的图片内容...")
 
                     # 生成图片信息 - 处理标题可能是列表的情况
-                    img_caption = content.get("img_caption", "")
-                    if isinstance(img_caption, list):
-                        image_title = "\n".join(img_caption).strip()
-                    else:
-                        image_title = str(img_caption).strip()
+                    img_caption = format_table_caption_footnote(content.get("img_caption", ""))
+                    img_footnote = format_table_caption_footnote(content.get("img_footnote", ""))
 
-                    if not image_title:
+                    if not img_caption:
                         logger.warning(f"图片标题为空，使用默认标题")
-                        image_title = f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
+                        img_caption = f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
 
-                    image_vector = embedding_manager.embed_text(image_title)
+                    image_vector = embedding_manager.embed_text(img_caption)
 
                     # 向量验证
                     if not isinstance(image_vector, list) or len(image_vector) != 1024:
                         logger.error(
-                            f"图片向量生成异常: {image_title}, 长度={len(image_vector) if isinstance(image_vector, list) else 'not a list'}, 内容={image_title}")
+                            f"图片向量生成异常, 标题={img_caption}, 地址={content.get('img_path', '')}")
                         continue
 
-                    image_seg_id = generate_seg_id(image_title)
+                    image_seg_id = generate_seg_id(img_caption)
 
                     # 组装图片 milvus 元数据
                     image_milvus_res = {
@@ -309,7 +314,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         "seg_id": image_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_summary(image_title),
+                        "seg_content": truncate_summary(img_caption),
                         "seg_type": "image",
                         "permission_ids": permission_ids_str,
                         "create_time": current_time,
@@ -321,12 +326,11 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                     # 组装图片 mysql 元数据
                     image_mysql_res = {
                         "seg_id": image_seg_id,
-                        "seg_parent_id": "",
-                        "seg_content": json.dumps(image_title, ensure_ascii=False),
+                        "seg_content": img_caption,
                         "seg_image_path": content.get("img_path", ""),
-                        "seg_caption": img_caption,  # 保持原始格式
-                        "seg_footnote": content.get("img_footnote", ""),
-                        "seg_len": str(len(image_title)),
+                        "seg_caption": img_caption,
+                        "seg_footnote": img_footnote,
+                        "seg_len": str(len(img_caption)),
                         "seg_type": "image",
                         "seg_page_idx": str(page_idx),
                         "doc_id": doc_id
@@ -338,7 +342,7 @@ def segment_text_content(doc_id: str, document_name: str, doc_process_path: str,
                         "seg_id": image_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": image_title,
+                        "seg_content": img_caption,
                         "seg_type": "image",
                         "seg_page_idx": str(page_idx),
                         "update_time": current_time
@@ -414,4 +418,5 @@ if __name__ == '__main__':
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
     )
-    print(text_splitter._chunk_size)
+    print(Config.SEGMENT_CONFIG.get("max_text_length", 500))
+    print(text_splitter.__dict__)

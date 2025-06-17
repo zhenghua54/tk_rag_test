@@ -49,6 +49,19 @@
 # a = []
 # print(True if a else False)
 
-a = '1'
-for b in a.split(","):
-    print(b)
+# a = '1'
+# for b in a.split(","):
+#     print(b)
+
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+# 初始化分块器
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=100,
+    length_function=len,
+    separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
+)
+print(text_splitter._chunk_size)
+print(text_splitter.__dict__)
+

@@ -1,19 +1,18 @@
 """文档服务"""
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Union
 import httpx
 import asyncio  # 异步操作
 from concurrent.futures import ThreadPoolExecutor  # 线程池管理
 import pymysql
 import os
 import time
-import json
 
 from src.services.base import BaseService
 from src.utils.common.logger import (
     log_operation_start, log_operation_success,
-    log_operation_error, log_business_info, log_exception
+    log_operation_error, log_business_info, log_exception, logger
 )
 from config.settings import Config
 from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path
@@ -23,6 +22,9 @@ from src.utils.validator.system_validator import SystemValidator
 from src.utils.validator.file_validator import FileValidator
 from src.utils.validator.content_validator import ContentValidator
 from src.database.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation
+from src.database.milvus.operations import VectorOperation
+from src.database.elasticsearch.operations import ElasticsearchOperation
+
 from src.utils.doc_toolkit import delete_path_safely
 from src.core.document.content_merger import process_doc_content
 from src.core.document.content_chunker import segment_text_content
@@ -35,31 +37,11 @@ thread_pool = ThreadPoolExecutor(max_workers=4)
 class DocumentService(BaseService):
     """文档服务类"""
 
-
-
     @staticmethod
-    async def upload_file(document_http_url: str, permission_ids: str, callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, permission_ids: Union[str, None], callback_url: str = None) -> dict:
         """上传文档"""
         # 参数验证
         ArgsValidator.validate_not_empty(document_http_url, "document_http_url")
-        ArgsValidator.validate_not_empty(permission_ids, "permission_ids")
-        if callback_url:
-            ArgsValidator.validate_not_empty(callback_url, "callback_url")
-
-        # 对 permission_ids 做转换处理，并字符化处理
-        # 将简单的权限ID转换为统一的JSON格式
-        try:
-            # 尝试解析传入的permission_ids，看是否已经是JSON格式
-            json.loads(permission_ids)
-            # 如果能成功解析，说明已经是JSON格式，不需要再转换
-        except (json.JSONDecodeError, TypeError):
-            # 如果不是JSON格式，则转换为统一的JSON格式
-            permission_ids = json.dumps({
-                "departments": [permission_ids],
-                "roles": [],
-                "users": []
-            })
-            log_business_info("权限ID格式转换", original=permission_ids, converted=permission_ids)
 
         start_time = log_operation_start("文档上传",
                                          document_url=document_http_url,
@@ -171,7 +153,7 @@ class DocumentService(BaseService):
                 abs_path,
                 doc_id
             ))
-            
+
             # 启动后台监听文档转换状态，完成后开始文档切块
             asyncio.create_task(DocumentService._monitor_doc_process_and_segment(
                 doc_id=doc_id,
@@ -236,65 +218,42 @@ class DocumentService(BaseService):
         if callback_url:
             ArgsValidator.validate_not_empty(callback_url, "callback_url")
 
-        start_time = log_operation_start("文档删除",
-                                         doc_id=doc_id,
-                                         is_soft_delete=is_soft_delete)
-
         try:
-            # 数据查重
-            with FileInfoOperation() as file_op, \
-                    PermissionOperation() as permission_op, \
-                    ChunkOperation() as chunk_op:
-
-                # 获取文件信息
-                try:
+            # 获取文件信息
+            file_info = None
+            try:
+                with FileInfoOperation() as file_op:
                     file_info = file_op.get_file_by_doc_id(doc_id)
-                    # 文件不存在
                     if not file_info:
-                        raise APIException(ErrorCode.FILE_NOT_FOUND)
-                except ValueError as e:
-                    log_operation_error("获取文件信息",
-                                        error_code=ErrorCode.PARAM_ERROR.value,
-                                        error_msg=str(e),
-                                        doc_id=doc_id)
-                    raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
+                        logger.info(f"MySQL中未找到文档记录: {doc_id}")
+            except ValueError as e:
+                log_operation_error("获取文件信息",
+                                    error_code=ErrorCode.PARAM_ERROR.value,
+                                    error_msg=str(e),
+                                    doc_id=doc_id)
+                raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
 
-                error_code = ErrorCode.FILE_SOFT_DELETE_ERROR if is_soft_delete else ErrorCode.FILE_HARD_DELETE_ERROR
+            # 如果找到文件信息且需要物理删除，则删除文件
+            if file_info and not is_soft_delete:
+                error_code = ErrorCode.FILE_HARD_DELETE_ERROR
+                out_path = get_doc_output_path(file_info['doc_path'])['output_path']
+                file_info['out_path'] = out_path
+                for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
+                            "doc_process_path", "out_path"]:
+                    path = file_info.get(key)
+                    if not path:
+                        continue
+                    try:
+                        delete_path_safely(path, error_code)
+                    except FileNotFoundError:
+                        log_business_info("文件不存在", path=path)
+                    except OSError as e:
+                        log_exception("系统IO错误",
+                                      e)
+                        raise APIException(error_code, str(e)) from e
 
-                # 物理删除文件
-                if is_soft_delete is False:
-                    out_path = get_doc_output_path(file_info['doc_path'])['output_path']
-                    file_info['out_path'] = out_path
-                    for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path", "doc_process_path",
-                                "out_path"]:
-                        path = file_info.get(key)
-                        if not path:
-                            continue
-                        try:
-                            delete_path_safely(path, error_code)
-                        except FileNotFoundError:
-                            log_business_info("文件不存在", path=path)
-                        except OSError as e:
-                            log_exception("系统IO错误",
-                                          e)
-                            raise APIException(error_code, str(e)) from e
-
-                # 删除数据库记录或软删除
-                try:
-                    # 软删除：更新状态
-                    file_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-                    permission_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-                    chunk_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-
-                    operation = "软删除文件" if is_soft_delete else "物理删除文件"
-
-                    log_operation_success(operation=operation, start_time=start_time, doc_id=doc_id)
-                except Exception as e:
-                    log_operation_error("数据库删除",
-                                        error_code=ErrorCode.MYSQL_DELETE_FAIL.value,
-                                        error_msg=str(e),
-                                        doc_id=doc_id)
-                    raise APIException(ErrorCode.MYSQL_DELETE_FAIL, str(e)) from e
+            # 删除所有数据库记录
+            await DocumentService._delete_all_database_data(doc_id, is_soft_delete)
 
             # 返回成功响应
             result = {
@@ -315,9 +274,6 @@ class DocumentService(BaseService):
                                         callback_url=callback_url)
                     # 回调失败不影响主流程
 
-            log_operation_success("文档删除", start_time,
-                                  doc_id=doc_id,
-                                  delete_type="soft" if is_soft_delete else "hard")
             return result
 
         except APIException:
@@ -335,6 +291,73 @@ class DocumentService(BaseService):
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
     @staticmethod
+    async def _delete_all_database_data(doc_id: str, is_soft_delete: bool) -> None:
+        """删除所有数据库中的相关数据
+
+        Args:
+            doc_id: 要删除的文档ID
+            is_soft_delete: 是否软删除
+        """
+        try:
+            # 删除 MySQL 数据库记录
+            try:
+                start_time = log_operation_start("删除 mysql 数据", doc_id=doc_id, is_soft_delete=is_soft_delete)
+                with FileInfoOperation() as file_op, \
+                        PermissionOperation() as permission_op, \
+                        ChunkOperation() as chunk_op:
+                    # 软删除：更新状态
+                    file_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
+                    permission_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
+                    chunk_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
+
+                    operation = "软删除文件" if is_soft_delete else "物理删除文件"
+                    log_operation_success(operation=operation, start_time=start_time, doc_id=doc_id)
+            except Exception as e:
+                log_operation_error("MySQL数据删除",
+                                    error_code=ErrorCode.MYSQL_DELETE_FAIL.value,
+                                    error_msg=str(e),
+                                    doc_id=doc_id)
+                # MySQL删除失败不影响其他数据库的删除操作
+
+            # 删除 Milvus 数据库记录
+            try:
+                vector_op = VectorOperation()
+                if vector_op.delete_by_doc_id(doc_id):
+                    log_business_info("Milvus数据删除成功", doc_id=doc_id)
+                else:
+                    log_business_info("Milvus数据不存在", doc_id=doc_id)
+            except Exception as e:
+                log_operation_error("Milvus数据删除",
+                                    error_code=ErrorCode.MILVUS_DELETE_FAIL.value,
+                                    error_msg=str(e),
+                                    doc_id=doc_id)
+                log_exception("Milvus数据删除异常", e)
+                # 不中断主流程
+
+            # 删除ES中的数据
+            try:
+                es_op = ElasticsearchOperation()
+                if es_op.delete_by_doc_id(doc_id):
+                    log_business_info("ES数据删除成功", doc_id=doc_id)
+                else:
+                    log_business_info("ES数据不存在", doc_id=doc_id)
+            except Exception as e:
+                log_operation_error("ES数据删除",
+                                    error_code=ErrorCode.ES_DELETE_FAIL.value,
+                                    error_msg=str(e),
+                                    doc_id=doc_id)
+                log_exception("ES数据删除异常", e)
+                # 不中断主流程
+
+        except Exception as e:
+            log_operation_error("数据库数据删除",
+                                error_code=ErrorCode.INTERNAL_ERROR.value,
+                                error_msg=str(e),
+                                doc_id=doc_id)
+            log_exception("数据库数据删除异常", e)
+            # 不中断主流程
+
+    @staticmethod
     async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str):
         """监控文档处理状态，完成后启动文档切块
 
@@ -346,46 +369,46 @@ class DocumentService(BaseService):
         try:
             max_attempts = 60  # 最大尝试次数，相当于30分钟
             attempt_interval = 30  # 检查间隔（秒）
-            
-            log_operation_start("文档处理状态监控", 
-                               doc_id=doc_id, 
-                               document_name=document_name)
-            
+
+            log_operation_start("文档处理状态监控",
+                                doc_id=doc_id,
+                                document_name=document_name)
+
             for attempt in range(max_attempts):
                 # 等待一段时间
                 await asyncio.sleep(attempt_interval)
-                
+
                 # 检查文档处理状态
                 with FileInfoOperation() as file_op:
                     file_info = file_op.get_file_by_doc_id(doc_id)
-                    
+
                     # 如果文档不存在或处理失败，停止监控
                     if not file_info:
-                        log_operation_error("文档处理状态监控", 
-                                           error_msg="文档不存在", 
-                                           doc_id=doc_id)
+                        log_operation_error("文档处理状态监控",
+                                            error_msg="文档不存在",
+                                            doc_id=doc_id)
                         return
-                    
+
                     process_status = file_info.get("process_status")
-                    
+
                     # 如果处理失败，停止监控
                     if process_status in Config.FILE_STATUS.get("error"):
-                        log_operation_error("文档处理状态监控", 
-                                           error_msg=f"文档处理失败: {process_status}", 
-                                           doc_id=doc_id)
+                        log_operation_error("文档处理状态监控",
+                                            error_msg=f"文档处理失败: {process_status}",
+                                            doc_id=doc_id)
                         return
-                    
+
                     # 如果处理已完成（merged状态），启动文档切块
                     if process_status == "merged":
-                        log_operation_success("文档处理完成", 
-                                             start_time=time.time(), 
-                                             doc_id=doc_id, 
-                                             process_status=process_status)
-                        
+                        log_operation_success("文档处理完成",
+                                              start_time=time.time(),
+                                              doc_id=doc_id,
+                                              process_status=process_status)
+
                         # 开始文档切块处理
-                        start_time = log_operation_start("文档切块", 
-                                                       doc_id=doc_id, 
-                                                       document_name=document_name)
+                        start_time = log_operation_start("文档切块",
+                                                         doc_id=doc_id,
+                                                         document_name=document_name)
                         try:
                             # 读取合并后的文档内容
                             doc_process_path = file_info.get("doc_process_path")
@@ -403,23 +426,22 @@ class DocumentService(BaseService):
                             await asyncio.to_thread(
                                 segment_text_content,
                                 doc_id,
-                                document_name,
                                 doc_process_path,
                                 permission_ids
                             )
-                            
+
                             # 更新数据库状态为已切块
                             with FileInfoOperation() as file_op:
                                 values = {
                                     "process_status": "chunked"
                                 }
                                 file_op.update_by_doc_id(doc_id, values)
-                            
-                            log_operation_success("文档切块", 
-                                                start_time=start_time, 
-                                                doc_id=doc_id)
+
+                            log_operation_success("文档切块",
+                                                  start_time=start_time,
+                                                  doc_id=doc_id)
                             return
-                            
+
                         except Exception as e:
                             # 更新数据库状态为切块失败
                             with FileInfoOperation() as file_op:
@@ -427,24 +449,24 @@ class DocumentService(BaseService):
                                     "process_status": "chunk_failed"
                                 }
                                 file_op.update_by_doc_id(doc_id, values)
-                                
-                            log_operation_error("文档切块", 
-                                              error_code=ErrorCode.INTERNAL_ERROR.value,
-                                              error_msg=str(e),
-                                              doc_id=doc_id)
+
+                            log_operation_error("文档切块",
+                                                error_code=ErrorCode.INTERNAL_ERROR.value,
+                                                error_msg=str(e),
+                                                doc_id=doc_id)
                             log_exception("文档切块异常", e)
                             return
-            
+
             # 如果超过最大尝试次数仍未完成，记录超时
-            log_operation_error("文档处理状态监控", 
-                               error_msg="监控超时，文档处理未完成", 
-                               doc_id=doc_id,
-                               max_attempts=max_attempts,
-                               total_time=f"{max_attempts * attempt_interval} 秒")
-            
+            log_operation_error("文档处理状态监控",
+                                error_msg="监控超时，文档处理未完成",
+                                doc_id=doc_id,
+                                max_attempts=max_attempts,
+                                total_time=f"{max_attempts * attempt_interval} 秒")
+
         except Exception as e:
-            log_operation_error("文档处理状态监控", 
-                               error_code=ErrorCode.INTERNAL_ERROR.value,
-                               error_msg=str(e),
-                               doc_id=doc_id)
+            log_operation_error("文档处理状态监控",
+                                error_code=ErrorCode.INTERNAL_ERROR.value,
+                                error_msg=str(e),
+                                doc_id=doc_id)
             log_exception("文档处理状态监控异常", e)
