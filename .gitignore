@@ -46,8 +46,8 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-#datas/*
-#!datas/.gitkeep
+datas/*
+!datas/.gitkeep
 logs/*
 !logs/.gitkeep
 config.local.py
