@@ -2,11 +2,10 @@
 import os
 import torch
 import gc
-from typing import Optional, Dict, Any
+from typing import Optional
 
 from openai import OpenAI
-from src.utils.common.logger import logger
-from config.settings import Config
+from utils.common.logger import logger
 
 
 class LLMManager:

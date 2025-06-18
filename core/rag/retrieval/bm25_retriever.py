@@ -1,7 +1,7 @@
 """BM25检索模块"""
 from collections import OrderedDict
-from src.utils.common.logger import logger
-from src.database.elasticsearch.operations import ElasticsearchOperation
+from utils.common.logger import logger
+from databases.elasticsearch.operations import ElasticsearchOperation
 
 
 class BM25Retriever:

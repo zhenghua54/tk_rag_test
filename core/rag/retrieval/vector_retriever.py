@@ -1,8 +1,7 @@
 """向量检索模块"""
 from collections import OrderedDict
 from langchain_milvus import Milvus
-from src.utils.common.logger import logger
-import numpy as np
+from utils.common.logger import logger
 
 
 class VectorRetriever:

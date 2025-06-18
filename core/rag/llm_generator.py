@@ -9,8 +9,8 @@ from langchain_openai import ChatOpenAI
 
 from api.response import ResponseBuilder
 from api.error_codes import ErrorCode
-from src.utils.common.logger import logger
-from src.utils.llm_utils import llm_manager
+from utils.common.logger import logger
+from utils.llm_utils import llm_manager
 
 
 class RAGGenerator:

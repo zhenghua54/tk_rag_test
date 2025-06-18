@@ -4,14 +4,14 @@ from typing import List, Dict, Union
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from src.utils.doc_toolkit import generate_seg_id, truncate_summary
-from src.utils.table_toolkit import html_table_to_markdown
-from src.utils.common.logger import logger
-from src.database.mysql.operations import ChunkOperation
-from src.database.milvus.operations import VectorOperation
-from src.utils.llm_utils import embedding_manager
-from src.database.elasticsearch.operations import ElasticsearchOperation
-from config.settings import Config
+from utils.doc_toolkit import generate_seg_id, truncate_summary
+from utils.table_toolkit import html_table_to_markdown
+from utils.common.logger import logger
+from databases.mysql.operations import ChunkOperation
+from databases.milvus.operations import VectorOperation
+from utils.llm_utils import embedding_manager
+from databases.elasticsearch.operations import ElasticsearchOperation
+from config.global_config import Config
 
 
 def format_table_caption_footnote(value: Union[str, List]):

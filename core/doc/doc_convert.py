@@ -8,10 +8,10 @@ from pathlib import Path
 
 from api.error_codes import ErrorCode
 from api.response import APIException
-from src.utils.common.logger import logger
-from config.settings import Config
-from src.utils.doc_toolkit import get_doc_output_path
-from src.utils.validator.file_validator import FileValidator
+from utils.common.logger import logger
+from config.global_config import Config
+from utils.doc_toolkit import get_doc_output_path
+from utils.validator.file_validator import FileValidator
 
 # # 添加新的导入
 # import docx

@@ -6,13 +6,13 @@ from langchain_core.documents import Document
 from langchain.schema import BaseRetriever
 from langchain_milvus import Milvus
 
-from config.settings import Config
-from src.database.elasticsearch.operations import ElasticsearchOperation
-from src.utils.common.logger import logger
+from config.global_config import Config
+from databases.elasticsearch.operations import ElasticsearchOperation
+from utils.common.logger import logger
 from core.rag.retrieval.text_retriever import get_segment_contents
 from core.rag.retrieval.vector_retriever import VectorRetriever
 from core.rag.retrieval.bm25_retriever import BM25Retriever
-from src.utils.llm_utils import rerank_manager
+from utils.llm_utils  import rerank_manager
 
 
 def init_retrievers():

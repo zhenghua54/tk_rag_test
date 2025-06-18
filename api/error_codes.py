@@ -1,7 +1,7 @@
 """错误编码, 根据在线接口文档维护,如有修改,保持同步"""
 from enum import Enum
 
-from config.settings import Config
+from config.global_config import Config
 
 
 class ErrorCode(Enum):

@@ -2,8 +2,8 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI
-from src.database.mysql.connection import MySQLConnectionPool
-from src.utils.common.logger import logger
+from databases.mysql.connection import MySQLConnectionPool
+from utils.common.logger import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
                 logger.info("模型检查任务已取消")
             
             # 卸载所有模型
-            from src.utils.llm_utils import embedding_manager, rerank_manager, llm_manager
+            from utils.llm_utils import embedding_manager, rerank_manager, llm_manager
             embedding_manager.unload_model()
             rerank_manager.unload_model()
             llm_manager.unload_model()
@@ -55,7 +55,7 @@ async def periodic_check_models():
     """定期检查模型状态"""
     while True:
         try:
-            from src.utils.llm_utils import check_models_status
+            from utils.llm_utils import check_models_status
             check_models_status()
         except Exception as e:
             logger.error(f"检查模型状态失败: {str(e)}")

@@ -244,7 +244,7 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 运行初始化脚本：
 
 ```bash
-python scripts/init/init_all.py
+python scripts/init_all.py
 ```
 
 该脚本将：
@@ -258,10 +258,10 @@ python scripts/init/init_all.py
 
 ```bash
 # 6.1 检查 mysql 数据库连接
-python src/database/mysql/connection.py
+python src/databases/mysql/connection.py
 
 # 6.2 检查 Milvus 数据库连接
-python src/database/milvus/connection.py
+python src/databases/milvus/connection.py
 
 # 6.3 使用 HTTPS 连接, 检查 ES 服务状态
 curl -k -u user:passwd https://localhost:9200

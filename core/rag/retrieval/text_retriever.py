@@ -1,8 +1,7 @@
 """原文检索模块"""
 from typing import Optional, Dict, Any, List
-import json
-from src.utils.common.logger import logger
-from src.database.mysql.operations import ChunkOperation
+from utils.common.logger import logger
+from databases.mysql.operations import ChunkOperation
 
 
 def get_seg_content(seg_id: str, chunk_op: Optional[ChunkOperation] = None) -> str:
