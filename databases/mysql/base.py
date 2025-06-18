@@ -1,15 +1,77 @@
 """数据库操作基类"""
+import os
+import pymysql
+
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple, Union
-
-import pymysql
 from pymysql.cursors import DictCursor
+from dbutils.pooled_db import PooledDB
 
-from api.error_codes import ErrorCode
-from api.response import APIException
-from utils.common.logger import logger
-from databases.mysql.connection import MySQLConnectionPool
-from utils.validator.args_validator import ArgsValidator
+from config.global_config import GlobalConfig
+from utils.log_utils import logger
+from utils.validators import validate_doc_id, validate_param_type, validate_empty_param
+
+
+class MySQLConnectionPool:
+    """数据库连接池"""
+    _instance = None
+    _pool = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if self._pool is None:
+            self._pool = PooledDB(
+                creator=pymysql,
+                maxconnections=6,  # 连接池最大连接数
+                mincached=2,  # 初始化时创建的连接数
+                maxcached=5,  # 连接池最大空闲连接数
+                maxshared=3,  # 共享连接的最大数量
+                blocking=True,  # 连接池中如果没有可用连接后是否阻塞等待
+                maxusage=None,  # 一个连接最多被重复使用的次数
+                setsession=[],  # 开始会话前执行的命令列表
+                ping=0,  # ping MySQL服务端确保连接有效
+                host=GlobalConfig.MYSQL_CONFIG['host'],
+                user=os.getenv("MYSQL_USER"),
+                password=os.getenv("MYSQL_PASSWORD"),
+                database=GlobalConfig.MYSQL_CONFIG['database'],
+                charset=GlobalConfig.MYSQL_CONFIG['charset']
+            )
+            logger.info("MySQL 连接池初始化成功")
+
+    def get_connection(self):
+        return self._pool.connection()
+
+    def close(self):
+        if self._pool:
+            self._pool.close()
+            logger.info("MySQL 连接池已关闭")
+
+
+class MySQLUtils:
+    """MySQL 工具类，提供数据库相关的通用功能"""
+    
+    @staticmethod
+    def test_connection() -> bool:
+        """使用连接池测试数据库连接
+        
+        Returns:
+            bool: 连接是否成功
+        """
+        try:
+            # 使用连接池获取连接进行测试
+            pool = MySQLConnectionPool()
+            with pool.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute("SELECT 1")
+            logger.info("数据库连接测试成功")
+            return True
+        except Exception as e:
+            logger.error(f"数据库连接测试失败: {e}")
+            return False
 
 
 class BaseDBOperation:
@@ -26,7 +88,6 @@ class BaseDBOperation:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass  # 连接池会自动管理连接，这里不需要额外操作
 
-
     def _execute_query(self, sql: str, args: Optional[Tuple] = None) -> List[Dict]:
         with self._pool.get_connection() as conn:
             with conn.cursor(DictCursor) as cursor:
@@ -39,49 +100,6 @@ class BaseDBOperation:
                 cursor.execute(sql, args)
                 conn.commit()
                 return cursor.rowcount
-    # def _execute_query(self, sql: str, args: Optional[Tuple] = None) -> List[Dict] | None:
-    #     """执行查询语句
-        
-    #     Args:
-    #         sql: SQL 查询语句
-    #         args: SQL 参数
-            
-    #     Returns:
-    #         List[Dict]: 查询结果列表
-    #     """
-    #     try:
-    #         if not self.mysql:
-    #             raise Exception("数据库连接未初始化")
-    #         with self.mysql.get_connection() as cursor:
-    #             cursor.execute(sql, args)
-    #             result = cursor.fetchall()
-    #             return list(result) if result else []
-    #     except pymysql.MySQLError as e:
-    #         # 捕获 MySQL 错误并分类
-    #         if e.args[0] == 1049:  # 数据库不存在错误
-    #             logger.error(f"[数据库错误] 数据库不存在，sql={sql}, error={str(e)}")
-    #         elif e.args[0] == 1062:  # 唯一约束错误
-    #             logger.error(f"[数据库错误] 唯一约束冲突，sql={sql}, error={str(e)}")
-    #         else:
-    #             logger.error(f"[数据库错误] sql={sql}, error={str(e)}")
-    #         raise
-    #     except Exception as e:
-    #         logger.error(f"[未知错误] sql={sql}, error={str(e)}")
-    #         raise RuntimeError(f"数据库操作失败: {str(e)}") from e
-
-    # def _execute_update(self, sql: str, args: Optional[Tuple] = None) -> int | None:
-    #     """执行更新语句
-        
-    #     Args:
-    #         sql: SQL 更新语句
-    #         args: SQL 参数
-            
-    #     Returns:
-    #         int: 影响的行数
-    #     """
-    #     if not self.mysql:
-    #         raise Exception("数据库连接未初始化")
-    #     return self.mysql.execute(sql, args)
 
     def select_by_id(self, doc_id: str) -> Optional[Dict]:
         """根据ID查询单条记录
@@ -92,7 +110,7 @@ class BaseDBOperation:
         Returns:
             Optional[Dict]: 查询结果，如果未找到则返回 None
         """
-        ArgsValidator.validate_doc_id(doc_id)
+        validate_doc_id(doc_id)
         try:
             sql = f'SELECT * FROM {self.table_name} WHERE doc_id = %s'
             data = self._execute_query(sql, (doc_id,))
@@ -118,7 +136,7 @@ class BaseDBOperation:
             # 构建 WHERE 子句
             args = None
             if conditions:
-                ArgsValidator.validate_type(conditions, dict, "conditions")
+                validate_param_type(conditions, dict, "conditions")
                 where_clause = ' AND '.join([f"{k} = %s" for k in conditions.keys()])
                 args = tuple(conditions.values())
                 sql = f'SELECT {select_clause} FROM {self.table_name} WHERE {where_clause}'
@@ -154,7 +172,7 @@ class BaseDBOperation:
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
                 logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}, 数据: {data}")
-                raise APIException(ErrorCode.DB_INSERT_ERROR, f"数据插入失败: {str(e)}")
+                raise ValueError(f"数据插入失败: {str(e)}")
         # 多条数据
         elif isinstance(data, list) and len(data) > 0:
             try:
@@ -162,13 +180,13 @@ class BaseDBOperation:
                 fields = list(data[0].keys())
                 columns = ', '.join(fields)
                 placeholders = ', '.join(['%s'] * len(fields))
-                
+
                 # 构建SQL语句
                 sql = f'INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})'
-                
+
                 # 准备批量插入的数据
                 values = [tuple(record[field] for field in fields) for record in data]
-                
+
                 # 执行批量插入
                 with self._pool.get_connection() as conn:
                     with conn.cursor() as cursor:
@@ -182,7 +200,6 @@ class BaseDBOperation:
                 raise ValueError(f"批量数据插入失败: {str(e)}")
         return affected_rows
 
-
     def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool | None:
         """根据 doc_id 更新记录
 
@@ -193,9 +210,9 @@ class BaseDBOperation:
         Returns:
             bool: 是否更新成功
         """
-        ArgsValidator.validate_doc_id(doc_id)
-        ArgsValidator.validate_not_empty(data, "data")
-        ArgsValidator.validate_type(data, dict, "data")
+        validate_doc_id(doc_id)
+        validate_empty_param(data, "data")
+        validate_param_type(data, dict, "data")
 
         try:
             set_clause = ', '.join([f"{k} = %s" for k in data.keys()])

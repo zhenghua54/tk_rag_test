@@ -1,6 +1,6 @@
 """BM25检索模块"""
 from collections import OrderedDict
-from utils.common.logger import logger
+from utils.log_utils import logger
 from databases.elasticsearch.operations import ElasticsearchOperation
 
 

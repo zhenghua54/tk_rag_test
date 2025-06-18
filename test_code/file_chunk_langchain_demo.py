@@ -15,7 +15,7 @@ from langchain_community.document_loaders import (
     TextLoader
 )
 
-from utils.common.logger import logger
+from utils.log_utils import logger
 
 
 

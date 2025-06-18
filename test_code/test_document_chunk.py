@@ -12,7 +12,7 @@ root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
 
 from core.doc.chunker import segment_text_content
-from utils.common.logger import logger
+from utils.log_utils import logger
 
 def test_document_chunk():
     """测试文档分块功能"""

@@ -8,7 +8,7 @@ project_root = str(Path(__file__).parent.parent.parent)
 sys.path.append(project_root)
 
 from databases.milvus.connection import MilvusDB
-from utils.common.logger import logger
+from utils.log_utils import logger
 
 
 def init_milvus():

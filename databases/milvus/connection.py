@@ -4,8 +4,8 @@ from typing import List, Dict, Any
 import json
 from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType, Collection, connections
 
-from config.global_config import Config
-from utils.common.logger import logger
+from config.global_config import GlobalConfig
+from utils.log_utils import logger
 
 
 class MilvusDB:
@@ -29,19 +29,19 @@ class MilvusDB:
 
         try:
             self.client = MilvusClient(
-                uri=Config.MILVUS_CONFIG["uri"],
-                token=Config.MILVUS_CONFIG["token"]
+                uri=GlobalConfig.MILVUS_CONFIG["uri"],
+                token=GlobalConfig.MILVUS_CONFIG["token"]
             )
 
             connections.connect(
                 alias="default",
-                host=Config.MILVUS_CONFIG["host"],
-                port=Config.MILVUS_CONFIG["port"],
-                token=Config.MILVUS_CONFIG["token"],
+                host=GlobalConfig.MILVUS_CONFIG["host"],
+                port=GlobalConfig.MILVUS_CONFIG["port"],
+                token=GlobalConfig.MILVUS_CONFIG["token"],
             )
 
-            self.db_name = Config.MILVUS_CONFIG["db_name"]
-            self.collection_name = Config.MILVUS_CONFIG["collection_name"]
+            self.db_name = GlobalConfig.MILVUS_CONFIG["db_name"]
+            self.collection_name = GlobalConfig.MILVUS_CONFIG["collection_name"]
             self._initialized = True
         except Exception as e:
             logger.error(f"Milvus 客户端初始化失败: {str(e)}")
@@ -56,7 +56,7 @@ class MilvusDB:
 
     def _load_schema(self) -> Dict:
         """加载 Milvus schema 配置"""
-        schema_path = Config.PATHS.get("milvus_schema_path")
+        schema_path = GlobalConfig.PATHS.get("milvus_schema_path")
         with open(schema_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
@@ -114,9 +114,9 @@ class MilvusDB:
     def _create_index(self) -> None:
         """创建向量索引"""
         index_params = self.client.prepare_index_params()
-        index_params.add_index(**Config.MILVUS_CONFIG['index_params'])
+        index_params.add_index(**GlobalConfig.MILVUS_CONFIG['index_params'])
 
-        logger.info(f"正在为字段 '{Config.MILVUS_CONFIG['vector_field']}' 创建索引...")
+        logger.info(f"正在为字段 '{GlobalConfig.MILVUS_CONFIG['vector_field']}' 创建索引...")
         self.client.create_index(
             collection_name=self.collection_name,
             index_params=index_params

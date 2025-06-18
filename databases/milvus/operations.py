@@ -3,8 +3,8 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from databases.milvus.connection import MilvusDB
-from utils.common.logger import logger
-from config.global_config import Config
+from utils.log_utils import logger
+from config.global_config import GlobalConfig
 import json
 
 
@@ -43,7 +43,7 @@ class VectorOperation:
             ValueError: 当数据格式不符合要求时抛出
         """
         # 从配置文件中读取 Milvus schema 以获取必需字段
-        schema_path = Config.PATHS.get("milvus_schema_path")
+        schema_path = GlobalConfig.PATHS.get("milvus_schema_path")
         with open(schema_path, 'r', encoding='utf-8') as f:
             schema_config = json.load(f)
         

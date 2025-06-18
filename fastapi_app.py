@@ -16,18 +16,18 @@ from fastapi.exception_handlers import RequestValidationError
 
 from api.chat_api import router as chat_router
 from api.response import ResponseBuilder
-from api.error_codes import ErrorCode
-from config.global_config import Config
+from error_codes import ErrorCode
+from config.global_config import GlobalConfig
 from api.base import router as base_router
 from api.document_api import router as doc_router
 from core.infra.lifecycle import lifespan
 
 # 创建FastAPI应用实例
 app = FastAPI(
-    title=Config.API_TITLE,
-    description=Config.API_DESCRIPTION,
-    version=Config.API_VERSION,
-    root_path=Config.API_PREFIX,  # 指定全局前缀
+    title=GlobalConfig.API_TITLE,
+    description=GlobalConfig.API_DESCRIPTION,
+    version=GlobalConfig.API_VERSION,
+    root_path=GlobalConfig.API_PREFIX,  # 指定全局前缀
     lifespan=lifespan  # 添加生命周期管理器
 )
 

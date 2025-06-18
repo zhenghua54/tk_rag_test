@@ -1,0 +1,11 @@
+请从以下 HTML 表格中提取两个字段：title 和 summary。
+
+要求：
+- title 是表格的总体主题, 50字以内
+- summary 是简洁描述表格反映的任务内容，200-500字内，用中文分号隔开不同要点
+
+结果以 JSON 格式返回，仅包含 title 和 summary 字段：
+
+<BEGIN_HTML>
+{{table_html}}
+<END_HTML>

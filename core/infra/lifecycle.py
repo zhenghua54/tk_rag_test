@@ -2,8 +2,8 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 from fastapi import FastAPI
-from databases.mysql.connection import MySQLConnectionPool
-from utils.common.logger import logger
+from databases.mysql.base import MySQLConnectionPool
+from utils.log_utils import logger
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator:

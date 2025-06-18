@@ -5,7 +5,7 @@
 from typing import Any, Optional
 
 from pydantic import BaseModel
-from api.error_codes import ErrorCode
+from error_codes import ErrorCode
 
 
 # 自定义异常类

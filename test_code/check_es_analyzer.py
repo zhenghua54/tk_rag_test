@@ -11,21 +11,21 @@ root_path = Path(__file__).resolve().parent
 sys.path.append(str(root_path))
 
 from elasticsearch import Elasticsearch
-from config.global_config import Config
+from config.global_config import GlobalConfig
 
 
 def check_es_analyzer():
     """检查ES的分词情况"""
     try:
         # 创建ES客户端
-        es_username = Config.ES_CONFIG.get('username', '')
-        es_password = Config.ES_CONFIG.get('password', '')
+        es_username = GlobalConfig.ES_CONFIG.get('username', '')
+        es_password = GlobalConfig.ES_CONFIG.get('password', '')
         
         # 创建ES客户端配置
         es_params = {
-            "hosts": Config.ES_CONFIG['host'],
-            "request_timeout": Config.ES_CONFIG["timeout"],
-            "verify_certs": Config.ES_CONFIG.get('verify_certs', False)
+            "hosts": GlobalConfig.ES_CONFIG['host'],
+            "request_timeout": GlobalConfig.ES_CONFIG["timeout"],
+            "verify_certs": GlobalConfig.ES_CONFIG.get('verify_certs', False)
         }
         
         # 添加认证信息
@@ -33,7 +33,7 @@ def check_es_analyzer():
             es_params["basic_auth"] = (es_username, es_password)
         
         client = Elasticsearch(**es_params)
-        index_name = Config.ES_CONFIG["index_name"]
+        index_name = GlobalConfig.ES_CONFIG["index_name"]
         
         # 要测试的文本列表
         test_texts = [

@@ -12,8 +12,8 @@ from langchain_milvus import Milvus
 
 # 加载项目模块
 sys.path.append("/Users/jason/PycharmProjects/tk_rag")
-from config.global_config import Config
-from utils.common.logger import logger
+from config.global_config import GlobalConfig
+from utils.log_utils import logger
 from databases.milvus.connection import MilvusDB
 from utils import CustomRetriever, create_llm_chain
 from utils import init_bm25_retriever
@@ -34,22 +34,22 @@ def init_rag_chain():
     # 初始化 Embedding 模型
     logger.info("初始化 embeddings 模型...")
     embeddings = HuggingFaceEmbeddings(
-        model_name=Config.MODEL_PATHS["embedding"],
-        model_kwargs={"device": Config.DEVICE}
+        model_name=GlobalConfig.MODEL_PATHS["embedding"],
+        model_kwargs={"device": GlobalConfig.DEVICE}
     )
 
     # 创建 Milvus 向量检索器
     logger.info("初始化 Milvus 向量存储...")
     vectorstore = Milvus(
         embedding_function=embeddings,
-        collection_name=Config.MILVUS_CONFIG["collection_name"],
+        collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],
         connection_args={
-            "uri": Config.MILVUS_CONFIG["uri"],
-            "token": Config.MILVUS_CONFIG["token"],
-            "db_name": Config.MILVUS_CONFIG["db_name"], },
+            "uri": GlobalConfig.MILVUS_CONFIG["uri"],
+            "token": GlobalConfig.MILVUS_CONFIG["token"],
+            "db_name": GlobalConfig.MILVUS_CONFIG["db_name"], },
         search_params={
-            "metric_type": Config.MILVUS_CONFIG["index_params"]["metric_type"],
-            "params": Config.MILVUS_CONFIG["search_params"], },
+            "metric_type": GlobalConfig.MILVUS_CONFIG["index_params"]["metric_type"],
+            "params": GlobalConfig.MILVUS_CONFIG["search_params"], },
         # text_field="text_chunk", # 不传, Document.page_content 为空, 使用seg_id 通过 mysql 提取原文内容.
     )
 

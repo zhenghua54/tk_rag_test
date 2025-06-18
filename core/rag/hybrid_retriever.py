@@ -6,10 +6,10 @@ from langchain_core.documents import Document
 from langchain.schema import BaseRetriever
 from langchain_milvus import Milvus
 
-from config.global_config import Config
+from config.global_config import GlobalConfig
 from databases.elasticsearch.operations import ElasticsearchOperation
-from utils.common.logger import logger
-from core.rag.retrieval.text_retriever import get_segment_contents
+from utils.log_utils import logger
+from databases.mysql.operations import ChunkOperation
 from core.rag.retrieval.vector_retriever import VectorRetriever
 from core.rag.retrieval.bm25_retriever import BM25Retriever
 from utils.llm_utils  import rerank_manager
@@ -34,23 +34,23 @@ def init_retrievers():
     # 初始化 embeddings
     logger.info("初始化 embeddings 模型...")
     embeddings = HuggingFaceEmbeddings(
-        model_name=Config.MODEL_PATHS["embedding"],
-        model_kwargs={'device': Config.DEVICE}
+        model_name=GlobalConfig.MODEL_PATHS["embedding"],
+        model_kwargs={'device': GlobalConfig.DEVICE}
     )
 
     # 创建 Milvus 向量存储
     logger.info("创建 Milvus 向量存储...")
     vectorstore = Milvus(
         embedding_function=embeddings,
-        collection_name=Config.MILVUS_CONFIG["collection_name"],
+        collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],
         connection_args={
-            "uri": Config.MILVUS_CONFIG["uri"],
-            "token": Config.MILVUS_CONFIG["token"],
-            "db_name": Config.MILVUS_CONFIG["db_name"]
+            "uri": GlobalConfig.MILVUS_CONFIG["uri"],
+            "token": GlobalConfig.MILVUS_CONFIG["token"],
+            "db_name": GlobalConfig.MILVUS_CONFIG["db_name"]
         },
         search_params={
-            "metric_type": Config.MILVUS_CONFIG["index_params"]["metric_type"],
-            "params": Config.MILVUS_CONFIG["search_params"]
+            "metric_type": GlobalConfig.MILVUS_CONFIG["index_params"]["metric_type"],
+            "params": GlobalConfig.MILVUS_CONFIG["search_params"]
         },
         text_field="seg_content"
     )
@@ -140,7 +140,6 @@ class HybridRetriever(BaseRetriever):
         Returns:
             List[Document]: 相关文档列表
         """
-        print(top_k)
         try:
             logger.info(f"[混合检索] 开始检索,查询: {query}, 权限ID: {permission_ids}, k: {k}, top_k: {top_k}")
 
@@ -170,11 +169,17 @@ class HybridRetriever(BaseRetriever):
             # 从 mysql 获取所需的原文内容
             seg_ids = list(merged_results.keys())
             logger.info(f"[混合检索] 从MySQL获取原文内容,seg_ids数量: {len(seg_ids)}, 权限ID: {permission_ids}")
-            mysql_records: List[Dict[str, Any]] = get_segment_contents(
-                seg_ids=seg_ids,
-                permission_ids=permission_ids,  # 确保传递权限ID
-                chunk_op=chunk_op
-            )
+            if chunk_op is not None:
+                mysql_records: List[Dict[str, Any]] = chunk_op.get_segment_contents(
+                    seg_ids=seg_ids,
+                    permission_ids=permission_ids,  # 确保传递权限ID
+                )
+            else:
+                with ChunkOperation() as chunk_op:
+                    mysql_records: List[Dict[str, Any]] = chunk_op.get_segment_contents(
+                        seg_ids=seg_ids,
+                        permission_ids=permission_ids,  # 确保传递权限ID
+                    )
             logger.info(f"[混合检索] 从MySQL获取到 {len(mysql_records)} 条原文记录")
 
             # 再次对mysql获取到的原文内容进行过滤，避免遗漏

@@ -4,14 +4,14 @@ from typing import List, Dict, Union
 from datetime import datetime
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from utils.doc_toolkit import generate_seg_id, truncate_summary
-from utils.table_toolkit import html_table_to_markdown
-from utils.common.logger import logger
+from utils.file_ops import generate_seg_id, truncate_text
+from utils.converters import convert_html_to_markdown
+from utils.log_utils import logger
 from databases.mysql.operations import ChunkOperation
 from databases.milvus.operations import VectorOperation
 from utils.llm_utils import embedding_manager
 from databases.elasticsearch.operations import ElasticsearchOperation
-from config.global_config import Config
+from config.global_config import GlobalConfig
 
 
 def format_table_caption_footnote(value: Union[str, List]):
@@ -44,7 +44,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
 
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=Config.SEGMENT_CONFIG.get("max_text_length", 500),
+        chunk_size=GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500),
         chunk_overlap=100,
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
@@ -57,7 +57,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
     es_op = ElasticsearchOperation()
 
     # 分批处理结果
-    batch_size = Config.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
+    batch_size = GlobalConfig.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
     milvus_batch = []  # 独立的 milvus 批次
     mysql_batch = []  # 独立的 mysql 批次
     es_batch = []  # 独立的 ES 批次
@@ -79,10 +79,10 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                 if content["type"] == "text":
                     # 检查文本长度是否需要分块
                     text_content = content["text"]
-                    if len(text_content) <= Config.SEGMENT_CONFIG.get("max_text_length", 500):
+                    if len(text_content) <= GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500):
                         # 文本长度小于chunk_size，直接处理不分块
                         logger.info(
-                            f"文本长度({len(text_content)})小于分块大小({Config.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块")
+                            f"文本长度({len(text_content)})小于分块大小({GlobalConfig.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块")
                         text_chunks = [text_content]
                     else:
                         # 文本长度超过chunk_size，需要分块
@@ -115,7 +115,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_id": seg_id,
                                 "seg_parent_id": "",
                                 "doc_id": doc_id,
-                                "seg_content": truncate_summary(chunk),
+                                "seg_content": truncate_text(chunk),
                                 "seg_type": "text",
                                 "permission_ids": permission_ids_str,
                                 "create_time": current_time,
@@ -131,7 +131,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_content": json.dumps(chunk, ensure_ascii=False),
                                 "seg_len": str(len(chunk)),
                                 "seg_type": "text",
-                                "seg_page_idx": str(page_idx),
+                                "seg_page_idx": int(page_idx),
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(text_mysql_res)
@@ -143,7 +143,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "doc_id": doc_id,
                                 "seg_content": str(chunk),
                                 "seg_type": "text",
-                                "seg_page_idx": str(page_idx),
+                                "seg_page_idx": int(page_idx),
                                 "update_time": current_time
                             }
                             es_batch.append(text_es_res)
@@ -158,7 +158,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         continue
 
                     # 表格解析为markdown
-                    table_markdown = html_table_to_markdown(table_body)
+                    table_markdown = convert_html_to_markdown(table_body)
                     logger.debug(f"表格转换为 Markdown 格式，长度: {len(table_markdown)}")
 
                     # 获取表格内容 Seg_id, seg_vector
@@ -187,7 +187,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_summary(table_markdown),
+                        "seg_content": truncate_text(table_markdown),
                         "seg_type": "table",
                         "permission_ids": permission_ids_str,
                         "create_time": current_time,
@@ -206,7 +206,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_footnote": table_footnote,
                         "seg_len": str(len(table_markdown)),
                         "seg_type": "table",
-                        "seg_page_idx": str(page_idx),
+                        "seg_page_idx": int(page_idx),
                         "doc_id": doc_id
                     }
                     mysql_batch.append(parent_mysql_res)
@@ -218,7 +218,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "doc_id": doc_id,
                         "seg_content": table_markdown,
                         "seg_type": "table",
-                        "seg_page_idx": str(page_idx),
+                        "seg_page_idx": int(page_idx),
                         "update_time": current_time
                     }
                     es_batch.append(table_es_res)
@@ -249,7 +249,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_id": sub_seg_id,
                                 "seg_parent_id": table_seg_id,
                                 "doc_id": doc_id,
-                                "seg_content": truncate_summary(table_segment),
+                                "seg_content": truncate_text(table_segment),
                                 "seg_type": "table",
                                 "permission_ids": permission_ids_str,
                                 "create_time": current_time,
@@ -265,7 +265,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_content": table_segment,
                                 "seg_len": str(len(table_segment)),
                                 "seg_type": "table",
-                                "seg_page_idx": str(page_idx),
+                                "seg_page_idx": int(page_idx),
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(sub_mysql_res)
@@ -277,7 +277,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "doc_id": doc_id,
                                 "seg_content": table_segment,
                                 "seg_type": "table",
-                                "seg_page_idx": str(page_idx),
+                                "seg_page_idx": int(page_idx),
                                 "update_time": current_time
                             }
                             es_batch.append(sub_es_res)
@@ -314,7 +314,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_id": image_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_summary(img_caption),
+                        "seg_content": truncate_text(img_caption),
                         "seg_type": "image",
                         "permission_ids": permission_ids_str,
                         "create_time": current_time,
@@ -332,7 +332,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_footnote": img_footnote,
                         "seg_len": str(len(img_caption)),
                         "seg_type": "image",
-                        "seg_page_idx": str(page_idx),
+                        "seg_page_idx": int(page_idx),
                         "doc_id": doc_id
                     }
                     mysql_batch.append(image_mysql_res)
@@ -344,7 +344,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "doc_id": doc_id,
                         "seg_content": img_caption,
                         "seg_type": "image",
-                        "seg_page_idx": str(page_idx),
+                        "seg_page_idx": int(page_idx),
                         "update_time": current_time
                     }
                     es_batch.append(image_es_res)
@@ -418,5 +418,5 @@ if __name__ == '__main__':
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
     )
-    print(Config.SEGMENT_CONFIG.get("max_text_length", 500))
+    print(GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500))
     print(text_splitter.__dict__)

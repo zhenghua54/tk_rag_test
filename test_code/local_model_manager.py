@@ -10,8 +10,8 @@ from typing import Tuple, Optional
 from transformers import AutoTokenizer
 # from vllm import LLM, SamplingParams
 
-from utils.common.logger import logger
-from config.global_config import Config
+from utils.log_utils import logger
+from config.global_config import GlobalConfig
 
 
 class LocalModelManager:
@@ -32,7 +32,7 @@ class LocalModelManager:
         3. 设置场景特定的采样参数
         """
         # 获取模型路径
-        self.model_path = Config.MODEL_PATHS["llm"]
+        self.model_path = GlobalConfig.MODEL_PATHS["llm"]
 
         # 验证模型路径
         if not os.path.exists(self.model_path):
@@ -44,7 +44,7 @@ class LocalModelManager:
 
         # VLLM 基础配置
         self.vllm_config = {
-            key: Config.VLLM_CONFIG.get(key) for key in [
+            key: GlobalConfig.VLLM_CONFIG.get(key) for key in [
                 "tensor_parallel_size",
                 "gpu_memory_utilization",
                 "trust_remote_code",
@@ -52,23 +52,23 @@ class LocalModelManager:
                 "max_model_len",
                 "enforce_eager",
                 "tokenizer_mode",
-            ] if Config.VLLM_CONFIG.get(key) is not None
+            ] if GlobalConfig.VLLM_CONFIG.get(key) is not None
         }
 
         # 场景特定的采样参数
         self.sampling_params = {
             # 摘要生成场景：需要确定性输出
             "summary": SamplingParams(
-                temperature=Config.VLLM_CONFIG.get("summary_temperature", 0.3),  # 较低的温度，使输出更确定
-                max_tokens=Config.VLLM_CONFIG.get("summary_max_tokens", 1024),  # 限制生成长度，摘要通常不需要太长
+                temperature=GlobalConfig.VLLM_CONFIG.get("summary_temperature", 0.3),  # 较低的温度，使输出更确定
+                max_tokens=GlobalConfig.VLLM_CONFIG.get("summary_max_tokens", 1024),  # 限制生成长度，摘要通常不需要太长
             ),
             # rag 生成场景：需要更多样化的输出
             "rag": SamplingParams(
-                temperature=Config.VLLM_CONFIG.get("rag_temperature", 0.7),  # 较高的温度，使输出更多样
-                top_p=Config.VLLM_CONFIG.get("rag_top_p", 0.95),  # 控制采样的概率阈值
-                max_tokens=Config.VLLM_CONFIG.get("rag_max_tokens", 4096),  # 较长的生成长度，用于详细回答
-                presence_penalty=Config.VLLM_CONFIG.get("rag_presence_penalty", 0.1),  # 避免重复
-                frequency_penalty=Config.VLLM_CONFIG.get("rag_frequency_penalty", 0.1),  # 增加多样性
+                temperature=GlobalConfig.VLLM_CONFIG.get("rag_temperature", 0.7),  # 较高的温度，使输出更多样
+                top_p=GlobalConfig.VLLM_CONFIG.get("rag_top_p", 0.95),  # 控制采样的概率阈值
+                max_tokens=GlobalConfig.VLLM_CONFIG.get("rag_max_tokens", 4096),  # 较长的生成长度，用于详细回答
+                presence_penalty=GlobalConfig.VLLM_CONFIG.get("rag_presence_penalty", 0.1),  # 避免重复
+                frequency_penalty=GlobalConfig.VLLM_CONFIG.get("rag_frequency_penalty", 0.1),  # 增加多样性
             )
         }
 

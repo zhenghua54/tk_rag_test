@@ -16,7 +16,7 @@ from pathlib import Path
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
-class Config:
+class GlobalConfig:
     """配置类：用于管理项目的所有配置信息"""
     # API配置
     API_TITLE = "rag Demo API"
@@ -34,9 +34,9 @@ class Config:
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
-        "mysql_schema_path": str(BASE_DIR / "scripts" / "subscript" / "schema" / "mysql_schema.sql"),
-        "milvus_schema_path": str(BASE_DIR / "scripts" / "subscript" / "schema" / "milvus_schema.json"),
-        "es_schema_path": str(BASE_DIR / "scripts" / "subscript" / "schema" / "es_schema.json"),  # schema 配置文件路径
+        "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
+        "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
+        "es_schema_path": str(BASE_DIR / "databases" / "schema" / "es_schema.json"),  # schema 配置文件路径
     }
 
     # 模型相关配置
@@ -54,6 +54,7 @@ class Config:
         "normal": ["uploaded", "parsed", "merged", "chunked"],
         "error": ["parse_failed", "merge_failed", "chunk_failed", "error"],
     }
+    FILE_MAX_SIZE = 50  # Mb
 
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(
@@ -69,7 +70,8 @@ class Config:
         "uri": "http://localhost:19530/",
         "host": "localhost",
         "port": 19530,
-        "token": "root:Milvus",
+        # "token": "root:Milvus",
+        "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
         "collection_name": "rag_collection",
         "vector_field": "vector",
@@ -88,8 +90,10 @@ class Config:
 
     MYSQL_CONFIG = {
         "host": "localhost",
-        "user": "root",
-        "password": "Tk@654321",
+        # "user": "root",
+        # "password": "Tk@654321",
+        "user": os.getenv("MYSQL_USER"),
+        "passwd": os.getenv("MYSQL_PASSWORD"),
         "port": 3306,
         "charset": "utf8mb4",
         "database": DB_NAME,
@@ -97,22 +101,18 @@ class Config:
         "segment_info_table": "segment_info",
         "permission_info_table": "permission_info",
     }
+    MYSQL_FIELD={
+        "max_path_len":1000,
+        "max_name_len":500,
+    }
 
     ES_CONFIG = {
         "host": "http://localhost:9200",  # ES 服务器地址
         "timeout": 30,  # 请求超时时间（秒）
-        # "index_name": "rag_index", "rag_index_new",  # ES 索引（数据库）名称
         "index_name": DB_NAME,  # ES 索引（数据库）名称
         "username": os.getenv("ES_USER"),  # ES 用户名
         "password": os.getenv("ES_PASSWORD"),  # ES 密码
         "verify_certs": False  # 是否验证证书
-    }
-
-    # BM25 配置
-    BM25_CONFIG = {
-        "batch_size": 1000,  # 每批处理的文档数量
-        "max_docs": 10000,  # 最大文档数量
-        "memory_limit": 1024  # 内存限制（MB）
     }
 
     # 分块配置
@@ -123,14 +123,29 @@ class Config:
         "vector_batch_size": 10  # 向量生成的批处理大小
     }
 
+    # 提示词模板
+    PROMPT_TEMPLATE = {
+        "table_summary": {
+            "prompt_file": "./prompts/table_summary_prompt.txt",
+            "model": "qwen-turbo-1101",
+            "temperature": 0.3,
+            "max_tokens": 1024
+        },
+        "text_summary": {
+            "prompt_file": "./prompts/text_summary_prompt.txt",
+            "model": "qwen-turbo-1101",
+            "temperature": 0.5,
+            "max_tokens": 512
+        }
+    }
 
 if __name__ == "__main__":
     # 打印当前配置
-    print(f"Base Dir: {Config.BASE_DIR}")
-    print(f"Device: {Config.DEVICE}")
+    print(f"Base Dir: {GlobalConfig.BASE_DIR}")
+    print(f"Device: {GlobalConfig.DEVICE}")
     print("\nPaths:")
-    for name, path in Config.PATHS.items():
+    for name, path in GlobalConfig.PATHS.items():
         print(f"  {name}: {path}")
     print("\nModel Paths:")
-    for name, path in Config.MODEL_PATHS.items():
+    for name, path in GlobalConfig.MODEL_PATHS.items():
         print(f"  {name}: {path}")

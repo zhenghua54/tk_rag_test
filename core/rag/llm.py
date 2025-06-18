@@ -5,7 +5,7 @@ import gc
 from typing import Optional
 
 from openai import OpenAI
-from utils.common.logger import logger
+from utils.log_utils import logger
 
 
 class LLMManager:

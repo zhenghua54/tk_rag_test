@@ -4,7 +4,7 @@
 """
 import importlib
 from abc import ABC
-from config.global_config import Config
+from config.global_config import GlobalConfig
 
 
 class BaseService(ABC):
@@ -16,7 +16,7 @@ class BaseService(ABC):
     @classmethod
     def get_instance(cls):
         """根据配置返回 mock 或真实服务实例"""
-        if Config.USE_MOCK:
+        if GlobalConfig.USE_MOCK:
             mock_class_name = f"Mock{cls.__name__}"  # 例：MockDocumentService
             # module_name = cls.__module__  # 获取子类定义的模块名
             try:

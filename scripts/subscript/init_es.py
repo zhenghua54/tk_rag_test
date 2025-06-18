@@ -3,13 +3,13 @@
 import json
 
 from databases.elasticsearch.operations import ElasticsearchOperation
-from utils.common.logger import logger
-from config.global_config import Config
+from utils.log_utils import logger
+from config.global_config import GlobalConfig
 
 
 def load_schema():
     """加载 ES schema 配置"""
-    schema_path = Config.PATHS.get("es_schema_path")
+    schema_path = GlobalConfig.PATHS.get("es_schema_path")
     with open(schema_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
@@ -22,7 +22,7 @@ def init_es():
 
         # 2. 加载 schema 配置
         schema_config = load_schema()
-        index_name = Config.ES_CONFIG["index_name"]
+        index_name = GlobalConfig.ES_CONFIG["index_name"]
 
         # 3. 创建索引
         return es_op.create_index(index_name, schema_config)

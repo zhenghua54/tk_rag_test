@@ -8,8 +8,8 @@ from langchain.schema import BaseRetriever
 from langchain_openai import ChatOpenAI
 
 from api.response import ResponseBuilder
-from api.error_codes import ErrorCode
-from utils.common.logger import logger
+from error_codes import ErrorCode
+from utils.log_utils import logger
 from utils.llm_utils import llm_manager
 
 

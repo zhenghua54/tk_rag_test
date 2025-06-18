@@ -3,7 +3,7 @@ import psutil
 import time
 import torch
 import requests
-from utils.common.logger import logger
+from utils.log_utils import logger
 
 
 def print_memory_usage():

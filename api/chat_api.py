@@ -5,8 +5,8 @@ from fastapi import APIRouter, Request
 from api.request.chat_ragchat_request import ChatRequest
 from api.response import APIException
 from api.response import ResponseBuilder
-from api.error_codes import ErrorCode
-from utils.common.logger import log_exception, log_operation_start, log_business_info, log_operation_success
+from error_codes import ErrorCode
+from utils.log_utils import log_exception, log_operation_start, log_business_info, log_operation_success
 from core.rag.llm_generator import RAGGenerator
 from core.rag.hybrid_retriever import hybrid_retriever
 

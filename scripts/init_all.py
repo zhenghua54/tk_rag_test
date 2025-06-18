@@ -12,18 +12,19 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
-
 # 添加项目根目录到 Python 路径
-root_path = Path(__file__).resolve().parent.parent.parent
+root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
+
+# 加载环境变量
+load_dotenv()
 
 from pymilvus import connections, Collection
 from databases.elasticsearch.operations import ElasticsearchOperation
 
-from config.global_config import Config
-from utils.common.logger import logger
-from databases.mysql.connection import test_connect_mysql
+from config.global_config import GlobalConfig
+from utils.log_utils import logger
+from databases.mysql.base import MySQLUtils
 from scripts.subscript.init_mysql import init_mysql
 from scripts.subscript.init_milvus import init_milvus
 from scripts.subscript.init_es import init_es
@@ -34,7 +35,7 @@ def ensure_directories():
     logger.debug("创建必要的目录结构...")
 
     # 创建数据目录
-    data_path = [Config.PATHS.get("origin_data"), Config.PATHS.get("processed_data"), Config.PATHS.get("log_dir")]
+    data_path = [GlobalConfig.PATHS.get("origin_data"), GlobalConfig.PATHS.get("processed_data"), GlobalConfig.PATHS.get("log_dir")]
     for path in data_path:
         if os.path.isfile(path) or os.path.exists(path):
             logger.warning(f"跳过已存在文件路径: {path}")
@@ -43,26 +44,29 @@ def ensure_directories():
         logger.debug(f"创建目录: {path}")
 
     # 创建模型目录
-    os.makedirs(Config.PATHS.get('model_base'), exist_ok=True)
-    logger.info(f"创建目录: {path}")
+    if os.makedirs(GlobalConfig.PATHS.get('model_base'), exist_ok=True):
+        logger.info(f"创建目录: {GlobalConfig.PATHS.get('model_base')}")
+    else:
+        logger.info(f"目录: {GlobalConfig.PATHS.get('model_base')} 已存在")
+
 
 
 def test_connections():
     """测试所有数据库连接"""
     # 测试 MySQL 连接
-    if not test_connect_mysql():
+    if not MySQLUtils.test_connection():
         raise Exception("MySQL 数据库连接失败！") 
 
     # 测试 Milvus 连接
     try:
         connections.connect(
             alias="default",
-            host=Config.MILVUS_CONFIG["host"],
-            port=Config.MILVUS_CONFIG["port"],
-            token=Config.MILVUS_CONFIG["token"],
-            db_name=Config.MILVUS_CONFIG["db_name"]
+            host=GlobalConfig.MILVUS_CONFIG["host"],
+            port=GlobalConfig.MILVUS_CONFIG["port"],
+            token=GlobalConfig.MILVUS_CONFIG["token"],
+            db_name=GlobalConfig.MILVUS_CONFIG["db_name"]
         )
-        collection = Collection(Config.MILVUS_CONFIG["collection_name"])
+        collection = Collection(GlobalConfig.MILVUS_CONFIG["collection_name"])
         if not collection:
             raise Exception("Milvus 集合加载失败！")
     except Exception as e:
@@ -102,4 +106,6 @@ def init_all():
 
 
 if __name__ == "__main__":
+    # 确保在项目根目录下执行
+    os.chdir(root_path)
     init_all()

@@ -6,8 +6,8 @@ from typing import List, Dict
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
 
-from config.global_config import Config
-from utils.common.logger import logger
+from config.global_config import GlobalConfig
+from utils.log_utils import logger
 
 load_dotenv(verbose=True)
 
@@ -18,14 +18,14 @@ class ElasticsearchOperation:
         """初始化 ES 客户端"""
         try:
             # 创建 ES 客户端实例，使用配置中的连接信息
-            es_username = Config.ES_CONFIG.get('username', '')
-            es_password = Config.ES_CONFIG.get('password', '')
+            es_username = GlobalConfig.ES_CONFIG.get('username', '')
+            es_password = GlobalConfig.ES_CONFIG.get('password', '')
             
             # 创建ES客户端配置
             es_params = {
-                "hosts": Config.ES_CONFIG['host'],  # 使用配置的 host
-                "request_timeout": Config.ES_CONFIG["timeout"],  # 超时设置
-                "verify_certs": Config.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
+                "hosts": GlobalConfig.ES_CONFIG['host'],  # 使用配置的 host
+                "request_timeout": GlobalConfig.ES_CONFIG["timeout"],  # 超时设置
+                "verify_certs": GlobalConfig.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
             }
             
             # 添加认证信息，基于ES版本选择合适的认证方式
@@ -36,7 +36,7 @@ class ElasticsearchOperation:
             self.client = Elasticsearch(**es_params)
             
             # 获取索引名称
-            self.index_name = Config.ES_CONFIG["index_name"]
+            self.index_name = GlobalConfig.ES_CONFIG["index_name"]
             
             # 测试连接
             if not self.ping():
@@ -489,11 +489,11 @@ class ElasticsearchOperation:
 
     @staticmethod
     def _delete_index():
-        hosts = Config.ES_CONFIG.get("host")
+        hosts = GlobalConfig.ES_CONFIG.get("host")
         basic_auth = (os.getenv("ES_USER"), os.getenv("ES_PASSWORD"))
         es = Elasticsearch(hosts, basic_auth=basic_auth)
 
-        index_name = Config.ES_CONFIG.get("index_name")
+        index_name = GlobalConfig.ES_CONFIG.get("index_name")
 
         if es.indices.exists(index=index_name):
             es.indices.delete(index=index_name)

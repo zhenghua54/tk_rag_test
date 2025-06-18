@@ -1,7 +1,7 @@
 """错误编码, 根据在线接口文档维护,如有修改,保持同步"""
 from enum import Enum
 
-from config.global_config import Config
+from config.global_config import GlobalConfig
 
 
 class ErrorCode(Enum):
@@ -134,11 +134,11 @@ ERROR_MESSAGES = {
     ErrorCode.ENVIRONMENT_DEFICIT: "环境缺失",
 
     ErrorCode.FILE_NOT_FOUND: "文件不存在, 请检查文件路径是否正确",
-    ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持: {','.join(Config.SUPPORTED_FILE_TYPES.get('all')).replace('.', '')}",
+    ErrorCode.UNSUPPORTED_FORMAT: f"文件格式不支持, 仅支持: {','.join(GlobalConfig.SUPPORTED_FILE_TYPES.get('all')).replace('.', '')}",
     ErrorCode.FILE_TOO_LARGE: "文件过大, 最大支持 50MB 文件",
     ErrorCode.FILE_EMPTY: "文件内容为空, 无法读取文件内容",
     ErrorCode.FILENAME_TOOLONG: "文件名称超长, 长度应不超过 200字",
-    ErrorCode.INVALID_FILENAME: f"文件名无效, 仅支持: {Config.UNSUPPORTED_FILENAME_CHARS}",
+    ErrorCode.INVALID_FILENAME: f"文件名无效, 仅支持: {GlobalConfig.UNSUPPORTED_FILENAME_CHARS}",
     ErrorCode.PDF_PARSE_ERROR: "PDF解析失败",
     ErrorCode.FILE_EXISTS_PROCESSED: "文件已存在, 请检查是否重复上传",
     ErrorCode.FILEPATH_TOOLONG: "文件路径超长, 长度应不超过 1000 字",
