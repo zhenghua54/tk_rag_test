@@ -7,8 +7,8 @@ from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedData
 from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
-from src.api.error_codes import ErrorCode
-from src.api.response import APIException
+from api.error_codes import ErrorCode
+from api.response import APIException
 from src.utils.common.logger import logger
 from src.utils.validator.content_validator import ContentValidator
 from src.utils.doc_toolkit import get_doc_output_path

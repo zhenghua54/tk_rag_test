@@ -17,7 +17,8 @@ from src.utils.common.logger import (
 from config.settings import Config
 from src.utils.doc_toolkit import download_file_step_by_step, get_doc_output_path
 from src.utils.common.unit_convert import convert_bytes
-from src.api.response import ErrorCode, APIException
+from api.error_codes import ErrorCode
+from api.response import APIException
 from src.utils.validator.system_validator import SystemValidator
 from src.utils.validator.file_validator import FileValidator
 from src.utils.validator.content_validator import ContentValidator
@@ -26,8 +27,8 @@ from src.database.milvus.operations import VectorOperation
 from src.database.elasticsearch.operations import ElasticsearchOperation
 
 from src.utils.doc_toolkit import delete_path_safely
-from src.core.document.content_merger import process_doc_content
-from src.core.document.content_chunker import segment_text_content
+from core.doc.content_merger import process_doc_content
+from core.doc.chunker import segment_text_content
 from src.utils.validator.args_validator import ArgsValidator
 
 # 创建线程池执行器

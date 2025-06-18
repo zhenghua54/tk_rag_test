@@ -6,11 +6,10 @@ from typing import List, Dict, Any, Optional, Tuple, Union
 import pymysql
 from pymysql.cursors import DictCursor
 
-from config.settings import Config
-from src.api.error_codes import ErrorCode
-from src.api.response import APIException
+from api.error_codes import ErrorCode
+from api.response import APIException
 from src.utils.common.logger import logger
-from src.database.mysql.connection import MySQLConnect, MySQLConnectionPool
+from src.database.mysql.connection import MySQLConnectionPool
 from src.utils.validator.args_validator import ArgsValidator
 
 

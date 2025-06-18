@@ -8,10 +8,10 @@ import hashlib
 
 from pathlib import Path
 
-from src.api.error_codes import ErrorCode
-from src.api.response import APIException
-from src.core.document.doc_convert import convert_office_file
-from src.core.document.doc_parser import mineru_toolkit
+from api.error_codes import ErrorCode
+from api.response import APIException
+from core.doc.doc_convert import convert_office_file
+from core.doc.parser import mineru_toolkit
 from src.database.mysql.operations import FileInfoOperation
 from src.utils.validator.file_validator import FileValidator
 

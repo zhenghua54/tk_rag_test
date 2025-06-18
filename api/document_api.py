@@ -1,9 +1,11 @@
 """文档API实现"""
 from fastapi import APIRouter, Request
-from src.api.response import ResponseBuilder, ErrorCode, APIException
+from api.response import APIException
+from api.response import ResponseBuilder
+from api.error_codes import ErrorCode
 from src.services.document_server import DocumentService
-from src.api.request.document_delete_request import DocumentDeleteRequest
-from src.api.request.document_upload_request import DocumentUploadRequest
+from api.request.document_delete_request import DocumentDeleteRequest
+from api.request.document_upload_request import DocumentUploadRequest
 from src.utils.common.logger import (
     log_operation_start, log_operation_success, log_operation_error,
     log_business_info, mask_sensitive_info, log_exception

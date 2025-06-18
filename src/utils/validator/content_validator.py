@@ -1,11 +1,10 @@
 """文档内容校验"""
-from src.api.response import APIException
+from api.response import APIException
 
 """使用 PyMuPDF 检查 pdf 文件结构, 避免 MinerU 解析崩溃"""
-import json
 import fitz
 
-from src.api.error_codes import ErrorCode
+from api.error_codes import ErrorCode
 from src.utils.common.logger import logger
 
 

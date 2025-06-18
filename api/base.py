@@ -2,7 +2,7 @@
 """系统基础接口"""
 import datetime
 from fastapi import APIRouter
-from src.api.response import ResponseBuilder
+from api.response import ResponseBuilder
 
 router = APIRouter(
     tags=["基础接口"]

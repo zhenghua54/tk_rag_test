@@ -1,8 +1,5 @@
 """文档上传请求数据模型"""
-from pydantic import BaseModel, Field, ValidationError, field_validator
-
-from src.api.response import APIException
-from src.api.error_codes import ErrorCode
+from pydantic import BaseModel, Field
 
 
 class DocumentUploadRequest(BaseModel):

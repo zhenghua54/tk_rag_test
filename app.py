@@ -3,9 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
 
-import sys, os
+import sys
 from pathlib import Path
-from openai import OpenAI
 
 # 更新环境变量
 root_path = Path(__file__).resolve()
@@ -15,13 +14,14 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
 
-from src.api import chat_api
-from src.api.response import ResponseBuilder, ErrorCode
+from api.chat_api import router as chat_router
+from api.response import ResponseBuilder
+from api.error_codes import ErrorCode
 from config.settings import Config
-from src.api.base import router as base_router
-from src.api import document_api
+from api.base import router as base_router
+from api.document_api import router as doc_router
 from src.middleware.base_middleware import RequestMiddleware
-from src.core.lifecycle import lifespan
+from core.infra.lifecycle import lifespan
 
 
 
@@ -55,8 +55,8 @@ app.add_middleware(RequestMiddleware)
 
 # 注册路由
 app.include_router(base_router)
-app.include_router(document_api.router)
-app.include_router(chat_api.router)
+app.include_router(doc_router)
+app.include_router(chat_router)
 
 # for route in app.routes:
 #     print(f"路由: {route.path}  方法: {route.methods}")

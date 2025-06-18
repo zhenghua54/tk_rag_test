@@ -10,8 +10,8 @@ from pathlib import Path
 root_path = Path(__file__).resolve().parent
 sys.path.append(str(root_path))
 
-from src.core.rag.hybrid_retriever import HybridRetriever, init_retrievers
-from src.utils.common.logger import logger
+from core.rag.hybrid_retriever import HybridRetriever, init_retrievers
+
 
 def test_permission_filter():
     """测试权限过滤功能"""

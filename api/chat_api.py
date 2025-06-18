@@ -2,12 +2,14 @@
 """
 from fastapi import APIRouter, Request
 
-from src.api.request.chat_ragchat_request import ChatRequest
-from src.api.response import ResponseBuilder, ErrorCode, APIException
+from api.request.chat_ragchat_request import ChatRequest
+from api.response import APIException
+from api.response import ResponseBuilder
+from api.error_codes import ErrorCode
 # from src.services.chat_server import ChatService
 from src.utils.common.logger import log_exception, log_operation_start, log_business_info, log_operation_success
-from src.core.rag.llm_generator import RAGGenerator
-from src.core.rag.hybrid_retriever import hybrid_retriever
+from core.rag.llm_generator import RAGGenerator
+from core.rag.hybrid_retriever import hybrid_retriever
 
 router = APIRouter(
     prefix="/chat",

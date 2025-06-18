@@ -1,4 +1,4 @@
-from src.core.document.content_chunker import segment_text_content
+from core.doc.chunker import segment_text_content
 
 def test_segment_text_content():
     # 测试文档路径

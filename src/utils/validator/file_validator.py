@@ -4,9 +4,9 @@ from pathlib import Path
 import requests
 import fitz
 
-from src.api.error_codes import ErrorCode
+from api.error_codes import ErrorCode
 from config.settings import Config
-from src.api.response import APIException
+from api.response import APIException
 from src.utils.doc_toolkit import compute_file_hash
 from src.database.mysql.operations import FileInfoOperation
 from src.utils.common.logger import log_operation_error, logger

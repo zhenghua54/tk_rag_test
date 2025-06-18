@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import List
 
 from config.settings import Config
-from src.api.error_codes import ErrorCode
-from src.api.response import APIException
+from api.error_codes import ErrorCode
+from api.response import APIException
 from src.utils.common.logger import logger
 
 

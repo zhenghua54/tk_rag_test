@@ -11,7 +11,7 @@ from pathlib import Path
 root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
 
-from src.core.document.content_chunker import segment_text_content
+from core.doc.chunker import segment_text_content
 from src.utils.common.logger import logger
 
 def test_document_chunk():

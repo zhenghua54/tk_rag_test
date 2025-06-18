@@ -9,9 +9,9 @@ from langchain_milvus import Milvus
 from config.settings import Config
 from src.database.elasticsearch.operations import ElasticsearchOperation
 from src.utils.common.logger import logger
-from src.core.rag.retrieval.text_retriever import get_segment_contents
-from src.core.rag.retrieval.vector_retriever import VectorRetriever
-from src.core.rag.retrieval.bm25_retriever import BM25Retriever
+from core.rag.retrieval.text_retriever import get_segment_contents
+from core.rag.retrieval.vector_retriever import VectorRetriever
+from core.rag.retrieval.bm25_retriever import BM25Retriever
 from src.utils.llm_utils import rerank_manager
 
 

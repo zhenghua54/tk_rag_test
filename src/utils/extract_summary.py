@@ -1,13 +1,11 @@
 """使用 LLM 提取摘要"""
-import os
 import json
 import re
 from typing import Dict
 
-from src.core.rag.llm import llm_client
 from src.utils.llm_utils import llm_manager
-from src.api.error_codes import ErrorCode
-from src.api.response import APIException
+from api.error_codes import ErrorCode
+from api.response import APIException
 from src.utils.common.logger import logger
 from src.utils.validator.args_validator import ArgsValidator
 

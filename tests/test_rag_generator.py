@@ -12,9 +12,9 @@ from pathlib import Path
 root_path = Path(__file__).resolve().parent
 sys.path.append(str(root_path))
 
-from src.core.rag.hybrid_retriever import HybridRetriever, init_retrievers
-from src.core.rag.llm_generator import RAGGenerator
-from src.utils.common.logger import logger
+from core.rag.hybrid_retriever import HybridRetriever, init_retrievers
+from core.rag.llm_generator import RAGGenerator
+
 
 def test_rag_generator():
     """测试RAG生成功能"""
