@@ -5,6 +5,8 @@ import gc
 from typing import Optional
 
 from openai import OpenAI
+
+from config.global_config import GlobalConfig
 from utils.log_utils import logger
 
 
@@ -66,7 +68,7 @@ llm_client = LLMManager.get_instance().get_client()
 
 def create_completion(
     prompt: str,
-    model: str = "qwen-turbo-1101",
+    model: str = GlobalConfig.LLM_NAME,
     temperature: float = 0.2,
     system_prompt: Optional[str] = None,
     use_local: bool = False

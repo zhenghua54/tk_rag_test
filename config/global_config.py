@@ -44,6 +44,7 @@ class GlobalConfig:
         "embedding": str(MODEL_BASE / "embedding" / "bge-m3"),
         "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3")
     }
+    LLM_NAME = "qwen-turbo-1101"
 
     # 文件处理配置
     SUPPORTED_FILE_TYPES = {
@@ -127,16 +128,23 @@ class GlobalConfig:
     PROMPT_TEMPLATE = {
         "table_summary": {
             "prompt_file": "./prompts/table_summary_prompt.txt",
-            "model": "qwen-turbo-1101",
+            "model": LLM_NAME,
             "temperature": 0.3,
             "max_tokens": 1024
         },
         "text_summary": {
             "prompt_file": "./prompts/text_summary_prompt.txt",
-            "model": "qwen-turbo-1101",
+            "model": LLM_NAME,
             "temperature": 0.5,
-            "max_tokens": 512
+            "max_tokens": 1024
+        },
+        "rag_generate": {
+            "prompt_file": "./prompts/rag_prompt.txt",
+            "model": LLM_NAME,
+            "temperature": 0.3,
+            # "max_tokens": 1024
         }
+
     }
 
 if __name__ == "__main__":

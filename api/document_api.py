@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request
 from api.response import APIException
 from api.response import ResponseBuilder
 from error_codes import ErrorCode
-from services.document_server import DocumentService
+from services.doc_server import DocumentService
 from api.request.document_delete_request import DocumentDeleteRequest
 from api.request.document_upload_request import DocumentUploadRequest
 from utils.log_utils import (

@@ -249,17 +249,12 @@ class ChunkOperation(BaseDBOperation):
                     # 片段信息
                     "seg_id": record.get("seg_id"),
                     "seg_content": record.get("seg_content"),
-                    "seg_type": record.get("seg_type"),
-                    "seg_image_path": record.get("seg_image_path", ""),
-                    "seg_caption": record.get("seg_caption", ""),
-                    "seg_footnote": record.get("seg_footnote", ""),
-                    "seg_page_idx": record.get("seg_page_idx", 0),
+                    # "seg_type": record.get("seg_type"),
+                    # "seg_page_idx": record.get("seg_page_idx", 0),
 
                     # 文档信息
-                    "doc_id": record.get("doc_id"),
-                    "doc_http_url": record.get("doc_http_url", ""),
-                    "doc_created_at": record.get("doc_created_at", ""),
-                    "doc_updated_at": record.get("doc_updated_at", ""),
+                    # "doc_id": record.get("doc_id"),
+                    # "doc_http_url": record.get("doc_http_url", ""),
 
                     # 权限信息
                     "permission_ids": record.get("permission_ids", "")

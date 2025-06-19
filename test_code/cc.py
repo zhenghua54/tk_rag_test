@@ -53,15 +53,32 @@
 # for b in a.split(","):
 #     print(b)
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+#
+# # 初始化分块器
+# text_splitter = RecursiveCharacterTextSplitter(
+#     chunk_size=500,
+#     chunk_overlap=100,
+#     length_function=len,
+#     separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
+# )
+# print(text_splitter._chunk_size)
+# print(text_splitter.__dict__)
 
-# 初始化分块器
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=100,
-    length_function=len,
-    separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
-)
-print(text_splitter._chunk_size)
-print(text_splitter.__dict__)
-
+# import tiktoken
+#
+# def get_tokenizer(model_name: str = GlobalConfig.LLM_NAME):
+#     try:
+#         encoding = tiktoken.encoding_for_model(model_name)
+#     except KeyError:
+#         print("No model named '{}'".format(model_name))
+#         # 若模型不在 tiktoken 支持的列表中，回退到 cl100k_base
+#         encoding = tiktoken.get_encoding("cl100k_base")
+#     return encoding
+#
+# # 示例
+# encoding = get_tokenizer("gpt-3.5-turbo")
+#
+# text = "你好，今天的会议内容总结如下：……"
+# token_count = len(encoding.encode(text))
+# print(f"Token 数量: {token_count}")

@@ -24,6 +24,7 @@ from utils.validators import (
 from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, check_duplicate_doc
 from databases.milvus.operations import VectorOperation
 from databases.elasticsearch.operations import ElasticsearchOperation
+from databases.db_ops import delete_all_database_data
 
 from utils.file_ops import delete_path_safely
 from core.doc.parser import process_doc_content
@@ -113,12 +114,11 @@ class DocumentService(BaseService):
             # 插入数据库元信息
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
+                    logger.info(f"开始文档入库, doc_id={doc_id}")
                     file_op.insert_data(doc_info)
-                    log_business_info("文档入库", doc_id=doc_id)
-                    # log_business_info("文档入库", doc_id=doc_id, file_info=doc_info)
                     # 插入权限信息到数据库
+                    logger.info(f"开始权限入库, doc_id={doc_id}, permission_id={permission_ids}")
                     permission_op.insert_datas(permission_info)
-                    log_business_info("权限入库", doc_id=doc_id, permission_ids=permission_ids)
 
                     # 返回成功
                     result = {
@@ -158,12 +158,6 @@ class DocumentService(BaseService):
                 logger.error(f"数据库操作失败，error_msg={str(e)}")
                 raise APIException(ErrorCode.MYSQL_INSERT_FAIL, str(e))
 
-        # except ValueError as e:
-        #     # 来自验证器的结构化错误
-        #     error_code = e.args[0] if len(e.args) >= 1 else ErrorCode.INTERNAL_ERROR
-        #     # 优先用 error_code 的 message，没有就用 str(e)
-        #     error_msg = ErrorCode.get_message(error_code) or str(e)
-        #     raise APIException(error_code, error_msg)
         except Exception as e:
             raise e from e
 
@@ -196,8 +190,12 @@ class DocumentService(BaseService):
                 logger.error(f"文件信息获取失败, 错误原因: {str(e)}, doc_id: {doc_id}")
                 raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
 
+            # 删除所有数据库记录
+            await delete_all_database_data(doc_id, is_soft_delete)
+
             # 如果找到文件信息且需要物理删除，则删除文件
             if file_info and not is_soft_delete:
+                logger.info(f"物理删除, 开始删除本地文件, doc_id: {doc_id}")
                 error_code = ErrorCode.FILE_HARD_DELETE_ERROR
                 out_path = get_doc_output_path(file_info['doc_path'])['output_path']
                 file_info['out_path'] = out_path
@@ -207,16 +205,13 @@ class DocumentService(BaseService):
                     if not path:
                         continue
                     try:
-                        delete_path_safely(path, error_code)
+                        delete_path_safely(path)
                     except FileNotFoundError:
-                        log_business_info("文件不存在", path=path)
+                        logger.info(f"文件不存在, doc_id={doc_id}, path={path}")
                     except OSError as e:
                         log_exception("系统IO错误",
                                       e)
                         raise APIException(error_code, str(e)) from e
-
-            # 删除所有数据库记录
-            await DocumentService._delete_all_database_data(doc_id, is_soft_delete)
 
             # 返回成功响应
             result = {
@@ -246,56 +241,75 @@ class DocumentService(BaseService):
             logger.error(f"文档删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
             raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
-    @staticmethod
-    async def _delete_all_database_data(doc_id: str, is_soft_delete: bool) -> None:
-        """删除所有数据库中的相关数据
-
-        Args:
-            doc_id: 要删除的文档ID
-            is_soft_delete: 是否软删除
-        """
-        try:
-            # 删除 MySQL 数据库记录
-            try:
-                with FileInfoOperation() as file_op, \
-                        PermissionOperation() as permission_op, \
-                        ChunkOperation() as chunk_op:
-                    # 软删除：更新状态
-                    file_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-                    permission_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-                    chunk_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete)
-
-                    operation = "软删除文件" if is_soft_delete else "物理删除文件"
-                    logger.info(f"{operation}成功, doc_id={doc_id}")
-            except Exception as e:
-                logger.error(f"MySQL数据删除: {str(e)}, doc_id: {doc_id}")
-                # MySQL删除失败不影响其他数据库的删除操作
-
-            # 删除 Milvus 数据库记录
-            try:
-                vector_op = VectorOperation()
-                if vector_op.delete_by_doc_id(doc_id):
-                    log_business_info("Milvus数据删除成功", doc_id=doc_id)
-                else:
-                    log_business_info("Milvus数据不存在", doc_id=doc_id)
-            except Exception as e:
-                logger.error(f"Milvus 数据删除: {str(e)}, doc_id: {doc_id}")
-                # 不中断主流程
-
-            # 删除ES中的数据
-            try:
-                es_op = ElasticsearchOperation()
-                if es_op.delete_by_doc_id(doc_id):
-                    log_business_info("ES数据删除成功", doc_id=doc_id)
-                else:
-                    log_business_info("ES数据不存在", doc_id=doc_id)
-            except Exception as e:
-                logger.error(f"ES 数据删除: {str(e)}, doc_id: {doc_id}")
-                # 不中断主流程
-
-        except Exception as e:
-            logger.error(f"Mysql 数据删除失败: {str(e)}, doc_id: {doc_id}")
-            # 不中断主流程
+    # @staticmethod
+    # async def _delete_all_database_data(doc_id: str, is_soft_delete: bool) -> None:
+    #     """删除所有数据库中的相关数据
+    #
+    #     Args:
+    #         doc_id: 要删除的文档ID
+    #         is_soft_delete: 是否软删除
+    #     """
+    #     try:
+    #         logger.info(f"开始删除数据库记录, doc_id={doc_id}")
+    #         # 删除 MySQL 数据库记录
+    #         try:
+    #             logger.info(f"MySQL 数据删除")
+    #             with FileInfoOperation() as file_op, \
+    #                     PermissionOperation() as permission_op, \
+    #                     ChunkOperation() as chunk_op:
+    #                 # 删除文件信息表
+    #                 if file_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
+    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 数据删除成功")
+    #                 else:
+    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 数据不存在")
+    #
+    #                 # 删除权限信息表
+    #                 if permission_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
+    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 数据删除成功")
+    #                 else:
+    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 数据不存在")
+    #
+    #                 # 删除分块信息表
+    #                 if chunk_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
+    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 数据删除成功")
+    #                 else:
+    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 数据不存在")
+    #
+    #                 operation = "软删除文件" if is_soft_delete else "物理删除文件"
+    #                 logger.info(f"{operation}成功")
+    #         except Exception as e:
+    #             logger.error(f"MySQL 数据删除失败, 错误原因: {str(e)}")
+    #             # MySQL删除失败不影响其他数据库的删除操作
+    #
+    #         # 删除 Milvus 数据库记录
+    #         try:
+    #             logger.info(f"Milvus 数据删除")
+    #             vector_op = VectorOperation()
+    #             if vector_op.delete_by_doc_id(doc_id):
+    #                 logger.info(f"Milvus 数据删除成功")
+    #             else:
+    #                 logger.warning(f"Milvus 数据不存在")
+    #         except Exception as e:
+    #             logger.error(f"Milvus 数据删除失败, 错误原因: {str(e)}")
+    #             # 不中断主流程
+    #
+    #         # 删除ES中的数据
+    #         try:
+    #             logger.info(f"Elasticsearch 数据删除")
+    #             es_op = ElasticsearchOperation()
+    #             if es_op.delete_by_doc_id(doc_id):
+    #                 logger.info(f"Elasticsearch 数据删除")
+    #                 log_business_info("Elasticsearch 数据删除成功")
+    #             else:
+    #                 logger.warning(f"Elasticsearch 数据删除")
+    #                 log_business_info("Elasticsearch 数据不存在")
+    #         except Exception as e:
+    #             logger.error(f"Elasticsearch 数据删除: {str(e)}, doc_id: {doc_id}")
+    #             # 不中断主流程
+    #
+    #     except Exception as e:
+    #         logger.error(f"数据库记录删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
+    #         # 不中断主流程
 
     @staticmethod
     async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str,

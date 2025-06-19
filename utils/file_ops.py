@@ -13,11 +13,10 @@ import hashlib
 import shutil
 import subprocess
 import tempfile
-import jinja2.exceptions
 
 from pathlib import Path
-from typing import Dict, Tuple, Optional
-from jinja2 import Template
+from typing import Dict, Tuple, Optional, Any, List
+# from jinja2 import Template
 # mineru 解析使用
 from magic_pdf.config.enums import SupportedPdfParseMethod
 from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
@@ -27,8 +26,8 @@ from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 from config.global_config import GlobalConfig
 from error_codes import ErrorCode
 from api.response import APIException
-from utils.log_utils import logger
-from utils.llm_utils import llm_manager
+from utils.log_utils import logger, log_exception
+from utils.llm_utils import llm_manager, render_prompt
 
 
 # === 输出路径获取 ===
@@ -122,28 +121,88 @@ def truncate_text(text: str, max_length: int = None) -> str:
 
 
 # === 文档删除 ===
-def delete_path_safely(doc_path: str, error_code: ErrorCode):
+def delete_path_safely(doc_path: str):
     """文件或目录的硬删除"""
     if not doc_path or not isinstance(doc_path, str):
         return
     path = Path(doc_path)
     if not path.exists():
-        logger.warning(f"[文件已不存在] path={path}")
+        logger.warning(f"文件不存在")
         return
     try:
         if path.is_file():
             path.unlink()
-            logger.info(f"[硬删除] file={path}")
+            logger.info(f"文件删除成功")
         elif path.is_dir():
             shutil.rmtree(path)
-            logger.info(f"[硬删除] dir={path}")
+            logger.info(f"文件删除成功")
     except Exception as e:
-        logger.error(f"[硬删除失败] path={path}, error_code={error_code.value}, error={str(e)}")
-        raise APIException(error_code, str(e)) from e
+        logger.error(f"文件删除失败, 失败原因: {str(e)}")
+        raise ValueError(f"文件删除失败, 失败原因: {str(e)}") from e
+
+
+async def delete_local_file(file_path_list: List[str]) -> int:
+    """删除本地文档和文件夹服务
+
+    Args:
+        file_path_list: 要删除的文档路径列表
+
+    Returns:
+        bool: 删除数量
+    """
+    total_num: int = len(file_path_list)
+
+    if total_num == 0:
+        return total_num
+
+    try:
+        # 如果找到文件信息且需要物理删除，则删除文件
+        logger.info(f"待删除的文件清单: {file_path_list}")
+
+        for file_path in file_path_list:
+            logger.info(f"开始删除文件: {file_path}")
+            if not file_path:
+                logger.info(f"跳过删除, 路径不存在")
+                total_num -= 1
+                continue
+            try:
+                if not file_path or not isinstance(file_path, str):
+                    logger.error(f"跳过删除, 路径格式非法, 需为字符串格式, 当前格式: {type(file_path)}")
+                    total_num -= 1
+                    continue
+                path = Path(file_path)
+                if not path.exists():
+                    logger.warning(f"文件不存在")
+                    total_num -= 1
+                    continue
+                if path.is_file():
+                    path.unlink()
+                    logger.info(f"文件删除成功")
+                elif path.is_dir():
+                    shutil.rmtree(path)
+                    logger.info(f"文件删除成功")
+            except OSError as e:
+                log_exception("系统IO错误", e)
+                raise ValueError(str(e)) from e
+            except Exception as e:
+                logger.error(f"文件删除失败, 失败原因: {str(e)}")
+                raise ValueError(f"文件删除失败, 失败原因: {str(e)}") from e
+
+        return total_num
+
+    except APIException:
+        raise
+    except ValueError as e:
+        log_exception("参数错误",
+                      e)
+        raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
+    except Exception as e:
+        logger.error(f"文档删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
+        raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
 
 
 # === 下载 http 文档 ===
-def download_file_step_by_step(url: str, local_path: str = None, chunk_size: int = 8192):
+async def download_file_step_by_step(url: str, local_path: str = None, chunk_size: int = 8192):
     """逐步下载网络文档并保存为本地文件
 
     Args:
@@ -233,19 +292,6 @@ def parse_table_summary(value: str) -> Dict[str, str]:
         raise ValueError(f"[表格摘要解析失败] 输入内容: {value[:100]}..., 错误: {str(e)}")
 
 
-def render_prompt(name: str, variables: Dict[str, str]) -> tuple[str, Dict]:
-    """渲染提示词并返回提示词文本和配置信息"""
-    prompt_config = GlobalConfig.PROMPT_TEMPLATE[name]
-    prompt_path = os.path.join(GlobalConfig.BASE_DIR, 'config', prompt_config['prompt_file'])
-    with open(prompt_path, "r", encoding="utf-8") as f:
-        template = Template(f.read())
-    try:
-        return template.render(**variables), prompt_config
-    except jinja2.exceptions.TemplateError as e:
-        logger.error("提示词组装失败", e)
-        raise e
-
-
 # === 摘要生成 ===
 def extract_table_summary(html: str) -> Dict[str, str]:
     """提取表格摘要， 调用LLM接口并解析输出
@@ -257,12 +303,8 @@ def extract_table_summary(html: str) -> Dict[str, str]:
     # 获取提示词
     prompt, config = render_prompt("table_summary", {"table_html": html})
     system_prompt = "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"
-    raw = llm_manager.invoke(
-        prompt=prompt,
-        temperature=config['temperature'],
-        max_out_tokens=config['max_tokens'],
-        system_prompt=system_prompt
-    )
+    raw = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
+                             max_tokens=config['max_tokens'])
     logger.debug(f"表格摘要生成成功: {raw[:100]}...")
     return parse_table_summary(raw)
 
@@ -279,12 +321,8 @@ def extract_text_summary(text: str) -> str:
     # 加载提示词
     prompt, config = render_prompt("text_summary", {"content": text})
     system_prompt = "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。请直接输出摘要内容，不要包含任何其他说明文字。"
-    summary = llm_manager.invoke(
-        prompt=prompt,
-        temperature=config['temperature'],
-        max_out_tokens=config['max_tokens'],
-        system_prompt=system_prompt
-    )
+    summary = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
+                                 max_tokens=config['max_tokens'])
     logger.info(f"文本摘要生成成功: {summary[:100]}...")
     return summary.strip()
 
@@ -535,6 +573,8 @@ def split_pdf_to_pages(input_path, output_dir):
         new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
         new_doc.save(f"{output_dir}/page_{page_num + 1}.pdf")
 
+
+# === 文档删除 ===
 
 
 if __name__ == '__main__':

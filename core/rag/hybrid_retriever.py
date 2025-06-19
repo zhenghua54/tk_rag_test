@@ -1,5 +1,5 @@
 """混合检索模块"""
-from typing import List, Any, Dict, OrderedDict
+from typing import List, Any, Dict, OrderedDict, Tuple
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -12,7 +12,7 @@ from utils.log_utils import logger
 from databases.mysql.operations import ChunkOperation
 from core.rag.retrieval.vector_retriever import VectorRetriever
 from core.rag.retrieval.bm25_retriever import BM25Retriever
-from utils.llm_utils  import rerank_manager
+from utils.llm_utils import rerank_manager
 
 
 def init_retrievers():
@@ -183,7 +183,6 @@ class HybridRetriever(BaseRetriever):
             logger.info(f"[混合检索] 从MySQL获取到 {len(mysql_records)} 条原文记录")
 
             # 再次对mysql获取到的原文内容进行过滤，避免遗漏
-
             rerank_input = []
             filtered_count = 0
             for record in mysql_records:
@@ -191,7 +190,6 @@ class HybridRetriever(BaseRetriever):
                 if permission_ids:
                     # 获取记录中的权限ID
                     record_permission_ids = record.get("permission_ids", "")
-                    # logger.info(f"权限检查 - 记录权限: {record_permission_ids}, 用户权限: {permission_ids}")
 
                     # 如果记录有权限ID且与用户权限不匹配，则跳过
                     if record_permission_ids and str(record_permission_ids) != str(permission_ids):
@@ -200,25 +198,11 @@ class HybridRetriever(BaseRetriever):
                         filtered_count += 1
                         continue
 
-                # 获取当前片段在merged_results中的得分
-                seg_id = record.get("seg_id")
-                score = merged_results.get(seg_id)
-
+                # 构建记录信息
                 doc = Document(
                     page_content=record.get("seg_content", ""),
                     metadata={
-                        "seg_id": seg_id,
-                        "seg_type": record.get("seg_type"),
-                        "seg_image_path": record.get("seg_image_path"),
-                        "seg_caption": record.get("seg_caption"),
-                        "seg_footnote": record.get("seg_footnote"),
-                        "seg_page_idx": record.get("seg_page_idx"),
-                        "doc_id": record.get("doc_id"),
-                        "doc_http_url": record.get("doc_http_url"),
-                        "doc_images_path": record.get("doc_images_path", ""),
-                        "doc_created_at": record.get("doc_created_at"),
-                        "doc_updated_at": record.get("doc_updated_at"),
-                        "score": score
+                        **record
                     }
                 )
                 rerank_input.append(doc)
@@ -228,27 +212,83 @@ class HybridRetriever(BaseRetriever):
             # 重排序
             reranked_result = []
             if rerank_input:
-                scores = rerank_manager.rerank(
+                scores: List[float] = rerank_manager.rerank(
                     query=query,
                     passages=[doc.page_content for doc in rerank_input]
                 )
+
                 # 将分数与文档配对
                 reranked_result = [
-                    (doc, score) for doc, score in zip(rerank_input, scores)
+                    (doc, score) for doc, score in zip(rerank_input, scores) if score > -5.0
                 ]
 
                 # 按分数排序并提取前 tok_k 个
                 reranked_result.sort(key=lambda x: x[1], reverse=True)
-                reranked_result = reranked_result[:top_k]
+                # 使用一阶差分算法进行文档过滤
+                reranked_result = self.detect_cliff_and_filter(reranked_result, top_k=top_k)
 
-            logger.info(f"[重排序] 重排完成, 返回 {len(reranked_result)} 条结果")
+            logger.info(f"[重排序] 重排过滤完成, 返回 {len(reranked_result)} 条结果")
 
             # 提取文档列表
-            return [doc for doc, _ in reranked_result]
+            return reranked_result
 
         except Exception as error:
             logger.error(f"[混合检索] 检索失败: {str(error)}")
             return []
+
+    @staticmethod
+    def normalize_score(scores: List[float]) -> List[float]:
+        """将得分列表归一化后(线性回归)返回"""
+        if scores and len(scores) <= 1:
+            return scores
+        min_score, max_score = min(scores), max(scores)
+        # 大于 1 * 10^-5 时,计算归一化才有意义
+        if max_score - min_score > 1e-5:
+            norm_scores = [(s - min_score) / (max_score - min_score) for s in scores]
+        else:
+            # 所有分数基本相等, 没有归一化的意义
+            norm_scores = [0.0 for _ in scores]
+        return norm_scores
+
+    @staticmethod
+    def detect_cliff_and_filter(reranked_result: List[tuple[Document, float]],
+                                top_k: int = 10
+                                ) -> list[tuple[Document, float]]:
+        """一阶差分算法, 自动检测重排分数的断崖点，并据此过滤文档。
+        Args:
+            reranked_result: 排名后的 rerank 列表,包括文档和得分
+            top_k: 最大保留文档数，None 表示不限。
+
+        Returns:
+            List[Document]: 过滤后的文档和分数列表（保留到断崖点前）。
+        """
+        # # 小于最大数量,直接返回
+        # if len(reranked_result) <= top_k:
+        #     return reranked_result
+
+        # 将文档和对应分数打包，并按分数从高到低排序
+        sorted_scores = [s for _, s in reranked_result]  # 仅保留排序后的分数
+
+        # 计算一阶差分：相邻两个分数之间的“下降值”
+        deltas = [sorted_scores[i + 1] - sorted_scores[i] for i in range(len(sorted_scores) - 1)]
+
+        # 如果没有差值（说明文档少于2个），直接返回全部文档
+        if not deltas:
+            return reranked_result
+
+        # 找出“下降最大”的位置（断崖点）
+        min_delta = min(deltas)
+        for idx, delta in enumerate(deltas):
+            if delta == min_delta:
+                cliff_index = idx + 1
+                break
+
+        # 若设置了 top_k，则取 min(cliff_index, top_k)
+        if top_k is not None:
+            cliff_index = min(cliff_index, top_k)
+
+        # 返回断崖前的文档列表
+        return reranked_result[:cliff_index]
 
 
 vector_retriever, bm25_retriever = init_retrievers()

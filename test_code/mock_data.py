@@ -4,7 +4,7 @@
 """
 from typing import Dict, Any
 
-from services.document_server import DocumentService
+from services.doc_server import DocumentService
 from services.chat_server import ChatService
 
 

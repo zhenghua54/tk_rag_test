@@ -6,7 +6,7 @@ from api.request.chat_ragchat_request import ChatRequest
 from api.response import APIException
 from api.response import ResponseBuilder
 from error_codes import ErrorCode
-from utils.log_utils import log_exception, log_operation_start, log_business_info, log_operation_success
+from utils.log_utils import log_exception, logger
 from core.rag.llm_generator import RAGGenerator
 from core.rag.hybrid_retriever import hybrid_retriever
 
@@ -14,6 +14,7 @@ router = APIRouter(
     prefix="/chat",
     tags=["聊天相关"],
 )
+
 
 @router.post("/rag_chat")
 async def rag_chat(request: ChatRequest, fastapi_request=Request):
@@ -36,20 +37,10 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
         # chat_service = ChatService.get_instance()
         # 获取请求ID
         request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, 'request_id') else None
-        print(request_id)
 
-        log_business_info("rag 对话",
-                          endpoint="/chat/rag_chat",
-                          request_id=request_id,
-                          permission_ids=request.permission_ids,
-                          session_id=request.session_id,
-                          )
+        logger.info(
+            f"RAG 对话, request_id={request_id}, fastapi_request={fastapi_request}, session_id={request.session_id}, permission={request.permission_ids}")
 
-        chat_start_time = log_operation_start("对话",
-                                              request_id=request_id,
-                                              permission_ids=request.permission_ids,
-                                              session_id=request.session_id,
-                                              )
         # 调用聊天服务
         # 初始化 RAG 生成器
         rag_generator = RAGGenerator(retriever=hybrid_retriever)
@@ -59,9 +50,9 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
             permission_ids=request.permission_ids,
             request_id=request_id
         )
-        log_operation_success("rag 对话", start_time=chat_start_time, session_id=request.session_id)
-        
-        return result
+        logger.info(f"RAG 对话完成, session_id={request.session_id}, permission={request.permission_ids}")
+
+        return ResponseBuilder.success(data=result, request_id=request_id)
 
     except ValueError as e:
         return APIException(error_code=ErrorCode.PARAM_ERROR, message=str(e))

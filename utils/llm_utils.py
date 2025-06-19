@@ -1,12 +1,22 @@
 import os
+
+import tiktoken
 import torch
 import gc
 import time
+import jinja2.exceptions
+
 from typing import Optional, List, Dict, Any, Union
 from abc import ABC, abstractmethod
+
+from jinja2 import Template
+from langchain_core.messages import BaseMessage
 from openai import OpenAI
+from requests import RequestException
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
 from utils.log_utils import logger
 from config.global_config import GlobalConfig
 
@@ -190,13 +200,20 @@ class LLMManager(ModelManager):
         """获取 LLM 模型 api_key"""
         return os.getenv("DASHSCOPE_API_KEY")
 
+    @retry(
+        stop=stop_after_attempt(3),  # 最多重试 3 次
+        wait=wait_exponential(multiplier=1, min=1, max=8),  # 指数回退策略
+        retry=retry_if_exception_type(RequestException),  # 捕获所有异常类型，可按需改
+        reraise=True  # 重试后失败仍抛出异常
+    )
     def invoke(self,
                prompt: str,
-               model: str = "qwen-turbo-1101",
-               temperature: float = 0.2,
+               model: str = GlobalConfig.LLM_NAME,
+               temperature: float = 0.3,
+               top_p: float = 0.9,
                stream: bool = False,
                system_prompt: Optional[str] = None,
-               max_out_tokens: Optional[int] = None) -> str:
+               max_tokens: Optional[int] = None) -> str:  # 最大输出 token
         """调用LLM"""
         client = self.get_model()
         try:
@@ -209,12 +226,16 @@ class LLMManager(ModelManager):
                 "model": model,
                 "messages": messages,
                 "temperature": temperature,
+                "top_p": top_p,
                 "stream": stream,
+                "seed": 1,  # 种子数,确保输出结果的确定性
             }
-            if max_out_tokens:
-                params["max_tokens"] = max_out_tokens
+            if max_tokens:
+                params["max_tokens"] = max_tokens
 
             completion = client.chat.completions.create(**params)
+            logger.info(
+                f"本次会话使用情况如下 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
 
             return completion.choices[0].message.content
         except Exception as e:
@@ -232,11 +253,24 @@ class LLMManager(ModelManager):
             self._last_used_time = None
             logger.info(f"{self.__class__.__name__}模型卸载完成")
 
+    @staticmethod
+    def count_tokens(message:BaseMessage,model_name: str = GlobalConfig.LLM_NAME) -> int:
+        try:
+            encoding = tiktoken.encoding_for_model(model_name)
+        except KeyError:
+            logger.error(f"没有这个模型的 tokenizer {model_name}")
+            # 若模型不在 tiktoken 支持的列表中，回退到 cl100k_base
+            encoding = tiktoken.get_encoding("cl100k_base")
+        encoding_ids = encoding.encode(message.content)
+        logger.info(f"token 数量为: {len(encoding_ids)}")
+        return len(encoding_ids)
+
 
 # 为了保持向后兼容性，创建全局实例
 embedding_manager = EmbeddingManager.get_instance()
 rerank_manager = RerankManager.get_instance()
 llm_manager = LLMManager.get_instance()
+llm_count_tokens = llm_manager.count_tokens
 
 
 # 创建定时任务检查模型状态
@@ -246,6 +280,18 @@ def check_models_status():
     rerank_manager.check_idle()
     llm_manager.check_idle()
 
+
+def render_prompt(name: str, variables: Dict[str, str]) -> tuple[str, Dict]:
+    """渲染提示词并返回提示词文本和配置信息"""
+    prompt_config = GlobalConfig.PROMPT_TEMPLATE[name]
+    prompt_path = os.path.join(GlobalConfig.BASE_DIR, 'config', prompt_config['prompt_file'])
+    with open(prompt_path, "r", encoding="utf-8") as f:
+        template = Template(f.read())
+    try:
+        return template.render(**variables), prompt_config
+    except jinja2.exceptions.TemplateError as e:
+        logger.error("提示词组装失败", e)
+        raise e
 
 # @retry(tries=3, delay=1, backoff=2)
 # def call_llm_chat(model_name: str, messages: List[Dict[str, str]], temperature: float, max_tokens: int) -> str:
