@@ -183,6 +183,7 @@ class RAGGenerator:
                 prompt=prompt,
                 system_prompt=system_prompt,
                 temperature=config["temperature"],
+                invoke_type="RAG生成"
             )
 
             # # 使用LLM直接生成回答

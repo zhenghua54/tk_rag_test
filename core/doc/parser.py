@@ -1,23 +1,27 @@
 """处理文档内容, 包括表格、图片、文本等"""
 import json
-import os
 import shutil
 import traceback
 import time
 import hashlib
+import uuid
 
 from pathlib import Path
+from typing import Dict, Optional
 
+from config.global_config import GlobalConfig
+from databases.db_ops import update_record_by_doc_id
 from error_codes import ErrorCode
 from api.response import APIException
-from utils.file_ops import convert_office_file, mineru_toolkit
+from utils.file_ops import mineru_toolkit, get_doc_output_path, libreoffice_convert_toolkit
 from databases.mysql.operations import FileInfoOperation
 from utils.validators import check_local_doc_exists, check_doc_ext
 
-from utils.log_utils import log_operation_success, log_operation_start, log_operation_error, log_business_info
+from utils.log_utils import log_operation_success, log_operation_start, log_operation_error, logger, log_exception
 from utils.validators import validate_param_type
 from utils.file_ops import extract_table_summary
 from utils.converters import convert_html_to_markdown
+
 
 # === 填充标题并按页合并 ===
 def process_doc_by_page(json_doc_path: str):
@@ -31,7 +35,7 @@ def process_doc_by_page(json_doc_path: str):
 
     doc_hash = hashlib.md5(json_doc_path.encode("utf-8")).hexdigest()
     temp_root = Path("page_cache")
-    temp_dir = temp_root / doc_hash
+    temp_dir = temp_root / f"{doc_hash}_{uuid.uuid4().hex}"
     temp_dir.mkdir(parents=True, exist_ok=True)
 
     # 统计信息初始化
@@ -138,6 +142,7 @@ def process_doc_by_page(json_doc_path: str):
 
                 # 保存修改后的图片元素
                 page_contents.append(item)
+            logger.info(f"已写出 page_{current_page}.json, 内容数量: {len(page_contents)}")
 
         # 处理最后一页遗留的文本
         if current_page is not None:
@@ -147,10 +152,16 @@ def process_doc_by_page(json_doc_path: str):
                     "text": "\n".join(text_buffer),
                     "page_idx": current_page
                 })
+                text_buffer = []
+
             if page_contents:
                 page_file = temp_dir / f"page_{current_page}.json"
-                with open(page_file, "w", encoding="utf-8") as pf:
-                    json.dump(page_contents, pf, indent=2, ensure_ascii=False)
+                try:
+                    with open(page_file, "w", encoding="utf-8") as pf:
+                        json.dump(page_contents, pf, indent=2, ensure_ascii=False)
+                except Exception as e:
+                    logger.error(f"最后一页写入失败: {page_file}, 错误: {str(e)}")
+                    raise RuntimeError(f"最后一页写入失败: {page_file}, 错误: {str(e)}") from e
 
         log_operation_success("内容合并",
                               start_time=time.time(),
@@ -168,6 +179,8 @@ def process_doc_by_page(json_doc_path: str):
         merged = {}
         # 遍历临时目录中的所有页面文件，按页码顺序合并内容
         for page_file in sorted(temp_dir.glob("page_*.json"), key=lambda x: int(x.stem.split('_')[1])):
+            if not page_file.exists():
+                raise FileNotFoundError(f"找不到页面文件: {page_file}")
             page_idx = int(page_file.stem.split('_')[1])
             with open(page_file, "r", encoding="utf-8") as pf:
                 # 读取每页的列表合并到 merged中
@@ -195,7 +208,7 @@ def process_doc_by_page(json_doc_path: str):
 
 
 # === 主入口函数（后台处理） ===
-def process_doc_content(doc_path: str, doc_id: str = None) -> str:
+def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[FileInfoOperation] = None) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
@@ -205,145 +218,93 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
     Args:
         doc_path (str): 源文档路径
         doc_id (str, optional): 文档ID，如果提供则会更新数据库状态
+        file_op (FileOperation, optional): 文件表操作对象
 
     Returns:
         save_path (str): 处理后的文档路径
     """
 
-
     try:
-        process_start_time = log_operation_start("文档处理")
+        logger.info(f"开始处理文档: {doc_path}, doc_id={doc_id}")
 
         # 验证参数
-        validate_param_type(doc_path, str, "pdf_doc_path")  # 参数类型验证
+        validate_param_type(doc_path, str, "源文档路径")  # 参数类型验证
         check_local_doc_exists(doc_path)  # 文件路径验证
         doc_path = Path(doc_path)
+
+        # 获取文档的输出路径
+        output_info: Dict[str, str] = get_doc_output_path(str(doc_path.resolve()))
+        output_dir = output_info["output_path"]
+        output_image_path = output_info["output_image_path"]
+        doc_name = output_info["doc_name"]
 
         if doc_path.suffix == ".pdf":
             pdf_path = doc_path
         else:
-            # 非PDF验证是否支持转换
-            check_doc_ext(doc_path.suffix,doc_type='libreoffice')
-            pdf_path = convert_office_file(str(doc_path.resolve()))
+            # 检查格式是否支持 libreoffice 转换
+            check_doc_ext(doc_path.suffix, doc_type='libreoffice')
+            # 送入 libreoffice 转换
+            pdf_path = libreoffice_convert_toolkit(str(doc_path.resolve()), output_dir)
 
-        # 使用MinerU 解析 PDF 文档
+        # === 使用MinerU 解析 PDF 文档 ===
+        process_result = None
+        json_path = ""
+
         try:
-            start_time = log_operation_start("MinerU解析", pdf_path=pdf_path)
-
-            out_info = mineru_toolkit(pdf_path)
-            if os.path.exists(out_info["json_path"]):
-                log_operation_success("MinerU解析",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      save_path=out_info)
-                values = {
-                    "doc_json_path": out_info["json_path"],
-                    "doc_images_path": out_info["image_path"],
-                    "doc_pdf_path": pdf_path,
-                    "process_status": "parsed"
-                }
-                # 数据库文件状态更新
-                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id, values=values)
-                with FileInfoOperation() as file_op:
-                    file_op.update_by_doc_id(doc_id, values)
-                log_operation_success("数据库文件状态更新",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      status="-> parsed")
-            else:
-                log_operation_error("MinerU 解析失败",
-                                    error_msg=traceback.format_exc(),
-                                    doc_id=doc_id)
-                # 数据库文件状态更新
-                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
-                with FileInfoOperation() as file_op:
-                    values = {
-                        "process_status": "parse_failed"
-                    }
-                    file_op.update_by_doc_id(doc_id, values)
-                log_operation_success("数据库文件状态更新",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      status="-> parse_failed")
+            logger.info(f"第一步: 解析文档, 工具: MinerU, pdf_path={pdf_path}")
+            json_path = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
+            process_result = True
         except Exception as e:
-            log_operation_error("MinerU 解析失败",
-                                error_msg=str(e),
-                                doc_id=doc_id,
-                                pdf_path=pdf_path)
-            start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
-            with FileInfoOperation() as file_op:
-                values = {
-                    "process_status": "parse_failed"
-                }
-                file_op.update_by_doc_id(doc_id, values)
-                log_operation_success("数据库文件状态更新",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      status="-> parse_failed")
-            raise
+            logger.error(f"MinerU 解析失败, 失败原因: {str(e)}")
+            process_result = False
+            raise ValueError(f"MinerU 解析失败, 失败原因: {str(e)}") from e
 
+        finally:  # 无论成功失败,都需要更新数据库记录
+            # 构建需要更新的字段
+            values = {
+                "doc_output_dir": output_dir if process_result else None,
+                "doc_json_path": json_path if process_result else None,
+                "doc_images_path": output_image_path if process_result else None,
+                "doc_pdf_path": pdf_path if process_result else None,
+                "process_status": "parsed" if process_result else "parse_failed",
+            }
+            logger.info(
+                f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+            update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
+                                    kwargs=values)
+
+        # === 页面合并 ===
         try:
             # 合并页面内容
-            start_time = log_operation_start("页面合并",
-                                             doc_id=doc_id,
-                                             json_path=out_info["json_path"],
-                                             )
-            save_path = process_doc_by_page(out_info["json_path"])
-            log_operation_success("页面合并",
-                                  start_time=start_time,
-                                  save_path=save_path)
+            logger.info(f"第二步: 按页合并元素, json_path={json_path}")
+            save_path = process_doc_by_page(json_path)
 
             # 如果提供了 doc_id，更新数据库状态
             if doc_id:
-                log_operation_success("文档处理",
-                                      start_time=process_start_time,
-                                      doc_id=doc_id,
-                                      save_path=save_path)
-
-                start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
-                with FileInfoOperation() as file_op:
-                    values = {
-                        "doc_process_path": save_path,
-                        "process_status": "merged"
-                    }
-                    file_op.update_by_doc_id(doc_id, values)
-                log_operation_success("数据库文件状态更新",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      status="-> merged"
-                                      )
-                log_business_info("等待开始内容合并...")
-
-            return save_path
-        except Exception as e:
-            log_operation_error("合并页面内容失败",
-                                error_msg=str(e),
-                                doc_id=doc_id)
-            start_time = log_operation_start("数据库文件状态更新", doc_id=doc_id)
-            with FileInfoOperation() as file_op:
                 values = {
-                    "process_status": "merge_failed"
+                    "doc_process_path": save_path,
+                    "process_status": "merged"
                 }
-                file_op.update_by_doc_id(doc_id, values)
-                log_operation_success("数据库文件状态更新",
-                                      start_time=start_time,
-                                      doc_id=doc_id,
-                                      status="-> merge_failed"
-                                      )
-            raise
+                logger.info(
+                    f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+                update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
+                                        kwargs=values)
+        except Exception as e:
+            logger.error(f"合并元素失败, 失败原因: {str(e)}")
+            values = {"process_status": "merge_failed"}
+            logger.info(
+                f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+            update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
+                                    kwargs=values)
+            raise ValueError(f"合并元素失败, 失败原因: {str(e)}") from e
 
     except Exception as e:
         if doc_id:
-            log_operation_error("文档处理失败",
-                                error_msg=str(e),
-                                doc_id=doc_id)
-            # 记录详细的错误堆栈
-            log_operation_error("错误详情",
-                                error_msg=traceback.format_exc(),
-                                doc_id=doc_id)
+            log_exception(f"文档处理失败", e)
+        raise ValueError(f"文档处理失败, 失败原因: {e}")
 
-        raise
-
+    logger.info("文档处理完成, 等待文档切块...")
+    return save_path
 
 
 if __name__ == '__main__':

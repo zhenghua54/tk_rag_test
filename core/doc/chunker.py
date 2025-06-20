@@ -34,11 +34,8 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
     # 处理空权限情况
     if permission_ids is None:
         permission_ids_str = ""  # 空字符串表示公开访问
-        logger.info(f"未提供权限ID，使用空字符串表示公开访问")
     else:
         permission_ids_str = permission_ids
-
-    logger.info(f"统一后的权限ID: {permission_ids_str}")
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -131,7 +128,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_content": json.dumps(chunk, ensure_ascii=False),
                                 "seg_len": str(len(chunk)),
                                 "seg_type": "text",
-                                "seg_page_idx": int(page_idx),
+                                "seg_page_idx": int(page_idx)+1,
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(text_mysql_res)
@@ -143,7 +140,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "doc_id": doc_id,
                                 "seg_content": str(chunk),
                                 "seg_type": "text",
-                                "seg_page_idx": int(page_idx),
+                                "seg_page_idx": int(page_idx)+1,
                                 "update_time": current_time
                             }
                             es_batch.append(text_es_res)
@@ -206,7 +203,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_footnote": table_footnote,
                         "seg_len": str(len(table_markdown)),
                         "seg_type": "table",
-                        "seg_page_idx": int(page_idx),
+                        "seg_page_idx": int(page_idx)+1,
                         "doc_id": doc_id
                     }
                     mysql_batch.append(parent_mysql_res)
@@ -218,7 +215,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "doc_id": doc_id,
                         "seg_content": table_markdown,
                         "seg_type": "table",
-                        "seg_page_idx": int(page_idx),
+                        "seg_page_idx": int(page_idx)+1,
                         "update_time": current_time
                     }
                     es_batch.append(table_es_res)
@@ -265,7 +262,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "seg_content": table_segment,
                                 "seg_len": str(len(table_segment)),
                                 "seg_type": "table",
-                                "seg_page_idx": int(page_idx),
+                                "seg_page_idx": int(page_idx)+1,
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(sub_mysql_res)
@@ -277,7 +274,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                                 "doc_id": doc_id,
                                 "seg_content": table_segment,
                                 "seg_type": "table",
-                                "seg_page_idx": int(page_idx),
+                                "seg_page_idx": int(page_idx)+1,
                                 "update_time": current_time
                             }
                             es_batch.append(sub_es_res)
@@ -332,7 +329,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "seg_footnote": img_footnote,
                         "seg_len": str(len(img_caption)),
                         "seg_type": "image",
-                        "seg_page_idx": int(page_idx),
+                        "seg_page_idx": int(page_idx)+1,
                         "doc_id": doc_id
                     }
                     mysql_batch.append(image_mysql_res)
@@ -344,7 +341,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         "doc_id": doc_id,
                         "seg_content": img_caption,
                         "seg_type": "image",
-                        "seg_page_idx": int(page_idx),
+                        "seg_page_idx": int(page_idx)+1,
                         "update_time": current_time
                     }
                     es_batch.append(image_es_res)

@@ -213,7 +213,8 @@ class LLMManager(ModelManager):
                top_p: float = 0.9,
                stream: bool = False,
                system_prompt: Optional[str] = None,
-               max_tokens: Optional[int] = None) -> str:  # 最大输出 token
+               max_tokens: Optional[int] = None,
+               invoke_type:str = None) -> str:  # 最大输出 token
         """调用LLM"""
         client = self.get_model()
         try:
@@ -235,7 +236,7 @@ class LLMManager(ModelManager):
 
             completion = client.chat.completions.create(**params)
             logger.info(
-                f"本次会话使用情况如下 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
+                f"本次{invoke_type}使用情况 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
 
             return completion.choices[0].message.content
         except Exception as e:

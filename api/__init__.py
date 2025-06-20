@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .chat_api import router as chat_router
-from .document_api import router as document_router
+from .doc_api import router as document_router
 
 def create_app() -> FastAPI:
     """创建FastAPI应用"""

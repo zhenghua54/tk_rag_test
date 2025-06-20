@@ -18,9 +18,10 @@ from config.global_config import GlobalConfig
 os.makedirs(GlobalConfig.PATHS['log_dir'], exist_ok=True)
 
 # 配置日志格式
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT = '%(asctime)s - %(levelname)s - [%(module)s:%(lineno)d - %(funcName)s()] - %(message)s'
+# LOG_FORMAT = '%(asctime)s - %(levelname)s - [%(threadName)s] [%(filename)s:%(lineno)d - %(funcName)s()] - %(message)s'
+formatter = logging.Formatter(LOG_FORMAT)
 
 # 普通日志处理器
 file_handler = RotatingFileHandler(

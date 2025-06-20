@@ -19,7 +19,7 @@ class VectorOperation:
             # 初始化数据库和集合
             self.milvus.init_database()
             logger.info("向量库操作类初始化完成")
-            
+
         except Exception as e:
             logger.error(f"向量库操作类初始化失败: {str(e)}")
             raise
@@ -46,10 +46,10 @@ class VectorOperation:
         schema_path = GlobalConfig.PATHS.get("milvus_schema_path")
         with open(schema_path, 'r', encoding='utf-8') as f:
             schema_config = json.load(f)
-        
+
         # 提取字段名作为必需字段列表
         required_fields = [field["name"] for field in schema_config["fields"]]
-        
+
         for idx, item in enumerate(data):
             # 验证必需字段
             missing_fields = [field for field in required_fields if field not in item]
@@ -59,14 +59,15 @@ class VectorOperation:
             # 验证字段类型和格式
             if not isinstance(item["vector"], list) or len(item["vector"]) != 1024:
                 raise ValueError(f"第 {idx + 1} 条数据的 vector 字段必须是 1024 维的浮点数列表")
-                
+
             # 验证字符串类型字段
-            string_fields = ["seg_id", "seg_parent_id", "doc_id", "seg_content", 
-                           "seg_type", "permission_ids", "create_time", "update_time"]
+            string_fields = ["seg_id", "seg_parent_id", "doc_id", "seg_content",
+                             "seg_type", "permission_ids", "create_time", "update_time"]
             for field in string_fields:
                 if field in item and not isinstance(item[field], str):
-                    raise ValueError(f"第 {idx + 1} 条数据的 {field} 字段必须是字符串, 内容: {item[field]}, 类型: {type(item[field])}")
-                    
+                    raise ValueError(
+                        f"第 {idx + 1} 条数据的 {field} 字段必须是字符串, 内容: {item[field]}, 类型: {type(item[field])}")
+
             # 验证 metadata 字段
             if "metadata" in item and not isinstance(item["metadata"], dict):
                 raise ValueError(f"第 {idx + 1} 条数据的 metadata 字段必须是字典")
@@ -92,7 +93,7 @@ class VectorOperation:
             inserted_ids = self.milvus.insert_data(data)
             if not inserted_ids:
                 raise ValueError("插入数据失败：未返回插入ID")
-            
+
             return inserted_ids
         except Exception as e:
             logger.error(f"插入数据失败: {str(e)}")
@@ -125,6 +126,7 @@ class VectorOperation:
                 ids=doc_id,
                 output_fields=["*"],
             )
+            logger.info(f"Milvus 检索到 {len(results)} 条记录, doc_id={doc_id}")
             return results
         except Exception as e:
             logger.error(f"根据文档ID检索失败: {e}")
@@ -163,7 +165,7 @@ class VectorOperation:
         try:
             # 添加更新时间
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
+
             # 更新数据
             self.milvus.client.upsert(
                 collection_name=self.milvus.collection_name,
@@ -188,7 +190,7 @@ class VectorOperation:
         try:
             # 添加更新时间
             data['update_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
+
             # 更新数据
             self.milvus.client.upsert(
                 collection_name=self.milvus.collection_name,
@@ -200,44 +202,30 @@ class VectorOperation:
             logger.error(f"更新数据失败: {e}")
             return False
 
-    def delete_by_doc_id(self, doc_id: str) -> bool:
+    def delete_by_doc_id(self, doc_id: str) -> int:
         """根据文档ID删除数据
 
         Args:
             doc_id (str): 文档ID
 
         Returns:
-            bool: 是否删除成功
+            int: 删除的记录数量
         """
         try:
-            # 先查询是否存在数据
-            results = self.search_by_doc_id(doc_id)
-            
-            if not results:
-                logger.info(f"Milvus中未找到文档记录: {doc_id}")
-                return False
-
             # 执行删除
-            self.milvus.client.delete(
+            result: Dict[str, int] = self.milvus.client.delete(
                 collection_name=self.milvus.collection_name,
                 ids=doc_id
             )
-            
+
             # 确保删除操作被持久化
             self.flush()
-            
-            # 验证删除是否成功
-            verify_results = self.search_by_doc_id(doc_id)
 
-            if not verify_results:
-                logger.info(f"成功删除Milvus文档记录: {doc_id}")
-                return True
-            else:
-                logger.error(f"Milvus文档删除验证失败: {doc_id}")
-                return False
-                
+            logger.info(f"Milvus 数据删除成功, 共 {result['delete_count']-1} 条, doc_id={doc_id}")
+            return result['delete_count']
+
         except Exception as e:
-            logger.error(f"删除Milvus数据失败: {e}")
+            logger.error(f"Milvus 数据删除失败: {e}")
             return False
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
@@ -260,10 +248,11 @@ class VectorOperation:
             logger.error(f"删除数据失败: {e}")
             return False
 
+
 def test_milvus_operations():
     """测试 Milvus 操作类的基本功能"""
     vector_op = VectorOperation()
-    
+
     # 测试数据
     test_data = {
         "doc_id": "test_doc_001",
@@ -277,20 +266,20 @@ def test_milvus_operations():
         "update_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "metadata": {"key": "value"}
     }
-    
+
     # 测试插入
     logger.info("测试插入数据...")
     seg_id = vector_op.insert_single(test_data)
     assert seg_id is not None, "插入数据失败"
-    
+
     # 测试检索
     logger.info("测试检索数据...")
     doc_results = vector_op.search_by_doc_id("test_doc_001")
     assert len(doc_results) > 0, "根据文档ID检索失败"
-    
+
     segment_result = vector_op.search_by_seg_id("test_seg_001")
     assert segment_result is not None, "根据段落ID检索失败"
-    
+
     # 测试更新
     logger.info("测试更新数据...")
     update_data = {
@@ -299,15 +288,15 @@ def test_milvus_operations():
     }
     assert vector_op.update_by_doc_id("test_doc_001", update_data), "更新文档数据失败"
     assert vector_op.update_by_seg_id("test_seg_001", update_data), "更新段落数据失败"
-    
+
     # 验证更新结果
     updated_doc = vector_op.search_by_doc_id("test_doc_001")[0]
     assert updated_doc["seg_content"] == "更新后的内容", "文档更新验证失败"
-    
+
     # 测试删除
     logger.info("测试删除数据...")
     assert vector_op.delete_by_doc_id("test_doc_001"), "删除文档数据失败"
-    
+
     # 验证删除结果
     deleted_doc = vector_op.search_by_doc_id("test_doc_001")
     assert len(deleted_doc) == 0, "文档删除验证失败"

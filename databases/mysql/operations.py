@@ -187,16 +187,40 @@ class ChunkOperation(BaseDBOperation):
 
             # 构建关联查询SQL - 使用二进制比较避免字符集冲突
             sql = """
-                  SELECT s.*,             -- 片段信息表的所有字段  
-                         f.doc_http_url,  -- 文档信息表的字段  
-                         f.created_at as doc_created_at,
-                         f.updated_at as doc_updated_at,
-                         p.permission_ids -- 权限信息表的字段
+                  SELECT s.doc_id,
+                         s.seg_id,         
+                         s.seg_content,
+                         s.seg_page_idx,
+                         f.doc_name,
+                         f.doc_http_url,   -- 文档信息表的字段
+                         f.created_at,
+                         f.updated_at,
+                         p.permission_ids, -- 权限信息表的字段
+                         d.page_pdf_path   -- 分页信息表的字段
+
                   FROM segment_info s
                            LEFT JOIN doc_info f ON s.doc_id = f.doc_id
                            LEFT JOIN permission_info p ON s.doc_id = p.doc_id
+                           LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
                   WHERE 1 = 1 \
                   """
+
+            """
+             # SELECT s.*,             -- 片段信息表的所有字段  
+                  #        f.doc_http_url,  -- 文档信息表的字段  
+                  #        f.created_at as doc_created_at,
+                  #        f.updated_at as doc_updated_at,
+                  #        p.permission_ids, -- 权限信息表的字段
+                  #       
+                  #
+                  FROM segment_info s
+                      # LEFT JOIN doc_info f
+                  ON s.doc_id = f.doc_id
+                      # LEFT JOIN permission_info p ON s.doc_id = p.doc_id
+                      # LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id
+                      #
+                  WHERE 1 = 1 \
+            """
 
             # 添加查询条件
             params = []
@@ -247,17 +271,23 @@ class ChunkOperation(BaseDBOperation):
 
                 result = {
                     # 片段信息
+                    "doc_id": record.get("doc_id"),
                     "seg_id": record.get("seg_id"),
                     "seg_content": record.get("seg_content"),
-                    # "seg_type": record.get("seg_type"),
-                    # "seg_page_idx": record.get("seg_page_idx", 0),
+                    "seg_page_idx": record.get("seg_page_idx"),
 
                     # 文档信息
-                    # "doc_id": record.get("doc_id"),
-                    # "doc_http_url": record.get("doc_http_url", ""),
+                    "doc_name": record.get("doc_name"),
+                    "doc_http_url": record.get("doc_http_url", ""),
+                    "created_at": record.get("created_at"),
+                    "updated_at": record.get("updated_at"),
 
                     # 权限信息
-                    "permission_ids": record.get("permission_ids", "")
+                    "permission_ids": record.get("permission_ids", ""),
+
+                    # 分页信息
+                    "page_pdf_path": record.get("page_pdf_path", "")
+
                 }
                 results.append(result)
 
@@ -307,47 +337,10 @@ class PermissionOperation(BaseDBOperation):
         else:
             return res
 
-
-def check_duplicate_doc(doc_id: str):
-    """验证文件是否已上传
-
-    Args:
-        doc_id: 文档Id
-
-    Returns:
-        dict: 如果文件存在，返回文件信息， 如果文件处理失败，返回 "failed"，否则返回 doc_id
-    """
-    # 校验状态结果
-    result = {
-        "process_status": None,
-        "doc_info": dict()
-    }
-    try:
-        with FileInfoOperation() as file_op:
-            doc_info = file_op.get_file_by_doc_id(doc_id)
-        if not doc_info:
-            return result
-
-        process_status = doc_info.get("process_status")
-        if not process_status:
-            logger.warning(f"文档状态为空: doc_id={doc_id}")
-            return result
-
-        # 文件状态异常,重新上传
-        if process_status in GlobalConfig.FILE_STATUS.get("error"):
-            result["process_status"] = process_status
-            result["doc_info"] = doc_info
-        # 文件状态正常,限制重复上传
-        elif process_status in GlobalConfig.FILE_STATUS.get("normal"):
-            raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
-
-        return result
-
-    except APIException:
-        raise
-    except Exception as e:
-        logger.error(f"[文档查重失败] doc_id={doc_id}, error={str(e)}")
-        raise APIException(ErrorCode.MYSQL_QUERY_FAIL, f"文档查重失败: {str(e)}")
+class PageOperation(BaseDBOperation):
+    """页面表(page_info)操作类"""
+    def __init__(self):
+        super().__init__(GlobalConfig.MYSQL_CONFIG['doc_page_info_table'])
 
 
 if __name__ == '__main__':

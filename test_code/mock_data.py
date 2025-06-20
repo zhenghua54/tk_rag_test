@@ -60,5 +60,5 @@ class MockDocumentService(DocumentService):
         return {
             "doc_id": doc_id,
             "status": "deleted",
-            "delete_type": "soft" if is_soft_delete else "hard",
+            "delete_type": "记录删除" if is_soft_delete else "记录+文件删除",
         }

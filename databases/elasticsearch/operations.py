@@ -1,7 +1,7 @@
 """Elasticsearch 数据库操作类"""
 import json
 import os
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
@@ -10,6 +10,7 @@ from config.global_config import GlobalConfig
 from utils.log_utils import logger
 
 load_dotenv(verbose=True)
+
 
 class ElasticsearchOperation:
     """Elasticsearch 操作类"""
@@ -20,34 +21,34 @@ class ElasticsearchOperation:
             # 创建 ES 客户端实例，使用配置中的连接信息
             es_username = GlobalConfig.ES_CONFIG.get('username', '')
             es_password = GlobalConfig.ES_CONFIG.get('password', '')
-            
+
             # 创建ES客户端配置
             es_params = {
                 "hosts": GlobalConfig.ES_CONFIG['host'],  # 使用配置的 host
                 "request_timeout": GlobalConfig.ES_CONFIG["timeout"],  # 超时设置
                 "verify_certs": GlobalConfig.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
             }
-            
+
             # 添加认证信息，基于ES版本选择合适的认证方式
             if es_username and es_password:
                 # 使用basic_auth而不是已弃用的http_auth
                 es_params["basic_auth"] = (es_username, es_password)
-            
+
             self.client = Elasticsearch(**es_params)
-            
+
             # 获取索引名称
             self.index_name = GlobalConfig.ES_CONFIG["index_name"]
-            
+
             # 测试连接
             if not self.ping():
                 raise Exception("无法连接到 Elasticsearch 服务器")
-                
+
             logger.info("Elasticsearch 客户端初始化成功")
-            
+
         except Exception as e:
             logger.error(f"Elasticsearch 客户端初始化失败: {str(e)}")
             raise
-        
+
     def create_index(self, index_name: str, schema_config: dict) -> bool:
         """创建索引
         
@@ -62,14 +63,14 @@ class ElasticsearchOperation:
             if self.client.indices.exists(index=index_name):
                 logger.info(f"索引 {index_name} 已存在，跳过创建")
                 return True
-                
+
             # 打印 schema 配置，用于调试
             logger.debug(f"创建索引 {index_name}，配置: {schema_config}")
-            
+
             # 创建索引
             response = self.client.indices.create(
                 index=index_name,
-                body= schema_config
+                body=schema_config
             )
             logger.info(f"成功创建索引 {index_name}")
             return True
@@ -77,7 +78,6 @@ class ElasticsearchOperation:
             logger.error(f"创建索引失败: {str(e)}")
             logger.error(f"索引配置: {json.dumps(schema_config, ensure_ascii=False, indent=2)}")
             return False
-        
 
     def insert_data(self, data: List[Dict]):
         """批量插入数据
@@ -102,7 +102,7 @@ class ElasticsearchOperation:
                 }
                 actions.append(action)
                 actions.append(doc)  # 添加文档内容
-                
+
             # 执行批量插入
             self.client.bulk(body=actions)
             logger.info(f"ES 数据插入成功, 共 {len(data)} 条")
@@ -183,7 +183,7 @@ class ElasticsearchOperation:
             logger.error(f"ES 搜索失败: {str(e)}")
             raise
 
-    def delete_by_doc_id(self, doc_id: str) -> bool:
+    def delete_by_doc_id(self, doc_id: str) -> int:
         """根据文档ID删除所有相关数据
         
         Args:
@@ -193,21 +193,21 @@ class ElasticsearchOperation:
             bool: 是否删除成功
         """
         try:
-            # 先检查是否存在数据
-            search_response = self.client.search(
-                index=self.index_name,
-                body={
-                    "query": {
-                        "term": {
-                            "doc_id": doc_id
-                        }
-                    },
-                    "size": 1
-                }
-            )
-            
-            if search_response["hits"]["total"]["value"] == 0:
-                return False
+            # # 先检查是否存在数据
+            # search_response = self.client.search(
+            #     index=self.index_name,
+            #     body={
+            #         "query": {
+            #             "term": {
+            #                 "doc_id": doc_id
+            #             }
+            #         },
+            #         "size": 1
+            #     }
+            # )
+            #
+            # if search_response["hits"]["total"]["value"] == 0:
+            #     return False
 
             # 构建删除查询
             query = {
@@ -217,7 +217,7 @@ class ElasticsearchOperation:
                     }
                 }
             }
-            
+
             # 执行删除并等待完成
             response = self.client.delete_by_query(
                 index=self.index_name,
@@ -226,30 +226,34 @@ class ElasticsearchOperation:
                 refresh=True,  # 立即刷新索引
                 conflicts="proceed"  # 遇到冲突时继续执行
             )
-            
-            # 验证删除是否成功
-            verify_response = self.client.search(
-                index=self.index_name,
-                body={
-                    "query": {
-                        "term": {
-                            "doc_id": doc_id
-                        }
-                    },
-                    "size": 1
-                }
-            )
-            
-            if verify_response["hits"]["total"]["value"] == 0:
-                deleted_count = response.get('deleted', 0)
-                logger.info(f"成功删除ES文档记录: {doc_id}, 删除数量: {deleted_count}")
-                return True
-            else:
-                logger.error(f"ES文档删除验证失败: {doc_id}")
-                return False
-            
+
+            logger.info(f"ES 数据删除完成, 共删除 {response['total']} 条")
+            return response['total']
+            # response={'took': 0, 'timed_out': False, 'total': 0, 'deleted': 0, 'batches': 0, 'version_conflicts': 0, 'noops': 0, 'retries': {'bulk': 0, 'search': 0}, 'throttled_millis': 0, 'requests_per_second': -1.0, 'throttled_until_millis': 0, 'failures': []}
+
+            # # 验证删除是否成功
+            # verify_response = self.client.search(
+            #     index=self.index_name,
+            #     body={
+            #         "query": {
+            #             "term": {
+            #                 "doc_id": doc_id
+            #             }
+            #         },
+            #         "size": 1
+            #     }
+            # )
+            #
+            # if verify_response["hits"]["total"]["value"] == 0:
+            #     deleted_count = response.get('deleted', 0)
+            #     logger.info(f"ES 数据删除成功, 删除数量: {deleted_count}, doc_id={doc_id}")
+            #     return True
+            # else:
+            #     logger.error(f"ES 数据删除验证失败, doc_id={doc_id}")
+            #     return False
+
         except Exception as e:
-            logger.error(f"删除ES数据失败: {str(e)}")
+            logger.error(f"ES 数据删除失败: {str(e)}")
             return False
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
@@ -267,14 +271,14 @@ class ElasticsearchOperation:
                 index=self.index_name,
                 id=seg_id
             )
-            
+
             if response.get('result') == 'deleted':
                 logger.info(f"成功删除片段 {seg_id}")
                 return True
             else:
                 logger.warning(f"片段 {seg_id} 不存在或删除失败")
                 return False
-                
+
         except Exception as e:
             logger.error(f"删除片段 {seg_id} 失败: {str(e)}")
             return False
@@ -289,28 +293,28 @@ class ElasticsearchOperation:
             # 获取当前索引的文档数
             stats = self.get_stats()
             doc_count = stats.get('doc_count', 0)
-            
+
             if doc_count == 0:
                 logger.info("索引已经是空的")
                 return True
-                
+
             # 构建删除所有文档的查询
             query = {
                 "query": {
                     "match_all": {}
                 }
             }
-            
+
             # 执行删除
             response = self.client.delete_by_query(
                 index=self.index_name,
                 body=query
             )
-            
+
             deleted_count = response.get('deleted', 0)
             logger.info(f"成功清空索引，删除了 {deleted_count} 条数据")
             return True
-            
+
         except Exception as e:
             logger.error(f"清空索引失败: {str(e)}")
             return False
@@ -326,17 +330,17 @@ class ElasticsearchOperation:
             if not self.client.indices.exists(index=self.index_name):
                 logger.info(f"索引 {self.index_name} 不存在")
                 return True
-                
+
             # 删除索引
             response = self.client.indices.delete_file()
-            
+
             if response.get('acknowledged'):
                 logger.info(f"成功删除索引 {self.index_name}")
                 return True
             else:
                 logger.warning(f"删除索引 {self.index_name} 失败")
                 return False
-                
+
         except Exception as e:
             logger.error(f"删除索引失败: {str(e)}")
             return False
@@ -368,25 +372,25 @@ class ElasticsearchOperation:
                     'store_size': 0,
                     'shard_count': 0
                 }
-            
+
             # 获取索引统计信息
             stats = self.client.indices.stats(index=self.index_name)
             index_stats = stats['indices'][self.index_name]['total']
-            
+
             # 获取文档总数
             doc_count = index_stats['docs']['count']
-            
+
             # 获取索引大小
             store_size = index_stats['store']['size_in_bytes']
-            
+
             # 获取分片信息
             shard_count = index_stats.get('shards', {}).get('total', 0)
-            
+
             logger.info(f"ES 索引 {self.index_name} 统计信息:")
             logger.info(f"- 文档总数: {doc_count}")
             logger.info(f"- 索引大小: {store_size / 1024 / 1024:.2f} MB")
             logger.info(f"- 分片数: {shard_count}")
-            
+
             return {
                 'doc_count': doc_count,
                 'store_size': store_size,
@@ -416,14 +420,14 @@ class ElasticsearchOperation:
                     "size": size
                 }
             )
-            
+
             hits = response["hits"]["hits"]
             total = response["hits"]["total"]["value"]
-            
+
             logger.info(f"ES 索引 {self.index_name} 文档列表:")
             logger.info(f"- 总文档数: {total}")
             logger.info(f"- 返回文档数: {len(hits)}")
-            
+
             # 打印每个文档的基本信息
             for hit in hits:
                 doc = hit["_source"]
@@ -433,7 +437,7 @@ class ElasticsearchOperation:
                 logger.info(f"- 文本长度: {len(doc.get('seg_content', ''))}")
                 logger.info(f"- 文本内容: {doc.get('seg_content', 'unknown')}")
                 logger.info("---")
-            
+
             return hits
         except Exception as e:
             logger.error(f"获取文档列表失败: {str(e)}")
@@ -476,13 +480,13 @@ class ElasticsearchOperation:
                 logger.info(f"ES索引 {self.index_name} 创建成功")
             else:
                 logger.info(f"ES索引 {self.index_name} 已存在")
-                
+
             # 检查索引配置
             index_settings = self.client.indices.get_settings(index=self.index_name)
             index_mappings = self.client.indices.get_mapping(index=self.index_name)
             logger.info(f"ES索引配置: {index_settings}")
             logger.info(f"ES索引映射: {index_mappings}")
-            
+
         except Exception as e:
             logger.error(f"初始化ES索引失败: {str(e)}")
             raise
@@ -501,8 +505,10 @@ class ElasticsearchOperation:
         else:
             print(f"索引 '{index_name}' 不存在")
 
+
 if __name__ == '__main__':
     from rich import print
+
     load_dotenv(verbose=True)
     es_op = ElasticsearchOperation()
     # 先获取统计信息

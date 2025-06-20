@@ -1,5 +1,5 @@
 """混合检索模块"""
-from typing import List, Any, Dict, OrderedDict, Tuple
+from typing import List, Any, Dict, OrderedDict, Optional, Union
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -127,7 +127,7 @@ class HybridRetriever(BaseRetriever):
         return self.search_documents(query, permission_ids=permission_ids, k=k, top_k=top_k, chunk_op=chunk_op)
 
     def search_documents(self, query: str, *, permission_ids: str = None, k: int = 20, top_k: int = 5,
-                         chunk_op=None) -> List[Document]:
+                         chunk_op=None) -> Union[List[Document], None]:
         """自定义搜索文档方法
 
         Args:
@@ -164,7 +164,7 @@ class HybridRetriever(BaseRetriever):
             # 如果没有检索到结果，直接返回空列表
             if not merged_results:
                 logger.info(f"[混合检索] 没有检索到结果，返回空列表")
-                return []
+                return None
 
             # 从 mysql 获取所需的原文内容
             seg_ids = list(merged_results.keys())
@@ -262,10 +262,6 @@ class HybridRetriever(BaseRetriever):
         Returns:
             List[Document]: 过滤后的文档和分数列表（保留到断崖点前）。
         """
-        # # 小于最大数量,直接返回
-        # if len(reranked_result) <= top_k:
-        #     return reranked_result
-
         # 将文档和对应分数打包，并按分数从高到低排序
         sorted_scores = [s for _, s in reranked_result]  # 仅保留排序后的分数
 

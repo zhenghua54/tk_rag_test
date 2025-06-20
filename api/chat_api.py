@@ -22,7 +22,7 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
     
     根据用户问题和指定部门ID，过滤数据并返回模型回答及其对应来源文档信息
     
-    Args:
+    Args:operation=
         request: 聊天请求参数
         fastapi_request: FastAPI请求对象，用于获取请求ID等信息
         

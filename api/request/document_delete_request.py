@@ -7,7 +7,7 @@ class DocumentDeleteRequest(BaseModel):
     
     Attributes:
         doc_id: 文档ID
-        is_soft_delete: 是否软删除
+        is_soft_delete: 是否只删除记录,不删除本地文件
     """
     doc_id: str = Field(
         ...,
@@ -17,7 +17,7 @@ class DocumentDeleteRequest(BaseModel):
     )
     is_soft_delete: bool = Field(
         False,
-        description="是否软删除"
+        description="是否只删除记录,不删除本地文件"
     )
 
     # 自定义异常捕获逻辑

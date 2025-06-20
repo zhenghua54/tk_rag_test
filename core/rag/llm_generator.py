@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Union
 
 from langchain_core.documents import Document
 from langchain.chains import ConversationalRetrievalChain
@@ -69,19 +69,23 @@ class RAGGenerator:
 
             # 使用权限ID进行检索
             # docs: List[Document] = self.retriever.get_relevant_documents(query, permission_ids=permission_ids)
-            docs: List[tuple[Document, float]] = self.retriever.get_relevant_documents(query,
+            docs: Union[List[tuple[Document, float]],None] = self.retriever.get_relevant_documents(query,
                                                                                        permission_ids=permission_ids)
-            # 提取源文档元数据
-            metadata: List = list()
-            for doc, score in docs:
-                metadata.append({
-                    **doc.metadata,
-                    "rerank_score": score
-                })
 
-            # 手动构建检索到的上下文
-            context = "\n\n".join([doc.page_content for doc, _ in docs])
-            print("上下文-->", docs[0])
+            if isinstance(docs, list):
+                # 提取源文档元数据
+                metadata: List = list()
+                for doc, score in docs:
+                    metadata.append({
+                        **doc.metadata,
+                        "rerank_score": score
+                    })
+                # 手动构建检索到的上下文
+                context = "\n\n".join([doc.page_content for doc, _ in docs])
+                # print("上下文-->", docs[0])
+            else:
+                metadata = []
+                context = ""
 
             # 获取当前 session 的历史对话
             raw_history: List[BaseMessage] = self._get_history(session_id)
@@ -108,6 +112,7 @@ class RAGGenerator:
                 prompt=prompt,
                 system_prompt=system_prompt,
                 temperature=config["temperature"],
+                invoke_type="RAG生成"
             )
 
             # 保存历史对话

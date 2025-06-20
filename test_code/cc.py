@@ -82,3 +82,7 @@
 # text = "你好，今天的会议内容总结如下：……"
 # token_count = len(encoding.encode(text))
 # print(f"Token 数量: {token_count}")
+
+a = {1:"111",2:"222",3:"333",4:"444",5:"555",6:"666"}
+print( [{"doc_id":"1","page_idx":k,"page_pdf_path":v}  for k,v in a.items()] )
+

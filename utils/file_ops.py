@@ -1,8 +1,9 @@
 """文件工具方法"""
 import os
 
-# import sys
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
 import re
@@ -15,8 +16,7 @@ import subprocess
 import tempfile
 
 from pathlib import Path
-from typing import Dict, Tuple, Optional, Any, List
-# from jinja2 import Template
+from typing import Dict, Tuple, Optional, List
 # mineru 解析使用
 from magic_pdf.config.enums import SupportedPdfParseMethod
 from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
@@ -121,44 +121,23 @@ def truncate_text(text: str, max_length: int = None) -> str:
 
 
 # === 文档删除 ===
-def delete_path_safely(doc_path: str):
-    """文件或目录的硬删除"""
-    if not doc_path or not isinstance(doc_path, str):
-        return
-    path = Path(doc_path)
-    if not path.exists():
-        logger.warning(f"文件不存在")
-        return
-    try:
-        if path.is_file():
-            path.unlink()
-            logger.info(f"文件删除成功")
-        elif path.is_dir():
-            shutil.rmtree(path)
-            logger.info(f"文件删除成功")
-    except Exception as e:
-        logger.error(f"文件删除失败, 失败原因: {str(e)}")
-        raise ValueError(f"文件删除失败, 失败原因: {str(e)}") from e
-
-
-async def delete_local_file(file_path_list: List[str]) -> int:
+def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
     """删除本地文档和文件夹服务
 
     Args:
         file_path_list: 要删除的文档路径列表
 
     Returns:
-        bool: 删除数量
+        bool: 删除结果
     """
     total_num: int = len(file_path_list)
 
     if total_num == 0:
-        return total_num
+        logger.error(f"没有需要删除的文件/目录")
+        return True
 
     try:
-        # 如果找到文件信息且需要物理删除，则删除文件
-        logger.info(f"待删除的文件清单: {file_path_list}")
-
+        logger.info(f"清单数量: {len(file_path_list)}, 文件/目录清单: {file_path_list}")
         for file_path in file_path_list:
             logger.info(f"开始删除文件: {file_path}")
             if not file_path:
@@ -187,18 +166,12 @@ async def delete_local_file(file_path_list: List[str]) -> int:
             except Exception as e:
                 logger.error(f"文件删除失败, 失败原因: {str(e)}")
                 raise ValueError(f"文件删除失败, 失败原因: {str(e)}") from e
+        logger.info(f"本地文件删除完成, 删除数量: {total_num}")
+        return True
 
-        return total_num
-
-    except APIException:
-        raise
-    except ValueError as e:
-        log_exception("参数错误",
-                      e)
-        raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
     except Exception as e:
-        logger.error(f"文档删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
-        raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
+        logger.error(f"文档删除失败, 错误原因: {str(e)}")
+        raise ValueError(f"文档删除失败, 错误原因: {str(e)}") from e
 
 
 # === 下载 http 文档 ===
@@ -304,7 +277,7 @@ def extract_table_summary(html: str) -> Dict[str, str]:
     prompt, config = render_prompt("table_summary", {"table_html": html})
     system_prompt = "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"
     raw = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
-                             max_tokens=config['max_tokens'])
+                             max_tokens=config['max_tokens'], invoke_type="表格摘要生成")
     logger.debug(f"表格摘要生成成功: {raw[:100]}...")
     return parse_table_summary(raw)
 
@@ -322,13 +295,13 @@ def extract_text_summary(text: str) -> str:
     prompt, config = render_prompt("text_summary", {"content": text})
     system_prompt = "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。请直接输出摘要内容，不要包含任何其他说明文字。"
     summary = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
-                                 max_tokens=config['max_tokens'])
+                                 max_tokens=config['max_tokens'], invoke_type="文本摘要生成")
     logger.info(f"文本摘要生成成功: {summary[:100]}...")
     return summary.strip()
 
 
 # === 文档转换 ===
-def check_system_requirements() -> Tuple[bool, str]:
+def _check_system_requirements() -> Tuple[bool, str]:
     """
     检查系统环境要求
 
@@ -389,12 +362,12 @@ def check_system_requirements() -> Tuple[bool, str]:
         return False, f"检查系统环境时发生错误: {str(e)}"
 
 
-def libreoffice_convert_toolkit(office_doc_path: str, output_dir: Optional[str] = None) -> Optional[str]:
+def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None) -> Optional[str]:
     """
     使用 LibreOffice 将文件转换为 PDF 格式
 
     Args:
-        office_doc_path (str): 输入文件的完整路径
+        doc_path (str): 输入文件的完整路径
         output_dir (str, optional): 输出目录路径。如果不指定，则使用输入文件所在目录
 
     Returns:
@@ -406,27 +379,31 @@ def libreoffice_convert_toolkit(office_doc_path: str, output_dir: Optional[str] 
     """
     try:
         # 检查系统环境
-        is_ready, error_msg = check_system_requirements()
+        is_ready, error_msg = _check_system_requirements()
         if not is_ready:
             logger.error(error_msg)
             raise RuntimeError(error_msg)
     except Exception as e:
-        logger.error(f"检查系统环境时发生错误: {str(e)}")
-        raise APIException(ErrorCode.ENVIRONMENT_DEFICIT, str(e))
+        logger.error(f"Libreoffice 系统环境时发生错误: {str(e)}")
+        raise ValueError(f"检查系统环境时发生错误: {str(e)}")
 
-    office_doc_path = Path(office_doc_path)
-    # 如果未指定输出目录，使用输入文件所在目录
-    output_dir = output_dir or office_doc_path.parent
-    # 确保输出目录存在
-    os.makedirs(output_dir, exist_ok=True)
+    try:
+        office_doc_path = Path(doc_path)
+        # 如果未指定输出目录，使用输入文件所在目录
+        output_dir = output_dir or office_doc_path.parent
+        # 确保输出目录存在
+        os.makedirs(output_dir, exist_ok=True)
 
-    # 检查文件名非法字符并替换，避免libreoffice转换失败
-    out_path = sanitize_doc_name(str(office_doc_path.resolve()))
+        # 检查文件名非法字符并替换，避免libreoffice转换失败
+        out_path = sanitize_doc_name(str(office_doc_path.resolve()))
 
-    # 构建输出文件路径
-    save_name = Path(out_path).stem  # 获取文件名不带扩展名
-    output_file = os.path.join(output_dir, f"{save_name}.pdf")
-    logger.debug(f"输出文件路径: {output_file}")
+        # 构建输出文件路径
+        save_name = Path(out_path).stem  # 获取文件名不带扩展名
+        output_file = os.path.join(output_dir, f"{save_name}.pdf")
+        logger.debug(f"输出文件路径: {output_file}")
+    except Exception as e:
+        logger.error(f"Libreoffice 转换路径构建失败: {str(e)}")
+        raise ValueError(f"Libreoffice 转换路径构建失败: {str(e)}")
 
     try:
         # 创建临时目录
@@ -483,53 +460,62 @@ def libreoffice_convert_toolkit(office_doc_path: str, output_dir: Optional[str] 
         raise APIException(ErrorCode.CONVERT_FAILED, str(e))
 
 
-def convert_office_file(office_doc_path: str):
-    """转换 Office 文件, 返回转换后的PDF文件路径
-
-    Args:
-        office_doc_path (str): 要转换的office文件路径
-    """
-    # 获取输出路径
-    output_path = get_doc_output_path(office_doc_path)
-    output_path, output_image_path, doc_name = (output_path["output_path"],
-                                                output_path["output_image_path"],
-                                                output_path["doc_name"]
-                                                )
-    logger.debug(f"开始转换为 PDF 文件: {office_doc_path}, 输出路径: {output_path}")
-
-    # 首先尝试使用LibreOffice转换
-    try:
-        pdf_path = libreoffice_convert_toolkit(office_doc_path, output_path)
-        if pdf_path:  # 检查转换是否成功
-            logger.debug(f"文件转换成功: {pdf_path}")
-            return pdf_path
-    except APIException as e:
-        logger.error(f"Libreoffice转换失败 : {str(e)}")
-    return None
+# def convert_office_file(doc_path: str,output_dir:str) -> Optional[str]:
+#     """转换 Office 文件, 返回转换后的PDF文件路径
+#
+#     Args:
+#         doc_path (str): 要转换的office文件路径
+#         output_dir (str): 转换后的输出目录
+#
+#     Returns:
+#         str: 转换后的 PDF 文档路径
+#
+#     Raises:
+#         ValueError: 转换失败异常抛出
+#     """
+#     # 获取输出路径
+#     # output_info: Dict[str, str] = get_doc_output_path(doc_path)
+#     # output_dir, output_image_path, doc_name = (output_info["output_path"],
+#     #                                             output_info["output_image_path"],
+#     #                                             output_info["doc_name"]
+#     #                                             )
+#     logger.info(f"Libreoffice 文档转换: 源文档={doc_path}, 输出文档: {output_dir}")
+#
+#     # 尝试使用LibreOffice转换
+#     try:
+#         pdf_path = libreoffice_convert_toolkit(doc_path, output_dir)
+#         logger.info(f"Libreoffice 文档转换成功")
+#         return pdf_path
+#     except Exception as e:
+#         logger.error(f"Libreoffice 转换失败 : {str(e)}")
+#         raise ValueError(f"Libreoffice 转换失败 : {str(e)}") from e
 
 
 # === PDF 文档解析 ===
-def mineru_toolkit(pdf_doc_path: str) -> dict:
+def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> str:
     """解析 PDF 文件, 返回 json 文件信息
 
     Args:
-        pdf_doc_path (str): PDF 文件路径
+        pdf_doc_path: PDF 文件路径
+        output_dir: 输出目录
+        output_image_path: 图片保存目录
+        doc_name: 文档名称
 
     Returns:
         json_path (str): json 文件的保存路径
-        image_path (str): 图片的保存路径
-        doc_name (str): 文档名称
-        output_dir (str): 输出路径
+        # image_path (str): 图片的保存路径
+        # doc_name (str): 文档名称
+        # output_dir (str): 输出路径
     """
 
     try:
         # 获取输出路径
-        output_dir = get_doc_output_path(pdf_doc_path)
-        output_path, image_path, doc_name = output_dir["output_path"], output_dir["output_image_path"], output_dir[
-            "doc_name"]
+        # output_info: Dict[str, str] = get_doc_output_path(pdf_doc_path)
+        # output_path, image_path, doc_name = output_info["output_path"], output_info["output_image_path"], output_info[
+        #     "doc_name"]
 
         # 初始化数据写入器，用于保存图片和 Markdown 文件
-        image_writer, md_writer = FileBasedDataWriter(image_path), FileBasedDataWriter(output_path)
+        image_writer, md_writer = FileBasedDataWriter(output_image_path), FileBasedDataWriter(output_dir)
 
         # 读取 PDF 文件内容
         reader1 = FileBasedDataReader("")  # 初始化数据读取器
@@ -549,29 +535,42 @@ def mineru_toolkit(pdf_doc_path: str) -> dict:
             pipe_result = infer_result.pipe_txt_mode(image_writer)  # 进行文本模式下的管道处理
 
         # 将内容列表保存为 JSON 文件
-        json_path = os.path.join(output_path, f"{doc_name}_mineru.json")
-        pipe_result.dump_content_list(md_writer, json_path, image_path)
+        json_path = os.path.join(output_dir, f"{doc_name}_mineru.json")
+        pipe_result.dump_content_list(md_writer, json_path, output_image_path)
 
-        result = {
-            "json_path": json_path,
-            "image_path": image_path,
-            "doc_name": doc_name,
-            "output_dir": output_dir
-        }
+        logger.info(f"MinerU 解析完成, JSON 文件已保存至: {json_path}")
+        return json_path
+        # result = {
+        #     "json_path": json_path,
+        #     "image_path": output_image_path,
+        #     "doc_name": doc_name,
+        #     "output_dir": output_path
+        # }
 
-        return result
+        # return result
     except Exception as e:
-        raise APIException(ErrorCode.PDF_PARSE_ERROR, str(e)) from e
+        logger.error(f"Mineru 解析文档失败, 错误原因: {str(e)}")
+        raise ValueError(f"Mineru 解析文档失败, 错误原因: {str(e)}") from e
 
 
 # === 文档分页切割 ===
-def split_pdf_to_pages(input_path, output_dir):
+def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str,str]]:
+    """按页切割文档,返回保存的页面地址列表"""
     os.makedirs(output_dir, exist_ok=True)
     doc = fitz.open(input_path)
-    for page_num in range(len(doc)):
-        new_doc = fitz.open()
-        new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
-        new_doc.save(f"{output_dir}/page_{page_num + 1}.pdf")
+    result:dict[str,str] = {}
+    try:
+        logger.info(f"文档共 {len(doc)} 页, 切割中...")
+        for page_num in range(len(doc)):
+            new_doc = fitz.open()
+            new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
+            save_path: str = f"{output_dir}/page_{page_num + 1}.pdf"
+            new_doc.save(save_path)
+            result[str(page_num + 1)] = save_path
+        return result
+    except Exception as e:
+        logger.error(f"文档切割失败, 失败原因: {str(e)}")
+        raise ValueError(f"文档切割失败, 失败原因: {str(e)}") from e
 
 
 # === 文档删除 ===
@@ -613,3 +612,10 @@ if __name__ == '__main__':
     # output_path = "./output"
     #
     # split_pdf_to_pages(input_path,output_path)
+
+    # === 测试路径获取 ===
+    from rich import print
+
+    doc_path = "/home/wumingxing/tk_rag/datas/raw/2025年公司规范管理守则.docx"
+    output_path = get_doc_output_path(doc_path)
+    print(output_path)

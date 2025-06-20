@@ -97,6 +97,7 @@
 #                 prompt=prompt,
 #                 system_prompt=system_prompt,
 #                 temperature=config["temperature"],
+#                   invoke_type="RAG生成"
 #             )
 #
 #             # 更新对话记忆(_get_memory)

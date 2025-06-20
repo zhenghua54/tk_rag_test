@@ -26,7 +26,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td colspan=\"5\">版本演进及版本与版本批次关系</td></tr><tr><td>大版本</td><td>版本/次</td><td>小版本</td><td>版本/次</td><td></td></tr><tr><td>V1. 0</td><td>A/1</td><td>V1. 1</td><td>A/2</td><td>：</td></tr><tr><td>V2. 0</td><td>B/1</td><td>V2. 1</td><td>B/2</td><td>：</td></tr><tr><td>V3. 0</td><td>C/1</td><td>V3. 1</td><td>C/2</td><td>：</td></tr><tr><td></td><td>：</td><td>…</td><td>：</td><td>：</td></tr></table></body></html>\n\n",
       "page_idx": 2,
-      "summary": "表格主要描述了不同版本及其批次的关系，包括大版本V1.0、V2.0、V3.0及其对应的小版本A/1、B/1、C/1等。"
+      "summary": "表格展示了软件版本演进的过程；大版本包括多个小版本；每个大版本有对应的版本批次，如V1.0对应A/1，V1.1对应A/2；后续版本依次为V2.0、V2.1、V3.0、V3.1等；每个大版本下的小版本和批次之间存在演进关系"
     }
   ],
   "3": [
@@ -37,7 +37,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td>更新日期</td><td>文件编号、版本/次</td><td>更新章节</td><td>更新内容</td><td>更新部门</td></tr><tr><td>2025.01. 24</td><td>QES-015-2025-A/1</td><td>新建</td><td>新建</td><td>质量与安全管理部</td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr></table></body></html>\n\n",
       "page_idx": 3,
-      "summary": "表格记录了质量与安全管理部于2025.01.24对QES-015-2025-A/1文件的新建操作，未详细列出其他任务分类及特性。"
+      "summary": "该表格记录了2025年1月24日由质量与安全管理部进行的文件更新；更新涉及新建内容；表格中包含更新日期、文件编号、版本/次、更新章节、更新内容和更新部门等字段；但表格中的大部分数据为空。"
     }
   ],
   "4": [
@@ -53,7 +53,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td>类别</td><td>序号</td><td>文档编号</td><td>版本/次</td><td>文档名称</td><td>开始页</td></tr><tr><td rowspan=\"3\">总纲</td><td>1</td><td rowspan=\"4\">QES-001-2025</td><td rowspan=\"4\">A/1</td><td>质量管理总纲</td><td>第6页</td></tr><tr><td>2</td><td>企业愿景、使命、战略与核心价值观</td><td>第11页</td></tr><tr><td>3</td><td>质量管理方针、质量管理战略、质量管理目标</td><td>第14页</td></tr><tr><td>4</td><td>质量组织架构</td><td>第18页</td></tr><tr><td rowspan=\"2\">组织 架构</td><td>5</td><td></td><td></td><td>质量岗位职责</td><td>第20页</td></tr><tr><td>6</td><td>QES-002-2025</td><td>A/1</td><td>服务作业指导书</td><td>第23页</td></tr><tr><td rowspan=\"11\">预案 机制 及制 度</td><td>7</td><td>QES-003-2025</td><td>A/1</td><td>网络安全&信息安全与隐私保护管理制度</td><td>第114页</td></tr><tr><td>8</td><td>QES-004-2025</td><td>A/1</td><td>EHS安全管理制度</td><td>第143页</td></tr><tr><td>9</td><td>QES-005-2025</td><td>A/1</td><td>问题处理与升级通报制度</td><td>第161页</td></tr><tr><td>10</td><td>QES-006-2025</td><td>A/1</td><td>诚信廉洁与合规自律管理规定</td><td>第178页</td></tr><tr><td>11</td><td>QES-007-2025</td><td>A/3</td><td>备品备件管理规定</td><td>第198页</td></tr><tr><td>12</td><td>QES-008-2025</td><td>A/1</td><td>作业人员资质管理制度</td><td>第209页</td></tr><tr><td>13</td><td>QES-009-2025</td><td>A/1</td><td>质量奖惩制度</td><td>第218页</td></tr><tr><td>14</td><td>QES-010-2025</td><td>A/1</td><td>质量培训制度</td><td>第246页</td></tr><tr><td>15</td><td>QES-011-2025</td><td>A/1</td><td>质量检查制度</td><td>第253页</td></tr><tr><td>16</td><td>QES-012-2025</td><td>A/1</td><td>工时系统2.0履行管理规范</td><td>第263页</td></tr><tr><td>17</td><td>QES-013-2025</td><td>A/1</td><td>内部评审和持续改进机制</td><td>第282页</td></tr><tr><td rowspan=\"3\">质量 日常 管理</td><td>18</td><td>QES-014-2025</td><td>A/1</td><td>服务人员日常行为规范</td><td>第295页</td></tr><tr><td>19</td><td>N/A</td><td>/</td><td>质量例行管理动作</td><td>第307页</td></tr><tr><td>20</td><td>N/A</td><td>/</td><td>分支机构日常质量管理</td><td>第310页</td></tr></table></body></html>\n\n",
       "page_idx": 4,
-      "summary": "涵盖质量组织架构、岗位职责、奖惩制度、培训、检查、日常管理等18个方面，涉及质量方针、战略、目标、组织架构、岗位职责、奖惩制度、培训、检查、日常行为规范等。"
+      "summary": "表格列出了多个质量管理相关的文档，包括质量方针、战略、目标、组织架构、岗位职责、应急预案机制、安全管理制度、问题处理与升级通报制度、诚信廉洁与合规自律管理规定等；这些文档涵盖了从企业愿景到具体操作层面的质量管理内容，旨在全面保障和提升公司的服务质量与管理水平"
     }
   ],
   "5": [
@@ -114,7 +114,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 8,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，经审核后于2025年01月24日由卢晓飞批准。文件编号QES-001-2025。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -138,11 +138,11 @@
     {
       "type": "table",
       "img_path": "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/b53e972e316225c25be7865e60bac7d3bfc1650218e8272885bf08bbc474c49b.jpg",
-      "table_caption": "质量管理文件编制流程",
+      "table_caption": "质量管理总纲文件基本信息",
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 9,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，审核通过后于2025年01月24日批准实施。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -158,7 +158,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 10,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，版本A/1，批准人为卢晓飞，实施日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -174,7 +174,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 11,
-      "summary": "质量管理总纲由质量与安全管理部编制，审核后于2025年01月24日批准实施，文件编号QES-001-2025。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -190,7 +190,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td></td><td></td><td></td><td>实施日期</td><td>2025年01月24日</td></tr><tr><td></td><td>质量与安全管理部</td><td>审核</td><td></td><td>批准</td><td>卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 12,
-      "summary": "质量管理总纲文件编号QES-001-2025，版本A/1，编制人为质量与安全管理部，审核通过，批准人卢晓飞，实施日期2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制单位为质量与安全管理部；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -206,7 +206,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 13,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，审核通过，实施日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -222,7 +222,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 14,
-      "summary": "质量管理总纲QES-001-2025由质量与安全管理部编制，审核通过，批准实施日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -238,7 +238,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 15,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，审核通过后于2025年01月24日批准实施。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -250,11 +250,11 @@
     {
       "type": "table",
       "img_path": "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/1675fa838c37c7c63baec911316fd142486568f0ec9be8b62401b2c09656a460.jpg",
-      "table_caption": "质量管理文件编制流程",
+      "table_caption": "质量管理总纲文件基本信息",
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 16,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，审核后于2025年01月24日批准实施。文件编号QES-001-2025。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -266,11 +266,11 @@
     {
       "type": "table",
       "img_path": "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/ee35125264525177647eb306a9dcf3251202032746b1ccce0773417914f94037.jpg",
-      "table_caption": "质量管理文件编制审批流程",
+      "table_caption": "质量管理总纲文件基本信息",
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 17,
-      "summary": "质量管理总纲QES-001-2025由质量与安全管理部编制，经审核后于2025年01月24日由卢晓飞批准实施。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -301,11 +301,11 @@
     {
       "type": "table",
       "img_path": "/home/wumingxing/tk_rag/datas/processed/天宽服务质量体系_第1部分_1-22/images/e1a19038ffa8cad098ce31839137d1d75718c1db9d8dcd96be6c4ff5f6549080.jpg",
-      "table_caption": "质量管理总纲文件编制",
+      "table_caption": "质量管理总纲文件基本信息",
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 18,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，版本A/1，批准日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -319,7 +319,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td>区域</td><td>姓名</td><td>个人名片</td><td>质量岗位履历</td><td>QA认证</td></tr><tr><td>上海</td><td>郑永翔</td><td>姓名：郑永翔 职务：质量经理 部门：上海分公司</td><td>专职质量经理，负责质量工作4年，目前主要负责上海区域日常质量管理工 作，制定上海区域质量管理规定及措施，对上海区域整体质量进行负责，其名 下配有两名专职质量管理助理。</td><td>是</td></tr><tr><td>浙江</td><td>王燕</td><td>姓名：王燕 职务：质量经理 部门：浙江分公司</td><td>专职质量经理，负责质量工作5年，目前主要负责浙江区域日常质量管理工 作，制定浙江区域相关质量流程及管理规定，对浙江区域整体质量进行负责。</td><td>是</td></tr><tr><td>江西</td><td>张泽超</td><td>姓名：张泽超 职务：质量经理 部门：江西分公司</td><td>专职质量经理，负责质量工作5年，目前主要负责江西区域日常质量管理工 作，制定江西区域相关质量流程及管理规定，对江西区域整体质量进行负责。</td><td>是</td></tr><tr><td>广西</td><td>章顺</td><td>姓名：章顺 职务：质量经理 部门：广西分公司</td><td>专职质量经理，负责质量工作5年，目前主要负责广西区域日常质量管理工 作，制定广西区域相关质量流程及管理规定，对广西区域整体质量进行负责。</td><td>是</td></tr><tr><td>海南</td><td>冯华祥</td><td>姓名：冯华祥 职务：质量经公司</td><td>专，质量经理，责关程，理定要责区体量责。</td><td>是</td></tr><tr><td>甘肃</td><td>楚润清</td><td>姓名：楚润清 职务：质量经理 部门：甘肃分公司</td><td>专职质量经理，负责质量工作4年，目前主要负责甘肃区域日常质量管理工 作，制定甘肃区域相关质量流程及管理规定，对甘肃区域整体质量进行负责。</td><td>是</td></tr><tr><td>宁夏</td><td>孙杰</td><td>姓名：孙杰 部务：量经理司</td><td>专，质量经理，责工作程及，管理主要，负宁夏区域体质量责。</td><td>是</td></tr><tr><td>天津</td><td>陈军</td><td>姓名：陈军 职务：质量经理 部门：天津分公司</td><td>专，质量是理，作4年，管前主要，津区域日体常质量责。</td><td>是</td></tr><tr><td>服务研究院</td><td>肖文峰</td><td>姓名：肖文峰 职务：质量经理 部门：服务研究院</td><td>专职质量经理，负责质量工作5年，目前主要负责服务研究院平软部门日常质 量管理工作，制定该部门相关质量流程及管理规定，对平软部门整体质量进行 负责。</td><td>是</td></tr><tr><td>自研部</td><td>刘鹉</td><td>姓名：刘鹉 职务：质量经理 部门：自研部</td><td>专职质量经理，负责质量工作1年，目前主要负责自研部门日常质量管理工 作，制定该部门相关质量流程及管理规定，对自研部整体质量进行负责。</td><td>认证中</td></tr></table></body></html>\n\n",
       "page_idx": 18,
-      "summary": "各区域及部门的质量经理负责所在区域或部门的日常质量管理，包括制定质量流程及管理规定，对整体质量负责。涉及上海、浙江、江西、广西、海南、甘肃、宁夏、天津、服务研究院及自研部。"
+      "summary": "全国多个分公司和部门的质量经理负责各自区域或部门的质量管理工作；他们通常有多年质量管理工作经验，并负责制定相关质量流程及管理规定；部分质量经理已获得QA认证，少数仍在认证过程中；质量经理的工作内容包括日常质量管理、制定质量管理规定及措施等。"
     }
   ],
   "19": [
@@ -330,7 +330,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 19,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，版本A/1，实施日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -370,7 +370,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td rowspan=\"2\" colspan=\"3\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 20,
-      "summary": "质量管理总纲文件由质量与安全管理部编制，经审核后于2025年01月24日批准实施。文件编号QES-001-2025。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",
@@ -386,7 +386,7 @@
       "table_footnote": [],
       "table_body": "\n\n<html><body><table><tr><td rowspan=\"2\">文件名称</td><td colspan=\"3\" rowspan=\"2\">质量管理总纲</td><td>文件编号</td><td>QES-001-2025</td></tr><tr><td>版本/次</td><td>A/1</td></tr><tr><td>编制</td><td>质量与安全管理部</td><td>审核</td><td></td><td>实施日期 批准</td><td>2025年01月24日 卢晓飞</td></tr></table></body></html>\n\n",
       "page_idx": 21,
-      "summary": "质量管理总纲QES-001-2025由质量与安全管理部编制，审核通过，实施日期为2025年01月24日。"
+      "summary": "该表格展示了质量管理总纲文件的基本信息；包括文件编号QES-001-2025、版本A/1；编制部门为质量与安全管理部；审核状态已确认；批准人为卢晓飞；实施日期为2025年01月24日"
     },
     {
       "type": "text",

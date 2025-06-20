@@ -52,8 +52,8 @@ class GlobalConfig:
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
     FILE_STATUS = {
-        "normal": ["uploaded", "parsed", "merged", "chunked"],
-        "error": ["parse_failed", "merge_failed", "chunk_failed", "error"],
+        "normal": ["uploaded", "parsed", "merged", "chunked", "splited"],
+        "error": ["parse_failed", "merge_failed", "chunk_failed", "split_failed", "error"],
     }
     FILE_MAX_SIZE = 50  # Mb
 
@@ -91,8 +91,6 @@ class GlobalConfig:
 
     MYSQL_CONFIG = {
         "host": "localhost",
-        # "user": "root",
-        # "password": "Tk@654321",
         "user": os.getenv("MYSQL_USER"),
         "passwd": os.getenv("MYSQL_PASSWORD"),
         "port": 3306,
@@ -101,10 +99,11 @@ class GlobalConfig:
         "file_info_table": "doc_info",
         "segment_info_table": "segment_info",
         "permission_info_table": "permission_info",
+        "doc_page_info_table": "doc_page_info",
     }
-    MYSQL_FIELD={
-        "max_path_len":1000,
-        "max_name_len":500,
+    MYSQL_FIELD = {
+        "max_path_len": 1000,
+        "max_name_len": 500,
     }
 
     ES_CONFIG = {
@@ -141,11 +140,12 @@ class GlobalConfig:
         "rag_generate": {
             "prompt_file": "./prompts/rag_prompt.txt",
             "model": LLM_NAME,
-            "temperature": 0.3,
+            "temperature": 0,
             # "max_tokens": 1024
         }
 
     }
+
 
 if __name__ == "__main__":
     # 打印当前配置

@@ -53,7 +53,7 @@ class MySQLConnectionPool:
 
 class MySQLUtils:
     """MySQL 工具类，提供数据库相关的通用功能"""
-    
+
     @staticmethod
     def test_connection() -> bool:
         """使用连接池测试数据库连接
@@ -219,31 +219,17 @@ class BaseDBOperation:
             sql = f'UPDATE {self.table_name} SET {set_clause} WHERE doc_id = %s'
             values = list(data.values())
             values.append(doc_id)
+            logger.info(f"MySQL 记录更新成功 ")
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
-            logger.error(f"更新记录失败: {e}")
+            logger.error(f"MySQL 记录更新失败: {e}")
             raise e
 
-    def _soft_delete_by_id(self, doc_id: str) -> int:
-        """基础软删除实现"""
-        sql = f"UPDATE {self.table_name} SET is_soft_deleted = TRUE, updated_at = %s WHERE doc_id = %s"
-        return self._execute_update(sql, (datetime.now(), doc_id))
-
-    def _hard_delete_by_id(self, doc_id: str) -> int:
-        """基础硬删除实现"""
-        sql = f"DELETE FROM {self.table_name} WHERE doc_id = %s"
-        return self._execute_update(sql, (doc_id,))
-
-    def delete_by_doc_id(self, doc_id: str, is_soft_deleted: bool = False) -> int:
+    def delete_by_doc_id(self, doc_id: str) -> int:
         """通用删除接口，支持软/硬删除"""
         try:
-            if is_soft_deleted:
-                return self._soft_delete_by_id(doc_id)
-            else:
-                return self._hard_delete_by_id(doc_id)
-        except pymysql.MySQLError as e:
-            logger.error(f"[删除记录失败] doc_id={doc_id}, is_soft_deleted={is_soft_deleted}, error={str(e)}")
-            raise RuntimeError(f"数据库删除失败: {str(e)}") from e
+            sql = f"DELETE FROM {self.table_name} WHERE doc_id = %s"
+            return self._execute_update(sql, (doc_id,))
         except Exception as e:
-            logger.error(f"[未知错误] 删除记录失败, doc_id={doc_id}, is_soft_deleted={is_soft_deleted}, error={str(e)}")
-            raise e
+            logger.error(f"MySQL 数据删除失败, 失败原因: {str(e)}")
+            raise e from e

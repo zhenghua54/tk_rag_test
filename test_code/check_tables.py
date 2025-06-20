@@ -30,10 +30,10 @@ def check_segment_table():
 def check_file_info_table():
     """检查file_info表结构"""
     print("\n=== 检查file_info表结构 ===")
-    with FileInfoOperation() as op:
+    with FileInfoOperation() as file_op:
         try:
             # 尝试获取一条记录
-            records = op.select_record()
+            records = file_op.select_record()
             if records and len(records) > 0:
                 print(f"字段列表: {list(records[0].keys())}")
                 print(f"示例记录: {records[0]}")

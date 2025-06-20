@@ -19,7 +19,7 @@ from api.response import ResponseBuilder
 from error_codes import ErrorCode
 from config.global_config import GlobalConfig
 from api.base import router as base_router
-from api.document_api import router as doc_router
+from api.doc_api import router as doc_router
 from core.infra.lifecycle import lifespan
 
 # 创建FastAPI应用实例

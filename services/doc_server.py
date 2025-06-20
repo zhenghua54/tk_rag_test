@@ -4,16 +4,14 @@ from pathlib import Path
 from typing import Dict, Any, Union
 import httpx
 import asyncio  # 异步操作
-from concurrent.futures import ThreadPoolExecutor  # 线程池管理
+# from concurrent.futures import ThreadPoolExecutor  # 线程池管理
 import pymysql
 import os
 
 from services.base import BaseService
-from utils.log_utils import (
-    log_business_info, log_exception, logger
-)
+from utils.log_utils import logger
 from config.global_config import GlobalConfig
-from utils.file_ops import download_file_step_by_step, get_doc_output_path, generate_doc_id
+from utils.file_ops import download_file_step_by_step, generate_doc_id, delete_local_file, split_pdf_to_pages
 from utils.converters import convert_bytes
 from error_codes import ErrorCode
 from api.response import APIException
@@ -21,17 +19,15 @@ from utils.validators import (
     check_disk_space_sufficient, check_doc_ext, check_http_doc_accessible, check_doc_size, \
     check_doc_name_chars, validate_file_normal, validate_empty_param, validate_doc_id
 )
-from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, check_duplicate_doc
-from databases.milvus.operations import VectorOperation
-from databases.elasticsearch.operations import ElasticsearchOperation
-from databases.db_ops import delete_all_database_data
+from databases.mysql.operations import FileInfoOperation, PermissionOperation
+from databases.db_ops import delete_all_database_data, update_record_by_doc_id, select_record_by_doc_id, insert_record
 
-from utils.file_ops import delete_path_safely
 from core.doc.parser import process_doc_content
 from core.doc.chunker import segment_text_content
 
-# 创建线程池执行器
-thread_pool = ThreadPoolExecutor(max_workers=4)
+
+# # 创建线程池执行器
+# thread_pool = ThreadPoolExecutor(max_workers=4)
 
 
 class DocumentService(BaseService):
@@ -40,8 +36,7 @@ class DocumentService(BaseService):
     @staticmethod
     async def upload_file(document_http_url: str, permission_ids: Union[str, None], callback_url: str = None) -> dict:
         """上传文档"""
-        # 参数验证
-        check_http_doc_accessible(document_http_url, "document_http_url")
+        validate_empty_param(document_http_url, '文档地址')
 
         try:
             if document_http_url.startswith("http"):
@@ -52,6 +47,7 @@ class DocumentService(BaseService):
                 check_doc_ext(ext=doc_ext, doc_type='all')  # 文件格式校验
                 doc_path = download_file_step_by_step(url=document_http_url)  # 下载文件到本地
             else:
+                # 本地文档指的是服务器上的文档
                 path_type = "local_path"
                 doc_path = document_http_url
 
@@ -66,43 +62,46 @@ class DocumentService(BaseService):
 
             # 查重
             doc_id = generate_doc_id(doc_path=str(path.resolve()))
-            check_result = check_duplicate_doc(doc_id)
-            process_status = check_result["process_status"]
-            doc_info = check_result.get("doc_info")
+            logger.info(f"查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
+            records = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id)
 
-            if process_status in GlobalConfig.FILE_STATUS.get("error"):
-
-                # 删除所有相关记录
-                with FileInfoOperation() as file_op, PermissionOperation() as permission_op, ChunkOperation() as chunk_op:
-                    file_op.delete_by_doc_id(doc_id)
-                    permission_op.delete_by_doc_id(doc_id)
-                    chunk_op.delete_by_doc_id(doc_id)
-                    logger.info(f"记录删除成功, 记录信息：{doc_info}")
-            elif process_status in GlobalConfig.FILE_STATUS.get("normal"):
-                raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
+            if records:
+                if records["process_status"] in GlobalConfig.FILE_STATUS.get("error"):
+                    logger.info(f"记录存在，状态异常，准备删除: {records}")
+                    delete_all_database_data(doc_id=doc_id)
+                elif records["process_status"] in GlobalConfig.FILE_STATUS.get("normal"):
+                    raise ValueError(f"文件已上传, 状态: {records['process_status']}")
+            #
+            # check_result = check_duplicate_doc(doc_id)
+            # process_status = check_result["process_status"]
+            # doc_info = check_result.get("doc_info")
+            #
+            # if process_status in GlobalConfig.FILE_STATUS.get("error"):
+            #
+            #     # 删除所有相关记录
+            #     with FileInfoOperation() as file_op, PermissionOperation() as permission_op, ChunkOperation() as chunk_op:
+            #         file_op.delete_by_doc_id(doc_id)
+            #         permission_op.delete_by_doc_id(doc_id)
+            #         chunk_op.delete_by_doc_id(doc_id)
+            #         logger.info(f"记录删除成功, 记录信息：{records}")
+            # elif process_status in GlobalConfig.FILE_STATUS.get("normal"):
+            #     raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
 
             # 文档不存在，进入上传 + 处理流程
-            doc_name = path.stem  # 文档名称
-            doc_ext = path.suffix  # 文档后缀
-            doc_size = convert_bytes(path.stat().st_size)  # 文档大小
-            abs_path = str(path.resolve())  # 文档服务器存储路径
-            doc_pdf_path = abs_path if doc_ext.lower() == ".pdf" else None
             now = datetime.now()
-
             # 组装doc_info
             doc_info = {
                 "doc_id": doc_id,
-                "doc_name": doc_name,
-                "doc_ext": doc_ext,
-                "doc_size": doc_size,
+                "doc_name": path.stem,
+                "doc_ext": path.suffix,
+                "doc_size": convert_bytes(path.stat().st_size),
                 "doc_http_url": document_http_url if path_type == "http_path" else "",
-                "doc_path": abs_path,
-                "doc_pdf_path": doc_pdf_path,
+                "doc_path": str(path.resolve()),
+                "doc_pdf_path": str(path.resolve()) if path.suffix.lower() == ".pdf" else None,
                 "process_status": "uploaded",
                 "created_at": now,
                 "updated_at": now,
             }
-
             # 组装permission_info
             permission_info = {
                 "permission_ids": permission_ids,
@@ -120,36 +119,33 @@ class DocumentService(BaseService):
                     logger.info(f"开始权限入库, doc_id={doc_id}, permission_id={permission_ids}")
                     permission_op.insert_datas(permission_info)
 
-                    # 返回成功
-                    result = {
+                    # 启动后台处理流程
+                    asyncio.create_task(asyncio.to_thread(process_doc_content, str(path.resolve()), doc_id, file_op))
+                    # 启动后台监听文档转换状态，完成后按照顺序: 开始文档切块 -> 页面切分
+                    asyncio.create_task(
+                        DocumentService._monitor_doc_process_and_segment(
+                            doc_id=doc_id,
+                            document_name=path.stem,
+                            permission_ids=permission_ids,
+                            file_op=file_op,
+                            permission_op=permission_op,
+                        )
+                    )
+
+                    # # 回调接口
+                    # if callback_url:
+                    #     try:
+                    #         async with httpx.AsyncClient() as client:
+                    #             await client.post(callback_url, json=result)
+                    #     except Exception as e:
+                    #         logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
+                    #         # 回调失败不影响主流程
+                    return {
                         "doc_id": doc_id,
-                        "doc_name": f"{doc_name}{doc_ext}",
+                        "doc_name": path.name,
                         "status": "uploaded",
                         "permission_ids": permission_ids,
                     }
-
-                    # 启动后台处理流程
-                    asyncio.create_task(asyncio.to_thread(
-                        process_doc_content,
-                        abs_path,
-                        doc_id
-                    ))
-
-                    # 启动后台监听文档转换状态，完成后开始文档切块
-                    asyncio.create_task(
-                        DocumentService._monitor_doc_process_and_segment(doc_id=doc_id, document_name=doc_name,
-                                                                         permission_ids=permission_ids,
-                                                                         file_op=file_op, permission_op=permission_op))
-
-                    # 回调接口
-                    if callback_url:
-                        try:
-                            async with httpx.AsyncClient() as client:
-                                await client.post(callback_url, json=result)
-                        except Exception as e:
-                            logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
-                            # 回调失败不影响主流程
-                return result
 
             except pymysql.IntegrityError as e:
                 if e.args[0] == 1062:
@@ -167,7 +163,7 @@ class DocumentService(BaseService):
 
         Args:
             doc_id: 文档ID
-            is_soft_delete: 是否软删除（仅标记删除状态，不删除文件和数据库记录）
+            is_soft_delete: 是否只删除记录,不删除本地文件
             callback_url: 删除完成后的回调URL
 
         Returns:
@@ -187,129 +183,46 @@ class DocumentService(BaseService):
                     if not file_info:
                         logger.info(f"MySQL中未找到文档记录: {doc_id}")
             except ValueError as e:
-                logger.error(f"文件信息获取失败, 错误原因: {str(e)}, doc_id: {doc_id}")
+                logger.error(f"尝试从 MySQL 中获取文件信息失败, 错误原因: {str(e)}, doc_id: {doc_id}")
                 raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
 
             # 删除所有数据库记录
-            await delete_all_database_data(doc_id, is_soft_delete)
+            delete_all_database_data(doc_id)
 
             # 如果找到文件信息且需要物理删除，则删除文件
             if file_info and not is_soft_delete:
-                logger.info(f"物理删除, 开始删除本地文件, doc_id: {doc_id}")
-                error_code = ErrorCode.FILE_HARD_DELETE_ERROR
-                out_path = get_doc_output_path(file_info['doc_path'])['output_path']
-                file_info['out_path'] = out_path
+                logger.info(f"开始删除本地文件, doc_id: {doc_id}")
+                delete_path_list = []
                 for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
-                            "doc_process_path", "out_path"]:
-                    path = file_info.get(key)
-                    if not path:
+                            "doc_process_path", "dpc_output_dir"]:
+                    delete_path = file_info.get(key, "").strip()
+                    if not delete_path:
                         continue
-                    try:
-                        delete_path_safely(path)
-                    except FileNotFoundError:
-                        logger.info(f"文件不存在, doc_id={doc_id}, path={path}")
-                    except OSError as e:
-                        log_exception("系统IO错误",
-                                      e)
-                        raise APIException(error_code, str(e)) from e
+                    delete_path_list.append(delete_path)
+                # 删除文件
+                delete_local_file(delete_path_list)
 
             # 返回成功响应
             result = {
                 "doc_id": doc_id,
                 "status": "deleted",
-                "delete_type": "soft" if is_soft_delete else "hard"
+                "delete_type": "记录删除" if is_soft_delete else "记录+文件删除"
             }
 
-            # 异步回调
-            if callback_url:
-                try:
-                    async with httpx.AsyncClient() as client:
-                        await client.post(callback_url, json=result)
-                except Exception as e:
-                    logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
-                    # 回调失败不影响主流程
+            # # 异步回调
+            # if callback_url:
+            #     try:
+            #         async with httpx.AsyncClient() as client:
+            #             await client.post(callback_url, json=result)
+            #     except Exception as e:
+            #         logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
+            #         # 回调失败不影响主流程
 
             return result
 
-        except APIException:
-            raise
-        except ValueError as e:
-            log_exception("参数错误",
-                          e)
-            raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
         except Exception as e:
-            logger.error(f"文档删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
-            raise APIException(ErrorCode.INTERNAL_ERROR, str(e)) from e
-
-    # @staticmethod
-    # async def _delete_all_database_data(doc_id: str, is_soft_delete: bool) -> None:
-    #     """删除所有数据库中的相关数据
-    #
-    #     Args:
-    #         doc_id: 要删除的文档ID
-    #         is_soft_delete: 是否软删除
-    #     """
-    #     try:
-    #         logger.info(f"开始删除数据库记录, doc_id={doc_id}")
-    #         # 删除 MySQL 数据库记录
-    #         try:
-    #             logger.info(f"MySQL 数据删除")
-    #             with FileInfoOperation() as file_op, \
-    #                     PermissionOperation() as permission_op, \
-    #                     ChunkOperation() as chunk_op:
-    #                 # 删除文件信息表
-    #                 if file_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
-    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 数据删除成功")
-    #                 else:
-    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 数据不存在")
-    #
-    #                 # 删除权限信息表
-    #                 if permission_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
-    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 数据删除成功")
-    #                 else:
-    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 数据不存在")
-    #
-    #                 # 删除分块信息表
-    #                 if chunk_op.delete_by_doc_id(doc_id, is_soft_deleted=is_soft_delete):
-    #                     logger.info(f"表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 数据删除成功")
-    #                 else:
-    #                     logger.warning(f"表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 数据不存在")
-    #
-    #                 operation = "软删除文件" if is_soft_delete else "物理删除文件"
-    #                 logger.info(f"{operation}成功")
-    #         except Exception as e:
-    #             logger.error(f"MySQL 数据删除失败, 错误原因: {str(e)}")
-    #             # MySQL删除失败不影响其他数据库的删除操作
-    #
-    #         # 删除 Milvus 数据库记录
-    #         try:
-    #             logger.info(f"Milvus 数据删除")
-    #             vector_op = VectorOperation()
-    #             if vector_op.delete_by_doc_id(doc_id):
-    #                 logger.info(f"Milvus 数据删除成功")
-    #             else:
-    #                 logger.warning(f"Milvus 数据不存在")
-    #         except Exception as e:
-    #             logger.error(f"Milvus 数据删除失败, 错误原因: {str(e)}")
-    #             # 不中断主流程
-    #
-    #         # 删除ES中的数据
-    #         try:
-    #             logger.info(f"Elasticsearch 数据删除")
-    #             es_op = ElasticsearchOperation()
-    #             if es_op.delete_by_doc_id(doc_id):
-    #                 logger.info(f"Elasticsearch 数据删除")
-    #                 log_business_info("Elasticsearch 数据删除成功")
-    #             else:
-    #                 logger.warning(f"Elasticsearch 数据删除")
-    #                 log_business_info("Elasticsearch 数据不存在")
-    #         except Exception as e:
-    #             logger.error(f"Elasticsearch 数据删除: {str(e)}, doc_id: {doc_id}")
-    #             # 不中断主流程
-    #
-    #     except Exception as e:
-    #         logger.error(f"数据库记录删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
-    #         # 不中断主流程
+            logger.error(f"文档删除失败, 错误原因: {str(e)}")
+            raise ValueError(f"文档删除失败, 错误原因: {str(e)}") from e
 
     @staticmethod
     async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str,
@@ -319,10 +232,10 @@ class DocumentService(BaseService):
         Args:
             doc_id (str): 文档ID
             document_name (str): 文档名称
-            permission_ids (str): 权限ID，已格式化为JSON字符串
+            permission_ids (str): 权限ID
         """
         try:
-            logger.info(f"文档状态监控, doc_id={doc_id},document_name={document_name}")
+            logger.info(f"文档状态监控, doc_id={doc_id}, document_name={document_name}")
             max_attempts = 30
             attempt_interval = 60
 
@@ -330,11 +243,8 @@ class DocumentService(BaseService):
                 await asyncio.sleep(max_attempts)  # 等待 30 秒
 
                 # 检查文档处理状态
-                if file_op is None:
-                    with FileInfoOperation() as file_op:
-                        file_info = file_op.get_file_by_doc_id(doc_id)
-                else:
-                    file_info = file_op.get_file_by_doc_id(doc_id)
+                file_info = file_op.get_file_by_doc_id(doc_id) if file_op else FileInfoOperation().get_file_by_doc_id(
+                    doc_id)
 
                 # 文档不存在或处理失败, 停止监控
                 if not file_info:
@@ -350,54 +260,57 @@ class DocumentService(BaseService):
 
                 # 如果处理已完成（merged状态），启动文档切块
                 if process_status == "merged":
-                    logger.info(f"文档处理完成, 开始文档切块, status={process_status}")
                     try:
                         # 读取合并后的文档内容
                         doc_process_path = file_info.get("doc_process_path")
                         if not doc_process_path or not os.path.exists(doc_process_path):
                             raise ValueError(f"处理后的文档不存在, doc_path={doc_process_path}")
 
-                        # 直接使用已经格式化的权限ID
-                        # 从permission_info表中获取权限信息
-                        if permission_op:
-                            permission_info = permission_op.select_by_id(doc_id)
-                        else:
-                            with PermissionOperation() as op:
-                                permission_info = op.select_by_id(doc_id)
-                        if permission_info:
-                            permission_ids = permission_info.get("permission_ids", permission_ids)
-
                         # 执行文档切块，直接传入权限ID字符串，不再进行转换
+                        logger.info(f"开始文档切块")
                         await asyncio.to_thread(
                             segment_text_content,
                             doc_id,
                             doc_process_path,
                             permission_ids
                         )
-
+                        logger.info(f"文档切块完成, 开始更新数据库状态: process_status -> chunked")
                         # 更新数据库状态为已切块
-                        with FileInfoOperation() as file_op:
-                            values = {
-                                "process_status": "chunked"
-                            }
-                            file_op.update_by_doc_id(doc_id, values)
-                        logger.info(f"文档切块成功, doc_id={doc_id}")
-                        return
+                        update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
+                                                {"process_status": "chunked"})
 
                     except Exception as e:
-                        # 更新数据库状态为切块失败
-                        with FileInfoOperation() as file_op:
-                            values = {
-                                "process_status": "chunk_failed"
-                            }
-                            file_op.update_by_doc_id(doc_id, values)
-                        logger.error(f"文档切块失败, doc_id: {doc_id}")
+                        logger.error(f"文档切块失败, {e}")
+                        logger.info(f"开始更新数据库状态: process_status -> chunk_failed")
+                        update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
+                                                {"process_status": "chunk_failed"})
                         return
+                    try:
+                        logger.info(f"开始文档切页")
+                        split_result: dict[str, str] = await asyncio.to_thread(
+                            split_pdf_to_pages,
+                            input_path=file_info["doc_pdf_path"],
+                            output_dir=f"{Path(file_info['doc_pdf_path']).parent}/split_pages"
+                        )
+                        logger.info(f"文档切页完成, 结果路径: {f'{Path(doc_process_path).parent}/split_pages'}")
+
+                        # 组装数据
+                        values = [{"doc_id": doc_id, "page_idx": k, "page_pdf_path": v} for k, v in
+                                  split_result.items()]
+                        # 批量更新
+                        logger.info(
+                            f"分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
+                        insert_record(GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], values)
+                    except Exception as e:
+                        logger.error(f"文档切页失败: {str(e)}")
+                        logger.info(f"开始更新数据库状态: process_status -> split_failed")
+                        update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
+                                                {"process_status": "split_failed"})
+
 
             # 如果超过最大尝试次数仍未完成，记录超时
             logger.error(
-                f"文档处理状态监控超时:文档处理未完成, doc_id={doc_id}, max_attempts={max_attempts}, total_time={max_attempts * attempt_interval} 秒")
+                f"文档处理状态监控超时: doc_id={doc_id}")
 
         except Exception as e:
-            logger.error(
-                f"文档处理状态监控异常, 失败原因：{str(e)}")
+            logger.error(f"文档监控任务异常：{str(e)}")

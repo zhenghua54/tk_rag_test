@@ -8,8 +8,9 @@ from api.request.document_delete_request import DocumentDeleteRequest
 from api.request.document_upload_request import DocumentUploadRequest
 from utils.log_utils import (
     log_operation_start, log_operation_success, log_operation_error,
-    log_business_info, mask_sensitive_info, log_exception
+    log_business_info, mask_sensitive_info, log_exception, logger
 )
+from utils.validators import validate_doc_id, validate_param_type
 
 router = APIRouter(
     prefix="/documents",
@@ -103,52 +104,24 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
     request_id = getattr(fastapi_request.state, "request_id", None)
 
     # 记录操作开始
-    start_time = log_operation_start("文档删除",
-                                     request_id=request_id,
-                                     doc_id=request.doc_id,
-                                     is_soft_delete=request.is_soft_delete)
-
+    logger.info(
+        f"开始删除文档, request_id={request_id}, doc_id={request.doc_id}, is_soft_delete={'记录删除' if request.is_soft_delete else '记录+文件删除'}")
     try:
-        # 记录业务信息
-        log_business_info("API调用",
-                          endpoint="/documents/delete",
-                          request_id=request_id,
-                          doc_id=request.doc_id,
-                          delete_type="软删除" if request.is_soft_delete else "硬删除")
+        # 验证参数
+        validate_doc_id(request.doc_id)
+        validate_param_type(request.is_soft_delete, bool, '删除类型')
 
         # 调用删除服务
+        logger.info(f"API 调用: /documents/delete")
         result = await doc_service.delete_file(
             doc_id=request.doc_id,
             is_soft_delete=request.is_soft_delete
         )
 
-        # 记录操作成功
-        log_operation_success("文档删除", start_time,
-                              request_id=request_id,
-                              doc_id=request.doc_id,
-                              is_soft_delete=request.is_soft_delete,
-                              deleted_count=result.get('deleted_count', 0))
-
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
 
-    except APIException as e:
-        log_operation_error("文档删除",
-                            error_code=e.code.value,
-                            error_msg=str(e),
-                            request_id=request_id,
-                            doc_id=request.doc_id)
-        return ResponseBuilder.error(
-            error_code=e.code.value,
-            error_message=e.message,
-            request_id=request_id
-        ).model_dump()
     except Exception as e:
-        log_operation_error("文档删除",
-                            error_code=ErrorCode.INTERNAL_ERROR.value,
-                            error_msg=str(e),
-                            request_id=request_id,
-                            doc_id=request.doc_id)
-        log_exception("文档删除异常", e)
+        log_exception(f"文档删除异常, 异常原因: {str(e)}")
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,
             error_message=str(e),
