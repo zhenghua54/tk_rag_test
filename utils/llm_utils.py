@@ -258,8 +258,9 @@ class LLMManager(ModelManager):
     def count_tokens(message:BaseMessage,model_name: str = "qwen-turbo") -> int:
         try:
             encoding = tiktoken.encoding_for_model(model_name)
+            logger.info(f"使用 {model_name} 模型的 tokenizer")
         except KeyError:
-            logger.error(f"没有这个模型的 tokenizer {model_name}")
+            logger.error(f"没有 {model_name} 模型的 tokenizer, 使用 cl100k_base")
             # 若模型不在 tiktoken 支持的列表中，回退到 cl100k_base
             encoding = tiktoken.get_encoding("cl100k_base")
         encoding_ids = encoding.encode(message.content)
