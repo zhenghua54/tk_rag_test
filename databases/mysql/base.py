@@ -197,7 +197,7 @@ class BaseDBOperation:
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
                 logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {str(e)}, 共 {len(data)} 条记录")
-                raise ValueError(f"批量数据插入失败: {str(e)}")
+                raise ValueError(f"批量数据插入失败: {str(e)}, 数据情况: {data}")
         return affected_rows
 
     def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool | None:

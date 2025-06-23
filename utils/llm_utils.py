@@ -255,7 +255,7 @@ class LLMManager(ModelManager):
             logger.info(f"{self.__class__.__name__}模型卸载完成")
 
     @staticmethod
-    def count_tokens(message:BaseMessage,model_name: str = GlobalConfig.LLM_NAME) -> int:
+    def count_tokens(message:BaseMessage,model_name: str = "qwen-turbo") -> int:
         try:
             encoding = tiktoken.encoding_for_model(model_name)
         except KeyError:

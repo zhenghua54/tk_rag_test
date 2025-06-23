@@ -11,15 +11,14 @@ root_path = Path(__file__).resolve()
 sys.path.append(str(root_path))
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
 
-from api.chat_api import router as chat_router
 from api.response import ResponseBuilder
 from error_codes import ErrorCode
 from config.global_config import GlobalConfig
-from api.base import router as base_router
-from api.doc_api import router as doc_router
+
 from core.infra.lifecycle import lifespan
 
 # 创建FastAPI应用实例
@@ -27,7 +26,7 @@ app = FastAPI(
     title=GlobalConfig.API_TITLE,
     description=GlobalConfig.API_DESCRIPTION,
     version=GlobalConfig.API_VERSION,
-    root_path=GlobalConfig.API_PREFIX,  # 指定全局前缀
+    # root_path=GlobalConfig.API_PREFIX,  # 指定全局前缀，暂时不使用，会影响静态文件访问
     lifespan=lifespan  # 添加生命周期管理器
 )
 
@@ -46,11 +45,18 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         ).model_dump()
     )
 
+# 映射静态目录: /static/raw -> datas/raw, /static/processed -> datas/processed
+app.mount("/static/raw", StaticFiles(directory="/home/wumingxing/tk_rag/datas/raw"), name="static-raw")
+app.mount("/static/processed", StaticFiles(directory="/home/wumingxing/tk_rag/datas/processed"), name="static-processed")
 
-# 注册路由
-app.include_router(base_router)
-app.include_router(doc_router)
-app.include_router(chat_router)
+
+# 注册路由 - 为API路由添加前缀
+from api.chat_api import router as chat_router
+from api.base import router as base_router
+from api.doc_api import router as doc_router
+app.include_router(base_router, prefix=GlobalConfig.API_PREFIX)
+app.include_router(doc_router, prefix=GlobalConfig.API_PREFIX)
+app.include_router(chat_router, prefix=GlobalConfig.API_PREFIX)
 
 # for route in app.routes:
 #     print(f"路由: {route.path}  方法: {route.methods}")

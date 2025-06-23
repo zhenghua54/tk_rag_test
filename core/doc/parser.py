@@ -1,7 +1,6 @@
 """处理文档内容, 包括表格、图片、文本等"""
 import json
 import shutil
-import traceback
 import time
 import hashlib
 import uuid
@@ -142,7 +141,7 @@ def process_doc_by_page(json_doc_path: str):
 
                 # 保存修改后的图片元素
                 page_contents.append(item)
-            logger.info(f"已写出 page_{current_page}.json, 内容数量: {len(page_contents)}")
+            # logger.info(f"已写出 page_{current_page}.json, 内容数量: {len(page_contents)}")
 
         # 处理最后一页遗留的文本
         if current_page is not None:

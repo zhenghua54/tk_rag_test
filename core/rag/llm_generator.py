@@ -1,3 +1,5 @@
+import os
+from urllib.parse import quote
 from collections import defaultdict
 from typing import Dict, Optional, List, Union
 
@@ -6,6 +8,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.schema import BaseRetriever
 from langchain_core.messages import trim_messages, BaseMessage, HumanMessage, AIMessage
 
+from config.global_config import GlobalConfig
 from utils.log_utils import logger
 from utils.llm_utils import llm_manager, llm_count_tokens, render_prompt
 
@@ -45,6 +48,21 @@ class RAGGenerator:
             for m in msgs if isinstance(m, (HumanMessage, AIMessage))
         ])
 
+    @staticmethod
+    def _local_path_to_url(local_path:str) -> str:
+        """将本路路径转换为 http url 地址"""
+        # 转换源文档地址
+        """将本地路径转换为 HTTP URL 地址"""
+        if GlobalConfig.PATHS["origin_data"] in local_path:
+            rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
+            return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
+        # 转换输出文档地址
+        elif GlobalConfig.PATHS["processed_data"] in local_path:
+            rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
+            return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
+        else:
+            raise ValueError("不支持的路径, 未注册的路径地址")
+
     def generate_response(self,
                           query: str,
                           session_id: str,
@@ -72,10 +90,16 @@ class RAGGenerator:
             docs: Union[List[tuple[Document, float]],None] = self.retriever.get_relevant_documents(query,
                                                                                        permission_ids=permission_ids)
 
+
+
+
             if isinstance(docs, list):
                 # 提取源文档元数据
                 metadata: List = list()
+
                 for doc, score in docs:
+                    # 本地路径静态映射
+                    doc.metadata["page_pdf_path"] = self._local_path_to_url(doc.metadata["page_pdf_path"])
                     metadata.append({
                         **doc.metadata,
                         "rerank_score": score

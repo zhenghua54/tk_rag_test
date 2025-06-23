@@ -188,7 +188,7 @@ class ChunkOperation(BaseDBOperation):
             # 构建关联查询SQL - 使用二进制比较避免字符集冲突
             sql = """
                   SELECT s.doc_id,
-                         s.seg_id,         
+                         s.seg_id,
                          s.seg_content,
                          s.seg_page_idx,
                          f.doc_name,
@@ -204,23 +204,6 @@ class ChunkOperation(BaseDBOperation):
                            LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
                   WHERE 1 = 1 \
                   """
-
-            """
-             # SELECT s.*,             -- 片段信息表的所有字段  
-                  #        f.doc_http_url,  -- 文档信息表的字段  
-                  #        f.created_at as doc_created_at,
-                  #        f.updated_at as doc_updated_at,
-                  #        p.permission_ids, -- 权限信息表的字段
-                  #       
-                  #
-                  FROM segment_info s
-                      # LEFT JOIN doc_info f
-                  ON s.doc_id = f.doc_id
-                      # LEFT JOIN permission_info p ON s.doc_id = p.doc_id
-                      # LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id
-                      #
-                  WHERE 1 = 1 \
-            """
 
             # 添加查询条件
             params = []
@@ -337,8 +320,10 @@ class PermissionOperation(BaseDBOperation):
         else:
             return res
 
+
 class PageOperation(BaseDBOperation):
     """页面表(page_info)操作类"""
+
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['doc_page_info_table'])
 

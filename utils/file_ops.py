@@ -556,6 +556,7 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
 # === 文档分页切割 ===
 def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str,str]]:
     """按页切割文档,返回保存的页面地址列表"""
+    # print(f"切页输出目录---> {output_dir}")
     os.makedirs(output_dir, exist_ok=True)
     doc = fitz.open(input_path)
     result:dict[str,str] = {}

@@ -45,7 +45,7 @@ class DocumentService(BaseService):
                 check_http_doc_accessible(document_http_url)
                 doc_ext = f".{document_http_url.split('.')[-1].lower()}"  # 确保 URL 有后缀名
                 check_doc_ext(ext=doc_ext, doc_type='all')  # 文件格式校验
-                doc_path = download_file_step_by_step(url=document_http_url)  # 下载文件到本地
+                doc_path = await download_file_step_by_step(url=document_http_url)  # 下载文件到本地
             else:
                 # 本地文档指的是服务器上的文档
                 path_type = "local_path"
@@ -71,21 +71,6 @@ class DocumentService(BaseService):
                     delete_all_database_data(doc_id=doc_id)
                 elif records["process_status"] in GlobalConfig.FILE_STATUS.get("normal"):
                     raise ValueError(f"文件已上传, 状态: {records['process_status']}")
-            #
-            # check_result = check_duplicate_doc(doc_id)
-            # process_status = check_result["process_status"]
-            # doc_info = check_result.get("doc_info")
-            #
-            # if process_status in GlobalConfig.FILE_STATUS.get("error"):
-            #
-            #     # 删除所有相关记录
-            #     with FileInfoOperation() as file_op, PermissionOperation() as permission_op, ChunkOperation() as chunk_op:
-            #         file_op.delete_by_doc_id(doc_id)
-            #         permission_op.delete_by_doc_id(doc_id)
-            #         chunk_op.delete_by_doc_id(doc_id)
-            #         logger.info(f"记录删除成功, 记录信息：{records}")
-            # elif process_status in GlobalConfig.FILE_STATUS.get("normal"):
-            #     raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
 
             # 文档不存在，进入上传 + 处理流程
             now = datetime.now()
@@ -290,7 +275,7 @@ class DocumentService(BaseService):
                         split_result: dict[str, str] = await asyncio.to_thread(
                             split_pdf_to_pages,
                             input_path=file_info["doc_pdf_path"],
-                            output_dir=f"{Path(file_info['doc_pdf_path']).parent}/split_pages"
+                            output_dir=f"{Path(file_info['doc_json_path']).parent}/split_pages"
                         )
                         logger.info(f"文档切页完成, 结果路径: {f'{Path(doc_process_path).parent}/split_pages'}")
 
