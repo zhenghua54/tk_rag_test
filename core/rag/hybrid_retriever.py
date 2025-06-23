@@ -105,9 +105,9 @@ class HybridRetriever(BaseRetriever):
         self._vector_retriever = vector_retriever
         self._bm25_retriever = bm25_retriever
 
-    def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[
-        Document]:
-        """实现 BaseRetriever 的方法
+
+    def invoke(self, input: str, **kwargs) -> Union[List[tuple[Document, float]], None]:
+        """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
 
         Args:
             query: 用户查询
@@ -116,23 +116,33 @@ class HybridRetriever(BaseRetriever):
             metadata: 元数据
 
         Returns:
-            List[Document]: 相关文档列表
+            Union[List[tuple[Document, float]], None]: 相关文档和重排序评分列表
         """
-        # 从 kwargs 中获取参数，如果没有则使用默认值
-        permission_ids = kwargs.get("permission_ids")
+        permission_ids: Union[str, list[str]] = kwargs.get("permission_ids")
         k = kwargs.get("k", 20)
-        top_k = kwargs.get("top_k", 10)
+        top_k = kwargs.get("top_k", 5)
         chunk_op = kwargs.get("chunk_op")
 
-        return self.search_documents(query, permission_ids=permission_ids, k=k, top_k=top_k, chunk_op=chunk_op)
+        return self.search_documents(
+            input,
+            permission_ids=permission_ids,
+            k=k,
+            top_k=top_k,
+            chunk_op=chunk_op,
+        )
 
-    def search_documents(self, query: str, *, permission_ids: str = None, k: int = 20, top_k: int = 5,
-                         chunk_op=None) -> Union[List[Document], None]:
+    def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[
+        Document]:
+        """兼容旧接口（已弃用，内部调用 invoke）"""
+        return self.invoke(query, **kwargs)
+
+    def search_documents(self, query: str, *, permission_ids: Union[str, list[str]] = None, k: int = 20, top_k: int = 10,
+                         chunk_op=None) -> Union[List[tuple[Document, float]], None]:
         """自定义搜索文档方法
 
         Args:
             query: 用户查询
-            permission_ids: 权限ID列表
+            permission_ids: 单个/多个权限ID
             k: 初始检索数量
             top_k: 最终返回结果数量
             chunk_op: ChunkOperation实例
@@ -153,7 +163,6 @@ class HybridRetriever(BaseRetriever):
             # BM25检索
             bm25_results: dict[str, float] = self._bm25_retriever.search(
                 query=query,
-                permission_ids=permission_ids,
                 k=k,
             )
 
@@ -180,24 +189,13 @@ class HybridRetriever(BaseRetriever):
                         seg_ids=seg_ids,
                         permission_ids=permission_ids,  # 确保传递权限ID
                     )
+
             logger.info(f"[混合检索] 从MySQL获取到 {len(mysql_records)} 条原文记录")
 
             # 再次对mysql获取到的原文内容进行过滤，避免遗漏
             rerank_input = []
             filtered_count = 0
             for record in mysql_records:
-                # 处理记录中的权限 ID
-                if permission_ids:
-                    # 获取记录中的权限ID
-                    record_permission_ids = record.get("permission_ids", "")
-
-                    # 如果记录有权限ID且与用户权限不匹配，则跳过
-                    if record_permission_ids and str(record_permission_ids) != str(permission_ids):
-                        logger.info(
-                            f"权限过滤: 跳过文档 {record.get('seg_id')}, 权限不匹配 (需要: {permission_ids}, 实际: {record_permission_ids})")
-                        filtered_count += 1
-                        continue
-
                 # 构建记录信息
                 doc = Document(
                     page_content=record.get("seg_content", ""),
@@ -219,7 +217,7 @@ class HybridRetriever(BaseRetriever):
 
                 # 将分数与文档配对
                 reranked_result = [
-                    (doc, score) for doc, score in zip(rerank_input, scores) if score > -5.0
+                    (doc, score) for doc, score in zip(rerank_input, scores)
                 ]
 
                 # 按分数排序并提取前 tok_k 个
@@ -265,12 +263,12 @@ class HybridRetriever(BaseRetriever):
         # 将文档和对应分数打包，并按分数从高到低排序
         sorted_scores = [s for _, s in reranked_result]  # 仅保留排序后的分数
 
+        # 无法计算差值时,直接截断前top_k个
+        if len(reranked_result) <= 1:
+            return reranked_result[:top_k]
+
         # 计算一阶差分：相邻两个分数之间的“下降值”
         deltas = [sorted_scores[i + 1] - sorted_scores[i] for i in range(len(sorted_scores) - 1)]
-
-        # 如果没有差值（说明文档少于2个），直接返回全部文档
-        if not deltas:
-            return reranked_result
 
         # 找出“下降最大”的位置（断崖点）
         min_delta = min(deltas)

@@ -1,5 +1,7 @@
 """向量检索模块"""
 from collections import OrderedDict
+from typing import Union
+
 from langchain_milvus import Milvus
 from utils.log_utils import logger
 
@@ -15,12 +17,29 @@ class VectorRetriever:
         """
         self._vectorstore = vectorstore
 
-    def search(self, query: str, permission_ids: str = None, k: int = 5) -> dict[str, float]:
+    @staticmethod
+    def _build_permission_expr(permission_ids: Union[str, list[str], None]):
+        """构造 milvus 权限过滤表达式"""
+        # 单个权限
+        if isinstance(permission_ids, str) and permission_ids.strip():
+            perm_list = [permission_ids.strip(), ""]  # 加入默认公开权限
+        # 多个权限
+        elif isinstance(permission_ids, list) and len(permission_ids) > 0:
+            perm_list = [pid.strip() for pid in permission_ids if pid.strip()]
+            perm_list.append("")
+        # 无权限
+        else:
+            return 'permission_ids == "" OR permission_ids is NULL'
+
+        perm_expr = ", ".join(f'"{pid}"' for pid in perm_list)  # 避免直接字符串拼接带来的语法注入风险
+        return f"permission_ids in [{perm_expr}]"
+
+    def search(self, query: str, permission_ids: Union[str, list[str]] = None, k: int = 5) -> dict[str, float]:
         """执行 milvus 向量检索
-        
+
         Args:
             query: 查询文本
-            permission_ids: 权限ID
+            permission_ids: 单个/多个权限ID
             k: 检索数量
 
         Returns:
@@ -41,7 +60,7 @@ class VectorRetriever:
                 query=query,
                 params=search_params,
             )
-            logger.info("=== Milvus 向量检索结果 ===")
+            logger.info("=== Milvus 向量检索结果 (未过滤权限前) ===")
             for doc, score in raw_result:
                 logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
                             f"片段ID: {doc.metadata.get('seg_id')}, "
@@ -49,33 +68,34 @@ class VectorRetriever:
                             f"相似度分数: {score:.4f}")
 
             # 带权限过滤的检索
-            if permission_ids:
-                logger.info(f"=== 结果过滤：权限ID={permission_ids} ===")
-                try:
-                    # 使用Milvus过滤
-                    search_params = {
-                        "search_type": "similarity",
-                        "k": k * 2  # 增加检索数量，确保过滤后有足够的结果
-                    }
+            logger.info(f"=== 结果过滤：权限ID={permission_ids} ===")
+            try:
+                # 使用Milvus过滤
+                search_params = {
+                    "search_type": "similarity",
+                    "k": min(k * 2, 50)  # 增加检索数量，确保过滤后有足够的结果
+                }
 
-                    permission_results = self._vectorstore.similarity_search_with_score(
-                        query=query,
-                        expr=f'permission_ids in ["{permission_ids}", ""]',
-                        params=search_params,
-                    )
+                # 权限过滤表达式处理
+                expr = self._build_permission_expr(permission_ids)
+                # print("milvus 过滤表达式-->",expr)
 
-                    for doc, score in permission_results:
-                        logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
-                                    f"片段ID: {doc.metadata.get('seg_id')}, "
-                                    f"权限ID: {doc.metadata.get('permission_ids')}, "
-                                    f"相似度分数: {score:.4f}")
-                except Exception as e:
-                    logger.error(f"权限过滤失败: {str(e)}")
-                    # 如果权限过滤失败，返回空结果
-                    permission_results = []
-            else:
-                # 如果没有指定权限ID，使用原始结果
-                permission_results = raw_result
+                permission_results = self._vectorstore.similarity_search_with_score(
+                    query=query,
+                    expr=expr,
+                    params=search_params,
+                )
+
+                for doc, score in permission_results:
+                    logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                                f"片段ID: {doc.metadata.get('seg_id')}, "
+                                f"权限ID: {doc.metadata.get('permission_ids')}, "
+                                f"相似度分数: {score:.4f}")
+            except Exception as e:
+                logger.error(f"权限过滤失败: {str(e)}")
+                # 如果权限过滤失败，返回空结果
+                permission_results = []
+
 
             # 将结果转换为字典格式
             for doc, score in permission_results:

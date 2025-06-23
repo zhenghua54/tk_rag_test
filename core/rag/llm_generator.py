@@ -49,7 +49,7 @@ class RAGGenerator:
         ])
 
     @staticmethod
-    def _local_path_to_url(local_path:str) -> str:
+    def _local_path_to_url(local_path: str) -> str:
         """将本路路径转换为 http url 地址"""
         # 转换源文档地址
         """将本地路径转换为 HTTP URL 地址"""
@@ -66,7 +66,7 @@ class RAGGenerator:
     def generate_response(self,
                           query: str,
                           session_id: str,
-                          permission_ids: Optional[str] = None,
+                          permission_ids: Union[str, list[str]] = None,
                           request_id: Optional[str] = None,
                           ) -> Dict:
         """生成回答
@@ -86,12 +86,7 @@ class RAGGenerator:
                 raise ValueError("问题不能为空")
 
             # 使用权限ID进行检索
-            # docs: List[Document] = self.retriever.get_relevant_documents(query, permission_ids=permission_ids)
-            docs: Union[List[tuple[Document, float]],None] = self.retriever.get_relevant_documents(query,
-                                                                                       permission_ids=permission_ids)
-
-
-
+            docs: Union[List[tuple[Document, float]], None] = self.retriever.invoke(query,permission_ids=permission_ids)
 
             if isinstance(docs, list):
                 # 提取源文档元数据
@@ -99,7 +94,11 @@ class RAGGenerator:
 
                 for doc, score in docs:
                     # 本地路径静态映射
-                    doc.metadata["page_pdf_path"] = self._local_path_to_url(doc.metadata["page_pdf_path"])
+                    raw_path = doc.metadata.get("page_pdf_path")
+                    if raw_path:  # 非 None 且非空
+                        doc.metadata["page_pdf_path"] = self._local_path_to_url(raw_path)
+                    else:
+                        doc.metadata["page_pdf_path"] = None
                     metadata.append({
                         **doc.metadata,
                         "rerank_score": score

@@ -1,5 +1,5 @@
 """数据库操作"""
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Union
 from config.global_config import GlobalConfig
 from error_codes import ErrorCode
 from api.response import APIException
@@ -167,14 +167,15 @@ class ChunkOperation(BaseDBOperation):
             logger.error(f"删除分块失败: {e}")
             raise e
 
-    def get_segment_contents(self, seg_ids: List[str] = None, doc_ids: List[str] = None, permission_ids: str = None) -> \
+    def get_segment_contents(self, seg_ids: List[str] = None, doc_ids: List[str] = None,
+                             permission_ids: Union[str, list[str]] = None) -> \
             List[Dict[str, Any]]:
         """从 MySQL 获取片段信息，包括关联的文档和权限信息
 
         Args:
             seg_ids: 片段 ID 列表
             doc_ids: 文档 ID 列表
-            permission_ids: 权限 ID
+            permission_ids: 单个/多个权限 ID
 
         Returns:
             List[Dict[str, Any]]: 片段信息列表，包含所有字段
@@ -185,7 +186,7 @@ class ChunkOperation(BaseDBOperation):
                 logger.error("必须提供 seg_ids 或 doc_ids 参数")
                 return []
 
-            # 构建关联查询SQL - 使用二进制比较避免字符集冲突
+            # 构建关联查询SQL
             sql = """
                   SELECT s.doc_id,
                          s.seg_id,
@@ -226,31 +227,39 @@ class ChunkOperation(BaseDBOperation):
                     params.extend(doc_ids)
 
             # 如果提供了权限ID，直接在SQL中添加权限过滤
-            if permission_ids:
-                sql += " AND (p.permission_ids = %s OR p.permission_ids IS NULL)"
-                params.append(permission_ids)
+            expr = "AND (p.permission_ids IS NULL OR p.permission_ids = '')"
+            perm_params = []
+
+            # 单个权限
+            if isinstance(permission_ids, str) and permission_ids.strip():
+                expr = " AND (p.permission_ids = %s OR p.permission_ids IS NULL)"
+                perm_params = [permission_ids]
+
+            # 多个权限
+            elif isinstance(permission_ids, list) and len(permission_ids) > 0:
+                perm_params = [pid.strip() for pid in permission_ids if pid.strip()]
+                placeholders = ", ".join(["%s"] * len(perm_params))
+                expr = f"AND (p.permission_ids IN ({placeholders}) OR p.permission_ids IS NULL)"
+
+            sql += f" {expr}"
+            params.extend(perm_params)
 
             # 执行查询
-            segment_info = self._execute_query(sql, tuple(params))
+            segment_info: list[dict[str, Any]] = self._execute_query(sql, tuple(params))
 
             # 处理查询结果
             if not segment_info:
                 return []
 
             logger.info(f"mysql 查询到 {len(segment_info)} 条记录")
+            # print(f"查询结果为: {segment_info}\n")
 
             # 转换结果格式
             results = []
             for record in segment_info:
                 # 记录权限信息用于调试
                 record_permission = record.get("permission_ids")
-                logger.debug(f"记录权限信息: {record_permission}, 用户权限: {permission_ids}")
-
-                # 如果指定了权限ID，则进行过滤 (这里作为双重保险，实际上SQL已经过滤过了)
-                if permission_ids and record_permission and record_permission != permission_ids:
-                    logger.debug(
-                        f"权限过滤: 跳过文档 {record.get('seg_id')}, 权限不匹配 (需要: {permission_ids}, 实际: {record_permission})")
-                    continue
+                logger.info(f"记录权限信息: {record_permission}, 用户权限: {permission_ids}")
 
                 result = {
                     # 片段信息

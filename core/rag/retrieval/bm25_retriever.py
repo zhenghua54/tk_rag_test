@@ -1,5 +1,7 @@
 """BM25检索模块"""
 from collections import OrderedDict
+from typing import Union
+
 from utils.log_utils import logger
 from databases.elasticsearch.operations import ElasticsearchOperation
 
@@ -15,18 +17,17 @@ class BM25Retriever:
         """
         self._es_retriever = es_retriever
 
-    def search(self, query: str, permission_ids: str = None, k: int = 20) -> dict[str, float]:
+    def search(self, query: str,  k: int = 20) -> dict[str, float]:
         """执行BM25检索
         
         Args:
             query: 查询文本
-            permission_ids: 权限ID
             k: 检索数量
 
         Returns:
             dict[str, float]: 检索结果字典(seg_id, score)
         """
-        logger.info(f"开始BM25检索,查询: {query}, 权限ID: {permission_ids}, k: {k}")
+        logger.info(f"开始BM25检索 (不支持原生权限过滤),查询: {query}, k: {k}")
         bm25_results = OrderedDict()
         seen_parent_ids = set()
 
