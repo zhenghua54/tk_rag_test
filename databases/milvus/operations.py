@@ -97,7 +97,7 @@ class VectorOperation:
             return inserted_ids
         except Exception as e:
             logger.error(f"插入数据失败: {str(e)}")
-            raise  # 向上抛出异常，让调用者处理
+            raise  # 向上抛出异常
 
     def insert_single(self, data: Dict[str, Any]) -> Optional[str]:
         """插入单条数据

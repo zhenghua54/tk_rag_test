@@ -92,5 +92,31 @@
 # """
 # print(len(a))
 
-a = None
-print(len(a))
+import pandas as pd
+
+
+def linearize_table(df: pd.DataFrame, table_caption: str = None) -> str:
+    lines = []
+    if table_caption:
+        lines.append(f"{table_caption}\n")
+    lines.append("表格内容如下：")
+
+    for i, row in df.iterrows():
+        cells = []
+        for col in df.columns:
+            value = str(row[col]).strip()
+            if value:
+                cells.append(f"{col}为“{value}”")
+        line = f"第{i + 1}行：" + "，".join(cells) + "。"
+        lines.append(line)
+
+    return "\n".join(lines)
+
+
+# 示例 DataFrame
+df = pd.DataFrame([
+    ["文秘管理", "起草信息化建设相关文件、总结、报告等"],
+    ["会务管理", "协助做好董事会、办公会等会务工作"]
+], columns=["岗位类别", "岗位职责"])
+
+print(linearize_table(df, table_caption="岗位职责说明表"))

@@ -29,7 +29,7 @@ class VectorRetriever:
             perm_list.append("")
         # 无权限
         else:
-            return 'permission_ids == "" OR permission_ids is NULL'
+            return 'permission_ids IS NULL OR permission_ids == ""'
 
         perm_expr = ", ".join(f'"{pid}"' for pid in perm_list)  # 避免直接字符串拼接带来的语法注入风险
         return f"permission_ids in [{perm_expr}]"
