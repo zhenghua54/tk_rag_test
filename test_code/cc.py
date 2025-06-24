@@ -92,31 +92,41 @@
 # """
 # print(len(a))
 
-import pandas as pd
+# import pandas as pd
+#
+#
+# def linearize_table(df: pd.DataFrame, table_caption: str = None) -> str:
+#     lines = []
+#     if table_caption:
+#         lines.append(f"{table_caption}\n")
+#     lines.append("表格内容如下：")
+#
+#     for i, row in df.iterrows():
+#         cells = []
+#         for col in df.columns:
+#             value = str(row[col]).strip()
+#             if value:
+#                 cells.append(f"{col}为“{value}”")
+#         line = f"第{i + 1}行：" + "，".join(cells) + "。"
+#         lines.append(line)
+#
+#     return "\n".join(lines)
+#
+#
+# # 示例 DataFrame
+# df = pd.DataFrame([
+#     ["文秘管理", "起草信息化建设相关文件、总结、报告等"],
+#     ["会务管理", "协助做好董事会、办公会等会务工作"]
+# ], columns=["岗位类别", "岗位职责"])
+#
+# print(linearize_table(df, table_caption="岗位职责说明表"))
 
 
-def linearize_table(df: pd.DataFrame, table_caption: str = None) -> str:
-    lines = []
-    if table_caption:
-        lines.append(f"{table_caption}\n")
-    lines.append("表格内容如下：")
-
-    for i, row in df.iterrows():
-        cells = []
-        for col in df.columns:
-            value = str(row[col]).strip()
-            if value:
-                cells.append(f"{col}为“{value}”")
-        line = f"第{i + 1}行：" + "，".join(cells) + "。"
-        lines.append(line)
-
-    return "\n".join(lines)
 
 
-# 示例 DataFrame
-df = pd.DataFrame([
-    ["文秘管理", "起草信息化建设相关文件、总结、报告等"],
-    ["会务管理", "协助做好董事会、办公会等会务工作"]
-], columns=["岗位类别", "岗位职责"])
+a = {'fid': 83, 'doc_id': 'b7c2b2ba0cbed49de6403d133ca0b648a733be6dd0ccfa0b483788cadf4feb0b', 'doc_name': 'RAG技术详解', 'doc_ext': '.docx', 'doc_path': '/home/wumingxing/tk_rag/datas/raw/RAG技术详解.docx', 'doc_size': '122.36 KiB', 'doc_http_url': '', 'doc_pdf_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/_home_wumingxing_tk_rag_datas_raw_RAG技术详解.pdf', 'doc_json_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru.json', 'doc_images_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/images', 'doc_process_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru_merged.json', 'process_status': 'chunked', 'error_message': None, 'created_at': 1, 'updated_at': 1, 'doc_output_dir': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解'}
 
-print(linearize_table(df, table_caption="岗位职责说明表"))
+for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
+            "doc_process_path", "doc_output_dir"]:
+    delete_path = a.get(key, "").strip()
+    print(delete_path)

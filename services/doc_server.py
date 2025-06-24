@@ -177,14 +177,7 @@ class DocumentService(BaseService):
             # 如果找到文件信息且需要物理删除，则删除文件
             if file_info and not is_soft_delete:
                 logger.info(f"开始删除本地文件, doc_id: {doc_id}")
-                delete_path_list = []
-                for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
-                            "doc_process_path", "dpc_output_dir"]:
-                    delete_path = file_info.get(key, "").strip()
-                    if not delete_path:
-                        continue
-                    delete_path_list.append(delete_path)
-                # 删除文件
+                delete_path_list = [file_info.get("doc_output_dir"), file_info.get("doc_path"), file_info.get("doc_pdf_path")]
                 delete_local_file(delete_path_list)
 
             # 返回成功响应

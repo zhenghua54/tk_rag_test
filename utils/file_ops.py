@@ -395,10 +395,9 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
         os.makedirs(output_dir, exist_ok=True)
 
         # 检查文件名非法字符并替换，避免libreoffice转换失败
-        out_path = sanitize_doc_name(str(office_doc_path.resolve()))
+        save_name = sanitize_doc_name(office_doc_path.stem)
 
         # 构建输出文件路径
-        save_name = Path(out_path).stem  # 获取文件名不带扩展名
         output_file = os.path.join(output_dir, f"{save_name}.pdf")
         logger.debug(f"输出文件路径: {output_file}")
     except Exception as e:
@@ -460,37 +459,6 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
         raise APIException(ErrorCode.CONVERT_FAILED, str(e))
 
 
-# def convert_office_file(doc_path: str,output_dir:str) -> Optional[str]:
-#     """转换 Office 文件, 返回转换后的PDF文件路径
-#
-#     Args:
-#         doc_path (str): 要转换的office文件路径
-#         output_dir (str): 转换后的输出目录
-#
-#     Returns:
-#         str: 转换后的 PDF 文档路径
-#
-#     Raises:
-#         ValueError: 转换失败异常抛出
-#     """
-#     # 获取输出路径
-#     # output_info: Dict[str, str] = get_doc_output_path(doc_path)
-#     # output_dir, output_image_path, doc_name = (output_info["output_path"],
-#     #                                             output_info["output_image_path"],
-#     #                                             output_info["doc_name"]
-#     #                                             )
-#     logger.info(f"Libreoffice 文档转换: 源文档={doc_path}, 输出文档: {output_dir}")
-#
-#     # 尝试使用LibreOffice转换
-#     try:
-#         pdf_path = libreoffice_convert_toolkit(doc_path, output_dir)
-#         logger.info(f"Libreoffice 文档转换成功")
-#         return pdf_path
-#     except Exception as e:
-#         logger.error(f"Libreoffice 转换失败 : {str(e)}")
-#         raise ValueError(f"Libreoffice 转换失败 : {str(e)}") from e
-
-
 # === PDF 文档解析 ===
 def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> str:
     """解析 PDF 文件, 返回 json 文件信息
@@ -509,10 +477,6 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
     """
 
     try:
-        # 获取输出路径
-        # output_info: Dict[str, str] = get_doc_output_path(pdf_doc_path)
-        # output_path, image_path, doc_name = output_info["output_path"], output_info["output_image_path"], output_info[
-        #     "doc_name"]
 
         # 初始化数据写入器，用于保存图片和 Markdown 文件
         image_writer, md_writer = FileBasedDataWriter(output_image_path), FileBasedDataWriter(output_dir)
@@ -540,14 +504,6 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
 
         logger.info(f"MinerU 解析完成, JSON 文件已保存至: {json_path}")
         return json_path
-        # result = {
-        #     "json_path": json_path,
-        #     "image_path": output_image_path,
-        #     "doc_name": doc_name,
-        #     "output_dir": output_path
-        # }
-
-        # return result
     except Exception as e:
         logger.error(f"Mineru 解析文档失败, 错误原因: {str(e)}")
         raise ValueError(f"Mineru 解析文档失败, 错误原因: {str(e)}") from e
