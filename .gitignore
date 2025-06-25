@@ -68,6 +68,7 @@ Demo1.0 接口文档.md
 README-bak.md
 download_models.py
 config.local.py
+clean_git_tracked_ignored.py
 
 ##################################
 # 包发布/构建相关
