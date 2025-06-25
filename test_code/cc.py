@@ -124,9 +124,29 @@
 
 
 
-a = {'fid': 83, 'doc_id': 'b7c2b2ba0cbed49de6403d133ca0b648a733be6dd0ccfa0b483788cadf4feb0b', 'doc_name': 'RAG技术详解', 'doc_ext': '.docx', 'doc_path': '/home/wumingxing/tk_rag/datas/raw/RAG技术详解.docx', 'doc_size': '122.36 KiB', 'doc_http_url': '', 'doc_pdf_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/_home_wumingxing_tk_rag_datas_raw_RAG技术详解.pdf', 'doc_json_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru.json', 'doc_images_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/images', 'doc_process_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru_merged.json', 'process_status': 'chunked', 'error_message': None, 'created_at': 1, 'updated_at': 1, 'doc_output_dir': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解'}
+# a = {'fid': 83, 'doc_id': 'b7c2b2ba0cbed49de6403d133ca0b648a733be6dd0ccfa0b483788cadf4feb0b', 'doc_name': 'RAG技术详解', 'doc_ext': '.docx', 'doc_path': '/home/wumingxing/tk_rag/datas/raw/RAG技术详解.docx', 'doc_size': '122.36 KiB', 'doc_http_url': '', 'doc_pdf_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/_home_wumingxing_tk_rag_datas_raw_RAG技术详解.pdf', 'doc_json_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru.json', 'doc_images_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/images', 'doc_process_path': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解/RAG技术详解_mineru_merged.json', 'process_status': 'chunked', 'error_message': None, 'created_at': 1, 'updated_at': 1, 'doc_output_dir': '/home/wumingxing/tk_rag/datas/processed/RAG技术详解'}
+#
+# for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
+#             "doc_process_path", "doc_output_dir"]:
+#     delete_path = a.get(key, "").strip()
+#     print(delete_path)
 
-for key in ["doc_path", "doc_pdf_path", "doc_json_path", "doc_images_path",
-            "doc_process_path", "doc_output_dir"]:
-    delete_path = a.get(key, "").strip()
-    print(delete_path)
+
+# idle_time = 3.1415926
+# print(f"{idle_time:.2f}")
+
+import sys
+sys.path.append("/home/wumingxing/tk_rag")
+from config.global_config import GlobalConfig
+
+s ='uploaded'
+s1 = 'parse_failed'
+
+print(GlobalConfig.FILE_STATUS.get("normal", {}).get(s1)
+    or GlobalConfig.FILE_STATUS.get("error", {}).get(s1)
+    or "未知状态")
+
+# file_status = GlobalConfig.FILE_STATUS.get("normal").keys()
+# print("uploaded" in file_status)
+# print(type(GlobalConfig.FILE_STATUS.get("error").keys()))
+# print(GlobalConfig.FILE_STATUS.get("error").keys())

@@ -51,9 +51,24 @@ class GlobalConfig:
         "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
+    # FILE_STATUS = {
+    #     "normal": ["uploaded", "parsed", "merged", "chunked", "splited"],
+    #     "error": ["parse_failed", "merge_failed", "chunk_failed", "split_failed"],
+    # }
     FILE_STATUS = {
-        "normal": ["uploaded", "parsed", "merged", "chunked", "splited"],
-        "error": ["parse_failed", "merge_failed", "chunk_failed", "split_failed", "error"],
+        "normal":{
+            "uploaded":"待处理",
+            "parsed":"处理中",
+            "merged":"处理中",
+            "chunked":"处理中",
+            "splited":"处理完成"
+        },
+        "error":{
+            "parse_failed":"解析失败",
+            "merge_failed":"处理失败",
+            "chunk_failed":"切块失败",
+            "split_failed":"切页失败",
+        }
     }
     FILE_MAX_SIZE = 50  # Mb
 

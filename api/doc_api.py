@@ -4,8 +4,8 @@ from api.response import APIException
 from api.response import ResponseBuilder
 from error_codes import ErrorCode
 from services.doc_server import DocumentService
-from api.request.document_delete_request import DocumentDeleteRequest
-from api.request.document_upload_request import DocumentUploadRequest
+from api.request.doc_request import DocumentDeleteRequest,DocumentUploadRequest,DocumentStatusRequest
+# from api.request.document_upload_request import DocumentUploadRequest
 from utils.log_utils import (
     log_operation_start, log_operation_success, log_operation_error,
     log_business_info, mask_sensitive_info, log_exception, logger
@@ -121,9 +121,47 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
 
     except Exception as e:
-        log_exception(f"文档删除异常, 异常原因: {str(e)}")
+        log_exception(f"文档删除异常: {str(e)}")
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,
+            error_message=str(e),
+            request_id=request_id
+        ).model_dump()
+
+
+@router.get("/check_status")
+async def check_document_status(request:DocumentStatusRequest, fastapi_request: Request):
+    """文档状态监测接口
+
+    监测指定 doc_id 的文档状态, 决定前端展示的内容
+
+    Args:
+        request: 监测请求参数{doc_id}
+        fastapi_request: FastAPI 请求对象,用于获取请求 ID 等信息
+
+    Returns:
+        Dict: 文件状态相关信息
+    """
+    # 获取服务器实例
+    doc_service = DocumentService.get_instance()
+    # 获取请求 ID
+    request_id = getattr(fastapi_request.state, "request_id", None)
+
+    # 记录操作开始
+    logger.info(f"查询文档状态, request_id={request_id}, doc_id={request.doc_id}")
+
+    try:
+        validate_doc_id(request.doc_id)
+
+        # 调用监测服务
+        logger.info(f"API 调用: /documents/check_status")
+        result = await doc_service.check_status(doc_id=request.doc_id)
+
+        return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
+    except Exception as e:
+        log_exception(f"文档状态查询异常.",exc=e)
+        return ResponseBuilder.error(
+            error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value,
             error_message=str(e),
             request_id=request_id
         ).model_dump()

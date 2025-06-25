@@ -1,42 +1,37 @@
-# Python
+##################################
+# Python 缓存与编译文件
+##################################
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 .pytest_cache/
 .coverage
 htmlcov/
-.env
-.env.local
-.env.*
-!.env.example
 
-# IDE
-.cursor/
+##################################
+# 虚拟环境
+##################################
+.venv/
+venv/
+env/
+ENV/
+.conda/
+.Python
+
+##################################
+# 编辑器和 IDE 配置
+##################################
 .idea/
 .vscode/
+.cursor/
 *.swp
 *.swo
-*.sublime-workspace
-*.sublime-project
+*.sublime-*
 
-# OS
+##################################
+# 操作系统临时文件
+##################################
 .DS_Store
 .DS_Store?
 ._*
@@ -45,34 +40,62 @@ htmlcov/
 ehthumbs.db
 Thumbs.db
 
-# Project specific
-datas/*
+##################################
+# 环境变量文件
+##################################
+.env
+.env.*
+!.env.example
+
+##################################
+# 数据、日志、模型（不入 Git）
+##################################
+datas/
 !datas/.gitkeep
-logs/*
+
+logs/
 !logs/.gitkeep
-config.local.py
-*.log
-*.sqlite3
-*.db
-*.index
-*.faiss
-download_models.py
-models/*
+
+models/
 !models/.gitkeep
 
-# Virtual Environment
-venv/
-env/
-ENV/
-.venv/
-.env/
-.conda/
+test_code/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
+##################################
+# 项目中特定文件排除
+##################################
+Demo1.0 接口文档.md
+README-bak.md
+download_models.py
+config.local.py
 
-# Distribution
+##################################
+# 包发布/构建相关
+##################################
 *.tar.gz
 *.whl
+*.zip
 *.deb
+build/
+dist/
+*.egg
+.eggs/
+*.egg-info/
+.installed.cfg
+develop-eggs/
+wheels/
+sdist/
+
+##################################
+# 数据库/索引类中间文件
+##################################
+*.db
+*.sqlite3
+*.index
+*.faiss
+
+##################################
+# Jupyter 笔记本
+##################################
+*.ipynb
+.ipynb_checkpoints/

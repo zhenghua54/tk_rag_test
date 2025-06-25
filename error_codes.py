@@ -62,6 +62,7 @@ class ErrorCode(Enum):
     DOC_PROCESS_ERROR = 4016
     FILE_EXISTS_PENDING = 4017
     FILE_HASH_FAIL = 4018
+    FILE_STATUS_CHECK_FAIL = 4019
 
     # 会话相关错误
     QUESTION_TOO_LONG = 5000
@@ -152,6 +153,7 @@ ERROR_MESSAGES = {
     ErrorCode.DOC_PROCESS_ERROR: "文档处理失败",
     ErrorCode.FILE_EXISTS_PENDING: "文件已上传，等待后续处理",
     ErrorCode.FILE_HASH_FAIL: "哈希值计算失败",
+    ErrorCode.FILE_STATUS_CHECK_FAIL: "文档状态检查失败",
 
     ErrorCode.QUESTION_TOO_LONG: "问题超长, 长度应不超过 2000 字",
     ErrorCode.INVALID_SESSION: "会话ID无效, 检查session_id是否正确或重新开始会话",

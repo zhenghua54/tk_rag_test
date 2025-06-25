@@ -56,7 +56,7 @@ class ModelManager(ABC):
         if self._is_initialized and self._last_used_time:
             idle_time = time.time() - self._last_used_time
             if idle_time > self._idle_timeout:  # 如果空闲时间超过 _idle_timeout 则卸载模型
-                logger.info(f"{self.__class__.__name__}模型已空闲{idle_time}秒， 进行卸载")
+                logger.info(f"{self.__class__.__name__}模型已空闲 {idle_time:.2f} 秒， 进行卸载")
                 self.unload_model()
 
     @staticmethod
