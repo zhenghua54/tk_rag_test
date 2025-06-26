@@ -56,18 +56,18 @@ class GlobalConfig:
     #     "error": ["parse_failed", "merge_failed", "chunk_failed", "split_failed"],
     # }
     FILE_STATUS = {
-        "normal":{
-            "uploaded":"待处理",
-            "parsed":"处理中",
-            "merged":"处理中",
-            "chunked":"处理中",
-            "splited":"处理完成"
+        "normal": {
+            "uploaded": "待处理",
+            "parsed": "处理中",
+            "merged": "处理中",
+            "chunked": "处理中",
+            "splited": "处理完成"
         },
-        "error":{
-            "parse_failed":"解析失败",
-            "merge_failed":"处理失败",
-            "chunk_failed":"切块失败",
-            "split_failed":"切页失败",
+        "error": {
+            "parse_failed": "解析失败",
+            "merge_failed": "处理失败",
+            "chunk_failed": "切块失败",
+            "split_failed": "切页失败",
         }
     }
     FILE_MAX_SIZE = 50  # Mb
@@ -141,23 +141,22 @@ class GlobalConfig:
     # 提示词模板
     PROMPT_TEMPLATE = {
         "table_summary": {
-            "prompt_file": "./prompts/table_summary_prompt.txt",
+            "prompt_file": "prompts/table_summary_prompt.txt",
             "model": LLM_NAME,
             "temperature": 0.3,
             "max_tokens": 1024
         },
         "text_summary": {
-            "prompt_file": "./prompts/text_summary_prompt.txt",
+            "prompt_file": "prompts/text_summary_prompt.txt",
             "model": LLM_NAME,
             "temperature": 0.5,
             "max_tokens": 1024
         },
-        "rag_generate": {
-            "prompt_file": "./prompts/rag_prompt.txt",
-            "model": LLM_NAME,
-            "temperature": 0,
-            # "max_tokens": 1024
-        }
+        "rag_system_prompt": {
+            "prompt_file": "prompts/rag_system_prompt.j2",
+            "temperature": 0.3,
+            "top_p": 0.9
+        },
 
     }
 

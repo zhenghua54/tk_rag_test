@@ -10,7 +10,8 @@ from typing import Optional, List, Dict, Any, Union
 from abc import ABC, abstractmethod
 
 from jinja2 import Template
-from langchain_core.messages import BaseMessage
+from langchain_core.documents import Document
+from langchain_core.messages import trim_messages, BaseMessage, HumanMessage, AIMessage
 from openai import OpenAI
 from requests import RequestException
 from sentence_transformers import SentenceTransformer
@@ -207,41 +208,43 @@ class LLMManager(ModelManager):
         reraise=True  # 重试后失败仍抛出异常
     )
     def invoke(self,
-               prompt: str,
+               messages: Optional[List[Dict]] = None,
+               prompt: Optional[str] = None,
                model: str = GlobalConfig.LLM_NAME,
                temperature: float = 0.3,
                top_p: float = 0.9,
                stream: bool = False,
                system_prompt: Optional[str] = None,
                max_tokens: Optional[int] = None,
-               invoke_type:str = None) -> str:  # 最大输出 token
-        """调用LLM"""
+               invoke_type: Optional[str] = None) -> str:  # 最大输出 token
+        """支持 Chat-style 调用"""
+
         client = self.get_model()
-        try:
+        if messages is None:
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
+            if prompt:
+                messages.append({"role": "user", "content": prompt})
+            else:
+                raise ValueError("未提供 Prompt 或 messages")
 
-            params = {
-                "model": model,
-                "messages": messages,
-                "temperature": temperature,
-                "top_p": top_p,
-                "stream": stream,
-                "seed": 1,  # 种子数,确保输出结果的确定性
-            }
-            if max_tokens:
-                params["max_tokens"] = max_tokens
+        params = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            "top_p": top_p,
+            "stream": stream,
+            "seed": 1,  # 种子数,确保输出结果的确定性
+        }
+        if max_tokens:
+            params["max_tokens"] = max_tokens
 
-            completion = client.chat.completions.create(**params)
-            logger.info(
-                f"本次{invoke_type}使用情况 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
+        completion = client.chat.completions.create(**params)
+        logger.info(
+            f"本次{invoke_type}使用情况 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
 
-            return completion.choices[0].message.content
-        except Exception as e:
-            logger.error(f"LLM调用失败: {str(e)}")
-            raise
+        return completion.choices[0].message.content
 
     def upload_model(self):
         """重写卸载方法，同时清理 client"""
@@ -255,17 +258,39 @@ class LLMManager(ModelManager):
             logger.info(f"{self.__class__.__name__}模型卸载完成")
 
     @staticmethod
-    def count_tokens(message:BaseMessage,model_name: str = "qwen-turbo") -> int:
+    def count_tokens(message: Union[BaseMessage, str, List[Union[BaseMessage, str]]],
+                     model_name: str = "qwen-turbo") -> int:
+
+        # 统一转字符串
+        if isinstance(message, list):
+            message = "".join([
+                m.content if isinstance(m, BaseMessage) else str(m)
+                for m in message
+            ])
+        elif isinstance(message, BaseMessage):
+            message = message.content
+        elif not isinstance(message, str):
+            message = str(message)
+
+        if not message or not isinstance(message, str):
+            return 0
+
+        # 获取 tokenizer
         try:
             encoding = tiktoken.encoding_for_model(model_name)
             logger.info(f"使用 {model_name} 模型的 tokenizer")
         except KeyError:
-            logger.error(f"没有 {model_name} 模型的 tokenizer, 使用 cl100k_base")
+            logger.warning(f"没有 {model_name} 模型的 tokenizer, 使用 cl100k_base")
             # 若模型不在 tiktoken 支持的列表中，回退到 cl100k_base
             encoding = tiktoken.get_encoding("cl100k_base")
-        encoding_ids = encoding.encode(message.content)
-        logger.info(f"token 数量为: {len(encoding_ids)}")
-        return len(encoding_ids)
+
+        try:
+            encoding_ids = encoding.encode(message)
+            logger.info(f"token 数量为: {len(encoding_ids)}")
+            return len(encoding_ids)
+        except Exception as e:
+            logger.error(f"计算 token 失败: {str(e)}")
+            return 0
 
 
 # 为了保持向后兼容性，创建全局实例
@@ -283,40 +308,108 @@ def check_models_status():
     llm_manager.check_idle()
 
 
-def render_prompt(name: str, variables: Dict[str, str]) -> tuple[str, Dict]:
-    """渲染提示词并返回提示词文本和配置信息"""
+def render_prompt(name: str, variables: Dict[str, str], as_str: bool = True) -> Union[str, Template, tuple[str, Dict]]:
+    """渲染提示词模板为字符串（或返回模板对象）"""
     prompt_config = GlobalConfig.PROMPT_TEMPLATE[name]
     prompt_path = os.path.join(GlobalConfig.BASE_DIR, 'config', prompt_config['prompt_file'])
     with open(prompt_path, "r", encoding="utf-8") as f:
         template = Template(f.read())
+
     try:
-        return template.render(**variables), prompt_config
+        rendered = template.render(**variables)
+        return (rendered, prompt_config) if as_str else (template, prompt_config)
     except jinja2.exceptions.TemplateError as e:
         logger.error("提示词组装失败", e)
         raise e
 
-# @retry(tries=3, delay=1, backoff=2)
-# def call_llm_chat(model_name: str, messages: List[Dict[str, str]], temperature: float, max_tokens: int) -> str:
-#     """统一封装的LLM Chat调用接口，支持重试和错误日志记录
-#
-#     Args:
-#         model_name: 模型名称
-#         messages: 对话消息列表
-#         temperature: 温度参数
-#         max_tokens: 最大tokens数
-#
-#     Returns:
-#         模型返回的完整文本
-#     """
-#     try:
-#         completion = llm_client.chat.completions.create(
-#             model=model_name,
-#             temperature=temperature,
-#             max_tokens=max_tokens,
-#             stream=False,
-#             messages=messages
-#         )
-#         return completion.choices[0].message.content
-#     except Exception as e:
-#         logger.error(f"[LLM Chat Error] 模型调用失败: {model_name}, error={str(e)}")
-#         raise
+
+def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
+                         docs: Union[List[tuple[Document, float]], List[None]], question: str) -> List[Dict]:
+    """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
+
+    Args:
+        system_prompt: 系统提示词
+        history: 历史对话
+        docs: 知识库信息
+        question: 用户最新问题
+
+    - qwen系列支持:system, user, assistant
+    """
+    logger.info(f"[get_messages_for_rag] 输入 history 条数: {len(history)}")
+
+    # 初始化长度剪裁参数
+    token_total = 32768 # Qwen Turbo 模型输入输出总长度
+    context_max_len = 10000
+    history_max_len = 10000
+
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt.strip()})
+
+    print(f"\n 系统提示词后的messages: {messages} \n")
+
+    # 插入 context 为单独一条消息
+    if docs:
+        # 裁剪知识库信息
+        doc_contents = [doc.page_content.strip() for doc, _ in docs]
+        context = trim_context_by_token(doc_contents, max_tokens=context_max_len)
+        logger.info(f"知识库 context 剪裁后共 {len(context.splitlines())} 段，token 总数 {token_total}")
+        messages.append({
+            "role": "user",
+            "content": f"【知识库信息】\n{context.strip()}"
+        })
+
+    print(f"\n 知识库信息拼装后的messages: {messages} \n")
+
+    print(f"\n 接收到的对话历史: {history} \n")
+
+    # 追加历史（结构化）
+    # 剪裁历史对话, 控制最大 token 长度
+    # 修复：当历史对话为空或只有一条消息时，避免使用 start_on 参数
+    if len(history) <= 1:
+        # 如果历史对话为空或只有一条消息，则不进行裁剪
+        trimmed_history = history
+        logger.info(f"历史对话为空或只有一条消息，不进行裁剪")
+    else:
+        trimmed_history: List[BaseMessage] = trim_messages(
+            messages=history,  # List[BaseMessage]（历史对话）
+            token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
+            max_tokens=history_max_len,  # 限定最大 token 数
+            strategy="last",  # 保留最近对话, "first"保留最早对话
+            start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
+            include_system=True,  # 是否保留 system message
+            allow_partial=True  # 超限时是否保留部分片段
+        )
+    print(f"\n 裁剪后的历史对话: {trimmed_history} \n")
+
+    for msg in trimmed_history:
+        if not msg.content or not msg.content.strip():
+            continue  # 忽略空内容
+        # 使用
+        if isinstance(msg, HumanMessage):
+            messages.append({"role": "user", "content": msg.content})
+        elif isinstance(msg, AIMessage):
+            messages.append({"role": "assistant", "content": msg.content})
+        # 预留未来对 tool calls/ function 调用的支持
+        elif hasattr(msg, "type") and msg.type in {"tool", "function"}:
+            messages.append({"role": msg.type, "content": msg.content})
+        else:
+            continue  # 忽略其他类型
+    print(f"\n 历史对话后的messages: {messages} \n")
+    # 新问题
+    messages.append({"role": "user", "content": question.strip()})
+    logger.info(f"构建 messages，总条数: {len(messages)}，历史条数: {len(history)}")
+    return messages
+
+
+def trim_context_by_token(context_chunks: List[str], max_tokens: int) -> str:
+    """裁剪上下文, 避免超长"""
+    result = []
+    total = 0
+    for chunk in context_chunks:
+        t = llm_count_tokens(chunk)
+        if total + t > max_tokens:
+            break
+        result.append(chunk)
+        total += t
+    return "\n\n".join(result) or "(无)"

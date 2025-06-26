@@ -3,14 +3,13 @@ from urllib.parse import quote
 from collections import defaultdict
 from typing import Dict, Optional, List, Union
 
-from langchain_core.documents import Document
 from langchain.chains import ConversationalRetrievalChain
 from langchain.schema import BaseRetriever
-from langchain_core.messages import trim_messages, BaseMessage, HumanMessage, AIMessage
+from langchain_core.messages import trim_messages, HumanMessage, AIMessage, BaseMessage
 
 from config.global_config import GlobalConfig
 from utils.log_utils import logger
-from utils.llm_utils import llm_manager, llm_count_tokens, render_prompt
+from utils.llm_utils import llm_manager, llm_count_tokens, render_prompt, get_messages_for_rag
 
 
 class RAGGenerator:
@@ -32,21 +31,15 @@ class RAGGenerator:
         """获取当前 session 的消息列表"""
         return self._history_store.get(session_id, [])
 
-    def _save_to_history(self, session_id: str, query: str, answer: str) -> None:
+    def _save_to_history(self, session_id: str, query: str, answer: Union[str, None]) -> None:
         """保存用户与助手的每一轮对话"""
         # 根据 session_id 获取用户对话
         messages = self._history_store.get(session_id, [])
         # 追加更新
         messages.append(HumanMessage(content=query))
         messages.append(AIMessage(content=answer))
-
-    @staticmethod
-    def _messages_to_str(msgs: List[BaseMessage]) -> str:
-        """将历史会话从对象转换为字符串, 供 Prompt 渲染"""
-        return "\n".join([
-            f"用户：{m.content}" if isinstance(m, HumanMessage) else f"助手：{m.content}"
-            for m in msgs if isinstance(m, (HumanMessage, AIMessage))
-        ])
+        # 将更新后的列表重新存储到 _history_store 中
+        self._history_store[session_id] = messages
 
     @staticmethod
     def _local_path_to_url(local_path: str) -> str:
@@ -81,65 +74,52 @@ class RAGGenerator:
             Dict: 包含回答、元数据等的字典
         """
         try:
-            # 检查输入
+            # 检查输入合法性
             if not query or not query.strip():
                 raise ValueError("问题不能为空")
 
-            # 使用权限ID进行检索
-            docs: Union[List[tuple[Document, float]], None] = self.retriever.invoke(query,permission_ids=permission_ids)
-
-            if isinstance(docs, list):
-                # 提取源文档元数据
-                metadata: List = list()
-
-                for doc, score in docs:
-                    # 本地路径静态映射
-                    raw_path = doc.metadata.get("page_pdf_path")
-                    if raw_path:  # 非 None 且非空
-                        doc.metadata["page_pdf_path"] = self._local_path_to_url(raw_path)
-                    else:
-                        doc.metadata["page_pdf_path"] = None
-                    metadata.append({
-                        **doc.metadata,
-                        "rerank_score": score
-                    })
-                # 手动构建检索到的上下文
-                context = "\n\n".join([doc.page_content for doc, _ in docs])
-                # print("上下文-->", docs[0])
-            else:
-                metadata = []
-                context = ""
-
             # 获取当前 session 的历史对话
             raw_history: List[BaseMessage] = self._get_history(session_id)
-            # 剪裁历史消息, 控制最大 token 长度
-            trimmed_history: List[BaseMessage] = trim_messages(
-                messages=raw_history,
-                token_counter=llm_count_tokens,  # 实际 tokenizer,返回 token 数
-                max_tokens=10000,
-                strategy="last",
-                start_on="human",
-                include_system=True,
-                allow_partial=False
-            )
-            # 转换为字符串
-            chat_history = self._messages_to_str(trimmed_history)
+            complete_history = raw_history + [HumanMessage(content=query)]
+
+            # 检索知识库
+            docs = self.retriever.invoke(query, permission_ids=permission_ids)
+            context = ""  # 初始化知识库信息
+            metadata = []  # 初始化源数据信息
+            # max_context_tokens = 10000
+            if docs:
+                # 构建 metadata
+                for doc, score in docs:
+                    raw_path = doc.metadata.get("page_pdf_path")
+                    # 本地路径静态映射
+                    doc.metadata["page_pdf_path"] = self._local_path_to_url(raw_path) if raw_path else None
+                    metadata.append({**doc.metadata, "rerank_score": score})
+            # print(f"重构后的检索结果(前端用): \n {metadata} \n 手动构建的检索结果(模型用): \n {context} \n")
 
             # 渲染提示词
-            prompt, config = render_prompt("rag_generate",
-                                           {"context": context, "chat_history": chat_history, "question": query})
-            system_prompt = "你是企业知识助手，请结合上下文详细展开，不要省略任何关键要点。"
+            system_prompt, config = render_prompt("rag_system_prompt", {})
 
-            # 生成回答
-            response_text = llm_manager.invoke(
-                prompt=prompt,
+            # 构造 rag 上下文
+            messages = get_messages_for_rag(
                 system_prompt=system_prompt,
+                history=complete_history,
+                docs=docs,
+                question=query,
+            )
+            print("构建好的 messages: \n", messages, "\n")
+
+            # 模型调用生成回答
+            response_text = llm_manager.invoke(
+                messages=messages,
                 temperature=config["temperature"],
                 invoke_type="RAG生成"
             )
 
             # 保存历史对话
             self._save_to_history(session_id, query, response_text)
+            raw_history = self._get_history(session_id)
+            print(f"\n 已保存的历史会话: {raw_history} \n")
+
 
             # 构建返回结果
             result = {
@@ -147,10 +127,7 @@ class RAGGenerator:
                 "session_id": session_id,
                 "metadata": metadata,
                 "chat_history": [
-                    {
-                        "role": msg.type,
-                        "content": msg.content
-                    }
+                    {"role": "user" if isinstance(msg, HumanMessage) else "assistant", "content": msg.content}
                     for msg in self._history_store[session_id]
                 ]
             }
@@ -158,4 +135,4 @@ class RAGGenerator:
 
         except Exception as e:
             logger.error(f"生成回答失败: {str(e)}")
-            raise ValueError(f"生成回答失败, 错误原因: {str(e)}")
+            raise ValueError(f"生成回答失败: {str(e)}")

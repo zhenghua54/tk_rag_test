@@ -105,8 +105,7 @@ class HybridRetriever(BaseRetriever):
         self._vector_retriever = vector_retriever
         self._bm25_retriever = bm25_retriever
 
-
-    def invoke(self, input: str, **kwargs) -> Union[List[tuple[Document, float]], None]:
+    def invoke(self, input: str, **kwargs) -> Union[List[tuple[Document, float]], List[None]]:
         """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
 
         Args:
@@ -120,7 +119,7 @@ class HybridRetriever(BaseRetriever):
         """
         permission_ids: Union[str, list[str]] = kwargs.get("permission_ids")
         k = kwargs.get("k", 20)
-        top_k = kwargs.get("top_k", 5)
+        top_k = kwargs.get("top_k", 1)
         chunk_op = kwargs.get("chunk_op")
 
         return self.search_documents(
@@ -131,13 +130,14 @@ class HybridRetriever(BaseRetriever):
             chunk_op=chunk_op,
         )
 
-    def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[
-        Document]:
+    def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> Union[
+        List[tuple[Document, float]], List[None]]:
         """兼容旧接口（已弃用，内部调用 invoke）"""
         return self.invoke(query, **kwargs)
 
-    def search_documents(self, query: str, *, permission_ids: Union[str, list[str]] = None, k: int = 20, top_k: int = 10,
-                         chunk_op=None) -> Union[List[tuple[Document, float]], None]:
+    def search_documents(self, query: str, *, permission_ids: Union[str, list[str]] = None, k: int = 20,
+                         top_k: int = 10,
+                         chunk_op=None) -> Union[List[tuple[Document, float]], List[None]]:
         """自定义搜索文档方法
 
         Args:
@@ -173,7 +173,7 @@ class HybridRetriever(BaseRetriever):
             # 如果没有检索到结果，直接返回空列表
             if not merged_results:
                 logger.info(f"[混合检索] 没有检索到结果，返回空列表")
-                return None
+                return []
 
             # 从 mysql 获取所需的原文内容
             seg_ids = list(merged_results.keys())
@@ -226,6 +226,7 @@ class HybridRetriever(BaseRetriever):
                 reranked_result = self.detect_cliff_and_filter(reranked_result, top_k=top_k)
 
             logger.info(f"[重排序] 重排过滤完成, 返回 {len(reranked_result)} 条结果")
+            # logger.info(f"重排后的结果为:{type(reranked_result)} \n{reranked_result}")
 
             # 提取文档列表
             return reranked_result
