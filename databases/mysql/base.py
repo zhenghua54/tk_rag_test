@@ -233,3 +233,25 @@ class BaseDBOperation:
         except Exception as e:
             logger.error(f"MySQL 数据删除失败, 失败原因: {str(e)}")
             raise e from e
+
+    def update_by_field(self, field_name: str, field_value: str, data: Dict[str, Any]) -> bool:
+        """根据指定字段更新记录
+        
+        Args:
+            field_name: 字段名
+            field_value: 字段值
+            data: 要更新的数据
+            
+        Returns:
+            bool: 是否更新成功
+        """
+        try:
+            set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
+            sql = f'UPDATE {self.table_name} SET {set_clause} WHERE {field_name} = %s'
+            values = list(data.values())
+            values.append(field_value)
+            logger.info(f"MySQL 记录更新成功, 表={self.table_name}, 字段={field_name}")
+            return self._execute_update(sql, tuple(values)) > 0
+        except Exception as e:
+            logger.error(f"MySQL 记录更新失败: {e}")
+            raise e

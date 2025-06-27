@@ -151,7 +151,7 @@ def send_message():
 
             # history 存档,不参与渲染
             st.session_state.history.append({
-                "role": "assistant",
+                "role": "ai",
                 "content": response['answer'],
                 "sources": response.get('source_documents')
             })

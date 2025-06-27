@@ -324,16 +324,15 @@ def render_prompt(name: str, variables: Dict[str, str], as_str: bool = True) -> 
 
 
 def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
-                         docs: Union[List[tuple[Document, float]], List[None]], question: str) -> List[Dict]:
+                         docs: List[Document], question: str) -> List[Dict]:
     """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
+    - 注意: 该方法为 OPENAI 接口构建数据,因此角色名称应为: system, user, assistant
 
     Args:
         system_prompt: 系统提示词
         history: 历史对话
-        docs: 知识库信息
+        docs: 知识库信息, 分数在 metadata 中
         question: 用户最新问题
-
-    - qwen系列支持:system, user, assistant
     """
     logger.info(f"[get_messages_for_rag] 输入 history 条数: {len(history)}")
 
@@ -343,62 +342,88 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
     history_max_len = 10000
 
     messages = []
+    
+    # ===== 系统提示词 =====
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt.strip()})
-
     print(f"\n 系统提示词后的messages: {messages} \n")
 
-    # 插入 context 为单独一条消息
+    # ===== 知识库信息 =====
     if docs:
-        # 裁剪知识库信息
-        doc_contents = [doc.page_content.strip() for doc, _ in docs]
-        context = trim_context_by_token(doc_contents, max_tokens=context_max_len)
-        logger.info(f"知识库 context 剪裁后共 {len(context.splitlines())} 段，token 总数 {token_total}")
-        messages.append({
-            "role": "user",
-            "content": f"【知识库信息】\n{context.strip()}"
-        })
+        # 构建知识库信息
+        docs_content = "【知识库信息】\n"
+        token_total = 0
+        context_lines = []
+        
+        for doc in docs:
+            if hasattr(doc, "metadata" ) and doc.metadata:
+                seg_content = doc.metadata.get("seg_content", "")
+                if seg_content:
+                    # 计算当前片段的 token 数
+                    segment_tokens = llm_count_tokens(seg_content)
+                    # 超限切割
+                    if token_total + segment_tokens > context_max_len:
+                        logger.info("知识库内容 token 数达到限制, 裁剪后续内容")
+                        break
+
+                    docs_content += f"{seg_content}\n\n"
+                    token_total += segment_tokens
+                    context_lines.append(docs_content)
+
+        # 如果知识库信息不为空，则添加到 messages
+        if docs_content != "【知识库信息】\n":
+            messages.append({"role": "user","content": docs_content})
+        logger.info(f"知识库 context 剪裁后共 {len(context_lines)} 段，token 总数 {token_total}")
 
     print(f"\n 知识库信息拼装后的messages: {messages} \n")
-
     print(f"\n 接收到的对话历史: {history} \n")
 
-    # 追加历史（结构化）
-    # 剪裁历史对话, 控制最大 token 长度
-    # 修复：当历史对话为空或只有一条消息时，避免使用 start_on 参数
-    if len(history) <= 1:
-        # 如果历史对话为空或只有一条消息，则不进行裁剪
-        trimmed_history = history
-        logger.info(f"历史对话为空或只有一条消息，不进行裁剪")
-    else:
-        trimmed_history: List[BaseMessage] = trim_messages(
-            messages=history,  # List[BaseMessage]（历史对话）
-            token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
-            max_tokens=history_max_len,  # 限定最大 token 数
-            strategy="last",  # 保留最近对话, "first"保留最早对话
-            start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
-            include_system=True,  # 是否保留 system message
-            allow_partial=True  # 超限时是否保留部分片段
-        )
-    print(f"\n 裁剪后的历史对话: {trimmed_history} \n")
-
-    for msg in trimmed_history:
-        if not msg.content or not msg.content.strip():
-            continue  # 忽略空内容
-        # 使用
-        if isinstance(msg, HumanMessage):
-            messages.append({"role": "user", "content": msg.content})
-        elif isinstance(msg, AIMessage):
-            messages.append({"role": "assistant", "content": msg.content})
-        # 预留未来对 tool calls/ function 调用的支持
-        elif hasattr(msg, "type") and msg.type in {"tool", "function"}:
-            messages.append({"role": msg.type, "content": msg.content})
+    # ===== 历史对话处理 =====
+    if history:
+        # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
+        if len(history) <= 1:
+            trimmed_history = history
+            logger.info(f"历史对话为空或只有一条消息，不进行裁剪")
         else:
-            continue  # 忽略其他类型
-    print(f"\n 历史对话后的messages: {messages} \n")
-    # 新问题
-    messages.append({"role": "user", "content": question.strip()})
-    logger.info(f"构建 messages，总条数: {len(messages)}，历史条数: {len(history)}")
+            trimmed_history: List[BaseMessage] = trim_messages(
+                messages=history,  # List[BaseMessage]（历史对话）
+                token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
+                max_tokens=history_max_len,  # 限定最大 token 数
+                strategy="last",  # 保留最近对话, "first"保留最早对话
+                start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
+                include_system=True,  # 是否保留 system message
+                allow_partial=True  # 超限时是否保留部分片段
+            )
+        logger.info(f"\n 裁剪后的历史对话: {trimmed_history} \n")
+
+        # 转换为 OpenAI 接口格式
+        for msg in trimmed_history:
+            if not msg.content or not msg.content.strip():
+                continue  # 忽略空内容
+            
+            if isinstance(msg, HumanMessage):
+                messages.append({"role": "user", "content": msg.content})
+            elif isinstance(msg, AIMessage):
+                message_dict = {"role": "assistant", "content": msg.content}
+                
+                # # 预留未来对 tool calls/ function 调用的支持
+                # # 添加工具调用信息
+                # if msg.additional_kwargs.get("tool_calls"):
+                #     message_dict["tool_calls"] = msg.additional_kwargs["tool_calls"]
+                
+                # # 添加函数调用信息
+                # if msg.additional_kwargs.get("function_call"):
+                #     message_dict["function_call"] = msg.additional_kwargs["function_call"]
+                    
+                messages.append(message_dict)
+                
+        logger.info(f"\n 历史对话后的messages: {messages} \n")
+
+    # ===== 新问题 =====
+    if question and question.strip():
+        messages.append({"role": "user", "content": question.strip()})
+
+    logger.info(f"最终构建的 messages 数量: {len(messages)}")
     return messages
 
 

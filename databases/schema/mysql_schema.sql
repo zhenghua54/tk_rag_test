@@ -82,3 +82,31 @@ CREATE TABLE IF NOT EXISTS doc_page_info
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- 会话表
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(64) NOT NULL UNIQUE COMMENT '会话ID',
+    user_id VARCHAR(64) DEFAULT NULL COMMENT '用户ID（可选）',
+    title VARCHAR(255) DEFAULT NULL COMMENT '会话标题（可选）',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_session_id (session_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天会话表';
+
+-- 消息表
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id VARCHAR(64) NOT NULL COMMENT '会话ID',
+    message_type ENUM('human', 'ai') NOT NULL COMMENT '消息类型',
+    content TEXT NOT NULL COMMENT '消息内容',
+    metadata JSON DEFAULT NULL COMMENT '元数据(文档信息等)',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    INDEX idx_session_id (session_id),
+    INDEX idx_message_type (message_type),
+    INDEX idx_created_at (created_at),
+    FOREIGN KEY (session_id) REFERENCES chat_sessions(session_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息表';

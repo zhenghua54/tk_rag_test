@@ -33,10 +33,10 @@ class BM25Retriever:
 
         try:
             raw_result = self._es_retriever.search(query=query, top_k=k)
-            for hit in raw_result:
-                logger.info(f"文档ID: {hit['_source'].get('doc_id')}, "
-                            f"片段ID: {hit['_source'].get('seg_id')}, "
-                            f"BM25分数: {hit['_score']:.4f}")
+            # for hit in raw_result:
+            #     logger.info(f"文档ID: {hit['_source'].get('doc_id')}, "
+            #                 f"片段ID: {hit['_source'].get('seg_id')}, "
+            #                 f"BM25分数: {hit['_score']:.4f}")
 
             # 处理检索结果
             es_results = raw_result

@@ -129,7 +129,7 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
         ).model_dump()
 
 
-@router.get("/check_status")
+@router.post("/check_status")
 async def check_document_status(request:DocumentStatusRequest, fastapi_request: Request):
     """文档状态监测接口
 

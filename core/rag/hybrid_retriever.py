@@ -1,5 +1,5 @@
 """混合检索模块"""
-from typing import List, Any, Dict, OrderedDict, Optional, Union
+from typing import List, Any, Dict, OrderedDict,  Union
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
@@ -104,20 +104,46 @@ class HybridRetriever(BaseRetriever):
         super().__init__()
         self._vector_retriever = vector_retriever
         self._bm25_retriever = bm25_retriever
-
-    def invoke(self, input: str, **kwargs) -> Union[List[tuple[Document, float]], List[None]]:
-        """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
-
+        
+    def _get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[Document]:
+        """实现抽象方法 _get_relevant_documents
+        
         Args:
             query: 用户查询
             callbacks: 回调函数
             tags: 标签
             metadata: 元数据
-
+            **kwargs: 其他参数
+            
         Returns:
-            Union[List[tuple[Document, float]], None]: 相关文档和重排序评分列表
+            List[Document]: 相关文档列表
         """
-        permission_ids: Union[str, list[str]] = kwargs.get("permission_ids")
+        # 调用 search_documents 方法，但只返回 Document 列表
+        results = self.search_documents(
+            query=query,
+            permission_ids=kwargs.get("permission_ids"),
+            k=kwargs.get("k", 20),
+            top_k=kwargs.get("top_k", 10),
+            chunk_op=kwargs.get("chunk_op")
+        )
+        
+        # 确保返回的是 Document 列表
+        if isinstance(results, list):
+            return results
+        else:
+            return []
+
+    def invoke(self, input: str, **kwargs) -> List[Document]:
+        """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
+
+        Args:
+            input: 用户查询
+            **kwargs: 其他参数
+            
+        Returns:
+            List[Document]: 相关文档列表，分数存储在 metadata 中
+        """
+        permission_ids: Union[str, List[str]] = kwargs.get("permission_ids")
         k = kwargs.get("k", 20)
         top_k = kwargs.get("top_k", 1)
         chunk_op = kwargs.get("chunk_op")
@@ -130,14 +156,13 @@ class HybridRetriever(BaseRetriever):
             chunk_op=chunk_op,
         )
 
-    def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> Union[
-        List[tuple[Document, float]], List[None]]:
-        """兼容旧接口（已弃用，内部调用 invoke）"""
-        return self.invoke(query, **kwargs)
+    # def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[Document]:
+    #     """兼容旧接口（已弃用，内部调用 invoke）"""
+    #     return self.invoke(query, **kwargs)
 
-    def search_documents(self, query: str, *, permission_ids: Union[str, list[str]] = None, k: int = 20,
+    def search_documents(self, query: str, *, permission_ids: Union[str, List[str]] = None, k: int = 20,
                          top_k: int = 10,
-                         chunk_op=None) -> Union[List[tuple[Document, float]], List[None]]:
+                         chunk_op=None) -> List[Document]:
         """自定义搜索文档方法
 
         Args:
@@ -148,10 +173,10 @@ class HybridRetriever(BaseRetriever):
             chunk_op: ChunkOperation实例
 
         Returns:
-            List[Document]: 相关文档列表
+            List[Document]: 相关文档列表，分数存储在 metadata 中
         """
         try:
-            logger.info(f"[混合检索] 开始检索,查询: {query}, 权限ID: {permission_ids}, k: {k}, top_k: {top_k}")
+            logger.info(f"开始混合检索,查询: {query}, 权限ID: {permission_ids}, k: {k}, top_k: {top_k}")
 
             # 向量检索
             vector_results: dict[str, float] = self._vector_retriever.search(
@@ -168,16 +193,17 @@ class HybridRetriever(BaseRetriever):
 
             # 合并结果
             merged_results: dict[str, float] = merge_search_results(vector_results, bm25_results)
-            logger.info(f"[混合检索] 合并结果完成,共 {len(merged_results)} 条")
+            logger.info(f"混合检索结果合并完成,共 {len(merged_results)} 条")
 
             # 如果没有检索到结果，直接返回空列表
             if not merged_results:
-                logger.info(f"[混合检索] 没有检索到结果，返回空列表")
+                logger.info(f"没有检索到结果，返回空列表")
                 return []
 
-            # 从 mysql 获取所需的原文内容
+            # 从 mysql 获取所需的原文内容(已过滤权限)
             seg_ids = list(merged_results.keys())
-            logger.info(f"[混合检索] 从MySQL获取原文内容,seg_ids数量: {len(seg_ids)}, 权限ID: {permission_ids}")
+            logger.info(f"开始原文提取, 片段数量: {len(seg_ids)}, 权限ID: {permission_ids}")
+            
             if chunk_op is not None:
                 mysql_records: List[Dict[str, Any]] = chunk_op.get_segment_contents(
                     seg_ids=seg_ids,
@@ -189,23 +215,19 @@ class HybridRetriever(BaseRetriever):
                         seg_ids=seg_ids,
                         permission_ids=permission_ids,  # 确保传递权限ID
                     )
+            logger.info(f"原文提取完成, 权限过滤后返回 {len(mysql_records)} 条结果")
 
-            logger.info(f"[混合检索] 从MySQL获取到 {len(mysql_records)} 条原文记录")
-
-            # 再次对mysql获取到的原文内容进行过滤，避免遗漏
+            # 构建 Document 对象
             rerank_input = []
-            filtered_count = 0
             for record in mysql_records:
                 # 构建记录信息
                 doc = Document(
                     page_content=record.get("seg_content", ""),
-                    metadata={
-                        **record
-                    }
+                    metadata={**record}
                 )
                 rerank_input.append(doc)
 
-            logger.info(f"[混合检索] 权限过滤后剩余 {len(rerank_input)} 条结果 (过滤掉 {filtered_count} 条)")
+            logger.info(f"构建 Document 对象完成, 共 {len(rerank_input)} 条")
 
             # 重排序
             reranked_result = []
@@ -215,24 +237,24 @@ class HybridRetriever(BaseRetriever):
                     passages=[doc.page_content for doc in rerank_input]
                 )
 
-                # 将分数与文档配对
-                reranked_result = [
-                    (doc, score) for doc, score in zip(rerank_input, scores)
-                ]
+                # 将分数存储到 Document 的 metadata 中
+                for doc, score in zip(rerank_input, scores):
+                    doc.metadata['rerank_score'] = score
+                    reranked_result.append(doc)
 
-                # 按分数排序并提取前 tok_k 个
-                reranked_result.sort(key=lambda x: x[1], reverse=True)
+                # 根据rerank分数排序
+                reranked_result.sort(key=lambda x: x.metadata.get("rerank_score",0), reverse=True)
+
                 # 使用一阶差分算法进行文档过滤
                 reranked_result = self.detect_cliff_and_filter(reranked_result, top_k=top_k)
 
             logger.info(f"[重排序] 重排过滤完成, 返回 {len(reranked_result)} 条结果")
-            # logger.info(f"重排后的结果为:{type(reranked_result)} \n{reranked_result}")
 
-            # 提取文档列表
+            # 提取 Document 列表
             return reranked_result
 
         except Exception as error:
-            logger.error(f"[混合检索] 检索失败: {str(error)}")
+            logger.error(f"混合检索失败: {str(error)}")
             return []
 
     @staticmethod
@@ -250,19 +272,23 @@ class HybridRetriever(BaseRetriever):
         return norm_scores
 
     @staticmethod
-    def detect_cliff_and_filter(reranked_result: List[tuple[Document, float]],
+    def detect_cliff_and_filter(reranked_result: List[Document],
                                 top_k: int = 10
-                                ) -> list[tuple[Document, float]]:
+                                ) -> List[Document]:
         """一阶差分算法, 自动检测重排分数的断崖点，并据此过滤文档。
         Args:
-            reranked_result: 排名后的 rerank 列表,包括文档和得分
+            reranked_result: 排名后的 rerank 列表, 分数在 Document.metadata 中
             top_k: 最大保留文档数，None 表示不限。
 
         Returns:
-            List[Document]: 过滤后的文档和分数列表（保留到断崖点前）。
+            List[Document]: 过滤后的文档列表（保留到断崖点前）。
         """
-        # 将文档和对应分数打包，并按分数从高到低排序
-        sorted_scores = [s for _, s in reranked_result]  # 仅保留排序后的分数
+        # 提取分数
+        sorted_scores = [doc.metadata.get('rerank_score',0) for doc in reranked_result]
+
+
+        # # 将文档和对应分数打包，并按分数从高到低排序
+        # sorted_scores = [s for _, s in reranked_result]  # 仅保留排序后的分数
 
         # 无法计算差值时,直接截断前top_k个
         if len(reranked_result) <= 1:

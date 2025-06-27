@@ -1,4 +1,6 @@
 """数据库操作"""
+import json
+from datetime import datetime
 from typing import List, Dict, Optional, Any, Union
 from config.global_config import GlobalConfig
 from error_codes import ErrorCode
@@ -63,7 +65,7 @@ class FileInfoOperation(BaseDBOperation):
             List[Dict]: 非PDF文件的数据库记录列表
         """
         try:
-            sql = f'SELECT * FROM %s WHERE source_document_pdf_path IS NULL'
+            sql = f'SELECT * FROM %s WHERE doc_pdf_path IS NULL'
             return self._execute_query(sql, (self.table_name,))
         except Exception as e:
             logger.error(f"[查询非PDF文件失败] table={self.table_name}, error={str(e)}")
@@ -76,7 +78,7 @@ class FileInfoOperation(BaseDBOperation):
             List[Dict]: PDF文件的数据库记录列表
         """
         try:
-            sql = f'SELECT * FROM % WHERE source_document_pdf_path IS NOT NULL'
+            sql = f'SELECT * FROM %s WHERE doc_pdf_path IS NOT NULL'
             return self._execute_query(sql, (self.table_name,))
         except Exception as e:
             logger.error(f"[查询PDF文件失败] table={self.table_name}, error={str(e)}")
@@ -251,7 +253,7 @@ class ChunkOperation(BaseDBOperation):
             if not segment_info:
                 return []
 
-            logger.info(f"mysql 查询到 {len(segment_info)} 条记录")
+            # logger.info(f"mysql 查询到 {len(segment_info)} 条记录")
             # print(f"查询结果为: {segment_info}\n")
 
             # 转换结果格式
@@ -259,7 +261,7 @@ class ChunkOperation(BaseDBOperation):
             for record in segment_info:
                 # 记录权限信息用于调试
                 record_permission = record.get("permission_ids")
-                logger.info(f"记录权限信息: {record_permission}, 用户权限: {permission_ids}")
+                # logger.info(f"mysql 记录的权限信息: {record_permission}, 用户权限: {permission_ids}")
 
                 result = {
                     # 片段信息
@@ -314,7 +316,7 @@ class PermissionOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['permission_info_table'])
 
-    def insert_datas(self, args: Dict) -> Optional[bool]:
+    def insert_datas(self, args: Dict) -> Optional[int]:
         """插入权限信息
 
         Args:
@@ -336,7 +338,121 @@ class PageOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['doc_page_info_table'])
 
+class ChatSessionOperation(BaseDBOperation):
+    """会话表(chat_sessions)操作类"""
 
+    def __init__(self):
+        super().__init__(GlobalConfig.MYSQL_CONFIG['chat_sessions_table'])
+    
+    def create_or_update_session(self, session_id: str, user_id: str=None, title: str=None) :
+        """创建或更新会话
+        
+        Args:
+            session_id: 会话ID（必需）
+            user_id: 用户ID（可选，未来扩展用）
+            title: 会话标题（可选，未来扩展用）
+        """
+        try:
+            # 构建会话数据
+            session_data = {
+                'session_id': session_id,
+                'user_id': user_id,
+                'title': title,
+                'created_at': datetime.now(),
+                'updated_at': datetime.now()
+            }
+            # 先尝试更新
+            existing = self.select_record(conditions={'session_id': session_id})
+            if existing:
+                # 更新会话
+                data = {
+                    'updated_at': datetime.now(),
+                    'title': title or existing[0].get('title')
+                }
+                self.update_by_field('session_id', session_id, data)
+            else:
+                # 创建新会话
+                self.insert(session_data)
+        except Exception as e:
+            logger.error(f"创建或更新会话失败: {str(e)}")
+            raise e
+
+    def get_session(self, session_id: str) -> Optional[Dict]:
+        """根据会话ID获取会话
+        
+        Args:
+            session_id: 会话ID
+        
+        Returns:
+            Optional[Dict]: 会话信息字典，如果未找到则返回 None
+        """
+        try:
+            result = self.select_record(conditions={'session_id': session_id})
+            return result[0] if result else None
+        except Exception as e:
+            logger.error(f"获取会话失败: {str(e)}")
+            raise e
+
+class ChatMessageOperation(BaseDBOperation):
+    """消息表(chat_messages)操作类"""
+
+    def __init__(self):
+        super().__init__(GlobalConfig.MYSQL_CONFIG['chat_messages_table'])
+        
+    def save_message(self, session_id: str, message_type: str, content: str, metadata: Optional[Dict] = None):
+        """保存消息
+        
+        Args:
+            session_id: 会话ID
+            message_type: 消息类型('human', 'ai')
+            content: 消息内容
+            metadata: 消息元数据(可选)
+
+        """
+        try:
+            message_data = {
+                'session_id': session_id,
+                'message_type': message_type,
+                'content': content,
+                'metadata': json.dumps(metadata) if metadata else None,
+                'created_at': datetime.now()
+            }
+            self.insert(message_data)
+        except Exception as e:
+            logger.error(f"保存消息失败: {str(e)}")
+            raise e
+        
+    def get_message_by_session_id(self, session_id: str, limit: int = 100) -> List[Dict]:
+        """根据会话ID获取消息列表, 按时间正序排列, 默认获取100条
+        
+        Args:
+            session_id: 会话ID
+            limit: 获取消息数量(默认100)
+        
+        Returns:
+            List[Dict]: 消息列表
+        """
+        try:
+            sql = f'SELECT * FROM {self.table_name} WHERE session_id = %s ORDER BY created_at ASC LIMIT %s'
+            return self._execute_query(sql, (session_id, limit))
+        except Exception as e:
+            logger.error(f"获取消息失败: {str(e)}")
+            raise e
+        
+    def delete_message_by_session_id(self, session_id: str):
+        """根据会话ID删除消息
+        
+        Args:
+            session_id: 会话ID
+        """
+        try:
+            sql = f'DELETE FROM {self.table_name} WHERE session_id = %s'
+            self._execute_update(sql, (session_id,))
+        except Exception as e:
+            logger.error(f"删除消息失败: {str(e)}")
+            raise e
+        
+                
 if __name__ == '__main__':
     # 使用上下文管理器
     with FileInfoOperation() as file_op:

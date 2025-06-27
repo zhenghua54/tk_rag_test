@@ -111,10 +111,12 @@ class GlobalConfig:
         "port": 3306,
         "charset": "utf8mb4",
         "database": DB_NAME,
-        "file_info_table": "doc_info",
-        "segment_info_table": "segment_info",
-        "permission_info_table": "permission_info",
-        "doc_page_info_table": "doc_page_info",
+        "file_info_table": "doc_info", # 文件信息表
+        "segment_info_table": "segment_info", # 段落信息表
+        "permission_info_table": "permission_info", # 权限信息表
+        "doc_page_info_table": "doc_page_info", # 文档切页信息表
+        "chat_sessions_table": "chat_sessions", # 聊天会话表
+        "chat_messages_table": "chat_messages", # 聊天消息表
     }
     MYSQL_FIELD = {
         "max_path_len": 1000,
