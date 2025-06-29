@@ -45,7 +45,7 @@ def init_mysql():
             logger.error("数据库连接测试失败")
             
     except Exception as e:
-        logger.error(f"MySQL 数据库初始化失败: {e}")
+        logger.error(f"MySQL 数据库初始化失败: {str(e)}")
         raise
     finally:
         conn.close()

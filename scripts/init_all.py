@@ -70,8 +70,8 @@ def test_connections():
         if not collection:
             raise Exception("Milvus 集合加载失败！")
     except Exception as e:
-        logger.error(f"Milvus 连接测试失败: {e}")
-        raise Exception(f"Milvus 连接失败: {e}")
+        logger.error(f"Milvus 连接测试失败: {str(e)}")
+        raise Exception(f"Milvus 连接失败: {str(e)}")
 
     # 测试 ES 连接
     try:
@@ -79,8 +79,8 @@ def test_connections():
         if not es_client.ping():
             raise Exception("ES 连接失败！")
     except Exception as e:
-        logger.error(f"ES 连接测试失败: {e}")
-        raise Exception(f"ES 连接失败: {e}")
+        logger.error(f"ES 连接测试失败: {str(e)}")
+        raise Exception(f"ES 连接失败: {str(e)}")
 
 
 def init_all():
@@ -101,8 +101,8 @@ def init_all():
 
         logger.info("项目环境初始化完成！")
     except Exception as e:
-        logger.error(f"项目初始化失败: {e}")
-        raise RuntimeError(f"项目初始化失败: {e}") from e
+        logger.error(f"项目初始化失败: {str(e)}")
+        raise RuntimeError(f"项目初始化失败: {str(e)}") from e
 
 
 if __name__ == "__main__":

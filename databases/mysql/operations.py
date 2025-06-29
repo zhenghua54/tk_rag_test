@@ -133,7 +133,7 @@ class ChunkOperation(BaseDBOperation):
         try:
             return self.select_record(conditions={'doc_id': doc_id})
         except Exception as e:
-            logger.error(f"获取文档分块失败: {e}")
+            logger.error(f"获取文档分块失败: {str(e)}")
             raise e
 
     def insert_chunks(self, chunks: List[Dict]) -> Optional[int]:
@@ -166,7 +166,7 @@ class ChunkOperation(BaseDBOperation):
             result = self._execute_update(sql, (self.table_name, seg_id))
             return {'affected_rows': result}
         except Exception as e:
-            logger.error(f"删除分块失败: {e}")
+            logger.error(f"删除分块失败: {str(e)}")
             raise e
 
     def get_segment_contents(self, seg_ids: List[str] = None, doc_ids: List[str] = None,

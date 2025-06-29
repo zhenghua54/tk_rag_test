@@ -310,7 +310,7 @@ class DocumentService(BaseService):
                                                 {"process_status": doc_status})
 
                     except Exception as e:
-                        logger.error(f"文档切块失败, {e}")
+                        logger.error(f"文档切块失败, {str(e)}")
                         doc_status = "chunk_failed"
                         logger.info(f"开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,

@@ -70,7 +70,7 @@ class MySQLUtils:
             logger.info("数据库连接测试成功")
             return True
         except Exception as e:
-            logger.error(f"数据库连接测试失败: {e}")
+            logger.error(f"数据库连接测试失败: {str(e)}")
             return False
 
 
@@ -116,7 +116,7 @@ class BaseDBOperation:
             data = self._execute_query(sql, (doc_id,))
             return data[0] if data else None
         except Exception as e:
-            logger.error(f"查询记录失败: {e}")
+            logger.error(f"查询记录失败: {str(e)}")
             raise e
 
     def select_record(self, fields: Optional[List[str]] = None, conditions: Optional[Dict] = None) -> List[Dict] | None:
@@ -145,7 +145,7 @@ class BaseDBOperation:
 
             return self._execute_query(sql, args)
         except Exception as e:
-            logger.error(f"查询记录失败: {e}")
+            logger.error(f"查询记录失败: {str(e)}")
             raise e
 
     def insert(self, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> int:
@@ -171,7 +171,7 @@ class BaseDBOperation:
                 affected_rows = self._execute_update(sql, tuple(data.values()))
                 logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
-                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {e}, 数据: {data}")
+                logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {str(e)}, 数据: {data}")
                 raise ValueError(f"数据插入失败: {str(e)}")
         # 多条数据
         elif isinstance(data, list) and len(data) > 0:
@@ -222,7 +222,7 @@ class BaseDBOperation:
             logger.info(f"MySQL 记录更新成功 ")
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
-            logger.error(f"MySQL 记录更新失败: {e}")
+            logger.error(f"MySQL 记录更新失败: {str(e)}")
             raise e
 
     def delete_by_doc_id(self, doc_id: str) -> int:
@@ -253,5 +253,5 @@ class BaseDBOperation:
             logger.info(f"MySQL 记录更新成功, 表={self.table_name}, 字段={field_name}")
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
-            logger.error(f"MySQL 记录更新失败: {e}")
+            logger.error(f"MySQL 记录更新失败: {str(e)}")
             raise e
