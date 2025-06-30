@@ -129,7 +129,7 @@ class VectorOperation:
             logger.info(f"Milvus 检索到 {len(results)} 条记录, doc_id={doc_id}")
             return results
         except Exception as e:
-            logger.error(f"根据文档ID检索失败: {e}")
+            logger.error(f"根据文档ID检索失败: {str(e)}")
             return []
 
     def search_by_seg_id(self, seg_id: str) -> Optional[Dict[str, Any]]:
@@ -149,7 +149,7 @@ class VectorOperation:
             )
             return None
         except Exception as e:
-            logger.error(f"根据段落ID检索失败: {e}")
+            logger.error(f"根据段落ID检索失败: {str(e)}")
             return None
 
     def update_by_doc_id(self, doc_id: str, data: Dict[str, Any]) -> bool:
@@ -174,7 +174,7 @@ class VectorOperation:
             logger.info(f"成功更新文档 {doc_id} 的数据")
             return True
         except Exception as e:
-            logger.error(f"更新数据失败: {e}")
+            logger.error(f"更新数据失败: {str(e)}")
             return False
 
     def update_by_seg_id(self, seg_id: str, data: Dict[str, Any]) -> bool:
@@ -199,7 +199,7 @@ class VectorOperation:
             logger.info(f"成功更新段落 {seg_id} 的数据")
             return True
         except Exception as e:
-            logger.error(f"更新数据失败: {e}")
+            logger.error(f"更新数据失败: {str(e)}")
             return False
 
     def delete_by_doc_id(self, doc_id: str) -> int:
@@ -225,7 +225,7 @@ class VectorOperation:
             return result['delete_count']
 
         except Exception as e:
-            logger.error(f"Milvus 数据删除失败: {e}")
+            logger.error(f"Milvus 数据删除失败: {str(e)}")
             return False
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
@@ -245,7 +245,7 @@ class VectorOperation:
             logger.info(f"成功删除段落 {seg_id} 的数据")
             return True
         except Exception as e:
-            logger.error(f"删除数据失败: {e}")
+            logger.error(f"删除数据失败: {str(e)}")
             return False
 
 

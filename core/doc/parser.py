@@ -300,7 +300,7 @@ def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[Fil
     except Exception as e:
         if doc_id:
             log_exception(f"文档处理失败", e)
-        raise ValueError(f"文档处理失败, 失败原因: {e}")
+        raise ValueError(f"文档处理失败, 失败原因: {str(e)}")
 
     logger.info("文档处理完成, 等待文档切块...")
     return save_path

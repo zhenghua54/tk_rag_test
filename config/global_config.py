@@ -36,6 +36,7 @@ class GlobalConfig:
         "libreoffice_path": "/usr/bin/libreoffice",
         "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
         "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
+        "milvus_hybrid_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_hybrid_schema.json"),
         "es_schema_path": str(BASE_DIR / "databases" / "schema" / "es_schema.json"),  # schema 配置文件路径
     }
 
