@@ -145,7 +145,7 @@ class HybridRetriever(BaseRetriever):
         """
         permission_ids: Union[str, List[str]] = kwargs.get("permission_ids")
         k = kwargs.get("k", 20)
-        top_k = kwargs.get("top_k", 1)
+        top_k = kwargs.get("top_k", 5)
         chunk_op = kwargs.get("chunk_op")
 
         return self.search_documents(

@@ -23,13 +23,14 @@ from config.global_config import GlobalConfig
 
 from core.infra.lifecycle import lifespan
 
+
 # request_id 中间件
 class RequestIDMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # 生成唯一的 request_id
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
-        
+
         # 在响应头中也添加 request_id
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
@@ -60,9 +61,25 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         ).model_dump()
     )
 
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """全局异常处理"""
+    request_id = getattr(request.state, "request_id", None)
+
+    return JSONResponse(
+        status_code=500,
+        content=ResponseBuilder.error(
+            error_code=ErrorCode.INTERNAL_ERROR.value,
+            error_message="系统内部错误",
+            request_id=request_id,
+        ).model_dump()
+    )
+
 # 映射静态目录: /static/raw -> datas/raw, /static/processed -> datas/processed
 app.mount("/static/raw", StaticFiles(directory="/home/wumingxing/tk_rag/datas/raw"), name="static-raw")
-app.mount("/static/processed", StaticFiles(directory="/home/wumingxing/tk_rag/datas/processed"), name="static-processed")
+app.mount("/static/processed", StaticFiles(directory="/home/wumingxing/tk_rag/datas/processed"),
+          name="static-processed")
 
 # 添加 request_id 中间件
 app.add_middleware(RequestIDMiddleware)
@@ -71,6 +88,7 @@ app.add_middleware(RequestIDMiddleware)
 from api.chat_api import router as chat_router
 from api.base import router as base_router
 from api.doc_api import router as doc_router
+
 app.include_router(base_router, prefix=GlobalConfig.API_PREFIX)
 app.include_router(doc_router, prefix=GlobalConfig.API_PREFIX)
 app.include_router(chat_router, prefix=GlobalConfig.API_PREFIX)

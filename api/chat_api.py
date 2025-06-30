@@ -39,7 +39,7 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
         request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, 'request_id') else None
 
         logger.info(
-            f"RAG 对话, request_id={request_id}, fastapi_request={fastapi_request}, session_id={request.session_id}, permission={request.permission_ids}")
+            f"RAG 对话, request_id={request_id}, fastapi_request={fastapi_request}, session_id={request.session_id}, permission_ids={request.permission_ids}")
 
         # 调用聊天服务
         # 初始化 RAG 生成器

@@ -29,7 +29,8 @@ class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_http_url: str, permission_ids: Union[str, None], callback_url: str = None) -> dict:
+    async def upload_file(document_http_url: str, permission_ids: Union[str, None],
+                          callback_url: str = None, request_id: str = None) -> dict:
         """上传文档"""
         validate_empty_param(document_http_url, '文档地址')
 
@@ -93,14 +94,23 @@ class DocumentService(BaseService):
             # 插入数据库元信息
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                    logger.info(f"开始文档入库, doc_id={doc_id}")
+                    logger.info(f"开始文档入库, doc_id={doc_id}, request_id={request_id}")
                     file_op.insert_data(doc_info)
                     # 插入权限信息到数据库
-                    logger.info(f"开始权限入库, doc_id={doc_id}, permission_id={permission_ids}")
+                    logger.info(
+                        f"开始权限入库, doc_id={doc_id}, permission_id={permission_ids}, request_id={request_id}")
                     permission_op.insert_datas(permission_info)
 
                     # 启动后台处理流程
-                    asyncio.create_task(asyncio.to_thread(process_doc_content, str(path.resolve()), doc_id, file_op))
+                    asyncio.create_task(
+                        asyncio.to_thread(
+                            process_doc_content,
+                            str(path.resolve()),
+                            doc_id,
+                            file_op,
+                            # request_id,
+                        )
+                    )
                     # 启动后台监听文档转换状态，完成后按照顺序: 开始文档切块 -> 页面切分
                     asyncio.create_task(
                         DocumentService._monitor_doc_process_and_segment(
@@ -109,6 +119,7 @@ class DocumentService(BaseService):
                             permission_ids=permission_ids,
                             file_op=file_op,
                             permission_op=permission_op,
+                            request_id=request_id,
                         )
                     )
 
@@ -131,10 +142,11 @@ class DocumentService(BaseService):
                 if e.args[0] == 1062:
                     # 唯一约束冲突
                     raise APIException(ErrorCode.FILE_EXISTS_PROCESSED)
-                logger.error(f"数据库操作失败，error_msg={str(e)}")
+                logger.error(f"数据库操作失败，error_msg={str(e)}, request_id={request_id}")
                 raise APIException(ErrorCode.MYSQL_INSERT_FAIL, str(e))
 
         except Exception as e:
+            logger.error(f"文档上传失败, request_id={request_id}, error={str(e)}")
             raise e from e
 
     @staticmethod
@@ -199,7 +211,7 @@ class DocumentService(BaseService):
             raise ValueError(f"文档删除失败, 错误原因: {str(e)}") from e
 
     @staticmethod
-    async def check_status(doc_id: str) -> Union[Dict[str, Any],None]:
+    async def check_status(doc_id: str) -> Union[Dict[str, Any], None]:
         """文档上传后, 通过该接口查询文档状态
         - uploaded: 上传成功, 等待解析, 无返回内容, 无需再次上传
         - parsed, merged: 处理中, 无返回内容, 无需再次上传
@@ -212,7 +224,7 @@ class DocumentService(BaseService):
         # 初始化返回内容
         result = {
             "status": "",  # 状态英文标识
-            "status_text":"",   # 状态中文显示
+            "status_text": "",  # 状态中文显示
             "reupload": False,  # 支持再次上传
         }
         try:
@@ -242,8 +254,6 @@ class DocumentService(BaseService):
         except Exception as e:
             raise ValueError(f"文件状态查询失败: {str(e)}") from e
 
-
-
     @staticmethod
     async def get_result(doc_id: str) -> Dict[str, Any]:
         """根据doc_id获取相关信息,如切块信息, 解析文档地址等
@@ -255,16 +265,18 @@ class DocumentService(BaseService):
 
     @staticmethod
     async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str,
-                                               file_op: FileInfoOperation, permission_op: PermissionOperation) -> None:
+                                               file_op: FileInfoOperation, permission_op: PermissionOperation,
+                                               request_id: str = None) -> None:
         """监控文档处理状态，完成后启动文档切块
 
         Args:
             doc_id (str): 文档ID
             document_name (str): 文档名称
             permission_ids (str): 权限ID
+            request_id (str): 请求 ID
         """
         try:
-            logger.info(f"文档状态监控, doc_id={doc_id}, document_name={document_name}")
+            logger.info(f"文档状态监控, doc_id={doc_id}, document_name={document_name}, request_id={request_id}")
             max_attempts = 30
             attempt_interval = 60
 
@@ -296,12 +308,12 @@ class DocumentService(BaseService):
                             raise ValueError(f"处理后的文档不存在, doc_path={doc_process_path}")
 
                         # 执行文档切块，直接传入权限ID字符串，不再进行转换
-                        logger.info(f"开始文档切块")
+                        logger.info(f"开始文档切块, request_id={request_id}")
                         await asyncio.to_thread(
                             segment_text_content,
                             doc_id,
                             doc_process_path,
-                            permission_ids
+                            permission_ids,
                         )
                         doc_status = 'chunked'
                         logger.info(f"文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
@@ -310,14 +322,14 @@ class DocumentService(BaseService):
                                                 {"process_status": doc_status})
 
                     except Exception as e:
-                        logger.error(f"文档切块失败, {e}")
+                        logger.error(f"文档切块失败, request_id={request_id}, error={e}")
                         doc_status = "chunk_failed"
                         logger.info(f"开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
                         return
                     try:
-                        logger.info(f"开始文档切页")
+                        logger.info(f"开始文档切页, request_id={request_id}")
                         split_result: dict[str, str] = await asyncio.to_thread(
                             split_pdf_to_pages,
                             input_path=file_info["doc_pdf_path"],
@@ -338,7 +350,7 @@ class DocumentService(BaseService):
                             f"分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
                         insert_record(GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], values)
                     except Exception as e:
-                        logger.error(f"文档切页失败: {str(e)}")
+                        logger.error(f"文档切页失败, request_id={request_id}, error={e}")
                         doc_status = "split_failed"
                         logger.info(f"开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
@@ -351,4 +363,4 @@ class DocumentService(BaseService):
                 f"文档处理状态监控超时: doc_id={doc_id}")
 
         except Exception as e:
-            logger.error(f"文档监控任务异常：{str(e)}")
+            logger.error(f"文档监控任务异常：{str(e)}, request_id={request_id}, error={str(e)}")
