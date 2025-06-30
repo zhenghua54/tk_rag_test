@@ -9,6 +9,7 @@ from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
 from config.global_config import GlobalConfig
 from utils.log_utils import logger
+from utils.converters import local_path_to_url
 from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
 from databases.mysql.operations import ChatSessionOperation, ChatMessageOperation
 
@@ -133,7 +134,7 @@ class RAGGenerator:
                     # 用于前端展示时, 包含所有字段
                     raw_path = doc.metadata.get("page_pdf_path")
                     # 本地路径静态映射
-                    doc.metadata["page_pdf_path"] = self._local_path_to_url(raw_path) if raw_path else None
+                    doc.metadata["page_pdf_path"] = local_path_to_url(raw_path) if raw_path else None
 
                     # 处理元数据中的非 JSON 序列化对象,如: datetime 等
                     clean_metadata = {}
@@ -223,21 +224,21 @@ class RAGGenerator:
             logger.error(f"生成回答失败: {str(e)}")
             raise ValueError(f"生成回答失败: {str(e)}")
 
-    @staticmethod
-    def _local_path_to_url(local_path: str) -> str:
-        """将本路路径转换为 http url 地址"""
-        # 转换源文档地址
-        if GlobalConfig.PATHS["origin_data"] in local_path:
-            rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
-            # return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
-            return f"/static/raw/{quote(rel_path)}"
-        # 转换输出文档地址
-        elif GlobalConfig.PATHS["processed_data"] in local_path:
-            rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
-            # return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
-            return f"/static/processed/{quote(rel_path)}"
-        else:
-            raise ValueError("不支持的路径, 未注册的路径地址")
+    # @staticmethod
+    # def _local_path_to_url(local_path: str) -> str:
+    #     """将本路路径转换为 http url 地址"""
+    #     # 转换源文档地址
+    #     if GlobalConfig.PATHS["origin_data"] in local_path:
+    #         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
+    #         # return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
+    #         return f"/static/raw/{quote(rel_path)}"
+    #     # 转换输出文档地址
+    #     elif GlobalConfig.PATHS["processed_data"] in local_path:
+    #         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
+    #         # return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
+    #         return f"/static/processed/{quote(rel_path)}"
+    #     else:
+    #         raise ValueError("不支持的路径, 未注册的路径地址")
 
     def clear_cache(self, session_id: str = None) -> None:
         """清除缓存

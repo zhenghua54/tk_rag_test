@@ -1,7 +1,7 @@
 """文档服务"""
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Union
+from typing import Dict, Any, Union, List
 # import httpx
 import asyncio  # 异步操作
 import pymysql
@@ -11,7 +11,7 @@ from services.base import BaseService
 from utils.log_utils import logger
 from config.global_config import GlobalConfig
 from utils.file_ops import download_file_step_by_step, generate_doc_id, delete_local_file, split_pdf_to_pages
-from utils.converters import convert_bytes
+from utils.converters import convert_bytes, local_path_to_url
 from error_codes import ErrorCode
 from api.response import APIException
 from utils.validators import (
@@ -19,7 +19,8 @@ from utils.validators import (
     check_doc_name_chars, validate_file_normal, validate_empty_param, validate_doc_id
 )
 from databases.mysql.operations import FileInfoOperation, PermissionOperation
-from databases.db_ops import delete_all_database_data, update_record_by_doc_id, select_record_by_doc_id, insert_record
+from databases.db_ops import delete_all_database_data, update_record_by_doc_id, select_record_by_doc_id, insert_record, \
+    select_records_by_doc_id
 
 from core.doc.parser import process_doc_content
 from core.doc.chunker import segment_text_content
@@ -107,8 +108,7 @@ class DocumentService(BaseService):
                             process_doc_content,
                             str(path.resolve()),
                             doc_id,
-                            # file_op,
-                            # request_id,
+                            request_id,
                         )
                     )
                     # 启动后台监听文档转换状态，完成后按照顺序: 开始文档切块 -> 页面切分
@@ -118,7 +118,6 @@ class DocumentService(BaseService):
                             document_name=path.stem,
                             permission_ids=permission_ids,
                             file_op=file_op,
-                            permission_op=permission_op,
                             request_id=request_id,
                         )
                     )
@@ -257,22 +256,67 @@ class DocumentService(BaseService):
     @staticmethod
     async def get_result(doc_id: str) -> Dict[str, Any]:
         """根据doc_id获取相关信息,如切块信息, 解析文档地址等
+        - 文档已解析: 解析后的layout文件
+        - 文档
 
         Args:
             doc_id: 文档 ID
+
+        Returns:
+            Dict: 文档的所有相关信息
         """
-        pass
+        file_info: Dict = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG['file_info_table'],
+                                                  doc_id=doc_id)
+        if not file_info:
+            logger.info(f"未查询到文档信息, doc_id: {doc_id}")
+            raise ValueError(f"文档不存在, 未查询到相关记录")
+
+        file_status = file_info.get("process_status")
+        values = {"doc_id": doc_id, "file_status": file_status}
+
+        # 异常状态处理
+        if file_status not in list(GlobalConfig.FILE_STATUS["normal"].keys()) + list(
+                GlobalConfig.FILE_STATUS["error"].keys()):
+            raise ValueError(f"文件状态未注册: {file_status}")
+
+        # 文档仅上传
+        if file_status in ['uploaded', "parse_failed"]:
+            return values
+
+        # 文档已解析成功
+        if file_status in ["parsed", "merged", "chunked", "merge_failed", "chunk_failed",
+                           "split_failed", "splited"]:
+            # 已解析及之后状态,增加解析 layout 信息回传
+            layout_path = file_info.get("doc_layout_path")
+            values["layout_path"] = local_path_to_url(layout_path) if layout_path else None
+
+        # 文档已切页, 增加分页信息
+        if file_status == 'splited':
+            doc_page_info: List[Dict] = select_records_by_doc_id(
+                table_name=GlobalConfig.MYSQL_CONFIG['doc_page_info_table'],
+                doc_id=doc_id
+            )
+            page_info_list = []
+
+            for page_info in doc_page_info:
+                page_path = page_info.get("page_pdf_path")
+                page_info_list.append(
+                    {
+                        "page_idx": page_info['page_idx'],
+                        "page_path": local_path_to_url(page_path) if page_path else None
+                    }
+                )
+            values['page_info_list'] = page_info_list
+        return values
 
     @staticmethod
     async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str,
-                                               file_op: FileInfoOperation, permission_op: PermissionOperation,
-                                               request_id: str = None) -> None:
+                                               file_op: FileInfoOperation, request_id: str = None) -> None:
         """监控文档处理状态，完成后启动文档切块
 
         Args:
             doc_id (str): 文档ID
             document_name (str): 文档名称
-            permission_ids (str): 权限ID
             request_id (str): 请求 ID
         """
         try:
@@ -308,37 +352,41 @@ class DocumentService(BaseService):
                             raise ValueError(f"处理后的文档不存在, doc_path={doc_process_path}")
 
                         # 执行文档切块，直接传入权限ID字符串，不再进行转换
-                        logger.info(f"开始文档切块, request_id={request_id}")
+                        logger.info(f"request_id={request_id}, 开始文档切块")
                         await asyncio.to_thread(
                             segment_text_content,
                             doc_id,
                             doc_process_path,
                             permission_ids,
+                            request_id,
                         )
                         doc_status = 'chunked'
-                        logger.info(f"文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
+                        logger.info(
+                            f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
                         # 更新数据库状态为已切块
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
 
                     except Exception as e:
-                        logger.error(f"文档切块失败, request_id={request_id}, error={e}")
+                        logger.error(f"request_id={request_id}, 文档切块失败, error={e}")
                         doc_status = "chunk_failed"
-                        logger.info(f"开始更新数据库状态: process_status -> {doc_status}")
+                        logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
                         return
                     try:
-                        logger.info(f"开始文档切页, request_id={request_id}")
+                        logger.info(f"request_id={request_id}, 开始文档切页")
                         split_result: dict[str, str] = await asyncio.to_thread(
                             split_pdf_to_pages,
                             input_path=file_info["doc_pdf_path"],
                             output_dir=f"{Path(file_info['doc_json_path']).parent}/split_pages"
                         )
-                        logger.info(f"文档切页完成, 结果路径: {f'{Path(doc_process_path).parent}/split_pages'}")
+                        logger.info(
+                            f"request_id={request_id}, 文档切页完成, 结果路径: {f'{Path(doc_process_path).parent}/split_pages'}")
                         # 更新数据库状态为已切页
                         doc_status = "splited"
-                        logger.info(f"文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
+                        logger.info(
+                            f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
 
@@ -350,17 +398,17 @@ class DocumentService(BaseService):
                             f"分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
                         insert_record(GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], values)
                     except Exception as e:
-                        logger.error(f"文档切页失败, request_id={request_id}, error={e}")
+                        logger.error(f"request_id={request_id}, 文档切页失败, error={e}")
                         doc_status = "split_failed"
-                        logger.info(f"开始更新数据库状态: process_status -> {doc_status}")
+                        logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
 
-                    logger.info(f"文档已处理, status: {doc_status}")
+                    logger.info(f"request_id={request_id}, 文档已处理, status: {doc_status}")
 
             # 如果超过最大尝试次数仍未完成，记录超时
             logger.error(
-                f"文档处理状态监控超时: doc_id={doc_id}")
+                f"request_id={request_id}, 文档处理状态监控超时: doc_id={doc_id}")
 
         except Exception as e:
-            logger.error(f"文档监控任务异常：{str(e)}, request_id={request_id}, error={str(e)}")
+            logger.error(f"request_id={request_id}, 文档监控任务异常：{str(e)}, error={str(e)}")

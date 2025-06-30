@@ -1,9 +1,12 @@
 """各类转换器（html2md、时间转换、大小转换等）"""
+import os
 import pandas as pd
 from bs4 import BeautifulSoup
+from urllib.parse import quote
 
 from utils.log_utils import logger
 from utils.validators import validate_html
+from config.global_config import GlobalConfig
 
 
 # === 单位转换工具 ===
@@ -98,6 +101,23 @@ def convert_html_to_markdown(html: str) -> str:
 
         # 转为 markdown
         return df.to_markdown(index=False)
+
+
+# === 路径转换 ===
+def local_path_to_url(local_path: str) -> str:
+    """将本路路径转换为 http url 地址"""
+    # 转换源文档地址
+    if GlobalConfig.PATHS["origin_data"] in local_path:
+        rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
+        # return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
+        return f"/static/raw/{quote(rel_path)}"
+    # 转换输出文档地址
+    elif GlobalConfig.PATHS["processed_data"] in local_path:
+        rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
+        # return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
+        return f"/static/processed/{quote(rel_path)}"
+    else:
+        raise ValueError("不支持的路径, 未注册的路径地址")
 
 
 if __name__ == '__main__':

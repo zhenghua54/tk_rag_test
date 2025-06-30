@@ -7,7 +7,7 @@ from databases.elasticsearch.operations import ElasticsearchOperation
 
 from utils.log_utils import logger
 from config.global_config import GlobalConfig
-from utils.validators import validate_empty_param, validate_param_type
+from utils.validators import validate_empty_param
 
 # 表明与操作类的映射
 TABLE_OPERATION_MAPPING = {
@@ -18,7 +18,7 @@ TABLE_OPERATION_MAPPING = {
 }
 
 
-def select_record_by_doc_id(table_name: str, doc_id: str) -> Dict[str, Any]:
+def select_record_by_doc_id(table_name: str, doc_id: str) -> Union[Dict[str, Any], List[Dict[str, Any]], None]:
     """根据 doc_id 查询数据库信息
 
     Args:
@@ -26,7 +26,7 @@ def select_record_by_doc_id(table_name: str, doc_id: str) -> Dict[str, Any]:
         doc_id: 文档Id
 
     Returns:
-        dict: 返回查询到的记录信息,未查到时为 None
+        dict: 返回查询到的记录信息, 单条为,未查到时为 None
     """
 
     if table_name not in TABLE_OPERATION_MAPPING:
@@ -39,6 +39,27 @@ def select_record_by_doc_id(table_name: str, doc_id: str) -> Dict[str, Any]:
     except Exception as e:
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
+
+def select_records_by_doc_id(table_name: str, doc_id: str) -> Union[List[Dict[str, Any]], None]:
+    """根据 doc_id 查询数据库信息
+
+    Args:
+        table_name: 要查询的表名
+        doc_id: 文档Id
+
+    Returns:
+        dict: 查询到的记录,未查询到时为 None
+    """
+
+    if table_name not in TABLE_OPERATION_MAPPING:
+        raise ValueError(f"未知表名: {table_name}")
+
+    try:
+        operation_cls = TABLE_OPERATION_MAPPING[table_name]
+        with operation_cls() as op:
+            return op.select_by_id_many(doc_id)
+    except Exception as e:
+        raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
 def delete_all_database_data(doc_id: str) -> None:
     """删除所有数据库中的相关数据

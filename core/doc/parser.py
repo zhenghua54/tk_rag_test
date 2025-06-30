@@ -207,7 +207,7 @@ def process_doc_by_page(json_doc_path: str):
 
 
 # === 主入口函数（后台处理） ===
-def process_doc_content(doc_path: str, doc_id: str = None) -> str:
+def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = None) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
@@ -217,13 +217,14 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
     Args:
         doc_path (str): 源文档路径
         doc_id (str, optional): 文档ID，如果提供则会更新数据库状态
+        request_id (str, optional): 请求ID，如果提供则会更新数据库状态
 
     Returns:
         save_path (str): 处理后的文档路径
     """
 
     try:
-        logger.info(f"开始处理文档: {doc_path}, doc_id={doc_id}")
+        logger.info(f"开始处理文档: {doc_path}, doc_id={doc_id}, request_id={request_id}")
 
         # 验证参数
         validate_param_type(doc_path, str, "源文档路径")  # 参数类型验证
@@ -249,26 +250,15 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
         results = dict()
 
         try:
-            logger.info(f"第一步: 解析文档, 工具: MinerU, pdf_path={pdf_path}")
-            # json_path = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
+            logger.info(f"request_id={request_id}, 第一步: 解析文档, 工具: MinerU, pdf_path={pdf_path}")
             results = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
             process_result = True
         except Exception as e:
-            logger.error(f"MinerU 解析失败, 失败原因: {str(e)}")
+            logger.error(f"request_id={request_id}, MinerU 解析失败, 失败原因: {str(e)}")
             process_result = False
             raise ValueError(f"MinerU 解析失败, 失败原因: {str(e)}") from e
 
         finally:  # 无论成功失败,都需要更新数据库记录
-            # # 构建需要更新的字段
-            # values = {
-            #     "doc_output_dir": output_dir if process_result else None,
-            #     "doc_json_path": results["json_path"] if process_result else None,
-            #     "doc_spans_path": results["spans_path"] if process_result else None,
-            #     "doc_layout_path": results["layout_path"] if process_result else None,
-            #     "doc_images_path": output_image_path if process_result else None,
-            #     "doc_pdf_path": pdf_path if process_result else None,
-            #     "process_status": "parsed" if process_result else "parse_failed",
-            # }
             if process_result:
                 # 构建需要更新的字段
                 values = {
@@ -287,7 +277,7 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
                 }
 
             logger.info(
-                f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+                f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
             update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
                                     kwargs=values)
 
@@ -295,7 +285,7 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
         json_path = results["json_path"]
         try:
             # 合并页面内容
-            logger.info(f"第二步: 按页合并元素, json_path={json_path}")
+            logger.info(f"request_id={request_id}, 第二步: 按页合并元素, json_path={json_path}")
             save_path = process_doc_by_page(json_path)
 
             # 如果提供了 doc_id，更新数据库状态
@@ -305,14 +295,14 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
                     "process_status": "merged"
                 }
                 logger.info(
-                    f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+                    f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
                 update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
                                         kwargs=values)
         except Exception as e:
-            logger.error(f"合并元素失败, 失败原因: {str(e)}")
+            logger.error(f"request_id={request_id}, 合并元素失败, 失败原因: {str(e)}")
             values = {"process_status": "merge_failed"}
             logger.info(
-                f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+                f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
             update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
                                     kwargs=values)
             raise ValueError(f"合并元素失败, 失败原因: {str(e)}") from e
@@ -322,7 +312,7 @@ def process_doc_content(doc_path: str, doc_id: str = None) -> str:
             log_exception(f"文档处理失败", e)
         raise ValueError(f"文档处理失败, 失败原因: {str(e)}")
 
-    logger.info("文档处理完成, 等待文档切块...")
+    logger.info(f"request_id={request_id}, 文档处理完成, 等待文档切块...")
     return save_path
 
 

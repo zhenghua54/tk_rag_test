@@ -119,6 +119,25 @@ class BaseDBOperation:
             logger.error(f"查询记录失败: {str(e)}")
             raise e
 
+    def select_by_id_many(self, doc_id: str) -> List[Dict]:
+        """根据 doc_id 查询记录
+
+        Args:
+            doc_id (List[str]): 文档 ID,支持一个或多个
+
+        Returns:
+            List[Dict]: 查询到的结果
+        """
+        validate_doc_id(doc_id)
+
+        try:
+            sql = f'SELECT * FROM {self.table_name} WHERE doc_id = %s'
+            return self._execute_query(sql, (doc_id,))
+        except Exception as e:
+            logger.error(f"查询记录失败: {str(e)}")
+            raise e
+
+
     def select_record(self, fields: Optional[List[str]] = None, conditions: Optional[Dict] = None) -> List[Dict] | None:
         """查询记录
 

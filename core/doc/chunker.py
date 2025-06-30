@@ -23,13 +23,14 @@ def format_table_caption_footnote(value: Union[str, List]):
     return value
 
 
-def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str):
+def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str, request_id: str = None) -> bool:
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
         doc_process_path (str): 聚合处理后的文档，格式为 dict[idx:[content]]
         permission_ids (str): 权限ID，统一使用简单字符串格式，如 "1"
+        request_id (str): 请求ID，如果提供则会更新数据库状态
     """
     # 处理空权限情况
     if permission_ids is None:
@@ -46,7 +47,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", ".", "!", "?", " ", ""]
     )
-    logger.info("文本分块器初始化完成")
+    logger.info(f"request_id={request_id}, 文本分块器初始化完成")
 
     # 初始化数据库操作实例
     chunk_op = ChunkOperation()
@@ -67,10 +68,10 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
             json_content = json.load(f)
 
         total_pages = len(json_content)
-        logger.info(f"共需处理 {total_pages} 页内容")
+        logger.info(f"request_id={request_id}, 共需处理 {total_pages} 页内容")
 
         for page_idx, page_contents in json_content.items():
-            logger.info(f"正在处理第 {page_idx} 页内容...")
+            logger.info(f"request_id={request_id}, 正在处理第 {page_idx} 页内容...")
             for content in page_contents:
                 # 文本直接送入切割
                 if content["type"] == "text":
@@ -79,12 +80,12 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                     if len(text_content) <= GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500):
                         # 文本长度小于chunk_size，直接处理不分块
                         logger.info(
-                            f"文本长度({len(text_content)})小于分块大小({GlobalConfig.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块")
+                            f"request_id={request_id}, 文本长度({len(text_content)})小于分块大小({GlobalConfig.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块")
                         text_chunks = [text_content]
                     else:
                         # 文本长度超过chunk_size，需要分块
                         text_chunks = text_splitter.split_text(text_content)
-                        logger.info(f"文本内容分块完成，共 {len(text_chunks)} 个块")
+                        logger.info(f"request_id={request_id}, 文本内容分块完成，共 {len(text_chunks)} 个块")
 
                     # 分批处理文本块
                     for i in range(0, len(text_chunks), batch_size):
@@ -94,7 +95,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                         for chunk in batch_chunks:
                             # 数据验证
                             if not chunk.strip():  # 空文本没有意义
-                                logger.warning(f"跳过空文本块: '{chunk}'")
+                                logger.warning(f"request_id={request_id}, 跳过空文本块: '{chunk}'")
                                 continue
 
                             seg_id = generate_seg_id(chunk)  # 片段 ID
@@ -103,7 +104,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                             # 向量验证
                             if not isinstance(vector, list) or len(vector) != 1024:
                                 logger.error(
-                                    f"向量生成异常: {seg_id}, 长度={len(vector) if isinstance(vector, list) else 'not a list'}, 内容={chunk}")
+                                    f"request_id={request_id}, 向量生成异常: {seg_id}, 长度={len(vector) if isinstance(vector, list) else 'not a list'}, 内容={chunk}")
                                 continue
 
                             # 构建milvus存储结果
@@ -147,16 +148,16 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
 
                 elif content["type"] == "table":
                     # 处理表格内容
-                    logger.info(f"处理第 {page_idx} 页的表格内容...")
+                    logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的表格内容...")
 
                     table_body = content.get('table_body', "").strip()
                     if not table_body:
-                        logger.warning(f"表格内容为空: {content}")
+                        logger.warning(f"request_id={request_id}, 表格内容为空: {content}")
                         continue
 
                     # 表格解析为markdown
                     table_markdown = convert_html_to_markdown(table_body)
-                    logger.debug(f"表格转换为 Markdown 格式，长度: {len(table_markdown)}")
+                    logger.debug(f"request_id={request_id}, 表格转换为 Markdown 格式，长度: {len(table_markdown)}")
 
                     # 获取表格内容 Seg_id, seg_vector
                     table_seg_id = generate_seg_id(table_body)
@@ -168,7 +169,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                     # 向量验证
                     if not isinstance(table_vector, list) or len(table_vector) != 1024:
                         logger.error(
-                            f"表格向量生成异常: {table_seg_id}, 长度={len(table_vector) if isinstance(table_vector, list) else 'not a list'}, 内容={segment_content}")
+                            f"request_id={request_id}, 表格向量生成异常: {table_seg_id}, 长度={len(table_vector) if isinstance(table_vector, list) else 'not a list'}, 内容={segment_content}")
                         continue
 
                     # 初始化拆表标记
@@ -224,11 +225,11 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                     if chunk_table:
                         # 处理子表信息: 将markdown格式的内容送入切块
                         sub_table_chunks = text_splitter.split_text(table_markdown)
-                        logger.debug(f"表格markdown分块完成，共 {len(sub_table_chunks)} 个子块")
+                        logger.debug(f"request_id={request_id}, 表格markdown分块完成，共 {len(sub_table_chunks)} 个子块")
 
                         for table_segment in sub_table_chunks:
                             if not table_segment.strip():  # 空文本没有意义
-                                logger.warning(f"跳过空的子表块: '{table_segment}'")
+                                logger.warning(f"request_id={request_id}, 跳过空的子表块: '{table_segment}'")
                                 continue
 
                             sub_table_vector = embedding_manager.embed_text(table_segment)
@@ -237,7 +238,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                             # 向量验证
                             if not isinstance(sub_table_vector, list) or len(sub_table_vector) != 1024:
                                 logger.error(
-                                    f"子表向量生成异常: {sub_seg_id}, 长度={len(sub_table_vector) if isinstance(sub_table_vector, list) else 'not a list'}, 内容={table_segment}")
+                                    f"request_id={request_id}, 子表向量生成异常: {sub_seg_id}, 长度={len(sub_table_vector) if isinstance(sub_table_vector, list) else 'not a list'}, 内容={table_segment}")
                                 continue
 
                             # 组装子表 milvus 元数据
@@ -282,17 +283,17 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                 elif content["type"] == "image":
                     # 判断图片内容是否为空
                     if not content.get("img_path", ""):
-                        logger.warning(f"图片内容为空: {content}")
+                        logger.warning(f"request_id={request_id}, 图片内容为空: {content}")
                         continue
 
-                    logger.info(f"处理第 {page_idx} 页的图片内容...")
+                    logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的图片内容...")
 
                     # 生成图片信息 - 处理标题可能是列表的情况
                     img_caption = format_table_caption_footnote(content.get("img_caption", ""))
                     img_footnote = format_table_caption_footnote(content.get("img_footnote", ""))
 
                     if not img_caption:
-                        logger.warning(f"图片标题为空，使用默认标题")
+                        logger.warning(f"request_id={request_id}, 图片标题为空，使用默认标题")
                         img_caption = f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
 
                     image_vector = embedding_manager.embed_text(img_caption)
@@ -300,7 +301,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
                     # 向量验证
                     if not isinstance(image_vector, list) or len(image_vector) != 1024:
                         logger.error(
-                            f"图片向量生成异常, 标题={img_caption}, 地址={content.get('img_path', '')}")
+                            f"request_id={request_id}, 图片向量生成异常, 标题={img_caption}, 地址={content.get('img_path', '')}")
                         continue
 
                     image_seg_id = generate_seg_id(img_caption)
@@ -359,13 +360,14 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str
         if milvus_batch or mysql_batch or es_batch:
             save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
             total_records += len(mysql_batch)
-            logger.info(f"已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
-            logger.info(f"文档处理完成，共处理 {total_records} 条记录")
+            logger.info(
+                f"request_id={request_id}, 已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
+            logger.info(f"request_id={request_id}, 文档处理完成，共处理 {total_records} 条记录")
 
         return True
 
     except Exception as e:
-        logger.error(f"[文档处理失败] request_id={doc_id}, error={str(e)}")
+        logger.error(f"[文档处理失败] request_id={request_id}, doc_id={doc_id}, error={str(e)}")
         raise
 
 

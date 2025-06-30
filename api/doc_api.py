@@ -1,10 +1,12 @@
 """文档API实现"""
+from typing import Dict, Union, Any
+
 from fastapi import APIRouter, Request
 from api.response import APIException
 from api.response import ResponseBuilder
 from error_codes import ErrorCode
 from services.doc_server import DocumentService
-from api.request.doc_request import DocumentDeleteRequest,DocumentUploadRequest,DocumentStatusRequest
+from api.request.doc_request import DocumentDeleteRequest, DocumentUploadRequest, DocumentStatusRequest
 # from api.request.document_upload_request import DocumentUploadRequest
 from utils.log_utils import (
     log_operation_start, log_operation_success, log_operation_error,
@@ -49,8 +51,12 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
                           request_id=request_id,
                           permission_ids=request.department_id)
 
-        data = await doc_service.upload_file(document_http_url=request.document_http_url,
-                                             permission_ids=request.department_id)
+        data = await doc_service.upload_file(
+            document_http_url=request.document_http_url,
+            permission_ids=request.department_id,
+            callback_url=request.callback_url,
+            request_id=request_id
+        )
 
         # 记录操作成功
         log_operation_success("文档上传", start_time,
@@ -130,7 +136,7 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
 
 
 @router.post("/check_status")
-async def check_document_status(request:DocumentStatusRequest, fastapi_request: Request):
+async def check_document_status(request: DocumentStatusRequest, fastapi_request: Request):
     """文档状态监测接口
 
     监测指定 doc_id 的文档状态, 决定前端展示的内容
@@ -159,7 +165,45 @@ async def check_document_status(request:DocumentStatusRequest, fastapi_request: 
 
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
     except Exception as e:
-        log_exception(f"文档状态查询异常.",exc=e)
+        log_exception(f"文档状态查询异常", exc=e)
+        return ResponseBuilder.error(
+            error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value,
+            error_message=str(e),
+            request_id=request_id
+        ).model_dump()
+
+
+@router.get("/result/{doc_id}")
+async def get_doc_result(doc_id: str, fastapi_request: Request) -> Union[Dict[str, Any], None]:
+    """查询文档信息接口
+
+    Args:
+        doc_id: 要查询的文档 ID
+        fastapi_request: FastAPI 请求对象,用于获取请求 ID 等信息
+    
+    Returns:
+        Dict: 文档信息响应
+    """
+
+    # 获取服务器实例
+    doc_service = DocumentService.get_instance()
+    # 获取请求 ID
+    request_id = getattr(fastapi_request.state, "request_id", None)
+
+    # 记录操作开始
+    logger.info(f"查询文档信息, request_id={request_id}, doc_id={doc_id}")
+
+    try:
+        validate_doc_id(doc_id)
+
+        # 调用查询文档信息方法
+        logger.info(f"API 调用: /documents/result/{doc_id}")
+        result = await doc_service.get_result(doc_id=doc_id)
+
+        return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
+
+    except Exception as e:
+        log_exception(f"文档信息查询异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value,
             error_message=str(e),
