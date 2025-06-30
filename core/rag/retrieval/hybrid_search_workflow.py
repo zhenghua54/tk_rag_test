@@ -217,7 +217,7 @@ class HybridSearchWorkflow:
                             "search_type": result.get("search_type"),
                             "doc_name": mysql_data.get("doc_name"),
                             "doc_http_url": mysql_data.get("doc_http_url"),
-                            "page_pdf_path": mysql_data.get("page_pdf_path"),
+                            "page_png_path": mysql_data.get("page_png_path"),
                             "create_time": mysql_data.get("created_at"),
                             "update_time": mysql_data.get("updated_at")
                         }

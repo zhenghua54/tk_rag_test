@@ -525,22 +525,46 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
 # === 文档分页切割 ===
 def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str, str]]:
     """按页切割文档,返回保存的页面地址列表"""
-    # print(f"切页输出目录---> {output_dir}")
     os.makedirs(output_dir, exist_ok=True)
     doc = fitz.open(input_path)
     result: dict[str, str] = {}
     try:
-        logger.info(f"文档共 {len(doc)} 页, 切割中...")
+        logger.info(f"文档共 {len(doc)} 页, 切割为 PNG 图片中...")
         for page_num in range(len(doc)):
-            new_doc = fitz.open()
-            new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
-            save_path: str = f"{output_dir}/page_{page_num + 1}.pdf"
-            new_doc.save(save_path)
+            # 保存为PDF
+            # new_doc = fitz.open()
+            # new_doc.insert_pdf(doc, from_page=page_num, to_page=page_num)
+            # save_path: str = f"{output_dir}/page_{page_num + 1}.pdf"
+            # new_doc.save(save_path)
+            # result[str(page_num + 1)] = save_path
+
+            # 保存为 PNG 图片
+            # 获取页面
+            page = doc.load_page(page_num)
+            # 设置图片缩放比例（DPI），提高图片质量
+            mat = fitz.Matrix(2.0, 2.0)  # 2倍缩放，相当于 300 DPI
+
+            # 将页面渲染为图片
+            pix = page.get_pixmap(matrix=mat)
+
+            # 保存图片为 PNG 格式
+            save_path: str = f"{output_dir}/page_{page_num + 1}.png"
+            pix.save(save_path)
+            
             result[str(page_num + 1)] = save_path
+
+            # 清理内存
+            pix = None
+
+        logger.info(f"文档切割完成, 共生成 {len(result)} 张PNG图片")
         return result
     except Exception as e:
         logger.error(f"文档切割失败, 失败原因: {str(e)}")
         raise ValueError(f"文档切割失败, 失败原因: {str(e)}") from e
+    finally:
+        # 确保文档关闭
+        if doc:
+            doc.close()
 
 
 # === 文档删除 ===

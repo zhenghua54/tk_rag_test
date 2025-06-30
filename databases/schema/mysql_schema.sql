@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS doc_page_info
     pid             INT AUTO_INCREMENT PRIMARY KEY, -- 记录唯一ID
     doc_id          VARCHAR(64) NOT NULL,           -- 文档ID
     page_idx        INT         NOT NULL,           -- 页码
-    page_pdf_path   VARCHAR(1024),                  -- 每页的存储路径
+    page_png_path VARCHAR(1024),                    -- 每页的存储路径
     page_static_url VARCHAR(1024),                  -- 页面的图片/HTML链接
     UNIQUE KEY uniq_doc_page (doc_id, page_idx),    -- 防止重复页
     INDEX idx_doc_id (doc_id),

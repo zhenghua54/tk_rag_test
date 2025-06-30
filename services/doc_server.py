@@ -31,7 +31,7 @@ class DocumentService(BaseService):
 
     @staticmethod
     async def upload_file(document_http_url: str, permission_ids: Union[str, None],
-                          callback_url: str = None, request_id: str = None) -> dict:
+                          request_id: str = None) -> dict:
         """上传文档"""
         validate_empty_param(document_http_url, '文档地址')
 
@@ -122,14 +122,6 @@ class DocumentService(BaseService):
                         )
                     )
 
-                    # # 回调接口
-                    # if callback_url:
-                    #     try:
-                    #         async with httpx.AsyncClient() as client:
-                    #             await client.post(callback_url, json=result)
-                    #     except Exception as e:
-                    #         logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
-                    #         # 回调失败不影响主流程
                     return {
                         "doc_id": doc_id,
                         "doc_name": path.name,
@@ -299,7 +291,7 @@ class DocumentService(BaseService):
             page_info_list = []
 
             for page_info in doc_page_info:
-                page_path = page_info.get("page_pdf_path")
+                page_path = page_info.get("page_png_path")
                 page_info_list.append(
                     {
                         "page_idx": page_info['page_idx'],
@@ -391,11 +383,11 @@ class DocumentService(BaseService):
                                                 {"process_status": doc_status})
 
                         # 组装数据
-                        values = [{"doc_id": doc_id, "page_idx": k, "page_pdf_path": v} for k, v in
+                        values = [{"doc_id": doc_id, "page_idx": k, "page_png_path": v} for k, v in
                                   split_result.items()]
                         # 批量更新
                         logger.info(
-                            f"分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
+                            f"request_id={request_id}, 分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
                         insert_record(GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], values)
                     except Exception as e:
                         logger.error(f"request_id={request_id}, 文档切页失败, error={e}")

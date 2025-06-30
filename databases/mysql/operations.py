@@ -199,7 +199,7 @@ class ChunkOperation(BaseDBOperation):
                          f.created_at,
                          f.updated_at,
                          p.permission_ids, -- 权限信息表的字段
-                         d.page_pdf_path   -- 分页信息表的字段
+                         d.page_png_path   -- 分页信息表的字段
 
                   FROM segment_info s
                            LEFT JOIN doc_info f ON s.doc_id = f.doc_id
@@ -280,7 +280,7 @@ class ChunkOperation(BaseDBOperation):
                     "permission_ids": record.get("permission_ids", ""),
 
                     # 分页信息
-                    "page_pdf_path": record.get("page_pdf_path", "")
+                    "page_png_path": record.get("page_png_path", "")
 
                 }
                 results.append(result)

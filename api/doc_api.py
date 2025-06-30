@@ -54,7 +54,6 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
         data = await doc_service.upload_file(
             document_http_url=request.document_http_url,
             permission_ids=request.department_id,
-            callback_url=request.callback_url,
             request_id=request_id
         )
 

@@ -132,9 +132,9 @@ class RAGGenerator:
                     }
                 else:
                     # 用于前端展示时, 包含所有字段
-                    raw_path = doc.metadata.get("page_pdf_path")
+                    raw_path = doc.metadata.get("page_png_path")
                     # 本地路径静态映射
-                    doc.metadata["page_pdf_path"] = local_path_to_url(raw_path) if raw_path else None
+                    doc.metadata["page_png_path"] = local_path_to_url(raw_path) if raw_path else None
 
                     # 处理元数据中的非 JSON 序列化对象,如: datetime 等
                     clean_metadata = {}
