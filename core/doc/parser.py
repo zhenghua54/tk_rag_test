@@ -6,14 +6,14 @@ import hashlib
 import uuid
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 
 from config.global_config import GlobalConfig
 from databases.db_ops import update_record_by_doc_id
 from error_codes import ErrorCode
 from api.response import APIException
 from utils.file_ops import mineru_toolkit, get_doc_output_path, libreoffice_convert_toolkit
-from databases.mysql.operations import FileInfoOperation
+# from databases.mysql.operations import FileInfoOperation
 from utils.validators import check_local_doc_exists, check_doc_ext
 
 from utils.log_utils import log_operation_success, log_operation_start, log_operation_error, logger, log_exception
@@ -207,7 +207,7 @@ def process_doc_by_page(json_doc_path: str):
 
 
 # === 主入口函数（后台处理） ===
-def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[FileInfoOperation] = None) -> str:
+def process_doc_content(doc_path: str, doc_id: str = None) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
@@ -217,7 +217,6 @@ def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[Fil
     Args:
         doc_path (str): 源文档路径
         doc_id (str, optional): 文档ID，如果提供则会更新数据库状态
-        file_op (FileOperation, optional): 文件表操作对象
 
     Returns:
         save_path (str): 处理后的文档路径
@@ -247,11 +246,12 @@ def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[Fil
 
         # === 使用MinerU 解析 PDF 文档 ===
         process_result = None
-        json_path = ""
+        results = dict()
 
         try:
             logger.info(f"第一步: 解析文档, 工具: MinerU, pdf_path={pdf_path}")
-            json_path = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
+            # json_path = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
+            results = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
             process_result = True
         except Exception as e:
             logger.error(f"MinerU 解析失败, 失败原因: {str(e)}")
@@ -259,20 +259,40 @@ def process_doc_content(doc_path: str, doc_id: str = None, file_op: Optional[Fil
             raise ValueError(f"MinerU 解析失败, 失败原因: {str(e)}") from e
 
         finally:  # 无论成功失败,都需要更新数据库记录
-            # 构建需要更新的字段
-            values = {
-                "doc_output_dir": output_dir if process_result else None,
-                "doc_json_path": json_path if process_result else None,
-                "doc_images_path": output_image_path if process_result else None,
-                "doc_pdf_path": pdf_path if process_result else None,
-                "process_status": "parsed" if process_result else "parse_failed",
-            }
+            # # 构建需要更新的字段
+            # values = {
+            #     "doc_output_dir": output_dir if process_result else None,
+            #     "doc_json_path": results["json_path"] if process_result else None,
+            #     "doc_spans_path": results["spans_path"] if process_result else None,
+            #     "doc_layout_path": results["layout_path"] if process_result else None,
+            #     "doc_images_path": output_image_path if process_result else None,
+            #     "doc_pdf_path": pdf_path if process_result else None,
+            #     "process_status": "parsed" if process_result else "parse_failed",
+            # }
+            if process_result:
+                # 构建需要更新的字段
+                values = {
+                    "doc_output_dir": output_dir,
+                    "doc_json_path": results["json_path"],
+                    "doc_spans_path": results["spans_path"],
+                    "doc_layout_path": results["layout_path"],
+                    "doc_images_path": output_image_path,
+                    "doc_pdf_path": pdf_path,
+                    "process_status": "parsed",
+                }
+            else:
+                # 构建需要更新的字段
+                values = {
+                    "process_status": "parse_failed",
+                }
+
             logger.info(
                 f"开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
             update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
                                     kwargs=values)
 
         # === 页面合并 ===
+        json_path = results["json_path"]
         try:
             # 合并页面内容
             logger.info(f"第二步: 按页合并元素, json_path={json_path}")

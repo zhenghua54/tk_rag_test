@@ -16,7 +16,7 @@ import subprocess
 import tempfile
 
 from pathlib import Path
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, Tuple, Optional, List, Union
 # mineru 解析使用
 from magic_pdf.config.enums import SupportedPdfParseMethod
 from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
@@ -460,7 +460,7 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
 
 
 # === PDF 文档解析 ===
-def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> str:
+def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> Union[Dict, None]:
     """解析 PDF 文件, 返回 json 文件信息
 
     Args:
@@ -470,10 +470,10 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
         doc_name: 文档名称
 
     Returns:
-        json_path (str): json 文件的保存路径
-        # image_path (str): 图片的保存路径
-        # doc_name (str): 文档名称
-        # output_dir (str): 输出路径
+        dict:
+            json_path (str): json 文件的保存路径
+            spans_path (str): spans 文件保存路径
+            layout_path (str): layout 文件保存路径
     """
 
     try:
@@ -498,24 +498,37 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
             infer_result = ds.apply(doc_analyze, ocr=False)  # 否则进行普通文本分析
             pipe_result = infer_result.pipe_txt_mode(image_writer)  # 进行文本模式下的管道处理
 
+        #  绘制布局结果到 PDF 页面上
+        layout_path = os.path.join(output_dir, f"{doc_name}_layout.pdf")
+        pipe_result.draw_layout(layout_path)
+
+        # 绘制跨度结果到 PDF 页面上（方便质检，排查文本丢失、行间公式未识别等问题）
+        spans_path = os.path.join(output_dir, f"{doc_name}_spans.pdf")
+        pipe_result.draw_span(spans_path)
+
         # 将内容列表保存为 JSON 文件
         json_path = os.path.join(output_dir, f"{doc_name}_mineru.json")
         pipe_result.dump_content_list(md_writer, json_path, output_image_path)
 
         logger.info(f"MinerU 解析完成, JSON 文件已保存至: {json_path}")
-        return json_path
+        results = {
+            "json_path": json_path,
+            "spans_path": spans_path,
+            "layout_path": layout_path,
+        }
+        return results
     except Exception as e:
         logger.error(f"Mineru 解析文档失败, 错误原因: {str(e)}")
         raise ValueError(f"Mineru 解析文档失败, 错误原因: {str(e)}") from e
 
 
 # === 文档分页切割 ===
-def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str,str]]:
+def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str, str]]:
     """按页切割文档,返回保存的页面地址列表"""
     # print(f"切页输出目录---> {output_dir}")
     os.makedirs(output_dir, exist_ok=True)
     doc = fitz.open(input_path)
-    result:dict[str,str] = {}
+    result: dict[str, str] = {}
     try:
         logger.info(f"文档共 {len(doc)} 页, 切割中...")
         for page_num in range(len(doc)):

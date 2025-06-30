@@ -107,7 +107,7 @@ class DocumentService(BaseService):
                             process_doc_content,
                             str(path.resolve()),
                             doc_id,
-                            file_op,
+                            # file_op,
                             # request_id,
                         )
                     )

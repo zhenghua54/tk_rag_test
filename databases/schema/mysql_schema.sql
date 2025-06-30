@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS doc_info
     doc_output_dir   VARCHAR(1024),                                                      -- 处理后文档的保存目录
     doc_pdf_path     VARCHAR(1024),                                                      -- PDF路径
     doc_json_path    VARCHAR(1024),                                                      -- JSON路径
+    doc_spans_path  VARCHAR(1024),                                                       -- spans 可视化路径
+    doc_layout_path VARCHAR(1024),                                                       -- layout 可视化路径
     doc_images_path  VARCHAR(1024),                                                      -- 图片路径
     doc_process_path VARCHAR(1024),                                                      -- 合并后的文档路径
     process_status   VARCHAR(20),                                                        -- 文档处理状态：见配置文件中的 FILE_STATUS 定义
@@ -85,28 +87,32 @@ CREATE TABLE IF NOT EXISTS doc_page_info
 
 
 -- 会话表
-CREATE TABLE IF NOT EXISTS chat_sessions (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS chat_sessions
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     session_id VARCHAR(64) NOT NULL UNIQUE COMMENT '会话ID',
-    user_id VARCHAR(64) DEFAULT NULL COMMENT '用户ID（可选）',
-    title VARCHAR(255) DEFAULT NULL COMMENT '会话标题（可选）',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    user_id    VARCHAR(64)  DEFAULT NULL COMMENT '用户ID（可选）',
+    title      VARCHAR(255) DEFAULT NULL COMMENT '会话标题（可选）',
+    created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_session_id (session_id),
     INDEX idx_user_id (user_id),
     INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天会话表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='聊天会话表';
 
 -- 消息表
-CREATE TABLE IF NOT EXISTS chat_messages (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    session_id VARCHAR(64) NOT NULL COMMENT '会话ID',
-    message_type ENUM('human', 'ai') NOT NULL COMMENT '消息类型',
-    content TEXT NOT NULL COMMENT '消息内容',
-    metadata JSON DEFAULT NULL COMMENT '元数据(文档信息等)',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+CREATE TABLE IF NOT EXISTS chat_messages
+(
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id   VARCHAR(64)          NOT NULL COMMENT '会话ID',
+    message_type ENUM ('human', 'ai') NOT NULL COMMENT '消息类型',
+    content      TEXT                 NOT NULL COMMENT '消息内容',
+    metadata     JSON      DEFAULT NULL COMMENT '元数据(文档信息等)',
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     INDEX idx_session_id (session_id),
     INDEX idx_message_type (message_type),
     INDEX idx_created_at (created_at),
-    FOREIGN KEY (session_id) REFERENCES chat_sessions(session_id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息表';
+    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id) ON DELETE CASCADE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='聊天消息表';
