@@ -30,12 +30,16 @@ class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_http_url: str, permission_ids: Union[str, list[str]],
+    async def upload_file(document_http_url: str, permission_ids: Union[str, list[str], list[None]],
                           request_id: str = None) -> dict:
         """上传文档"""
         validate_empty_param(document_http_url, '文档地址')
         # 部门格式验证
         validate_permission_ids(permission_ids)
+
+        # 处理空权限
+        if isinstance(permission_ids, list) and len(permission_ids) == 0:
+            permission_ids = ""
 
         try:
             if document_http_url.startswith("http"):

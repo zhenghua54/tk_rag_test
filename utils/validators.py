@@ -75,10 +75,12 @@ def validate_permission_ids(value):
     """验证部门ID列表"""
     if isinstance(value, str) and 1 <= len(value) <= 32:
         pass
-    elif isinstance(value, list):
+    elif isinstance(value, list) and len(value) > 0:
         for idx, v in enumerate(value):
             if not isinstance(v, str):
                 raise ValueError(f"第 {idx} 个权限 ID 格式非法: {v}:{type(v)}")
+    elif isinstance(value, list) and len(value) == 0:
+        pass
     else:
         raise ValueError(f"非法的 permission_id: {value}")
 
