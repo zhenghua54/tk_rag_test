@@ -188,37 +188,6 @@ class ChunkOperation(BaseDBOperation):
                 logger.error("必须提供 seg_ids 或 doc_ids 参数")
                 return []
 
-            # 检查权限数据
-            if doc_ids:
-                check_sql = """
-                SELECT doc_id, permission_ids, COUNT(*) as count
-                FROM permission_info 
-                WHERE doc_id IN ({})
-                GROUP BY doc_id, permission_ids
-                """.format(','.join(['%s'] * len(doc_ids)))
-
-                check_result = self._execute_query(check_sql, tuple(doc_ids))
-                logger.info(f"权限数据检查结果: {check_result}")
-
-            # 构建关联查询SQL
-            # sql = """
-            #       SELECT s.doc_id,
-            #              s.seg_id,
-            #              s.seg_content,
-            #              s.seg_page_idx,
-            #              f.doc_name,
-            #              f.doc_http_url,   -- 文档信息表的字段
-            #              f.created_at,
-            #              f.updated_at,
-            #              p.permission_ids, -- 权限信息表的字段
-            #              d.page_png_path   -- 分页信息表的字段
-
-            #       FROM segment_info s
-            #                LEFT JOIN doc_info f ON s.doc_id = f.doc_id
-            #                LEFT JOIN permission_info p ON s.doc_id = p.doc_id
-            #                LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
-            #       WHERE 1 = 1 \
-            #       """
             sql = """
                   SELECT s.doc_id,
                          s.seg_id,
@@ -255,24 +224,6 @@ class ChunkOperation(BaseDBOperation):
                     placeholders = ', '.join(['%s'] * len(doc_ids))
                     sql += f" AND s.doc_id IN ({placeholders})"
                     params.extend(doc_ids)
-
-            # # 如果提供了权限ID，直接在SQL中添加权限过滤
-            # expr = "AND (p.permission_ids IS NULL OR p.permission_ids = '')"
-            # perm_params = []
-
-            # # 单个权限
-            # if isinstance(permission_ids, str) and permission_ids.strip():
-            #     expr = " AND (p.permission_ids = %s OR p.permission_ids IS NULL OR p.permission_ids = '')"
-            #     perm_params = [permission_ids]
-
-            # # 多个权限
-            # elif isinstance(permission_ids, list) and len(permission_ids) > 0:
-            #     perm_params = [pid.strip() for pid in permission_ids if pid.strip()]
-            #     placeholders = ", ".join(["%s"] * len(perm_params))
-            #     expr = f"AND (p.permission_ids IN ({placeholders}) OR p.permission_ids IS NULL OR p.permission_ids = '')"
-
-            # sql += f" {expr}"
-            # params.extend(perm_params)
 
             # 权限过滤逻辑 - 使用 EXISTS 子查询
             # EXISTS 权限过滤方法
@@ -332,7 +283,6 @@ class ChunkOperation(BaseDBOperation):
 
             # 构建参数列表
 
-
             # 执行查询
             segment_info: list[dict[str, Any]] = self._execute_query(sql, tuple(params))
 
@@ -364,15 +314,10 @@ class ChunkOperation(BaseDBOperation):
                     "updated_at": record.get("updated_at"),
 
                     # 权限信息
-                    "permission_ids": record.get("permission_ids", ""),
+                    "all_permission_ids": record.get("all_permission_ids", ""),
 
                     # 分页信息
                     "page_png_path": record.get("page_png_path", ""),
-
-                    # 权限信息（用于调试）- 添加安全检查
-                    "all_permission_ids": record.get("all_permission_ids", ""),
-                    "user_permission_ids": permission_ids if permission_ids else None
-
                 }
                 results.append(result)
 
