@@ -2,7 +2,7 @@
 """
 from fastapi import APIRouter, Request
 
-from api.request.chat_ragchat_request import ChatRequest
+from api.request.chat_request import ChatRequest
 from api.response import APIException
 from api.response import ResponseBuilder
 from error_codes import ErrorCode

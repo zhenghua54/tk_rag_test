@@ -50,54 +50,54 @@ class VectorRetriever:
         seen_parent_ids = set()  # 用于记录已处理过的父片段ID
 
         try:
-            # # 不带权限过滤的检索
-            # search_params = {
-            #     "search_type": "similarity",
-            #     "k": k
-            # }
+            # 不带权限过滤的检索
+            search_params = {
+                "search_type": "similarity",
+                "k": k
+            }
 
-            # raw_result = self._vectorstore.similarity_search_with_score(
-            #     query=query,
-            #     params=search_params,
-            # )
-            # logger.info("=== Milvus 向量检索结果 (未过滤权限前) ===")
-            # for doc, score in raw_result:
-            #     logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
-            #                 f"片段ID: {doc.metadata.get('seg_id')}, "
-            #                 f"权限ID: {doc.metadata.get('permission_ids')}, "
-            #                 f"相似度分数: {score:.4f}")
+            raw_result = self._vectorstore.similarity_search_with_score(
+                query=query,
+                params=search_params,
+            )
+            logger.info("=== Milvus 向量检索结果 (未过滤权限前) ===")
+            for doc, score in raw_result:
+                logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                            f"片段ID: {doc.metadata.get('seg_id')}, "
+                            f"权限ID: {doc.metadata.get('permission_ids')}, "
+                            f"相似度分数: {score:.4f}")
 
-            # 带权限过滤的检索
-            try:
-                # 使用Milvus过滤
-                search_params = {
-                    "search_type": "similarity",
-                    "k": min(k * 2, 50)  # 增加检索数量，确保过滤后有足够的结果
-                }
-
-                # 权限过滤表达式处理
-                expr = self._build_permission_expr(permission_ids)
-                # print("milvus 过滤表达式-->",expr)
-
-                permission_results = self._vectorstore.similarity_search_with_score(
-                    query=query,
-                    expr=expr,
-                    params=search_params,
-                )
-                # logger.info(f"=== 结果过滤：权限ID={permission_ids} ===")
-                # for doc, score in permission_results:
-                #     logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
-                #                 f"片段ID: {doc.metadata.get('seg_id')}, "
-                #                 f"权限ID: {doc.metadata.get('permission_ids')}, "
-                #                 f"相似度分数: {score:.4f}")
-            except Exception as e:
-                logger.error(f"权限过滤失败: {str(e)}")
-                # 如果权限过滤失败，返回空结果
-                permission_results = []
+            # # 带权限过滤的检索
+            # try:
+            #     # 使用Milvus过滤
+            #     search_params = {
+            #         "search_type": "similarity",
+            #         "k": min(k * 2, 50)  # 增加检索数量，确保过滤后有足够的结果
+            #     }
+            #
+            #     # 权限过滤表达式处理
+            #     expr = self._build_permission_expr(permission_ids)
+            #     # print("milvus 过滤表达式-->",expr)
+            #
+            #     permission_results = self._vectorstore.similarity_search_with_score(
+            #         query=query,
+            #         expr=expr,
+            #         params=search_params,
+            #     )
+            #     # logger.info(f"=== 结果过滤：权限ID={permission_ids} ===")
+            #     # for doc, score in permission_results:
+            #     #     logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+            #     #                 f"片段ID: {doc.metadata.get('seg_id')}, "
+            #     #                 f"权限ID: {doc.metadata.get('permission_ids')}, "
+            #     #                 f"相似度分数: {score:.4f}")
+            # except Exception as e:
+            #     logger.error(f"权限过滤失败: {str(e)}")
+            #     # 如果权限过滤失败，返回空结果
+            #     permission_results = []
 
 
             # 将结果转换为字典格式
-            for doc, score in permission_results:
+            for doc, score in raw_result:
                 seg_id = doc.metadata.get("seg_id")  # 片段ID
                 doc_id = doc.metadata.get("doc_id")  # 文档ID，用来检索权限
                 logger.debug(f"向量检索结果 - seg_id: {seg_id}, doc_id: {doc_id}, score: {score:.4f}")

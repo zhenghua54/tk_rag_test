@@ -146,8 +146,9 @@ class HybridSearchWorkflow:
 
                 # 将分数存储到 Document 的 metadata 中
                 for doc, score in zip(results, scores):
-                    doc['rerank_score'] = score
-                    reranked_result.append(doc)
+                    if score > -5:
+                        doc['rerank_score'] = score
+                        reranked_result.append(doc)
 
                 # 根据rerank分数排序
                 reranked_result.sort(key=lambda x: x.metadata.get("rerank_score", 0), reverse=True)

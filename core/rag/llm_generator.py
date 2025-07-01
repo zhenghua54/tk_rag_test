@@ -1,5 +1,3 @@
-import os
-from urllib.parse import quote
 from typing import Dict, Optional, List, Union
 from langchain_core.documents import Document
 
@@ -7,7 +5,6 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.schema import BaseRetriever
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
-from config.global_config import GlobalConfig
 from utils.log_utils import logger
 from utils.converters import local_path_to_url
 from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
@@ -178,6 +175,10 @@ class RAGGenerator:
             # 检索知识库
             docs = self.retriever.invoke(query, permission_ids=permission_ids)
 
+            # 调试: 打印知识库信息
+            for doc in docs:
+                print("检索知识库后拿到的文档-->", doc)
+
             # 初始化元数据变量
             metadata: List[Dict] = []  # 用于前端展示
             metadata_storage: List[Dict] = []  # 用于存储
@@ -205,6 +206,12 @@ class RAGGenerator:
                 invoke_type="RAG生成"
             )
 
+            # # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
+            # if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
+            #     logger.warning(f"知识库为空但模型回答了内容, 进行修正, 模型回答: {response_text}")
+            #     response_text = "抱歉，知识库中没有找到相关信息"
+
+
             # 保存历史对话到数据库
             self._save_to_history(session_id, query, response_text, metadata_storage)
 
@@ -223,22 +230,6 @@ class RAGGenerator:
         except Exception as e:
             logger.error(f"生成回答失败: {str(e)}")
             raise ValueError(f"生成回答失败: {str(e)}")
-
-    # @staticmethod
-    # def _local_path_to_url(local_path: str) -> str:
-    #     """将本路路径转换为 http url 地址"""
-    #     # 转换源文档地址
-    #     if GlobalConfig.PATHS["origin_data"] in local_path:
-    #         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
-    #         # return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
-    #         return f"/static/raw/{quote(rel_path)}"
-    #     # 转换输出文档地址
-    #     elif GlobalConfig.PATHS["processed_data"] in local_path:
-    #         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
-    #         # return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
-    #         return f"/static/processed/{quote(rel_path)}"
-    #     else:
-    #         raise ValueError("不支持的路径, 未注册的路径地址")
 
     def clear_cache(self, session_id: str = None) -> None:
         """清除缓存

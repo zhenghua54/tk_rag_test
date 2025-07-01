@@ -67,7 +67,19 @@ def validate_seg_id(value):
 
 def validate_permission_id(value):
     """验证部门ID格式"""
-    if not isinstance(value, str):
+    if not isinstance(value, str) or not 1 <= len(value) <= 32:
+        raise ValueError(f"非法的 permission_id: {value}")
+
+
+def validate_permission_ids(value):
+    """验证部门ID列表"""
+    if isinstance(value, str) and 1 <= len(value) <= 32:
+        pass
+    elif isinstance(value, list):
+        for idx, v in enumerate(value):
+            if not isinstance(v, str):
+                raise ValueError(f"第 {idx} 个权限 ID 格式非法: {v}:{type(v)}")
+    else:
         raise ValueError(f"非法的 permission_id: {value}")
 
 

@@ -23,20 +23,24 @@ def format_table_caption_footnote(value: Union[str, List]):
     return value
 
 
-def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: str, request_id: str = None) -> bool:
+def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Union[str, list[str]],
+                         request_id: str = None) -> bool:
     """分块文本内容
 
     Args:
         doc_id (str): 文档ID
         doc_process_path (str): 聚合处理后的文档，格式为 dict[idx:[content]]
-        permission_ids (str): 权限ID，统一使用简单字符串格式，如 "1"
+        permission_ids (Union[str, list[str]]): 权限ID 字段，单个为字符串，多个为列表[字符串]
         request_id (str): 请求ID，如果提供则会更新数据库状态
     """
+    # 后续准备迁移 Milvus,权限字段先使用 mysql 中的,milvus 中不做权限过滤
+    permission_ids_str = ""  # 空字符串表示公开访问
+
     # 处理空权限情况
-    if permission_ids is None:
-        permission_ids_str = ""  # 空字符串表示公开访问
-    else:
-        permission_ids_str = permission_ids
+    # if permission_ids is None:
+    #     permission_ids_str = ""  # 空字符串表示公开访问
+    # else:
+    #     permission_ids_str = permission_ids
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

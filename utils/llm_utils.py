@@ -337,26 +337,26 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
     logger.info(f"[get_messages_for_rag] 输入 history 条数: {len(history)}")
 
     # 初始化长度剪裁参数
-    token_total = 32768 # Qwen Turbo 模型输入输出总长度
+    # token_total = 32768  # Qwen Turbo 模型输入输出总长度
     context_max_len = 10000
     history_max_len = 10000
 
     messages = []
-    
+
     # ===== 系统提示词 =====
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt.strip()})
-    print(f"\n 系统提示词后的messages: {messages} \n")
 
     # ===== 知识库信息 =====
+    docs_content = "【知识库信息】\n"
+
     if docs:
         # 构建知识库信息
-        docs_content = "【知识库信息】\n"
         token_total = 0
         context_lines = []
-        
+
         for doc in docs:
-            if hasattr(doc, "metadata" ) and doc.metadata:
+            if hasattr(doc, "metadata") and doc.metadata:
                 seg_content = doc.metadata.get("seg_content", "")
                 if seg_content:
                     # 计算当前片段的 token 数
@@ -368,15 +368,21 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
 
                     docs_content += f"{seg_content}\n\n"
                     token_total += segment_tokens
-                    context_lines.append(docs_content)
+                    context_lines.append(seg_content)
 
         # 如果知识库信息不为空，则添加到 messages
         if docs_content != "【知识库信息】\n":
-            messages.append({"role": "user","content": docs_content})
-        logger.info(f"知识库 context 剪裁后共 {len(context_lines)} 段，token 总数 {token_total}")
-
-    print(f"\n 知识库信息拼装后的messages: {messages} \n")
-    print(f"\n 接收到的对话历史: {history} \n")
+            messages.append({"role": "user", "content": docs_content})
+            logger.info(f"知识库 context 剪裁后共 {len(context_lines)} 段，token 总数 {token_total}")
+        else:
+            docs_content += '知识库中无相关信息\n\n请注意：以下问题无知识库支撑，请你不要作答或生成，只能回复：抱歉，知识库中没有找到相关信息。'
+            messages.append({"role": "user", "content": docs_content})
+            logger.info("知识库中无相关信息")
+    else:
+        # 当docs为空时，添加无相关信息提示
+        docs_content += '知识库中无相关信息\n\n请注意：以下问题无知识库支撑，请你不要作答或生成，只能回复：抱歉，知识库中没有找到相关信息。'
+        messages.append({"role": "user", "content": docs_content})
+        logger.info("检索结果为空，知识库中无相关信息")
 
     # ===== 历史对话处理 =====
     if history:
@@ -394,36 +400,24 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
                 include_system=True,  # 是否保留 system message
                 allow_partial=True  # 超限时是否保留部分片段
             )
-        logger.info(f"\n 裁剪后的历史对话: {trimmed_history} \n")
 
         # 转换为 OpenAI 接口格式
         for msg in trimmed_history:
             if not msg.content or not msg.content.strip():
                 continue  # 忽略空内容
-            
+
             if isinstance(msg, HumanMessage):
                 messages.append({"role": "user", "content": msg.content})
             elif isinstance(msg, AIMessage):
                 message_dict = {"role": "assistant", "content": msg.content}
-                
-                # # 预留未来对 tool calls/ function 调用的支持
-                # # 添加工具调用信息
-                # if msg.additional_kwargs.get("tool_calls"):
-                #     message_dict["tool_calls"] = msg.additional_kwargs["tool_calls"]
-                
-                # # 添加函数调用信息
-                # if msg.additional_kwargs.get("function_call"):
-                #     message_dict["function_call"] = msg.additional_kwargs["function_call"]
-                    
                 messages.append(message_dict)
-                
-        logger.info(f"\n 历史对话后的messages: {messages} \n")
 
     # ===== 新问题 =====
     if question and question.strip():
         messages.append({"role": "user", "content": question.strip()})
 
     logger.info(f"最终构建的 messages 数量: {len(messages)}")
+    logger.info(f"最终构建的 messages: {messages}")
     return messages
 
 

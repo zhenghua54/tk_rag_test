@@ -188,25 +188,53 @@ class ChunkOperation(BaseDBOperation):
                 logger.error("必须提供 seg_ids 或 doc_ids 参数")
                 return []
 
+            # 检查权限数据
+            if doc_ids:
+                check_sql = """
+                SELECT doc_id, permission_ids, COUNT(*) as count
+                FROM permission_info 
+                WHERE doc_id IN ({})
+                GROUP BY doc_id, permission_ids
+                """.format(','.join(['%s'] * len(doc_ids)))
+
+                check_result = self._execute_query(check_sql, tuple(doc_ids))
+                logger.info(f"权限数据检查结果: {check_result}")
+
             # 构建关联查询SQL
+            # sql = """
+            #       SELECT s.doc_id,
+            #              s.seg_id,
+            #              s.seg_content,
+            #              s.seg_page_idx,
+            #              f.doc_name,
+            #              f.doc_http_url,   -- 文档信息表的字段
+            #              f.created_at,
+            #              f.updated_at,
+            #              p.permission_ids, -- 权限信息表的字段
+            #              d.page_png_path   -- 分页信息表的字段
+
+            #       FROM segment_info s
+            #                LEFT JOIN doc_info f ON s.doc_id = f.doc_id
+            #                LEFT JOIN permission_info p ON s.doc_id = p.doc_id
+            #                LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
+            #       WHERE 1 = 1 \
+            #       """
             sql = """
                   SELECT s.doc_id,
                          s.seg_id,
                          s.seg_content,
                          s.seg_page_idx,
                          f.doc_name,
-                         f.doc_http_url,   -- 文档信息表的字段
+                         f.doc_http_url,
                          f.created_at,
                          f.updated_at,
-                         p.permission_ids, -- 权限信息表的字段
-                         d.page_png_path   -- 分页信息表的字段
-
+                         d.page_png_path,
+                         GROUP_CONCAT(p.permission_ids) AS all_permission_ids
                   FROM segment_info s
                            LEFT JOIN doc_info f ON s.doc_id = f.doc_id
                            LEFT JOIN permission_info p ON s.doc_id = p.doc_id
                            LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
-                  WHERE 1 = 1 \
-                  """
+                  WHERE 1 = 1 """
 
             # 添加查询条件
             params = []
@@ -228,41 +256,100 @@ class ChunkOperation(BaseDBOperation):
                     sql += f" AND s.doc_id IN ({placeholders})"
                     params.extend(doc_ids)
 
-            # 如果提供了权限ID，直接在SQL中添加权限过滤
-            expr = "AND (p.permission_ids IS NULL OR p.permission_ids = '')"
-            perm_params = []
+            # # 如果提供了权限ID，直接在SQL中添加权限过滤
+            # expr = "AND (p.permission_ids IS NULL OR p.permission_ids = '')"
+            # perm_params = []
 
-            # 单个权限
-            if isinstance(permission_ids, str) and permission_ids.strip():
-                expr = " AND (p.permission_ids = %s OR p.permission_ids IS NULL)"
-                perm_params = [permission_ids]
+            # # 单个权限
+            # if isinstance(permission_ids, str) and permission_ids.strip():
+            #     expr = " AND (p.permission_ids = %s OR p.permission_ids IS NULL OR p.permission_ids = '')"
+            #     perm_params = [permission_ids]
 
-            # 多个权限
-            elif isinstance(permission_ids, list) and len(permission_ids) > 0:
-                perm_params = [pid.strip() for pid in permission_ids if pid.strip()]
-                placeholders = ", ".join(["%s"] * len(perm_params))
-                expr = f"AND (p.permission_ids IN ({placeholders}) OR p.permission_ids IS NULL)"
+            # # 多个权限
+            # elif isinstance(permission_ids, list) and len(permission_ids) > 0:
+            #     perm_params = [pid.strip() for pid in permission_ids if pid.strip()]
+            #     placeholders = ", ".join(["%s"] * len(perm_params))
+            #     expr = f"AND (p.permission_ids IN ({placeholders}) OR p.permission_ids IS NULL OR p.permission_ids = '')"
 
-            sql += f" {expr}"
-            params.extend(perm_params)
+            # sql += f" {expr}"
+            # params.extend(perm_params)
+
+            # 权限过滤逻辑 - 使用 EXISTS 子查询
+            # EXISTS 权限过滤方法
+            if permission_ids:
+                # 标准化权限 ID 列表
+                if isinstance(permission_ids, str):
+                    user_permissions = [permission_ids.strip()]
+                else:
+                    user_permissions = [pid.strip() for pid in permission_ids if pid.strip()]
+
+                if user_permissions:
+                    # 构建权限过滤条件
+                    perm_conditions = []
+                    for perm in user_permissions:
+                        perm_conditions.append(f"p.permission_ids = %s")
+
+                    # 使用 EXISTS 子查询检查权限
+                    # 1. 文档有权限记录且与用户权限匹配, 2. 文档权限记录为空(公开文档), 3. 文档不存在于权限表中
+                    perm_sql = f"""
+                    AND (
+                    EXISTS (
+                        SELECT 1 FROM permission_info p2
+                        WHERE p2.doc_id = s.doc_id
+                        AND ({'OR '.join(perm_conditions)})
+                    ) OR 
+                    EXISTS (
+                        SELECT 1 FROM permission_info p3
+                        WHERE p3.doc_id = s.doc_id
+                        AND (p3.permission_ids IS NULL OR p3.permission_ids = '' OR p3.permission_ids = 'null')
+                    ) OR
+                    NOT EXISTS (
+                        SELECT 1 FROM permission_info p4
+                        WHERE p4.doc_id = s.doc_id)
+                    )
+                    """
+                    sql += perm_sql
+                    params.extend(user_permissions)
+            else:
+                # 如果没有提供权限 ID,只返回无权限限制的文档
+                sql += """
+                AND EXISTS (
+                    SELECT 1 FROM permission_info p1
+                    WHERE p1.doc_id = s.doc_id
+                    AND (p1.permission_ids IS NULL OR p1.permission_ids = '' OR p1.permission_ids = 'null')
+                )
+                """
+
+            # 添加 GROUP BY 子句, 过滤重复内容
+            sql += """
+            GROUP BY s.doc_id, s.seg_id, s.seg_content, s.seg_page_idx,
+                     f.doc_name, f.doc_http_url, f.created_at, f.updated_at, d.page_png_path
+            """
+
+            # 调试：打印SQL语句
+            # logger.info(f"执行的SQL: {sql}")
+            # logger.info(f"SQL参数: {params}")
+
+            # 构建参数列表
+
 
             # 执行查询
             segment_info: list[dict[str, Any]] = self._execute_query(sql, tuple(params))
+
+            # 调试：打印返回的字段名
+            if segment_info:
+                logger.info(f"返回的字段名: {list(segment_info[0].keys())}")
+                for seg_info in segment_info:
+                    logger.info(
+                        f"记录内容: {seg_info['doc_id']}, {seg_info['seg_id']}, {seg_info['doc_name']}, {seg_info['all_permission_ids']}")
 
             # 处理查询结果
             if not segment_info:
                 return []
 
-            # logger.info(f"mysql 查询到 {len(segment_info)} 条记录")
-            # print(f"查询结果为: {segment_info}\n")
-
             # 转换结果格式
             results = []
             for record in segment_info:
-                # 记录权限信息用于调试
-                record_permission = record.get("permission_ids")
-                # logger.info(f"mysql 记录的权限信息: {record_permission}, 用户权限: {permission_ids}")
-
                 result = {
                     # 片段信息
                     "doc_id": record.get("doc_id"),
@@ -280,7 +367,11 @@ class ChunkOperation(BaseDBOperation):
                     "permission_ids": record.get("permission_ids", ""),
 
                     # 分页信息
-                    "page_png_path": record.get("page_png_path", "")
+                    "page_png_path": record.get("page_png_path", ""),
+
+                    # 权限信息（用于调试）- 添加安全检查
+                    "all_permission_ids": record.get("all_permission_ids", ""),
+                    "user_permission_ids": permission_ids if permission_ids else None
 
                 }
                 results.append(result)
@@ -316,7 +407,7 @@ class PermissionOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['permission_info_table'])
 
-    def insert_datas(self, args: Dict) -> Optional[int]:
+    def insert_datas(self, args: Union[Dict[str, Any], List[Dict[str, Any]]]) -> Optional[int]:
         """插入权限信息
 
         Args:
@@ -338,13 +429,14 @@ class PageOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['doc_page_info_table'])
 
+
 class ChatSessionOperation(BaseDBOperation):
     """会话表(chat_sessions)操作类"""
 
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['chat_sessions_table'])
-    
-    def create_or_update_session(self, session_id: str, user_id: str=None, title: str=None) :
+
+    def create_or_update_session(self, session_id: str, user_id: str = None, title: str = None):
         """创建或更新会话
         
         Args:
@@ -393,12 +485,13 @@ class ChatSessionOperation(BaseDBOperation):
             logger.error(f"获取会话失败: {str(e)}")
             raise e
 
+
 class ChatMessageOperation(BaseDBOperation):
     """消息表(chat_messages)操作类"""
 
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['chat_messages_table'])
-        
+
     def save_message(self, session_id: str, message_type: str, content: str, metadata: Optional[Dict] = None):
         """保存消息
         
@@ -421,7 +514,7 @@ class ChatMessageOperation(BaseDBOperation):
         except Exception as e:
             logger.error(f"保存消息失败: {str(e)}")
             raise e
-        
+
     def get_message_by_session_id(self, session_id: str, limit: int = 100) -> List[Dict]:
         """根据会话ID获取消息列表, 按时间正序排列, 默认获取100条
         
@@ -438,7 +531,7 @@ class ChatMessageOperation(BaseDBOperation):
         except Exception as e:
             logger.error(f"获取消息失败: {str(e)}")
             raise e
-        
+
     def delete_message_by_session_id(self, session_id: str):
         """根据会话ID删除消息
         
@@ -451,8 +544,8 @@ class ChatMessageOperation(BaseDBOperation):
         except Exception as e:
             logger.error(f"删除消息失败: {str(e)}")
             raise e
-        
-                
+
+
 if __name__ == '__main__':
     # 使用上下文管理器
     with FileInfoOperation() as file_op:

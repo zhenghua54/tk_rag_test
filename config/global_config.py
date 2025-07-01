@@ -157,7 +157,7 @@ class GlobalConfig:
         },
         "rag_system_prompt": {
             "prompt_file": "prompts/rag_system_prompt.j2",
-            "temperature": 0.3,
+            "temperature": 0.1,
             "top_p": 0.9
         },
 

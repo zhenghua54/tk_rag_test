@@ -7,11 +7,7 @@ from api.response import ResponseBuilder
 from error_codes import ErrorCode
 from services.doc_server import DocumentService
 from api.request.doc_request import DocumentDeleteRequest, DocumentUploadRequest, DocumentStatusRequest
-# from api.request.document_upload_request import DocumentUploadRequest
-from utils.log_utils import (
-    log_operation_start, log_operation_success, log_operation_error,
-    log_business_info, mask_sensitive_info, log_exception, logger
-)
+from utils.log_utils import log_exception, logger
 from utils.validators import validate_doc_id, validate_param_type
 
 router = APIRouter(
@@ -39,50 +35,30 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
     request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, 'request_id') else None
 
     # 记录操作开始
-    start_time = log_operation_start("文档上传",
-                                     request_id=request_id,
-                                     document_url=mask_sensitive_info(request.document_http_url),
-                                     permission_ids=request.department_id)
-
+    logger.info(
+        f"request_id={request_id}, 开始文档上传, document_http_url={request.document_http_url[:200]}..., permission_ids={request.permission_ids}")
     try:
-        # 记录业务信息
-        log_business_info("API调用",
-                          endpoint="/documents/upload",
-                          request_id=request_id,
-                          permission_ids=request.department_id)
-
+        logger.info("API 调用: /documents/upload")
         data = await doc_service.upload_file(
             document_http_url=request.document_http_url,
-            permission_ids=request.department_id,
+            permission_ids=request.permission_ids,
             request_id=request_id
         )
 
         # 记录操作成功
-        log_operation_success("文档上传", start_time,
-                              request_id=request_id,
-                              doc_id=data.get('doc_id'),
-                              permission_ids=request.department_id)
+        logger.info(f"request_id={request_id}, 文档上传完成, doc_id={data.get('doc_id')}")
 
         return ResponseBuilder.success(data=data, request_id=request_id).model_dump()
 
     except APIException as e:
-        log_operation_error("文档上传",
-                            error_code=e.code.value,
-                            error_msg=str(e),
-                            request_id=request_id,
-                            permission_ids=request.department_id)
+        log_exception(f"request_id={request_id}, 文档上传失败", exc=e)
         return ResponseBuilder.error(
             error_code=e.code.value,
             error_message=e.message,
             request_id=request_id
         ).model_dump()
     except Exception as e:
-        log_operation_error("文档上传",
-                            error_code=ErrorCode.INTERNAL_ERROR.value,
-                            error_msg=str(e),
-                            request_id=request_id,
-                            permission_ids=request.department_id)
-        log_exception("文档上传异常", e)
+        log_exception(f"request_id={request_id}, 文档上传异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,
             error_message=str(e),

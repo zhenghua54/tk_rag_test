@@ -18,7 +18,7 @@ class ChatRequest(BaseModel):
     )
     permission_ids: Union[str, list[str]] = Field(
         None,
-        description="权限ID列表，多个ID用逗号分隔",
+        description="部门ID列表，多个ID用逗号分隔",
     )
     session_id: str = Field(
         ...,

@@ -1,4 +1,6 @@
 """文档删除请求数据模型"""
+from typing import Union
+
 from pydantic import BaseModel, Field
 
 
@@ -72,7 +74,7 @@ class DocumentUploadRequest(BaseModel):
 
     Attributes:
         document_http_url: 文档的 http 访问路径
-        department_id: 部门ID
+        permission_ids: 部门ID
     """
     document_http_url: str = Field(
         ...,
@@ -80,11 +82,15 @@ class DocumentUploadRequest(BaseModel):
         min_length=1,
         max_length=1000
     )
-    department_id: str = Field(
-        None,
-        description="部门ID，必须是一个有效的部门标识符",
-        min_length=1,
-        max_length=32,
+    # department_id: str = Field(
+    #     None,
+    #     description="部门ID，必须是一个有效的部门标识符",
+    #     min_length=1,
+    #     max_length=32,
+    # )
+    permission_ids: Union[str, list[str]] = Field(
+        ...,
+        description="部门ID列表，单个 ID 接收字符串格式, 多个 ID 接收列表格式",
     )
 
     # 自定义异常捕获逻辑

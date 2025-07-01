@@ -16,7 +16,7 @@ from error_codes import ErrorCode
 from api.response import APIException
 from utils.validators import (
     check_disk_space_sufficient, check_doc_ext, check_http_doc_accessible, check_doc_size, \
-    check_doc_name_chars, validate_file_normal, validate_empty_param, validate_doc_id
+    check_doc_name_chars, validate_file_normal, validate_empty_param, validate_doc_id, validate_permission_ids
 )
 from databases.mysql.operations import FileInfoOperation, PermissionOperation
 from databases.db_ops import delete_all_database_data, update_record_by_doc_id, select_record_by_doc_id, insert_record, \
@@ -30,10 +30,12 @@ class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_http_url: str, permission_ids: Union[str, None],
+    async def upload_file(document_http_url: str, permission_ids: Union[str, list[str]],
                           request_id: str = None) -> dict:
         """上传文档"""
         validate_empty_param(document_http_url, '文档地址')
+        # 部门格式验证
+        validate_permission_ids(permission_ids)
 
         try:
             if document_http_url.startswith("http"):
@@ -85,21 +87,32 @@ class DocumentService(BaseService):
                 "updated_at": now,
             }
             # 组装permission_info
-            permission_info = {
-                "permission_ids": permission_ids,
-                "doc_id": doc_id,
-                "created_at": now,
-                "updated_at": now,
-            }
+            permission_info = None
+            if isinstance(permission_ids, str):
+                permission_info = {
+                    "permission_ids": permission_ids,
+                    "doc_id": doc_id,
+                    "created_at": now,
+                    "updated_at": now,
+                }
+            elif isinstance(permission_ids, list):
+                permission_info = []
+                for permission_id in permission_ids:
+                    permission_info.append({
+                        "permission_ids": permission_id,
+                        "doc_id": doc_id,
+                        "created_at": now,
+                        "updated_at": now,
+                    })
 
             # 插入数据库元信息
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                    logger.info(f"开始文档入库, doc_id={doc_id}, request_id={request_id}")
+                    logger.info(f"request_id={request_id}, 开始文档入库, doc_id={doc_id}")
                     file_op.insert_data(doc_info)
                     # 插入权限信息到数据库
                     logger.info(
-                        f"开始权限入库, doc_id={doc_id}, permission_id={permission_ids}, request_id={request_id}")
+                        f"request_id={request_id}, 开始权限入库, doc_id={doc_id}, permission_ids={permission_ids}")
                     permission_op.insert_datas(permission_info)
 
                     # 启动后台处理流程
@@ -264,7 +277,8 @@ class DocumentService(BaseService):
             raise ValueError(f"文档不存在, 未查询到相关记录")
 
         file_status = file_info.get("process_status")
-        values = {"doc_id": doc_id, "file_status": file_status}
+        pdf_path = local_path_to_url(file_info.get("doc_pdf_path")) if file_info.get("doc_pdf_path") else None
+        values = {"doc_id": doc_id, "file_status": file_status, "pdf_path": pdf_path}
 
         # 异常状态处理
         if file_status not in list(GlobalConfig.FILE_STATUS["normal"].keys()) + list(
@@ -302,7 +316,7 @@ class DocumentService(BaseService):
         return values
 
     @staticmethod
-    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: str,
+    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: Union[str, list[str]],
                                                file_op: FileInfoOperation, request_id: str = None) -> None:
         """监控文档处理状态，完成后启动文档切块
 
