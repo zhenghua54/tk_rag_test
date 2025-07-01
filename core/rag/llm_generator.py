@@ -172,8 +172,18 @@ class RAGGenerator:
             raw_history: List[BaseMessage] = self._get_history(session_id)
             complete_history = raw_history + [HumanMessage(content=query)]
 
+            # 使用历史对话重写查询
+            rewrite_query = self.rewrite_query_with_history(
+                history=raw_history,
+                question=query,
+                session_id=session_id
+            )
+
+
             # 检索知识库
-            docs = self.retriever.invoke(query, permission_ids=permission_ids)
+            # docs = self.retriever.invoke(query, permission_ids=permission_ids)
+            # 使用重写后的查询进行检索
+            docs = self.retriever.invoke(rewrite_query, permission_ids=permission_ids)
 
             # 调试: 打印知识库信息
             for doc in docs:
@@ -188,13 +198,16 @@ class RAGGenerator:
                 metadata_storage = self._build_metadata(docs=docs, for_storage=True)
                 metadata = self._build_metadata(docs=docs, for_storage=False)
 
-            # 渲染提示词
-            system_prompt, config = render_prompt("rag_system_prompt", {})
+            # # 渲染提示词
+            # system_prompt, _ = render_prompt("rag_system_prompt", {})
+            # user_prompt,config = render_prompt("rag_user_prompt", {
+            #     "docs_content":"",
+            #     "history_content":""
+            # })
 
             # 构造 rag 上下文
             messages = get_messages_for_rag(
-                system_prompt=system_prompt,
-                history=complete_history,
+                history=raw_history,
                 docs=docs,
                 question=query,
             )
@@ -202,7 +215,7 @@ class RAGGenerator:
             # 模型调用生成回答
             response_text = llm_manager.invoke(
                 messages=messages,
-                temperature=config["temperature"],
+                temperature=0.1,
                 invoke_type="RAG生成"
             )
 
@@ -210,7 +223,6 @@ class RAGGenerator:
             # if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
             #     logger.warning(f"知识库为空但模型回答了内容, 进行修正, 模型回答: {response_text}")
             #     response_text = "抱歉，知识库中没有找到相关信息"
-
 
             # 保存历史对话到数据库
             self._save_to_history(session_id, query, response_text, metadata_storage)
@@ -230,6 +242,73 @@ class RAGGenerator:
         except Exception as e:
             logger.error(f"生成回答失败: {str(e)}")
             raise ValueError(f"生成回答失败: {str(e)}")
+
+    def rewrite_query_with_history(self,
+                                   history: List[BaseMessage],
+                                   question: str,
+                                   session_id: str) -> str:
+        """使用LLM根据历史上下文重写用户 query，  生成检索用 query
+
+        Args:
+            history (List[BaseMessage]): 当前会话的历史对话
+            question (str): 用户的最新问题
+            session_id (str): 用户会话 ID
+
+        Returns:
+            str: 改写后的问题
+        """
+        try:
+            if not history:
+                logger.info(f"会话 {session_id} 无历史对话, 直接返回原问题")
+                return question
+
+            # 构建历史对话内容字符串
+            history_content = ""
+            # 只提取最近的 5 轮对话, 避免上下文过长
+            recent_history = history[-10:]  # 最多取 10 条消息(5 轮对话)
+
+            for msg in recent_history:
+                # 空内容
+                if not msg.content or not msg.content.strip():
+                    continue
+
+                if isinstance(msg, HumanMessage):
+                    history_content += f"用户: {msg.content}\n"
+                elif isinstance(msg, AIMessage):
+                    history_content += f"助手: {msg.content}\n"
+
+            # 如果历史内容为空,直接返回源问题
+            if not history_content.strip():
+                logger.info(f"会话 {session_id} 无历史对话, 直接返回原问题")
+                return question
+
+            # 渲染查询重写提示词
+            prompt, config = render_prompt("query_rewrite", {
+                "history_content": history_content.strip(),
+                "current_question": question,
+            })
+
+            # 调用 LLM 进行查询重写
+            rewrite_query = llm_manager.invoke(
+                prompt=prompt,
+                temperature=config["temperature"],
+                max_tokens=config["max_tokens"],
+                invoke_type="查询重写"
+            )
+
+            # 清理和验证结果
+            rewrite_query = rewrite_query.strip()
+            # 改写后为空或超长,则返回源问题
+            if not rewrite_query or len(rewrite_query) > config["max_tokens"]:
+                logger.warning(f"查询重写结果异常, 使用原问题, 重写结果:{rewrite_query}")
+                return question
+            logger.info(f"查询重写完成- 原问题:{question}, 重写后:{rewrite_query}")
+            return rewrite_query
+
+        except Exception as e:
+            logger.error(f"查询重写失败: {str(e)}")
+            # 发生异常时返回原问题,确保系统正常运行
+            return question
 
     def clear_cache(self, session_id: str = None) -> None:
         """清除缓存

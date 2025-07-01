@@ -52,10 +52,7 @@ class GlobalConfig:
         "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
         "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
     }
-    # FILE_STATUS = {
-    #     "normal": ["uploaded", "parsed", "merged", "chunked", "splited"],
-    #     "error": ["parse_failed", "merge_failed", "chunk_failed", "split_failed"],
-    # }
+
     FILE_STATUS = {
         "normal": {
             "uploaded": "待处理",
@@ -159,6 +156,11 @@ class GlobalConfig:
             "prompt_file": "prompts/rag_system_prompt.j2",
             "temperature": 0.1,
             "top_p": 0.9
+        },
+        "query_rewrite": {
+            "prompt_file": "prompts/query_rewrite_prompt.j2",
+            "temperature": 0.3,
+            "max_tokens": 200
         },
 
     }

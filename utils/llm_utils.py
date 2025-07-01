@@ -323,13 +323,12 @@ def render_prompt(name: str, variables: Dict[str, str], as_str: bool = True) -> 
         raise e
 
 
-def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
+def get_messages_for_rag(history: List[BaseMessage],
                          docs: List[Document], question: str) -> List[Dict]:
     """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
     - 注意: 该方法为 OPENAI 接口构建数据,因此角色名称应为: system, user, assistant
 
     Args:
-        system_prompt: 系统提示词
         history: 历史对话
         docs: 知识库信息, 分数在 metadata 中
         question: 用户最新问题
@@ -343,15 +342,9 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
 
     messages = []
 
-    # ===== 系统提示词 =====
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt.strip()})
-
     # ===== 知识库信息 =====
-    docs_content = "【知识库信息】\n"
-
+    docs_content = ""
     if docs:
-        # 构建知识库信息
         token_total = 0
         context_lines = []
 
@@ -371,18 +364,23 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
                     context_lines.append(seg_content)
 
         # 如果知识库信息不为空，则添加到 messages
-        if docs_content != "【知识库信息】\n":
-            messages.append({"role": "user", "content": docs_content})
+        if docs_content:
             logger.info(f"知识库 context 剪裁后共 {len(context_lines)} 段，token 总数 {token_total}")
         else:
-            docs_content += '知识库中无相关信息\n\n请注意：以下问题无知识库支撑，请你不要作答或生成，只能回复：抱歉，知识库中没有找到相关信息。'
-            messages.append({"role": "user", "content": docs_content})
+            docs_content += '知识库中无相关信息'
             logger.info("知识库中无相关信息")
     else:
         # 当docs为空时，添加无相关信息提示
-        docs_content += '知识库中无相关信息\n\n请注意：以下问题无知识库支撑，请你不要作答或生成，只能回复：抱歉，知识库中没有找到相关信息。'
-        messages.append({"role": "user", "content": docs_content})
+        docs_content += '知识库中无相关信息'
         logger.info("检索结果为空，知识库中无相关信息")
+
+    # ==== 构建完整的系统提示词 ====
+    complete_system_prompt, _ = render_prompt("rag_system_prompt", {
+        "retrieved_knowledge": docs_content,
+    })
+
+    # 添加系统提示词(包含知识库信息)
+    messages.append({"role": "system", "content": complete_system_prompt.strip()})
 
     # ===== 历史对话处理 =====
     if history:
@@ -412,11 +410,11 @@ def get_messages_for_rag(system_prompt: str, history: List[BaseMessage],
                 message_dict = {"role": "assistant", "content": msg.content}
                 messages.append(message_dict)
 
-    # ===== 新问题 =====
+    # ===== 当前问题 =====
     if question and question.strip():
         messages.append({"role": "user", "content": question.strip()})
 
-    logger.info(f"最终构建的 messages 数量: {len(messages)}")
+    # logger.info(f"最终构建的 messages 数量: {len(messages)}")
     logger.info(f"最终构建的 messages: {messages}")
     return messages
 
@@ -432,3 +430,4 @@ def trim_context_by_token(context_chunks: List[str], max_tokens: int) -> str:
         result.append(chunk)
         total += t
     return "\n\n".join(result) or "(无)"
+
