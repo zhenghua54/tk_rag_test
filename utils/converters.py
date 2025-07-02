@@ -1,5 +1,7 @@
 """各类转换器（html2md、时间转换、大小转换等）"""
 import os
+from typing import Union, List
+
 import pandas as pd
 from bs4 import BeautifulSoup
 from urllib.parse import quote
@@ -118,6 +120,42 @@ def local_path_to_url(local_path: str) -> str:
         return f"/static/processed/{quote(rel_path)}"
     else:
         raise ValueError("不支持的路径, 未注册的路径地址")
+
+
+def normalize_permission_ids(permission_ids) -> Union[List[str], str]:
+    """
+    规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
+
+    返回：
+        - 空字符串 "" 表示无权限
+        - 字符串（如 "deptA,deptB"）表示多个权限拼接
+    """
+
+    # None -> 空字符串
+    if permission_ids is None:
+        return ""
+
+    # 空字符串或空白字符
+    if isinstance(permission_ids, str):
+        cleaned = permission_ids.strip()
+        return cleaned if cleaned else ""
+
+    # 空列表或 [''] 视为公开权限
+    if isinstance(permission_ids, list):
+        cleaned_list = [pid.strip() for pid in permission_ids]
+        if not cleaned_list:
+            return ""
+        if len(cleaned_list) == 1:
+            return cleaned_list[0]
+        if len(cleaned_list) == 0:
+            return ""
+        return cleaned_list
+
+    raise ValueError(f"不支持的权限 ID 类型: {type(permission_ids)}")
+
+
+# # 用法示例：
+# normalized_permission_ids = normalize_permission_ids(permission_ids)
 
 
 if __name__ == '__main__':

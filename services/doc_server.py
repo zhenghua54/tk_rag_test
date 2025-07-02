@@ -11,7 +11,7 @@ from services.base import BaseService
 from utils.log_utils import logger
 from config.global_config import GlobalConfig
 from utils.file_ops import download_file_step_by_step, generate_doc_id, delete_local_file, split_pdf_to_pages
-from utils.converters import convert_bytes, local_path_to_url
+from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
 from error_codes import ErrorCode
 from api.response import APIException
 from utils.validators import (
@@ -30,16 +30,25 @@ class DocumentService(BaseService):
     """文档服务类"""
 
     @staticmethod
-    async def upload_file(document_http_url: str, permission_ids: Union[str, list[str], list[None]],
+    async def upload_file(document_http_url: str, permission_ids: Union[str, list[str], list[None]] = None,
                           request_id: str = None) -> dict:
-        """上传文档"""
+        """上传文档
+
+        Args:
+            document_http_url (str): 文档 url / 服务器path地址
+            permission_ids (Union[str, list[str], list[None]]): 部门权限 ID
+            request_id (str): 请求 ID
+
+        Returns:
+            dict: 上传的文档信息
+        """
         validate_empty_param(document_http_url, '文档地址')
+        print(f"接收到的权限 ID: {permission_ids}")
         # 部门格式验证
         validate_permission_ids(permission_ids)
-
-        # 处理空权限
-        if isinstance(permission_ids, list) and len(permission_ids) == 0:
-            permission_ids = ""
+        # 权限 ID 格式转换
+        permission_ids = normalize_permission_ids(permission_ids)
+        print(f"处理后的权限 ID: {permission_ids}")
 
         try:
             if document_http_url.startswith("http"):

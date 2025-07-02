@@ -89,7 +89,7 @@ class DocumentUploadRequest(BaseModel):
     #     max_length=32,
     # )
     permission_ids: Union[str, list[str], list[None]] = Field(
-        ...,
+        None,
         description="部门ID列表，单个 ID 接收字符串格式, 多个 ID 接收列表格式, 公开文档使用空字符串或空数组",
     )
 
