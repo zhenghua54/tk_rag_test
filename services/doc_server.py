@@ -43,12 +43,10 @@ class DocumentService(BaseService):
             dict: 上传的文档信息
         """
         validate_empty_param(document_http_url, '文档地址')
-        print(f"接收到的权限 ID: {permission_ids}")
         # 部门格式验证
         validate_permission_ids(permission_ids)
         # 权限 ID 格式转换
         permission_ids = normalize_permission_ids(permission_ids)
-        print(f"处理后的权限 ID: {permission_ids}")
 
         try:
             if document_http_url.startswith("http"):
@@ -197,10 +195,15 @@ class DocumentService(BaseService):
 
             # 删除所有数据库记录
             delete_all_database_data(doc_id)
-
-            # 如果找到文件信息且需要物理删除，则删除文件
+            # 只删除记录时,连带处理后的文件一块删除,保留源文件
+            if is_soft_delete:
+                # 删除处理文件
+                logger.info(f"开始删除处理文件, doc_id: {doc_id}")
+                delete_path_list = [file_info.get("doc_output_dir")]
+                delete_local_file(delete_path_list)
+            # 物理删除时, 连带源文件一并删除
             if file_info and not is_soft_delete:
-                logger.info(f"开始删除本地文件, doc_id: {doc_id}")
+                logger.info(f"开始删除源文件+处理文件, doc_id: {doc_id}")
                 delete_path_list = [file_info.get("doc_output_dir"), file_info.get("doc_path"),
                                     file_info.get("doc_pdf_path")]
                 delete_local_file(delete_path_list)
