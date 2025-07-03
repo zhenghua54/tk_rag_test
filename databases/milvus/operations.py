@@ -18,17 +18,17 @@ class VectorOperation:
             self.milvus = MilvusDB()
             # 初始化数据库和集合
             self.milvus.init_database()
-            logger.info("向量库操作类初始化完成")
+            logger.info(f"[向量库初始化] 操作类初始化完成")
 
         except Exception as e:
-            logger.error(f"向量库操作类初始化失败: {str(e)}")
+            logger.error(f"[向量库初始化失败] error_msg={str(e)}")
             raise
 
     def flush(self):
         """执行 Milvus 的 flush 操作，确保数据被持久化"""
         try:
             self.milvus.client.flush(self.milvus.collection_name)
-            logger.info("Milvus 数据已成功持久化")
+            logger.info(f"[Milvus持久化] 数据已成功持久化")
         except Exception as e:
             logger.error(f"Milvus flush 操作失败: {str(e)}")
             raise

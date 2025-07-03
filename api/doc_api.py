@@ -1,4 +1,5 @@
 """文档API实现"""
+import time
 from typing import Dict, Union, Any
 
 from fastapi import APIRouter, Request
@@ -35,10 +36,14 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
     request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, 'request_id') else None
 
     # 记录操作开始
+    start_time = time.time()
     logger.info(
-        f"request_id={request_id}, 开始文档上传, document_http_url={request.document_http_url[:200]}..., permission_ids={request.permission_ids}")
+        f"[文档上传] 开始, request_id={request_id}, doc={request.document_http_url[:200]}..., permission_ids={request.permission_ids}")
     try:
-        logger.info("API 调用: /documents/upload")
+        # 记录业务信息
+        logger.info(f"[文档上传请求] request_id={request_id}, permission_ids={request.permission_ids}")
+        # logger.info("API 调用: /documents/upload")
+
         data = await doc_service.upload_file(
             document_http_url=request.document_http_url,
             permission_ids=request.permission_ids,
@@ -46,11 +51,14 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
         )
 
         # 记录操作成功
-        logger.info(f"request_id={request_id}, 文档上传完成, doc_id={data.get('doc_id')}")
+        duration = int((time.time() - start_time) * 1000)
+        logger.info(
+            f"[文档上传] 成功, request_id={request_id}, doc_id={data.get('doc_id')}, duration={duration}ms, file_size={data.get('file_size', 'unknown')}")
 
         return ResponseBuilder.success(data=data, request_id=request_id).model_dump()
 
     except APIException as e:
+        logger.error(f"[文档上传失败] request_id={request_id}, error_code={e.code.value}, error_msg={e.message}")
         log_exception(f"request_id={request_id}, 文档上传失败", exc=e)
         return ResponseBuilder.error(
             error_code=e.code.value,
@@ -58,6 +66,7 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
             request_id=request_id
         ).model_dump()
     except Exception as e:
+        logger.error(f"[文档上传失败] request_id={request_id}, error_code=INTERNAL_ERROR, error_msg={str(e)}")
         log_exception(f"request_id={request_id}, 文档上传异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,
@@ -85,24 +94,36 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
     request_id = getattr(fastapi_request.state, "request_id", None)
 
     # 记录操作开始
-    logger.info(
-        f"开始删除文档, request_id={request_id}, doc_id={request.doc_id}, is_soft_delete={'记录删除' if request.is_soft_delete else '记录+文件删除'}")
+    # 记录操作开始
+    start_time = time.time()
+    delete_type = "保留源文件" if request.is_soft_delete else "不保留源文件"
+    logger.info(f"[文档删除] 开始, request_id={request_id}, doc_id={request.doc_id}, delete_type={delete_type}")
+
     try:
         # 验证参数
         validate_doc_id(request.doc_id)
         validate_param_type(request.is_soft_delete, bool, '删除类型')
 
-        # 调用删除服务
-        logger.info(f"API 调用: /documents/delete")
+        # 记录业务信息
+        logger.info(
+            f"[文档删除请求] request_id={request_id}, doc_id={request.doc_id}, is_soft_delete={request.is_soft_delete}")
+
         result = await doc_service.delete_file(
             doc_id=request.doc_id,
             is_soft_delete=request.is_soft_delete
         )
 
+        # 记录操作成功
+        duration = int((time.time() - start_time) * 1000)
+        logger.info(
+            f"[文档删除] 成功, request_id={request_id}, doc_id={request.doc_id}, delete_type={delete_type}, duration={duration}ms")
+
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
 
     except Exception as e:
-        log_exception(f"文档删除异常: {str(e)}")
+        logger.error(
+            f"[文档删除失败] request_id={request_id}, doc_id={request.doc_id}, error_code=INTERNAL_ERROR, error_msg={str(e)}")
+        log_exception(f"文档删除异常: {str(e)}", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.INTERNAL_ERROR.value,
             error_message=str(e),
@@ -129,17 +150,27 @@ async def check_document_status(request: DocumentStatusRequest, fastapi_request:
     request_id = getattr(fastapi_request.state, "request_id", None)
 
     # 记录操作开始
-    logger.info(f"查询文档状态, request_id={request_id}, doc_id={request.doc_id}")
+    start_time = time.time()
+    logger.info(f"[文档状态查询] 开始, request_id={request_id}, doc_id={request.doc_id}")
 
     try:
         validate_doc_id(request.doc_id)
 
-        # 调用监测服务
-        logger.info(f"API 调用: /documents/check_status")
+        # 记录业务信息
+        logger.info(f"[文档状态查询请求] request_id={request_id}, doc_id={request.doc_id}")
+
         result = await doc_service.check_status(doc_id=request.doc_id)
+
+        # 记录操作成功
+        duration = int((time.time() - start_time) * 1000)
+        status = result.get('status', 'unknown')
+        logger.info(
+            f"[文档状态查询] 成功, request_id={request_id}, doc_id={request.doc_id}, status={status}, duration={duration}ms")
 
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
     except Exception as e:
+        logger.error(
+            f"[文档状态查询失败] request_id={request_id}, doc_id={request.doc_id}, error_code=FILE_STATUS_CHECK_FAIL, error_msg={str(e)}")
         log_exception(f"文档状态查询异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value,
@@ -166,18 +197,28 @@ async def get_doc_result(doc_id: str, fastapi_request: Request) -> Union[Dict[st
     request_id = getattr(fastapi_request.state, "request_id", None)
 
     # 记录操作开始
-    logger.info(f"查询文档信息, request_id={request_id}, doc_id={doc_id}")
+    start_time = time.time()
+    logger.info(f"[文档信息查询] 开始, request_id={request_id}, doc_id={doc_id}")
 
     try:
         validate_doc_id(doc_id)
 
-        # 调用查询文档信息方法
-        logger.info(f"API 调用: /documents/result/{doc_id}")
+        # 记录业务信息
+        logger.info(f"[文档信息查询请求] request_id={request_id}, doc_id={doc_id}")
+
         result = await doc_service.get_result(doc_id=doc_id)
+
+        # 记录操作成功
+        duration = int((time.time() - start_time) * 1000)
+        result_keys = list(result.keys()) if result else []
+        logger.info(
+            f"[文档信息查询] 成功, request_id={request_id}, doc_id={doc_id}, result_keys={result_keys}, duration={duration}ms")
 
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
 
     except Exception as e:
+        logger.error(
+            f"[文档信息查询失败] request_id={request_id}, doc_id={doc_id}, error_code=FILE_STATUS_CHECK_FAIL, error_msg={str(e)}")
         log_exception(f"文档信息查询异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value,

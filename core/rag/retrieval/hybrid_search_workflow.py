@@ -35,7 +35,7 @@ class HybridSearchWorkflow:
             List[Dict[str, Any]]: 检索结果列表
         """
         try:
-            logger.info(f"开始混合检索工作流, 查询: {query}")
+            logger.info(f"[混合检索] 开始, 开始混合检索工作流, 查询: {query}, k={k}, top_k={top_k}")
 
             # 构建权限过滤表达式
             expr = self._build_permission_expr(permission_ids)

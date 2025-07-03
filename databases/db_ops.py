@@ -1,4 +1,5 @@
 """需要对所有数据库统一操作的代码工具"""
+import time
 from typing import Dict, Any, Union, List
 
 from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, PageOperation
@@ -67,38 +68,43 @@ def delete_all_database_data(doc_id: str) -> None:
     Args:
         doc_id: 要删除的文档ID
     """
+    # 记录操作开始
+    start_time = time.time()
+    logger.info(f"[数据库删除] 开始, doc_id={doc_id}")
+
     try:
-        logger.info(f"开始删除数据库记录, doc_id={doc_id}")
-        # 删除 MySQL 数据库记录
         try:
-            logger.info(f"MySQL 数据删除")
+            logger.info(f"[MySQL删除] 开始删除MySQL数据")
             with FileInfoOperation() as file_op, \
                     PermissionOperation() as permission_op, \
                     ChunkOperation() as chunk_op, \
                     PageOperation() as page_op:
                 # 删除文件信息表
-                logger.info(f"删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录...")
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录")
                 file_op_nums = file_op.delete_by_doc_id(doc_id)
-                logger.info(f"成功删除 {file_op_nums} 条")
+                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {file_op_nums} 条")
 
                 # 删除权限信息表
-                logger.info(f"删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录...")
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录")
                 permission_op_nums = permission_op.delete_by_doc_id(doc_id)
-                logger.info(f"成功删除 {permission_op_nums} 条")
+                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {permission_op_nums} 条")
 
                 # 删除分块信息表
-                logger.info(f"删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录...")
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录")
                 chunk_op_nums = chunk_op.delete_by_doc_id(doc_id)
-                logger.info(f"成功删除 {chunk_op_nums} 条")
+                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {chunk_op_nums} 条")
 
                 # 删除分页信息表
-                logger.info(f"删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录...")
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录")
                 page_op_nums = page_op.delete_by_doc_id(doc_id)
-                logger.info(f"成功删除 {page_op_nums} 条")
+                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {page_op_nums} 条")
 
-                logger.info(f"MySQL 数据删除成功")
+                # 记录操作成功
+                duration = int((time.time() - start_time) * 1000)
+                logger.info(
+                    f"[MySQL删除] 成功, duration={duration}ms")
         except Exception as e:
-            logger.error(f"MySQL 数据删除失败, 错误原因: {str(e)}")
+            logger.error(f"[MySQL删除] 失败, 错误原因: {str(e)}")
             # MySQL删除失败不影响其他数据库的删除操作
 
         # 删除 Milvus 数据库记录

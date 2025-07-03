@@ -43,10 +43,10 @@ class ElasticsearchOperation:
             if not self.ping():
                 raise Exception("无法连接到 Elasticsearch 服务器")
 
-            logger.info("Elasticsearch 客户端初始化成功")
+            logger.info(f"[ES初始化] 客户端初始化成功")
 
         except Exception as e:
-            logger.error(f"Elasticsearch 客户端初始化失败: {str(e)}")
+            logger.error(f"[ES初始化失败] error_msg={str(e)}")
             raise
 
     def create_index(self, index_name: str, schema_config: dict) -> bool:
@@ -61,7 +61,7 @@ class ElasticsearchOperation:
         """
         try:
             if self.client.indices.exists(index=index_name):
-                logger.info(f"索引 {index_name} 已存在，跳过创建")
+                logger.info(f"[ES索引] 索引 {index_name} 已存在，跳过创建")
                 return True
 
             # 打印 schema 配置，用于调试

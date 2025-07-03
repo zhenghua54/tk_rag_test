@@ -73,16 +73,13 @@ def validate_permission_id(value):
 
 def validate_permission_ids(value):
     """验证部门ID列表"""
-    uuid_pattern = re.compile(r"^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$")
     if value is None:
         return
     if isinstance(value, str):
         if not value.strip():
             return
-        if not uuid_pattern.fullmatch(value.strip()):
-            raise ValueError(f"权限 ID (UUID) 格式不合法: {value}")
-        # if 1 <= len(value) <= 32:
-        #     return
+        if 1 <= len(value) <= 32:
+            return
     elif isinstance(value, list):
         if len(value) == 0:
             return
@@ -91,8 +88,6 @@ def validate_permission_ids(value):
                 raise ValueError(f"第 {idx} 个权限 ID 类型错误: {v}:{type(v)}")
             if not v.strip():
                 continue  # 空字符串跳过
-            if not uuid_pattern.fullmatch(v.strip()):
-                raise ValueError(f"第 {idx} 个权限 ID（UUID）格式不合法: {v}:{type(v)}")
 
     elif isinstance(value, list) and len(value) == 0:
         pass

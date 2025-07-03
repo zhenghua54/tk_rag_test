@@ -40,7 +40,7 @@ class MySQLConnectionPool:
                 database=GlobalConfig.MYSQL_CONFIG['database'],
                 charset=GlobalConfig.MYSQL_CONFIG['charset']
             )
-            logger.info("MySQL 连接池初始化成功")
+            logger.info(f"[MySQL连接池] 连接池初始化成功")
 
     def get_connection(self):
         return self._pool.connection()
@@ -67,10 +67,10 @@ class MySQLUtils:
             with pool.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute("SELECT 1")
-            logger.info("数据库连接测试成功")
+            logger.info(f"[MySQL连接测试] 数据库连接测试成功")
             return True
         except Exception as e:
-            logger.error(f"数据库连接测试失败: {str(e)}")
+            logger.error(f"[MySQL连接测试失败] error_msg={str(e)}")
             return False
 
 

@@ -27,7 +27,7 @@ class BM25Retriever:
         Returns:
             dict[str, float]: 检索结果字典(seg_id, score)
         """
-        logger.info(f"开始BM25检索 (不支持原生权限过滤),查询: {query}, k: {k}")
+        logger.debug(f"[BM25检索] 开始, 查询长度={len(query)}, k={k}")
         bm25_results = OrderedDict()
         seen_parent_ids = set()
 

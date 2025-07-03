@@ -49,10 +49,10 @@ class MilvusBase:
 
                 self.db_name = GlobalConfig.MILVUS_CONFIG["db_name"]
                 self._initialized = True
-                logger.info("Milvus基础连接初始化成功")
+                logger.info(f"[Milvus初始化] 基础连接初始化成功")
 
             except Exception as e:
-                logger.error(f"Milvus基础连接初始化失败: {str(e)}")
+                logger.error(f"[Milvus初始化失败] error_msg={str(e)}")
                 raise
 
     def get_client(self) -> MilvusClient:
@@ -69,7 +69,7 @@ class MilvusBase:
         """
         try:
             self.client.using_database(db_name)
-            logger.info(f"切换到数据库: {db_name}")
+            logger.info(f"[Milvus数据库] 切换到数据库: {db_name}")
         except Exception as e:
             logger.error(f"切换数据库失败: {str(e)}")
             raise

@@ -55,7 +55,7 @@ class FileInfoOperation(BaseDBOperation):
         try:
             return self.select_by_id(doc_id)
         except Exception as e:
-            logger.error(f"[查询失败] table={self.table_name}, error={str(e)}")
+            logger.error(f"[MySQL查询失败] table={self.table_name}, error_msg={str(e)}")
             raise e
 
     def get_non_pdf_files(self) -> Optional[List[Dict]]:
@@ -65,8 +65,8 @@ class FileInfoOperation(BaseDBOperation):
             List[Dict]: 非PDF文件的数据库记录列表
         """
         try:
-            sql = f'SELECT * FROM %s WHERE doc_pdf_path IS NULL'
-            return self._execute_query(sql, (self.table_name,))
+            sql = f'SELECT * FROM {self.table_name} WHERE doc_pdf_path IS NULL'
+            return self._execute_query(sql)
         except Exception as e:
             logger.error(f"[查询非PDF文件失败] table={self.table_name}, error={str(e)}")
             raise e
@@ -78,8 +78,8 @@ class FileInfoOperation(BaseDBOperation):
             List[Dict]: PDF文件的数据库记录列表
         """
         try:
-            sql = f'SELECT * FROM %s WHERE doc_pdf_path IS NOT NULL'
-            return self._execute_query(sql, (self.table_name,))
+            sql = f'SELECT * FROM {self.table_name} WHERE doc_pdf_path IS NOT NULL'
+            return self._execute_query(sql)
         except Exception as e:
             logger.error(f"[查询PDF文件失败] table={self.table_name}, error={str(e)}")
 
@@ -381,34 +381,26 @@ class ChatSessionOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['chat_sessions_table'])
 
-    def create_or_update_session(self, session_id: str, user_id: str = None, title: str = None):
+    def create_or_update_session(self, session_id: str):
         """创建或更新会话
         
         Args:
             session_id: 会话ID（必需）
-            user_id: 用户ID（可选，未来扩展用）
-            title: 会话标题（可选，未来扩展用）
         """
         try:
-            # 构建会话数据
-            session_data = {
-                'session_id': session_id,
-                'user_id': user_id,
-                'title': title,
-                'created_at': datetime.now(),
-                'updated_at': datetime.now()
-            }
             # 先尝试更新
             existing = self.select_record(conditions={'session_id': session_id})
             if existing:
                 # 更新会话
-                data = {
-                    'updated_at': datetime.now(),
-                    'title': title or existing[0].get('title')
-                }
+                data = {'updated_at': datetime.now()}
                 self.update_by_field('session_id', session_id, data)
             else:
                 # 创建新会话
+                session_data = {
+                    'session_id': session_id,
+                    'created_at': datetime.now(),
+                    'updated_at': datetime.now()
+                }
                 self.insert(session_data)
         except Exception as e:
             logger.error(f"创建或更新会话失败: {str(e)}")
@@ -437,7 +429,8 @@ class ChatMessageOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG['chat_messages_table'])
 
-    def save_message(self, session_id: str, message_type: str, content: str, metadata: Optional[Dict] = None):
+    def save_message(self, session_id: str, message_type: str, content: str,
+                     metadata: Optional[Dict] = None):
         """保存消息
         
         Args:
@@ -445,7 +438,6 @@ class ChatMessageOperation(BaseDBOperation):
             message_type: 消息类型('human', 'ai')
             content: 消息内容
             metadata: 消息元数据(可选)
-
         """
         try:
             message_data = {
@@ -456,6 +448,7 @@ class ChatMessageOperation(BaseDBOperation):
                 'created_at': datetime.now()
             }
             self.insert(message_data)
+
         except Exception as e:
             logger.error(f"保存消息失败: {str(e)}")
             raise e
@@ -474,7 +467,7 @@ class ChatMessageOperation(BaseDBOperation):
             sql = f'SELECT * FROM {self.table_name} WHERE session_id = %s ORDER BY created_at ASC LIMIT %s'
             return self._execute_query(sql, (session_id, limit))
         except Exception as e:
-            logger.error(f"获取消息失败: {str(e)}")
+            logger.error(f"[消息查询] 失败, session_id={session_id}, limit={limit}, error={str(e)}")
             raise e
 
     def delete_message_by_session_id(self, session_id: str):

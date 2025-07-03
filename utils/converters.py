@@ -99,7 +99,7 @@ def convert_html_to_markdown(html: str) -> str:
             df = df[1:]
             df.reset_index(drop=True, inplace=True)
 
-        logger.info("markdown 格式表格转换完成！")
+        logger.debug(f"[表格转换] 完成, 表格大小={len(df)}行x{len(df.columns)}列")
 
         # 转为 markdown
         return df.to_markdown(index=False)

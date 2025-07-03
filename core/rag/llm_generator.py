@@ -1,11 +1,10 @@
-from typing import Dict, Optional, List, Union
+from typing import Dict, Optional, List, Union, Any
 from langchain_core.documents import Document
 
-from langchain.chains import ConversationalRetrievalChain
 from langchain.schema import BaseRetriever
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
-from utils.log_utils import logger
+from utils.log_utils import logger, log_exception
 from utils.converters import local_path_to_url
 from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
 from databases.mysql.operations import ChatSessionOperation, ChatMessageOperation
@@ -40,12 +39,12 @@ class RAGGenerator:
         try:
             # 先检查缓存，如果缓存存在，则直接返回
             if session_id in self._cache:
-                logger.info(f"从缓存获取消息历史, session_id: {session_id}")
+                logger.debug(f"[缓存命中] session_id={session_id}")
                 return self._cache[session_id]
 
-            # 从数据库获取消息
-            messages_data = self.message_op.get_message_by_session_id(session_id)
-            logger.info(f"从数据库获取消息历史, session_id: {session_id}, 消息数量: {len(messages_data)}")
+            # 从数据库获取消息, 限制最大 10 条
+            messages_data = self.message_op.get_message_by_session_id(session_id, limit=10)
+            logger.debug(f"[历史消息] session_id={session_id}, 消息数量={len(messages_data)}")
 
             # 转换为 BaseMessage 对象
             messages = []
@@ -57,43 +56,50 @@ class RAGGenerator:
 
             # 更新缓存
             self._cache[session_id] = messages
-            logger.info(f"更新缓存, session_id: {session_id}, 消息数量: {len(messages)}")
+            logger.debug(f"[缓存更新] session_id={session_id}, 消息数量={len(messages)}")
             return messages
 
         except Exception as e:
-            logger.error(f"获取会话历史失败: {str(e)}")
+            logger.error(f"[历史消息失败] session_id={session_id}, error_msg={str(e)}")
             return []
 
     def _save_to_history(self, session_id: str, query: str, answer: Union[str, None],
-                         metadata: Optional[List[Dict]] = None) -> None:
+                         metadata: Optional[Dict[str, Any]] = None,
+                         rewrite_query: str = None) -> None:
         """保存用户与助手的每一轮对话到数据库
     
         Args:
             session_id: 会话ID
             query: 用户查询
             answer: AI回答
-            metadata: 元数据列表（用于存储的简化格式）
+            metadata: 元数据列表（seg_ids）
+            rewrite_query: 改写后的查询(可选)
         """
         try:
             # 确保会话存在
             self.session_op.create_or_update_session(session_id=session_id)
+
+            # 构建用户消息元数据
+            user_metadata = None
+            if rewrite_query and rewrite_query != query:
+                user_metadata = {"rewrite_query": rewrite_query}
 
             # 保存用户消息
             self.message_op.save_message(
                 session_id=session_id,
                 message_type='human',
                 content=query,
-                metadata=None
+                metadata=user_metadata
             )
 
-            # 保存助手消息
+            # 保存 AI 回答
             self.message_op.save_message(
                 session_id=session_id,
                 message_type='ai',
                 content=answer,
                 metadata=metadata
             )
-            logger.info(f"保存会话历史成功, session_id: {session_id}, 消息数量: {len(self._cache[session_id])}")
+            logger.info(f"[会话历史] 保存成功, session_id={session_id}, 消息类型=human+ai")
 
             # 更新缓存
             if session_id in self._cache:
@@ -101,50 +107,53 @@ class RAGGenerator:
                     HumanMessage(content=query),
                     AIMessage(content=answer)
                 ])
-                logger.info(f"更新缓存, session_id: {session_id}, 消息数量: {len(self._cache[session_id])}")
+                logger.debug(f"[缓存更新] session_id={session_id}, 消息数量={len(self._cache[session_id])}")
 
         except Exception as e:
             logger.error(f"保存会话历史失败: {str(e)}")
             raise e
 
-    def _build_metadata(self, docs: List[Document], for_storage: bool = False) -> List[Dict]:
+    @staticmethod
+    def _build_metadata(docs: List[Document]) -> Dict[str, Any]:
         """构建元数据信息
-        
+
         Args:
             docs: 检索到的文档列表
-            for_storage: 是否用于存储（True=简化格式，False=完整格式）
-            
+
         Returns:
             List[Dict]: 元数据列表
         """
+        metadata_storage: Dict[str, Any] = dict()
+        metadata_storage['doc_info'] = []
         metadata = []
 
-        if docs:
-            for doc in docs:
-                if for_storage:
-                    # 用于存储时, 只包含 seg_id 和 rerank_score
-                    clean_metadata = {
-                        "seg_id": doc.metadata.get("seg_id"),
-                        "rerank_score": doc.metadata.get("rerank_score", 0.0)
-                    }
+        # if docs:
+        for doc in docs:
+            # 存储使用, 只保存 seg_id 和 rerank_score
+            metadata_storage['doc_info'].append({
+                "seg_id": doc.metadata.get("seg_id"),
+                "rerank_score": doc.metadata.get("rerank_score", 0.0)
+            })
+
+            # 用于前端展示时, 包含所有字段
+            # 本地路径静态映射
+            raw_path = doc.metadata.get("page_png_path")
+            doc.metadata["page_png_path"] = local_path_to_url(raw_path) if raw_path else None
+            # 处理元数据中的非 JSON 序列化对象,如: datetime 等
+            clean_metadata = {}
+            for key, value in doc.metadata.items():
+                # 可序列化字段直接使用
+                if isinstance(value, (str, int, float, bool, list, dict)) or value is None:
+                    clean_metadata[key] = value
                 else:
-                    # 用于前端展示时, 包含所有字段
-                    raw_path = doc.metadata.get("page_png_path")
-                    # 本地路径静态映射
-                    doc.metadata["page_png_path"] = local_path_to_url(raw_path) if raw_path else None
+                    # 将其他类型转换为字符串
+                    clean_metadata[key] = str(value)
+            metadata.append(clean_metadata)
 
-                    # 处理元数据中的非 JSON 序列化对象,如: datetime 等
-                    clean_metadata = {}
-                    for key, value in doc.metadata.items():
-                        # 可序列化字段直接使用
-                        if isinstance(value, (str, int, float, bool, list, dict)) or value is None:
-                            clean_metadata[key] = value
-                        else:
-                            # 将其他类型转换为字符串
-                            clean_metadata[key] = str(value)
-
-                metadata.append(clean_metadata)
-        return metadata
+        return {
+            "metadata": metadata,
+            "metadata_storage": metadata_storage
+        }
 
     def generate_response(self,
                           query: str,
@@ -170,40 +179,25 @@ class RAGGenerator:
 
             # 获取当前 session 的历史对话
             raw_history: List[BaseMessage] = self._get_history(session_id)
-            complete_history = raw_history + [HumanMessage(content=query)]
 
             # 使用历史对话重写查询
-            rewrite_query = self.rewrite_query_with_history(
-                history=raw_history,
-                question=query,
-                session_id=session_id
-            )
+            rewrite_query = self._rewrite_query_with_history(history=raw_history, question=query, session_id=session_id)
 
-
-            # 检索知识库
-            # docs = self.retriever.invoke(query, permission_ids=permission_ids)
             # 使用重写后的查询进行检索
             docs = self.retriever.invoke(rewrite_query, permission_ids=permission_ids)
 
             # 调试: 打印知识库信息
             for doc in docs:
-                print("检索知识库后拿到的文档-->", doc)
+                logger.debug(
+                    f"[检索结果] request_id={request_id}, doc_id={doc.metadata.get('doc_id', 'unknown')}, seg_id={doc.metadata.get('seg_id', 'unknown')}")
 
             # 初始化元数据变量
-            metadata: List[Dict] = []  # 用于前端展示
-            metadata_storage: List[Dict] = []  # 用于存储
-
+            metadata = []
+            metadata_storage = {"doc_info": []}
             if docs:
                 # 构建两种格式的 metadata
-                metadata_storage = self._build_metadata(docs=docs, for_storage=True)
-                metadata = self._build_metadata(docs=docs, for_storage=False)
-
-            # # 渲染提示词
-            # system_prompt, _ = render_prompt("rag_system_prompt", {})
-            # user_prompt,config = render_prompt("rag_user_prompt", {
-            #     "docs_content":"",
-            #     "history_content":""
-            # })
+                metadata_info = self._build_metadata(docs=docs)
+                metadata, metadata_storage = metadata_info['metadata'], metadata_info["metadata_storage"]
 
             # 构造 rag 上下文
             messages = get_messages_for_rag(
@@ -219,32 +213,37 @@ class RAGGenerator:
                 invoke_type="RAG生成"
             )
 
-            # # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
-            # if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
-            #     logger.warning(f"知识库为空但模型回答了内容, 进行修正, 模型回答: {response_text}")
-            #     response_text = "抱歉，知识库中没有找到相关信息"
+            # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
+            if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
+                logger.warning(f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={response_text[:200]}...")
+                response_text = "抱歉，知识库中没有找到相关信息"
 
             # 保存历史对话到数据库
-            self._save_to_history(session_id, query, response_text, metadata_storage)
+            self._save_to_history(
+                session_id=session_id,
+                query=query,
+                answer=response_text,
+                metadata=metadata_storage,
+                rewrite_query=rewrite_query
+            )
 
             # 构建返回结果
             result = {
+                "query": query,
+                "rewrite_query": rewrite_query,
                 "answer": response_text.strip(),
                 "session_id": session_id,
                 "metadata": metadata,
-                "chat_history": [
-                    {"role": "user" if isinstance(msg, HumanMessage) else "ai", "content": msg.content}
-                    for msg in self._get_history(session_id)
-                ]
             }
             return result
 
         except Exception as e:
-            logger.error(f"生成回答失败: {str(e)}")
+            logger.error(f"[RAG生成失败] request_id={request_id}, session_id={session_id}, error_msg={str(e)}")
+            log_exception("RAG生成异常", exc=e)
             raise ValueError(f"生成回答失败: {str(e)}")
 
-    def rewrite_query_with_history(self,
-                                   history: List[BaseMessage],
+    @staticmethod
+    def _rewrite_query_with_history(history: List[BaseMessage],
                                    question: str,
                                    session_id: str) -> str:
         """使用LLM根据历史上下文重写用户 query，  生成检索用 query

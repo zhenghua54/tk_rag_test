@@ -149,6 +149,7 @@ class DocumentService(BaseService):
                     return {
                         "doc_id": doc_id,
                         "doc_name": path.name,
+                        "doc_size": convert_bytes(path.stat().st_size),
                         "status": "uploaded",
                         "permission_ids": permission_ids,
                     }
@@ -346,8 +347,8 @@ class DocumentService(BaseService):
             max_attempts = 30
             attempt_interval = 60
 
-            for attempt in range(attempt_interval):  # 最大尝试次数，30分钟
-                await asyncio.sleep(max_attempts)  # 等待 30 秒
+            for attempt in range(max_attempts):  # 最大尝试 30 次
+                await asyncio.sleep(attempt_interval)  # 每次等待 60 秒
 
                 # 检查文档处理状态
                 file_info = file_op.get_file_by_doc_id(doc_id) if file_op else FileInfoOperation().get_file_by_doc_id(
@@ -373,7 +374,7 @@ class DocumentService(BaseService):
                         if not doc_process_path or not os.path.exists(doc_process_path):
                             raise ValueError(f"处理后的文档不存在, doc_path={doc_process_path}")
 
-                        # 执行文档切块，直接传入权限ID字符串，不再进行转换
+                        # 执行文档切块
                         logger.info(f"request_id={request_id}, 开始文档切块")
                         await asyncio.to_thread(
                             segment_text_content,
@@ -398,10 +399,13 @@ class DocumentService(BaseService):
                         return
                     try:
                         logger.info(f"request_id={request_id}, 开始文档切页")
+                        pdf_path: str = file_info["doc_pdf_path"]
+                        output_dir: str = f"{Path(file_info['doc_json_path']).parent}/split_pages"
+
                         split_result: dict[str, str] = await asyncio.to_thread(
                             split_pdf_to_pages,
-                            input_path=file_info["doc_pdf_path"],
-                            output_dir=f"{Path(file_info['doc_json_path']).parent}/split_pages"
+                            input_path=pdf_path,
+                            output_dir=output_dir
                         )
                         logger.info(
                             f"request_id={request_id}, 文档切页完成, 结果路径: {f'{Path(doc_process_path).parent}/split_pages'}")
@@ -427,6 +431,8 @@ class DocumentService(BaseService):
                                                 {"process_status": doc_status})
 
                     logger.info(f"request_id={request_id}, 文档已处理, status: {doc_status}")
+
+                    return  # 处理完成，退出监控
 
             # 如果超过最大尝试次数仍未完成，记录超时
             logger.error(

@@ -45,7 +45,36 @@ class GlobalConfig:
         "embedding": str(MODEL_BASE / "embedding" / "bge-m3"),
         "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3")
     }
-    LLM_NAME = "qwen-turbo-1101"
+    LLM_NAME = os.getenv("LLM_NAME", "qwen")
+    # LLM_NAME = "qwen-turbo-1101"
+
+    LLM_CONFIG = {
+        "qwen": {
+            "name": "qwen-turbo-1101",
+            "api_key": os.getenv("DASHSCOPE_API_KEY"),
+            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "qpm": 60,  # 每分钟调用次数
+            "tpm": 5000000,  # 每分钟Token数限制
+            "max_tokens_per_request": 4000,  # 单次请求最大Token数
+            "retry_attempts": 5,  # 重试次数
+            "retry_delay_base": 2,  # 重试延迟基数
+            "retry_delay_max": 60,  # 最大重试延迟
+        },
+        "pangu": {},
+    }
+
+    @classmethod
+    def get_llm_config(cls, model_name: str = None) -> dict:
+        """获取指定模型的配置"""
+        model_name = model_name or cls.LLM_NAME
+        if model_name not in cls.LLM_CONFIG:
+            raise ValueError(f"不支持的模型: {model_name}")
+        return cls.LLM_CONFIG[model_name]
+
+    @classmethod
+    def get_current_llm_config(cls) -> dict:
+        """获取当前使用的模型配置"""
+        return cls.get_llm_config(cls.LLM_NAME)
 
     # 文件处理配置
     SUPPORTED_FILE_TYPES = {
@@ -109,12 +138,12 @@ class GlobalConfig:
         "port": 3306,
         "charset": "utf8mb4",
         "database": DB_NAME,
-        "file_info_table": "doc_info", # 文件信息表
-        "segment_info_table": "segment_info", # 段落信息表
-        "permission_info_table": "permission_info", # 权限信息表
-        "doc_page_info_table": "doc_page_info", # 文档切页信息表
-        "chat_sessions_table": "chat_sessions", # 聊天会话表
-        "chat_messages_table": "chat_messages", # 聊天消息表
+        "file_info_table": "doc_info",  # 文件信息表
+        "segment_info_table": "segment_info",  # 段落信息表
+        "permission_info_table": "permission_info",  # 权限信息表
+        "doc_page_info_table": "doc_page_info",  # 文档切页信息表
+        "chat_sessions_table": "chat_sessions",  # 聊天会话表
+        "chat_messages_table": "chat_messages",  # 聊天消息表
     }
     MYSQL_FIELD = {
         "max_path_len": 1000,

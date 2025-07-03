@@ -12,14 +12,15 @@ from abc import ABC, abstractmethod
 from jinja2 import Template
 from langchain_core.documents import Document
 from langchain_core.messages import trim_messages, BaseMessage, HumanMessage, AIMessage
-from openai import OpenAI
+from openai import OpenAI, RateLimitError, APIError
 from requests import RequestException
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
-from utils.log_utils import logger
+from utils.log_utils import logger, log_exception
 from config.global_config import GlobalConfig
+from utils.simple_rate_limiter import rate_limiter
 
 
 class ModelManager(ABC):
@@ -46,10 +47,10 @@ class ModelManager(ABC):
         """懒加载模型， 如果模型未初始化，则初始化模型"""
         self._last_used_time = time.time()  # 更新模型最后一次使用时间
         if not self._is_initialized:
-            logger.info(f"首次使用，开始加载{self.__class__.__name__}模型...")
+            logger.debug(f"[模型加载] 首次使用，开始加载{self.__class__.__name__}模型...")
             self._model = self._init_model()
             self._is_initialized = True
-            logger.info(f"{self.__class__.__name__}模型加载完成")
+            logger.info(f"[模型加载] {self.__class__.__name__}模型加载完成")
         return self._model
 
     def check_idle(self):
@@ -57,7 +58,7 @@ class ModelManager(ABC):
         if self._is_initialized and self._last_used_time:
             idle_time = time.time() - self._last_used_time
             if idle_time > self._idle_timeout:  # 如果空闲时间超过 _idle_timeout 则卸载模型
-                logger.info(f"{self.__class__.__name__}模型已空闲 {idle_time:.2f} 秒， 进行卸载")
+                logger.info(f"[模型卸载] {self.__class__.__name__}模型已空闲{idle_time:.2f}秒，进行卸载")
                 self.unload_model()
 
     @staticmethod
@@ -68,14 +69,14 @@ class ModelManager(ABC):
         gc.collect()
 
     def unload_model(self):
-        """卸载模型释放资源"""
+        """重写卸载方法，同时清理 client"""
         if self._is_initialized:
-            logger.info(f"开始卸载{self.__class__.__name__}模型...")
+            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
+            self._client = None
             self._is_initialized = False
-            # 疑问
-            logger.info(f"{self.__class__.__name__}模型卸载完成")
+            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
     def get_model_status(self) -> Dict[str, Any]:
         """获取模型状态"""
@@ -101,7 +102,7 @@ class EmbeddingManager(ModelManager):
             model.max_seq_length = 1024
             return model
         except Exception as e:
-            logger.error(f"Embedding模型加载失败: {str(e)}")
+            logger.error(f"[Embedding模型失败] error_msg={str(e)}")
             raise
 
     def embed_text(self, text: Union[str, List[str]]) -> List[float]:
@@ -112,7 +113,7 @@ class EmbeddingManager(ModelManager):
             embedding = model.encode(text, normalize_embeddings=True)
             return embedding.tolist()
         except Exception as e:
-            logger.error(f"文本向量化失败: {str(e)}")
+            logger.error(f"[文本向量化失败] error_msg={str(e)}")
             raise
 
 
@@ -134,7 +135,7 @@ class RerankManager(ModelManager):
             self._tokenizer = AutoTokenizer.from_pretrained(GlobalConfig.MODEL_PATHS.get("rerank"))
             return model
         except Exception as e:
-            logger.error(f"Rerank模型加载失败: {str(e)}")
+            logger.error(f"[Rerank模型失败] error_msg={str(e)}")
             raise
 
     def rerank(self, query: str, passages: List[str]) -> List[float]:
@@ -160,57 +161,59 @@ class RerankManager(ModelManager):
 
             return scores.cpu().numpy().tolist()
         except Exception as e:
-            logger.error(f"重排序失败: {str(e)}")
+            logger.error(f"[重排序失败] error_msg={str(e)}")
             raise
 
     def unload_model(self):  # 重写卸载方法，同时清理 tokenizer
         """重写卸载方法，同时清理 tokenizer"""
         if self._is_initialized:
-            logger.info(f"开始卸载{self.__class__.__name__}模型...")
+            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
             self._tokenizer = None  # 清理 tokenizer
             self._is_initialized = False
             self._last_used_time = None
-            logger.info(f"{self.__class__.__name__}模型卸载完成")
+            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
 
 class LLMManager(ModelManager):
     """LLM模型管理器"""
     _idle_timeout = 1800  # LLM 模型 30 分钟不使用则卸载
     _client = None  # 添加 LLM 模型 client， 用于调用 LLM
+    _model_config = None  # 存储模型配置
+    _model_name = None  # 存储模型实际名称
+
+    def __init__(self):
+        super().__init__()
+        # 初始化时获取配置
+        self._model_config = GlobalConfig.get_current_llm_config()
+        self._model_name = self._model_config["name"]
+        logger.info(f"[LLM初始化] 使用模型={self._model_name}")
 
     def _init_model(self) -> OpenAI:
         """初始化LLM模型"""
         try:
-            api_key = os.getenv("DASHSCOPE_API_KEY")
-            if not api_key:
-                raise ValueError("请设置 DASHSCOPE_API_KEY 环境变量")
-
-            self._client = OpenAI(
-                api_key=api_key,
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            client = OpenAI(
+                api_key=self._model_config["api_key"],
+                base_url=self._model_config["base_url"],
+                timeout=60.0
             )
-            return self._client
+            self._client = client
+            return client
         except Exception as e:
-            logger.error(f"LLM模型加载失败: {str(e)}")
+            logger.error(f"[LLM模型失败] error_msg={str(e)}")
             raise
 
-    @property
-    def api_key(self) -> str:
-        """获取 LLM 模型 api_key"""
-        return os.getenv("DASHSCOPE_API_KEY")
-
     @retry(
-        stop=stop_after_attempt(3),  # 最多重试 3 次
-        wait=wait_exponential(multiplier=1, min=1, max=8),  # 指数回退策略
-        retry=retry_if_exception_type(RequestException),  # 捕获所有异常类型，可按需改
+        stop=stop_after_attempt(5),  # 最多重试 5 次
+        wait=wait_exponential(multiplier=2, min=1, max=60),  # 指数回退， 最大等待 60秒
+        retry=retry_if_exception_type((RequestException, RateLimitError, APIError)),  # 捕获所有异常类型，添加 429(超限)错误处理
         reraise=True  # 重试后失败仍抛出异常
     )
     def invoke(self,
                messages: Optional[List[Dict]] = None,
                prompt: Optional[str] = None,
-               model: str = GlobalConfig.LLM_NAME,
+               model: str = None,
                temperature: float = 0.3,
                top_p: float = 0.9,
                stream: bool = False,
@@ -218,6 +221,10 @@ class LLMManager(ModelManager):
                max_tokens: Optional[int] = None,
                invoke_type: Optional[str] = None) -> str:  # 最大输出 token
         """支持 Chat-style 调用"""
+        # 统一限流控制
+        rate_limiter.wait_if_needed()
+
+        model_name = model or self._model_name
 
         client = self.get_model()
         if messages is None:
@@ -230,7 +237,7 @@ class LLMManager(ModelManager):
                 raise ValueError("未提供 Prompt 或 messages")
 
         params = {
-            "model": model,
+            "model": model_name,
             "messages": messages,
             "temperature": temperature,
             "top_p": top_p,
@@ -239,27 +246,34 @@ class LLMManager(ModelManager):
         }
         if max_tokens:
             params["max_tokens"] = max_tokens
+        try:
+            completion = client.chat.completions.create(**params)
+            logger.debug(
+                f"[LLM调用] {invoke_type}, 模型={completion.model}, 输入Token={completion.usage.prompt_tokens}, 输出Token={completion.usage.completion_tokens}, 总Token={completion.usage.total_tokens}")
+            return completion.choices[0].message.content
+        except RateLimitError as e:
+            logger.warning(f"[LLM限流] error_msg={e}, 将进行重试")
+            raise
+        except APIError as e:
+            logger.warning(f"[LLM错误] error_msg={e}, 将进行重试")
+            raise
+        except Exception as e:
+            logger.error(f"[LLM调用失败] error_msg={str(e)}")
+            raise
 
-        completion = client.chat.completions.create(**params)
-        logger.info(
-            f"本次{invoke_type}使用情况 --> 模型: {completion.model}, 输入 Token: {completion.usage.prompt_tokens}, 输出 Token: {completion.usage.completion_tokens}, 总 Token: {completion.usage.total_tokens}")
-
-        return completion.choices[0].message.content
-
-    def upload_model(self):
+    def unload_model(self):
         """重写卸载方法，同时清理 client"""
         if self._is_initialized:
-            logger.info(f"开始卸载{self.__class__.__name__}模型...")
+            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
             self._client = None
             self._is_initialized = False
             self._last_used_time = None
-            logger.info(f"{self.__class__.__name__}模型卸载完成")
+            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
     @staticmethod
-    def count_tokens(message: Union[BaseMessage, str, List[Union[BaseMessage, str]]],
-                     model_name: str = "qwen-turbo") -> int:
+    def count_tokens(message: Union[BaseMessage, str, List[Union[BaseMessage, str]]]) -> int:
 
         # 统一转字符串
         if isinstance(message, list):
@@ -275,21 +289,15 @@ class LLMManager(ModelManager):
         if not message or not isinstance(message, str):
             return 0
 
-        # 获取 tokenizer
+        # 获取分词器计算 token 数
         try:
-            encoding = tiktoken.encoding_for_model(model_name)
-            logger.info(f"使用 {model_name} 模型的 tokenizer")
-        except KeyError:
-            logger.warning(f"没有 {model_name} 模型的 tokenizer, 使用 cl100k_base")
-            # 若模型不在 tiktoken 支持的列表中，回退到 cl100k_base
+            logger.debug(f"[Token计算] 使用cl100k_base分词器")
             encoding = tiktoken.get_encoding("cl100k_base")
-
-        try:
             encoding_ids = encoding.encode(message)
-            logger.info(f"token 数量为: {len(encoding_ids)}")
+            logger.debug(f"[Token计算] token数量={len(encoding_ids)}")
             return len(encoding_ids)
         except Exception as e:
-            logger.error(f"计算 token 失败: {str(e)}")
+            logger.error(f"[Token计算失败] error_msg={str(e)}")
             return 0
 
 
@@ -319,7 +327,7 @@ def render_prompt(name: str, variables: Dict[str, str], as_str: bool = True) -> 
         rendered = template.render(**variables)
         return (rendered, prompt_config) if as_str else (template, prompt_config)
     except jinja2.exceptions.TemplateError as e:
-        logger.error("提示词组装失败", e)
+        logger.error(f"[提示词组装失败] error_msg={str(e)}")
         raise e
 
 
@@ -333,90 +341,125 @@ def get_messages_for_rag(history: List[BaseMessage],
         docs: 知识库信息, 分数在 metadata 中
         question: 用户最新问题
     """
-    logger.info(f"[get_messages_for_rag] 输入 history 条数: {len(history)}")
+    try:
+        # 记录输入参数基本信息
+        logger.info(f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}")
 
-    # 初始化长度剪裁参数
-    # token_total = 32768  # Qwen Turbo 模型输入输出总长度
-    context_max_len = 10000
-    history_max_len = 10000
+        # 初始化长度剪裁参数
+        # token_total = 32768  # Qwen Turbo 模型输入输出总长度
+        context_max_len = 10000
+        history_max_len = 10000
+        messages = []
+        total_tokens = 0
 
-    messages = []
+        # ===== 知识库信息 =====
+        docs_content = ""
+        if docs:
+            token_total = 0
+            context_lines = []
+            processed_docs = 0
 
-    # ===== 知识库信息 =====
-    docs_content = ""
-    if docs:
-        token_total = 0
-        context_lines = []
+            for doc in docs:
+                if hasattr(doc, "metadata") and doc.metadata:
+                    seg_content = doc.metadata.get("seg_content", "")
+                    if seg_content:
+                        # 计算当前片段的 token 数
+                        segment_tokens = llm_count_tokens(seg_content)
+                        # 超限切割
+                        if token_total + segment_tokens > context_max_len:
+                            logger.debug(f"[消息构建] 知识库内容token数达到限制，裁剪后续内容")
+                            break
 
-        for doc in docs:
-            if hasattr(doc, "metadata") and doc.metadata:
-                seg_content = doc.metadata.get("seg_content", "")
-                if seg_content:
-                    # 计算当前片段的 token 数
-                    segment_tokens = llm_count_tokens(seg_content)
-                    # 超限切割
-                    if token_total + segment_tokens > context_max_len:
-                        logger.info("知识库内容 token 数达到限制, 裁剪后续内容")
-                        break
+                        docs_content += f"{seg_content}\n\n"
+                        token_total += segment_tokens
+                        context_lines.append(seg_content)
+                        processed_docs += 1
 
-                    docs_content += f"{seg_content}\n\n"
-                    token_total += segment_tokens
-                    context_lines.append(seg_content)
-
-        # 如果知识库信息不为空，则添加到 messages
-        if docs_content:
-            logger.info(f"知识库 context 剪裁后共 {len(context_lines)} 段，token 总数 {token_total}")
+            # 如果知识库信息不为空，则添加到 messages
+            if docs_content:
+                logger.info(
+                    f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={token_total}")
+            else:
+                docs_content += '知识库中无相关信息'
+                logger.debug(f"[消息构建] 知识库中无相关信息")
         else:
+            # 当docs为空时，添加无相关信息提示
             docs_content += '知识库中无相关信息'
-            logger.info("知识库中无相关信息")
-    else:
-        # 当docs为空时，添加无相关信息提示
-        docs_content += '知识库中无相关信息'
-        logger.info("检索结果为空，知识库中无相关信息")
+            logger.debug(f"[消息构建] 检索结果为空，知识库中无相关信息")
 
-    # ==== 构建完整的系统提示词 ====
-    complete_system_prompt, _ = render_prompt("rag_system_prompt", {
-        "retrieved_knowledge": docs_content,
-    })
+        # ==== 构建完整的系统提示词 ====
+        logger.debug(f"[消息构建] 开始构建系统提示词, 知识库内容长度={len(docs_content)}")
+        complete_system_prompt, _ = render_prompt("rag_system_prompt", {
+            "retrieved_knowledge": docs_content,
+        })
+        system_tokens = llm_count_tokens(complete_system_prompt)
+        total_tokens += system_tokens
 
-    # 添加系统提示词(包含知识库信息)
-    messages.append({"role": "system", "content": complete_system_prompt.strip()})
+        # 添加系统提示词(包含知识库信息)
+        messages.append({"role": "system", "content": complete_system_prompt.strip()})
+        logger.debug(f"[消息构建] 系统提示词构建完成, token数={system_tokens}")
 
-    # ===== 历史对话处理 =====
-    if history:
-        # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
-        if len(history) <= 1:
-            trimmed_history = history
-            logger.info(f"历史对话为空或只有一条消息，不进行裁剪")
+        # ===== 历史对话处理 =====
+        if history:
+            logger.debug(f"[消息构建] 开始处理历史对话, 原始条数={len(history)}")
+
+            # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
+            if len(history) <= 1:
+                trimmed_history = history
+                logger.debug(f"[消息构建] 历史对话为空或只有一条消息，不进行裁剪")
+            else:
+                trimmed_history: List[BaseMessage] = trim_messages(
+                    messages=history,  # List[BaseMessage]（历史对话）
+                    token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
+                    max_tokens=history_max_len,  # 限定最大 token 数
+                    strategy="last",  # 保留最近对话, "first"保留最早对话
+                    start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
+                    include_system=True,  # 是否保留 system message
+                    allow_partial=True  # 超限时是否保留部分片段
+                )
+                logger.info(f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}")
+
+            # 转换为 OpenAI 接口格式
+            history_tokens = 0
+            for msg in trimmed_history:
+                if not msg.content or not msg.content.strip():
+                    continue  # 忽略空内容
+
+                msg_tokens = llm_count_tokens(msg.content)
+                history_tokens += msg_tokens
+
+                if isinstance(msg, HumanMessage):
+                    messages.append({"role": "user", "content": msg.content})
+                elif isinstance(msg, AIMessage):
+                    messages.append({"role": "assistant", "content": msg.content})
+
+            total_tokens += history_tokens
+            logger.debug(
+                f"[消息构建] 历史对话处理完成, 有效条数={len([m for m in messages if m['role'] in ['user', 'assistant']])}, token数={history_tokens}")
+
         else:
-            trimmed_history: List[BaseMessage] = trim_messages(
-                messages=history,  # List[BaseMessage]（历史对话）
-                token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
-                max_tokens=history_max_len,  # 限定最大 token 数
-                strategy="last",  # 保留最近对话, "first"保留最早对话
-                start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
-                include_system=True,  # 是否保留 system message
-                allow_partial=True  # 超限时是否保留部分片段
-            )
+            logger.debug(f"[消息构建] 无历史对话")
 
-        # 转换为 OpenAI 接口格式
-        for msg in trimmed_history:
-            if not msg.content or not msg.content.strip():
-                continue  # 忽略空内容
+        # ===== 当前问题 =====
+        if question and question.strip():
+            question_tokens = llm_count_tokens(question.strip())
+            total_tokens += question_tokens
+            messages.append({"role": "user", "content": question.strip()})
+            logger.debug(f"[消息构建] 当前问题添加完成, token数={question_tokens}")
 
-            if isinstance(msg, HumanMessage):
-                messages.append({"role": "user", "content": msg.content})
-            elif isinstance(msg, AIMessage):
-                message_dict = {"role": "assistant", "content": msg.content}
-                messages.append(message_dict)
+        else:
+            logger.warning(f"[消息构建] 当前问题为空")
 
-    # ===== 当前问题 =====
-    if question and question.strip():
-        messages.append({"role": "user", "content": question.strip()})
+        # 记录最终结果
+        logger.info(
+            f"[消息构建] 完成, 构建消息条数={len(messages)}, 总token数={total_tokens}, 角色分布={dict([(role, len([m for m in messages if m['role'] == role])) for role in ['system', 'user', 'assistant']])}")
 
-    # logger.info(f"最终构建的 messages 数量: {len(messages)}")
-    logger.info(f"最终构建的 messages: {messages}")
-    return messages
+        return messages
+
+    except Exception as e:
+        logger.error(f"[消息构建] 失败: {str(e)}")
+        log_exception("消息构建异常", exc=e)
+        raise e
 
 
 def trim_context_by_token(context_chunks: List[str], max_tokens: int) -> str:
@@ -430,4 +473,3 @@ def trim_context_by_token(context_chunks: List[str], max_tokens: int) -> str:
         result.append(chunk)
         total += t
     return "\n\n".join(result) or "(无)"
-

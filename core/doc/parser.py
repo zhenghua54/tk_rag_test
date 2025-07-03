@@ -4,38 +4,48 @@ import shutil
 import time
 import hashlib
 import uuid
+import threading
 
 from pathlib import Path
 from typing import Dict
 
 from config.global_config import GlobalConfig
 from databases.db_ops import update_record_by_doc_id
-from error_codes import ErrorCode
-from api.response import APIException
 from utils.file_ops import mineru_toolkit, get_doc_output_path, libreoffice_convert_toolkit
-# from databases.mysql.operations import FileInfoOperation
 from utils.validators import check_local_doc_exists, check_doc_ext
 
-from utils.log_utils import log_operation_success, log_operation_start, log_operation_error, logger, log_exception
+from utils.log_utils import logger, log_exception
 from utils.validators import validate_param_type
 from utils.file_ops import extract_table_summary
 from utils.converters import convert_html_to_markdown
 
+# 简单缓存锁
+cache_lock = threading.Lock()
 
-# === 填充标题并按页合并 ===
+
 def process_doc_by_page(json_doc_path: str):
     """读取MinerU解析后的 JSON 文档, 填充表格和图片标题, 并按页合并内容
 
     Args:
         json_doc_path (str): MinerU 解析后的 json 文件路径
     """
+
+    start_time = time.time()
+    logger.info(f"[页面处理] 开始处理, json_path={json_doc_path}")
+
     with open(json_doc_path, "r", encoding="utf-8") as f:
         json_content = json.load(f)
 
     doc_hash = hashlib.md5(json_doc_path.encode("utf-8")).hexdigest()
-    temp_root = Path("page_cache")
-    temp_dir = temp_root / f"{doc_hash}_{uuid.uuid4().hex}"
-    temp_dir.mkdir(parents=True, exist_ok=True)
+    temp_dir = None
+
+    # 使用锁保护缓存目录操作
+    with cache_lock:
+        # 为每个文档创建独立的缓存目录，避免并发冲突
+        temp_root = Path("page_cache")
+        temp_dir = temp_root / f"{doc_hash}_{uuid.uuid4().hex}"
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"创建缓存目录: {temp_dir}")
 
     # 统计信息初始化
     table_total, table_cap, table_cap_up, table_cap_miss = 0, 0, 0, 0
@@ -43,6 +53,7 @@ def process_doc_by_page(json_doc_path: str):
 
     # 定义初始化存储
     try:
+
         # 按页面分组处理内容
         current_page = None
         page_contents = []  # 当前页面的内容
@@ -67,7 +78,6 @@ def process_doc_by_page(json_doc_path: str):
                     page_file = temp_dir / f"page_{current_page}.json"
                     with open(page_file, "w", encoding="utf-8") as pf:
                         json.dump(page_contents, pf, indent=2, ensure_ascii=False)
-                    # processed_pages.add(current_page)
                     page_contents = []  # 清空当前页内容
 
             current_page = page_idx
@@ -141,7 +151,6 @@ def process_doc_by_page(json_doc_path: str):
 
                 # 保存修改后的图片元素
                 page_contents.append(item)
-            # logger.info(f"已写出 page_{current_page}.json, 内容数量: {len(page_contents)}")
 
         # 处理最后一页遗留的文本
         if current_page is not None:
@@ -159,22 +168,22 @@ def process_doc_by_page(json_doc_path: str):
                     with open(page_file, "w", encoding="utf-8") as pf:
                         json.dump(page_contents, pf, indent=2, ensure_ascii=False)
                 except Exception as e:
-                    logger.error(f"最后一页写入失败: {page_file}, 错误: {str(e)}")
+                    logger.error(f"[页面处理] 最后一页写入失败, file={page_file}, error_msg={str(e)}")
                     raise RuntimeError(f"最后一页写入失败: {page_file}, 错误: {str(e)}") from e
 
-        log_operation_success("内容合并",
-                              start_time=time.time(),
-                              info=f"标题更新情况: 图片 {img_total} 张, 无需更新: {img_cap}, 已更新: {img_cap_up}, 缺少标题: {img_cap_miss} | "
-                                   f"表格 {table_total} 张, 已有标题: {table_cap}, 已更新: {table_cap_up}, 缺少标题: {table_cap_miss}")
+        duration = int((time.time() - start_time) * 1000)
+        logger.info(
+            f"[页面处理] 内容合并完成, duration={duration}ms, 图片总数={img_total}, 无需更新={img_cap}, 已更新={img_cap_up}, 缺少标题={img_cap_miss}, 表格总数={table_total}, 已有标题={table_cap}, 已更新={table_cap_up}, 缺少标题={table_cap_miss}")
+
 
     except Exception as e:
-        log_operation_error("处理异常", error_msg=str(e))
+        logger.error(f"[页面处理失败] error_msg={str(e)}")
         raise
 
     # 合并页面
     try:
         # 合并所有缓存页
-        log_operation_start("合并缓存页", start_time=time.time())
+        logger.info(f"[页面合并] 开始合并缓存页")
         merged = {}
         # 遍历临时目录中的所有页面文件，按页码顺序合并内容
         for page_file in sorted(temp_dir.glob("page_*.json"), key=lambda x: int(x.stem.split('_')[1])):
@@ -185,29 +194,37 @@ def process_doc_by_page(json_doc_path: str):
                 # 读取每页的列表合并到 merged中
                 merged[str(page_idx)] = json.load(pf)
 
-        start_time = log_operation_start("处理缓存文件", start_time=time.time())
         # 保存合并后的文件
         save_path = Path(json_doc_path).parent / f"{Path(json_doc_path).stem}_merged.json"
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(merged, f, ensure_ascii=False, indent=2)
 
-        try:
-            shutil.rmtree(temp_root)
-            log_operation_success("处理缓存文件", start_time=start_time)
-        except Exception as e:
-            log_operation_error("清理缓存文件",
-                                error_code=ErrorCode.FILE_SOFT_DELETE_ERROR.value,
-                                error_msg=str(e))
-            raise ValueError(f"缓存清理失败, 缓存路径: {str(temp_root.resolve())}, 失败原因: {str(e)}")
+        logger.info(f"[页面合并] 合并完成, 输出文件={save_path}")
         return str(save_path)
 
     except Exception as e:
-        log_operation_error("合并异常", error_msg=str(e))
-        raise APIException(ErrorCode.FILE_SAVE_FAILED, str(e))
+        logger.error(f"[页面合并失败] error_msg={str(e)}")
+        log_exception("页面合并异常", exc=e)
+        raise ValueError(f"文件合并页面异常: {str(e)}")
+
+    finally:
+        # 清理缓存(锁保护)
+        with cache_lock:
+            if temp_dir and temp_dir.exists():
+                shutil.rmtree(temp_dir)
+                logger.debug(f"[页面处理] 删除缓存目录={temp_dir}")
+
+            # 检查是否还有其他缓存目录(新任务在处理)
+            temp_root = Path("page_cache")
+            if temp_root.exists():
+                sub_dirs = list(temp_root.iterdir())
+                if not sub_dirs:
+                    temp_root.rmdir()
+                    logger.debug(f"[页面处理] 删除空的缓存根目录={temp_root}")
 
 
 # === 主入口函数（后台处理） ===
-def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = None) -> str:
+def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
@@ -222,10 +239,10 @@ def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = Non
     Returns:
         save_path (str): 处理后的文档路径
     """
+    start_time = time.time()
+    logger.info(f"[文档处理] 开始处理, doc_path={doc_path}, doc_id={doc_id}, request_id={request_id}")
 
     try:
-        logger.info(f"开始处理文档: {doc_path}, doc_id={doc_id}, request_id={request_id}")
-
         # 验证参数
         validate_param_type(doc_path, str, "源文档路径")  # 参数类型验证
         check_local_doc_exists(doc_path)  # 文件路径验证
@@ -250,11 +267,12 @@ def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = Non
         results = dict()
 
         try:
-            logger.info(f"request_id={request_id}, 第一步: 解析文档, 工具: MinerU, pdf_path={pdf_path}")
+            logger.info(f"[文档解析] 开始解析, request_id={request_id}, 工具=MinerU, pdf_path={pdf_path}")
             results = mineru_toolkit(pdf_path, output_dir, output_image_path, doc_name)
             process_result = True
+            logger.info(f"[文档解析] 解析成功, request_id={request_id}")
         except Exception as e:
-            logger.error(f"request_id={request_id}, MinerU 解析失败, 失败原因: {str(e)}")
+            logger.error(f"[文档解析失败] request_id={request_id}, error_msg={str(e)}")
             process_result = False
             raise ValueError(f"MinerU 解析失败, 失败原因: {str(e)}") from e
 
@@ -277,7 +295,7 @@ def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = Non
                 }
 
             logger.info(
-                f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
+                f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}")
             update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
                                     kwargs=values)
 
@@ -285,35 +303,40 @@ def process_doc_content(doc_path: str, doc_id: str = None, request_id: str = Non
         json_path = results["json_path"]
         try:
             # 合并页面内容
-            logger.info(f"request_id={request_id}, 第二步: 按页合并元素, json_path={json_path}")
+            logger.info(f"[页面合并] 开始合并, request_id={request_id}, 源文件={json_path}")
             save_path = process_doc_by_page(json_path)
-
-            # 如果提供了 doc_id，更新数据库状态
-            if doc_id:
-                values = {
-                    "doc_process_path": save_path,
-                    "process_status": "merged"
-                }
-                logger.info(
-                    f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
-                update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
-                                        kwargs=values)
+            logger.info(f"[页面合并] 合并完成, request_id={request_id}, 输出文件={save_path}")
         except Exception as e:
-            logger.error(f"request_id={request_id}, 合并元素失败, 失败原因: {str(e)}")
-            values = {"process_status": "merge_failed"}
-            logger.info(
-                f"request_id={request_id}, 开始更新数据库记录, doc_id={doc_id}, 更新字段: {list(values.keys())}, process_status -> {values.get('process_status')}")
-            update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
-                                    kwargs=values)
+            logger.error(f"[页面合并失败] request_id={request_id}, error_msg={str(e)}")
+            log_exception(f"request_id={request_id}, 合并元素异常", exc=e)
+            logger.info(f"[数据库更新] request_id={request_id}, 合并失败, 更新状态为merge_failed")
+            update_record_by_doc_id(
+                table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
+                doc_id=doc_id,
+                kwargs={"process_status": "merge_failed"}
+            )
             raise ValueError(f"合并元素失败, 失败原因: {str(e)}") from e
 
-    except Exception as e:
-        if doc_id:
-            log_exception(f"文档处理失败", e)
-        raise ValueError(f"文档处理失败, 失败原因: {str(e)}")
+        # 更新最终状态
+        logger.info(
+            f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}")
+        update_record_by_doc_id(
+            table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
+            doc_id=doc_id,
+            kwargs={
+                "doc_process_path": save_path,
+                "process_status": "merged"
+            }
+        )
 
-    logger.info(f"request_id={request_id}, 文档处理完成, 等待文档切块...")
-    return save_path
+        duration = int((time.time() - start_time) * 1000)
+        logger.info(f"[文档处理] 处理完成, request_id={request_id}, duration={duration}ms, 等待文档切块")
+        return save_path
+
+    except Exception as e:
+        logger.error(f"[文档处理失败] request_id={request_id}, error_msg={str(e)}")
+        log_exception(f"request_id={request_id}, 文档内容处理异常", exc=e)
+        raise
 
 
 if __name__ == '__main__':

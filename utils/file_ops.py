@@ -137,7 +137,8 @@ def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
         return True
 
     try:
-        logger.info(f"清单数量: {len(file_path_list)}, 文件/目录清单: {file_path_list}")
+        logger.info(f"[文件删除] 开始, 文件数量={len(file_path_list)}")
+        logger.debug(f"[文件删除] 文件清单: {file_path_list}")
         for file_path in file_path_list:
             logger.info(f"开始删除文件: {file_path}")
             if not file_path:
@@ -296,7 +297,7 @@ def extract_text_summary(text: str) -> str:
     system_prompt = "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。请直接输出摘要内容，不要包含任何其他说明文字。"
     summary = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
                                  max_tokens=config['max_tokens'], invoke_type="文本摘要生成")
-    logger.info(f"文本摘要生成成功: {summary[:100]}...")
+    logger.info(f"[文本摘要] 生成成功, 摘要长度={len(summary)}, {summary[:100]}...")
     return summary.strip()
 
 

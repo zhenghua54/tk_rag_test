@@ -75,7 +75,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
         logger.info(f"request_id={request_id}, 共需处理 {total_pages} 页内容")
 
         for page_idx, page_contents in json_content.items():
-            logger.info(f"request_id={request_id}, 正在处理第 {page_idx} 页内容...")
+            logger.debug(f"[文档切块] request_id={request_id}, 处理第{page_idx}页, 总页数={total_pages}")
             for content in page_contents:
                 # 文本直接送入切割
                 if content["type"] == "text":

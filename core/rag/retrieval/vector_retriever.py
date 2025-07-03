@@ -45,7 +45,8 @@ class VectorRetriever:
         Returns:
             dict[str, float]: 检索结果字典(seg_id, score)
         """
-        logger.info(f"开始向量检索,查询: {query}, 权限ID: {permission_ids}, k: {k}")
+        logger.debug(
+            f"[向量检索] 开始, 查询长度={len(query)}, 权限数量={len(permission_ids) if permission_ids else 0}, k={k}")
         vector_results = OrderedDict()  # 使用OrderedDict保持顺序
         seen_parent_ids = set()  # 用于记录已处理过的父片段ID
 
@@ -60,9 +61,9 @@ class VectorRetriever:
                 query=query,
                 params=search_params,
             )
-            logger.info("=== Milvus 向量检索结果 (未过滤权限前) ===")
+            logger.debug("=== Milvus 向量检索结果 (未过滤权限前) ===")
             for doc, score in raw_result:
-                logger.info(f"文档ID: {doc.metadata.get('doc_id')}, "
+                logger.debug(f"文档ID: {doc.metadata.get('doc_id')}, "
                             f"片段ID: {doc.metadata.get('seg_id')}, "
                             f"权限ID: {doc.metadata.get('permission_ids')}, "
                             f"相似度分数: {score:.4f}")
