@@ -29,6 +29,11 @@ def init_mysql():
         charset=GlobalConfig.MYSQL_CONFIG['charset']
     )
 
+    # 设置时区为东八区(北京时间)
+    with conn.cursor() as cursor:
+        cursor.execute("SET time_zone = '+08:00'")
+        conn.commit()
+
     try:
         with conn.cursor() as cursor:
             # 执行初始化 SQL

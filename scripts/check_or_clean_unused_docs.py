@@ -30,6 +30,8 @@ def fetch_doc_names_from_db() -> Set[str]:
     )
     try:
         with conn.cursor() as cursor:
+            # 设置时区为东八区(北京时间)
+            cursor.execute("SET time_zone = '+08:00'")
             cursor.execute("SELECT doc_name,doc_ext FROM doc_info")
             rows = cursor.fetchall()
             return set(row[0] for row in rows)

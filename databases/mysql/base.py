@@ -32,7 +32,7 @@ class MySQLConnectionPool:
                 maxshared=3,  # 共享连接的最大数量
                 blocking=True,  # 连接池中如果没有可用连接后是否阻塞等待
                 maxusage=None,  # 一个连接最多被重复使用的次数
-                setsession=[],  # 开始会话前执行的命令列表
+                setsession=['SET time_zone = "+08:00"'],  # 设置时区为东八区(北京时间)
                 ping=0,  # ping MySQL服务端确保连接有效
                 host=GlobalConfig.MYSQL_CONFIG['host'],
                 user=os.getenv("MYSQL_USER"),

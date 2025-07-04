@@ -51,6 +51,7 @@ class GlobalConfig:
     LLM_CONFIG = {
         "qwen": {
             "name": "qwen-turbo-1101",
+            # "name": "qwen-plus",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
             "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
             "qpm": 60,  # 每分钟调用次数
