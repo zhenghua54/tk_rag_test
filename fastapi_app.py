@@ -1,6 +1,5 @@
 """FastAPI 应用入口"""
 from dotenv import load_dotenv
-
 load_dotenv(verbose=True)
 
 import sys
@@ -42,7 +41,6 @@ app = FastAPI(
     title=GlobalConfig.API_TITLE,
     description=GlobalConfig.API_DESCRIPTION,
     version=GlobalConfig.API_VERSION,
-    # root_path=GlobalConfig.API_PREFIX,  # 指定全局前缀，暂时不使用，会影响静态文件访问
     lifespan=lifespan  # 添加生命周期管理器
 )
 
@@ -75,6 +73,7 @@ async def global_exception_handler(request: Request, exc: Exception):
             request_id=request_id,
         ).model_dump()
     )
+
 
 # 映射静态目录: /static/raw -> datas/raw, /static/processed -> datas/processed
 app.mount("/static/raw", StaticFiles(directory="/home/wumingxing/tk_rag/datas/raw"), name="static-raw")

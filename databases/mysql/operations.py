@@ -286,12 +286,12 @@ class ChunkOperation(BaseDBOperation):
             # 执行查询
             segment_info: list[dict[str, Any]] = self._execute_query(sql, tuple(params))
 
-            # 调试：打印返回的字段名
-            if segment_info:
-                logger.info(f"返回的字段名: {list(segment_info[0].keys())}")
-                for seg_info in segment_info:
-                    logger.info(
-                        f"记录内容: {seg_info['doc_id']}, {seg_info['seg_id']}, {seg_info['doc_name']}, {seg_info['all_permission_ids']}")
+            # # 调试：打印返回的字段名
+            # if segment_info:
+            #     logger.info(f"返回的字段名: {list(segment_info[0].keys())}")
+            #     for seg_info in segment_info:
+            #         logger.info(
+            #             f"记录内容: {seg_info['doc_id']}, {seg_info['seg_id']}, {seg_info['doc_name']}, {seg_info['all_permission_ids']}")
 
             # 处理查询结果
             if not segment_info:
