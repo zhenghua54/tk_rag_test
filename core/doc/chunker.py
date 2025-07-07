@@ -58,9 +58,9 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
     logger.info(f"request_id={request_id}, 文本分块器初始化完成")
 
     # 初始化数据库操作实例
-    # chunk_op = ChunkOperation()
-    # vector_op = VectorOperation()
-    # es_op = ElasticsearchOperation()
+    chunk_op = ChunkOperation()
+    vector_op = VectorOperation()
+    es_op = ElasticsearchOperation()
 
     # 分批处理结果
     batch_size = GlobalConfig.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
@@ -363,13 +363,12 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
 
                 # 当批次达到指定大小时，保存到数据库
                 if len(milvus_batch) >= batch_size or len(mysql_batch) >= batch_size or len(es_batch) >= batch_size:
-                    with ChunkOperation() as chunk_op, VectorOperation() as vector_op, ElasticsearchOperation() as es_op:
-                        # 分别保存各个数据库的批次
-                        save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
-                        total_records += len(mysql_batch)
-                        milvus_batch = []
-                        mysql_batch = []
-                        es_batch = []
+                    # 分别保存各个数据库的批次
+                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+                    total_records += len(mysql_batch)
+                    milvus_batch = []
+                    mysql_batch = []
+                    es_batch = []
 
         # 保存剩余的批次
         if milvus_batch or mysql_batch or es_batch:
