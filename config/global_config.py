@@ -9,8 +9,9 @@
 """
 
 import os
-import torch
 from pathlib import Path
+
+import torch
 
 # 禁用 HuggingFace 警告
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -18,6 +19,10 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class GlobalConfig:
     """配置类：用于管理项目的所有配置信息"""
+
+    # 环境配置
+    ENV = os.getenv("ENV", "dev")  # 环境标识，dev(开发环境), prod(生产环境)
+
     # API配置
     API_TITLE = "rag Demo API"
     API_DESCRIPTION = "RAG系统API文档"
@@ -46,14 +51,12 @@ class GlobalConfig:
         "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3")
     }
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
-    # LLM_NAME = "qwen-turbo-1101"
 
     LLM_CONFIG = {
         "qwen": {
             "name": "qwen-turbo-1101",
-            # "name": "qwen-plus",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
-            "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
             "qpm": 60,  # 每分钟调用次数
             "tpm": 5000000,  # 每分钟Token数限制
             "max_tokens_per_request": 4000,  # 单次请求最大Token数
@@ -100,6 +103,29 @@ class GlobalConfig:
     }
     FILE_MAX_SIZE = 50  # Mb
 
+    # 状态同步关键状态点定义
+    STATUS_SYNC_MILESTONES = {
+        "layout_ready": "parsed",  # MinerU 解析完成, 可以获取 layout 版面 PDF
+        "fully_processed": "splited",  # 全文完全处理完成, 可以获取所有信息
+        "processing_failed": "failed"  # 处理失败, 前端需要显示错误状态
+    }
+
+    # 需要同步到外部系统的状态映射
+    EXTERNAL_STATUS_MAPPING = {
+        "parsed": "layout_ready",  # 内部状态 -> 外部状态
+        "splited": "fully_processed",  # 内部状态 -> 外部状态
+        # 失败状态映射
+        "parse_failed": "processing_failed",  # 解析失败
+        "merge_failed": "processing_failed",  # 合并失败
+        "chunk_failed": "processing_failed",  # 切块失败
+        "split_failed": "processing_failed",  # 切页失败
+    }
+
+    # 失败状态集合(用于快速判断是否为失败状态)
+    FAILURE_STATUSES = {
+        "parse_failed", "merge_failed", "chunk_failed", "split_failed",
+    }
+
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(
         '<>:"/\\|?*' + ''.join(chr(c) for c in range(0x00, 0x20))  # 控制字符
@@ -108,13 +134,31 @@ class GlobalConfig:
     # 系统相关配置
     DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
 
-    # 数据库配置
-    DB_NAME = 'tk_rag'
+    # 数据库配置 - 根据环境动态配置
+    # 数据库名称
+    DB_NAME = os.getenv("DB_NAME", "tk_rag_dev" if ENV == "dev" else "tk_rag")
+
+    # MySQL配置
+    MYSQL_CONFIG = {
+        "host": os.getenv("MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+        "user": os.getenv("MYSQL_USER"),
+        "passwd": os.getenv("MYSQL_PASSWORD"),
+        "port": int(os.getenv("MYSQL_PORT", "3306")),
+        "charset": "utf8mb4",
+        "database": DB_NAME,
+        "file_info_table": "doc_info",  # 文件信息表
+        "segment_info_table": "segment_info",  # 段落信息表
+        "permission_info_table": "permission_info",  # 权限信息表
+        "doc_page_info_table": "doc_page_info",  # 文档切页信息表
+        "chat_sessions_table": "chat_sessions",  # 聊天会话表
+        "chat_messages_table": "chat_messages",  # 聊天消息表
+    }
+
+    # Milvus配置
     MILVUS_CONFIG = {
-        "uri": "http://localhost:19530/",
-        "host": "localhost",
-        "port": 19530,
-        # "token": "root:Milvus",
+        "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
+        "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+        "port": int(os.getenv("MILVUS_PORT", "19530")),
         "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
         "collection_name": "rag_collection",
@@ -132,33 +176,66 @@ class GlobalConfig:
         }
     }
 
-    MYSQL_CONFIG = {
-        "host": "localhost",
-        "user": os.getenv("MYSQL_USER"),
-        "passwd": os.getenv("MYSQL_PASSWORD"),
-        "port": 3306,
-        "charset": "utf8mb4",
-        "database": DB_NAME,
-        "file_info_table": "doc_info",  # 文件信息表
-        "segment_info_table": "segment_info",  # 段落信息表
-        "permission_info_table": "permission_info",  # 权限信息表
-        "doc_page_info_table": "doc_page_info",  # 文档切页信息表
-        "chat_sessions_table": "chat_sessions",  # 聊天会话表
-        "chat_messages_table": "chat_messages",  # 聊天消息表
+    # Elasticsearch配置
+    ES_CONFIG = {
+        "host": os.getenv("ES_HOST", "http://192.168.5.199:9200" if ENV == "dev" else "http://localhost:9200"),
+        "timeout": int(os.getenv("ES_TIMEOUT", "30")),
+        "index_name": DB_NAME,
+        "username": os.getenv("ES_USER"),
+        "password": os.getenv("ES_PASSWORD"),
+        "verify_certs": False
     }
+
+    # DB_NAME = 'tk_rag'
+    # MILVUS_CONFIG = {
+    #     "uri": "http://localhost:19530/",
+    #     "host": "localhost",
+    #     "port": 19530,
+    #     # "token": "root:Milvus",
+    #     "token": os.getenv("MILVUS_TOKEN"),
+    #     "db_name": DB_NAME,
+    #     "collection_name": "rag_collection",
+    #     "vector_field": "vector",
+    #     "vector_dim": 1024,
+    #     "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
+    #     "index_params": {
+    #         "field_name": "vector",
+    #         "index_type": "IVF_FLAT",
+    #         "metric_type": "IP",
+    #         "params": {"nlist": 1024},
+    #     },
+    #     "search_params": {
+    #         "nprobe": 50
+    #     }
+    # }
+    #
+    # MYSQL_CONFIG = {
+    #     "host": "localhost",
+    #     "user": os.getenv("MYSQL_USER"),
+    #     "passwd": os.getenv("MYSQL_PASSWORD"),
+    #     "port": 3306,
+    #     "charset": "utf8mb4",
+    #     "database": DB_NAME,
+    #     "file_info_table": "doc_info",  # 文件信息表
+    #     "segment_info_table": "segment_info",  # 段落信息表
+    #     "permission_info_table": "permission_info",  # 权限信息表
+    #     "doc_page_info_table": "doc_page_info",  # 文档切页信息表
+    #     "chat_sessions_table": "chat_sessions",  # 聊天会话表
+    #     "chat_messages_table": "chat_messages",  # 聊天消息表
+    # }
     MYSQL_FIELD = {
         "max_path_len": 1000,
         "max_name_len": 500,
     }
 
-    ES_CONFIG = {
-        "host": "http://localhost:9200",  # ES 服务器地址
-        "timeout": 30,  # 请求超时时间（秒）
-        "index_name": DB_NAME,  # ES 索引（数据库）名称
-        "username": os.getenv("ES_USER"),  # ES 用户名
-        "password": os.getenv("ES_PASSWORD"),  # ES 密码
-        "verify_certs": False  # 是否验证证书
-    }
+    # ES_CONFIG = {
+    #     "host": "http://localhost:9200",  # ES 服务器地址
+    #     "timeout": 30,  # 请求超时时间（秒）
+    #     "index_name": DB_NAME,  # ES 索引（数据库）名称
+    #     "username": os.getenv("ES_USER"),  # ES 用户名
+    #     "password": os.getenv("ES_PASSWORD"),  # ES 密码
+    #     "verify_certs": False  # 是否验证证书
+    # }
 
     # 分块配置
     SEGMENT_CONFIG = {
@@ -195,11 +272,26 @@ class GlobalConfig:
 
     }
 
+    # 状态同步配置
+    STATUS_SYNC_CONFIG = {
+        "enabled": os.getenv("STATUS_SYNC_ENABLED", "true").lower() == "true",  # 是否启用状态同步
+        "base_url": os.getenv("STATUS_SYNC_BASE_URL", "http://192.168.6.99:18101"),  # 状态同步接口基础URL
+        "timeout": int(os.getenv("STATUS_SYNC_TIMEOUT", "10")),  # 状态同步请求超时时间（秒）
+        "retry_attempts": int(os.getenv("STATUS_SYNC_RETRY_ATTEMPTS", "3")),  # 状态同步重试次数
+        "retry_delay": float(os.getenv("STATUS_SYNC_RETRY_DELAY", "1.0")),  # 状态同步重试延迟（秒）
+        "api_path": "/cbm/api/v5/knowledgeFile/parseStatusUpdated",  # 状态更新接口路径
+    }
+
 
 if __name__ == "__main__":
     # 打印当前配置
+    print(f"Environment: {GlobalConfig.ENV}")
     print(f"Base Dir: {GlobalConfig.BASE_DIR}")
     print(f"Device: {GlobalConfig.DEVICE}")
+    print(f"Database Name: {GlobalConfig.DB_NAME}")
+    print(f"MySQL Host: {GlobalConfig.MYSQL_CONFIG['host']}")
+    print(f"Milvus Host: {GlobalConfig.MILVUS_CONFIG['host']}")
+    print(f"ES Host: {GlobalConfig.ES_CONFIG['host']}")
     print("\nPaths:")
     for name, path in GlobalConfig.PATHS.items():
         print(f"  {name}: {path}")

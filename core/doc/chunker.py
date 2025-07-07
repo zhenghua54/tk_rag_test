@@ -1,17 +1,20 @@
 """文档内容分块"""
 import json
-from typing import List, Dict, Union
+import time
 from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Union
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from utils.file_ops import generate_seg_id, truncate_text
-from utils.converters import convert_html_to_markdown
-from utils.log_utils import logger
-from databases.mysql.operations import ChunkOperation
-from databases.milvus.operations import VectorOperation
-from utils.llm_utils import embedding_manager
-from databases.elasticsearch.operations import ElasticsearchOperation
 from config.global_config import GlobalConfig
+from databases.elasticsearch.operations import ElasticsearchOperation
+from databases.milvus.operations import VectorOperation
+from databases.mysql.operations import ChunkOperation
+from utils.converters import convert_html_to_markdown
+from utils.file_ops import generate_seg_id, truncate_text
+from utils.llm_utils import embedding_manager
+from utils.log_utils import logger
 
 
 def format_table_caption_footnote(value: Union[str, List]):
@@ -32,15 +35,16 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
         doc_process_path (str): 聚合处理后的文档，格式为 dict[idx:[content]]
         permission_ids (Union[str, list[str]]): 权限ID 字段，单个为字符串，多个为列表[字符串]
         request_id (str): 请求ID，如果提供则会更新数据库状态
+
+    Returns:
+        bool: 分块是否成功
     """
+    start_time = time.time()
+    logger.info(
+        f"[文档切块] 开始处理文档, request_id={request_id}, doc_id={doc_id}, doc_process_path={doc_process_path}")
+
     # 后续准备迁移 Milvus,权限字段先使用 mysql 中的,milvus 中不做权限过滤
     permission_ids_str = ""  # 空字符串表示公开访问
-
-    # 处理空权限情况
-    # if permission_ids is None:
-    #     permission_ids_str = ""  # 空字符串表示公开访问
-    # else:
-    #     permission_ids_str = permission_ids
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -54,9 +58,9 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
     logger.info(f"request_id={request_id}, 文本分块器初始化完成")
 
     # 初始化数据库操作实例
-    chunk_op = ChunkOperation()
-    vector_op = VectorOperation()
-    es_op = ElasticsearchOperation()
+    # chunk_op = ChunkOperation()
+    # vector_op = VectorOperation()
+    # es_op = ElasticsearchOperation()
 
     # 分批处理结果
     batch_size = GlobalConfig.SEGMENT_CONFIG["batch_size"]  # 每批处理的记录数
@@ -68,9 +72,15 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
     total_records = 0
 
     try:
+        # 验证文件是否存在
+        if not Path(doc_process_path).exists():
+            raise FileNotFoundError(f"处理后的文件不存在: {doc_process_path}")
+
+        # 读取处理后的文档内容
         with open(doc_process_path, "r", encoding="utf-8") as f:
             json_content = json.load(f)
 
+        # 初始化数据库操作对象
         total_pages = len(json_content)
         logger.info(f"request_id={request_id}, 共需处理 {total_pages} 页内容")
 
@@ -133,7 +143,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 "seg_content": json.dumps(chunk, ensure_ascii=False),
                                 "seg_len": str(len(chunk)),
                                 "seg_type": "text",
-                                "seg_page_idx": int(page_idx)+1,
+                                "seg_page_idx": int(page_idx) + 1,
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(text_mysql_res)
@@ -145,7 +155,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 "doc_id": doc_id,
                                 "seg_content": str(chunk),
                                 "seg_type": "text",
-                                "seg_page_idx": int(page_idx)+1,
+                                "seg_page_idx": int(page_idx) + 1,
                                 "update_time": current_time
                             }
                             es_batch.append(text_es_res)
@@ -208,7 +218,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         "seg_footnote": table_footnote,
                         "seg_len": str(len(table_markdown)),
                         "seg_type": "table",
-                        "seg_page_idx": int(page_idx)+1,
+                        "seg_page_idx": int(page_idx) + 1,
                         "doc_id": doc_id
                     }
                     mysql_batch.append(parent_mysql_res)
@@ -220,7 +230,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         "doc_id": doc_id,
                         "seg_content": table_markdown,
                         "seg_type": "table",
-                        "seg_page_idx": int(page_idx)+1,
+                        "seg_page_idx": int(page_idx) + 1,
                         "update_time": current_time
                     }
                     es_batch.append(table_es_res)
@@ -267,7 +277,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 "seg_content": table_segment,
                                 "seg_len": str(len(table_segment)),
                                 "seg_type": "table",
-                                "seg_page_idx": int(page_idx)+1,
+                                "seg_page_idx": int(page_idx) + 1,
                                 "doc_id": doc_id
                             }
                             mysql_batch.append(sub_mysql_res)
@@ -279,7 +289,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 "doc_id": doc_id,
                                 "seg_content": table_segment,
                                 "seg_type": "table",
-                                "seg_page_idx": int(page_idx)+1,
+                                "seg_page_idx": int(page_idx) + 1,
                                 "update_time": current_time
                             }
                             es_batch.append(sub_es_res)
@@ -334,7 +344,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         "seg_footnote": img_footnote,
                         "seg_len": str(len(img_caption)),
                         "seg_type": "image",
-                        "seg_page_idx": int(page_idx)+1,
+                        "seg_page_idx": int(page_idx) + 1,
                         "doc_id": doc_id
                     }
                     mysql_batch.append(image_mysql_res)
@@ -346,19 +356,20 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         "doc_id": doc_id,
                         "seg_content": img_caption,
                         "seg_type": "image",
-                        "seg_page_idx": int(page_idx)+1,
+                        "seg_page_idx": int(page_idx) + 1,
                         "update_time": current_time
                     }
                     es_batch.append(image_es_res)
 
                 # 当批次达到指定大小时，保存到数据库
                 if len(milvus_batch) >= batch_size or len(mysql_batch) >= batch_size or len(es_batch) >= batch_size:
-                    # 分别保存各个数据库的批次
-                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
-                    total_records += len(mysql_batch)
-                    milvus_batch = []
-                    mysql_batch = []
-                    es_batch = []
+                    with ChunkOperation() as chunk_op, VectorOperation() as vector_op, ElasticsearchOperation() as es_op:
+                        # 分别保存各个数据库的批次
+                        save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+                        total_records += len(mysql_batch)
+                        milvus_batch = []
+                        mysql_batch = []
+                        es_batch = []
 
         # 保存剩余的批次
         if milvus_batch or mysql_batch or es_batch:
@@ -366,7 +377,10 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
             total_records += len(mysql_batch)
             logger.info(
                 f"request_id={request_id}, 已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
-            logger.info(f"request_id={request_id}, 文档处理完成，共处理 {total_records} 条记录")
+
+        duration = int((time.time() - start_time) * 1000)  # 转换为毫秒
+        logger.info(f"[文档切块] 文档处理完成, request_id={request_id}, doc_id={doc_id}, "
+                    f"总记录数={total_records}, 耗时={duration}ms")
 
         return True
 

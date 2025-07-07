@@ -76,8 +76,8 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # 映射静态目录: /static/raw -> datas/raw, /static/processed -> datas/processed
-app.mount("/static/raw", StaticFiles(directory="/home/wumingxing/tk_rag/datas/raw"), name="static-raw")
-app.mount("/static/processed", StaticFiles(directory="/home/wumingxing/tk_rag/datas/processed"),
+app.mount("/static/raw", StaticFiles(directory="./datas/raw"), name="static-raw")
+app.mount("/static/processed", StaticFiles(directory="./datas/processed"),
           name="static-processed")
 
 # 添加 request_id 中间件

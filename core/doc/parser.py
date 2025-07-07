@@ -12,6 +12,7 @@ from typing import Dict
 from config.global_config import GlobalConfig
 from databases.db_ops import update_record_by_doc_id
 from utils.file_ops import mineru_toolkit, get_doc_output_path, libreoffice_convert_toolkit
+from utils.status_sync import sync_status_safely
 from utils.validators import check_local_doc_exists, check_doc_ext
 
 from utils.log_utils import logger, log_exception
@@ -240,7 +241,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
         save_path (str): 处理后的文档路径
     """
     start_time = time.time()
-    logger.info(f"[文档处理] 开始处理, doc_path={doc_path}, doc_id={doc_id}, request_id={request_id}")
+    logger.info(f"[文档处理] 开始, request_id={request_id}, doc_path={doc_path}, doc_id={doc_id}")
 
     try:
         # 验证参数
@@ -288,11 +289,16 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
                     "doc_pdf_path": pdf_path,
                     "process_status": "parsed",
                 }
+                # 同步状态到外部系统
+                sync_status_safely(doc_id, "parsed", request_id)
+
             else:
                 # 构建需要更新的字段
                 values = {
                     "process_status": "parse_failed",
                 }
+                # 同步状态到外部系统
+                sync_status_safely(doc_id, "parse_failed", request_id)
 
             logger.info(
                 f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}")
@@ -309,7 +315,11 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
         except Exception as e:
             logger.error(f"[页面合并失败] request_id={request_id}, error_msg={str(e)}")
             log_exception(f"request_id={request_id}, 合并元素异常", exc=e)
-            logger.info(f"[数据库更新] request_id={request_id}, 合并失败, 更新状态为merge_failed")
+            logger.info(f"[数据库更新] request_id={request_id}, 合并失败, 更新状态为 merge_failed")
+
+            # 同步状态到外部系统
+            sync_status_safely(doc_id, "merge_failed", request_id)
+
             update_record_by_doc_id(
                 table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
                 doc_id=doc_id,
@@ -319,7 +329,11 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
 
         # 更新最终状态
         logger.info(
-            f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}")
+            f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status=merged")
+
+        # 同步状态到外部系统
+        sync_status_safely(doc_id, "merged", request_id)
+
         update_record_by_doc_id(
             table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
             doc_id=doc_id,

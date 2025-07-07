@@ -14,6 +14,7 @@ from utils.file_ops import download_file_step_by_step, generate_doc_id, delete_l
 from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
 from error_codes import ErrorCode
 from api.response import APIException
+from utils.status_sync import sync_status_safely
 from utils.validators import (
     check_disk_space_sufficient, check_doc_ext, check_http_doc_accessible, check_doc_size, \
     check_doc_name_chars, validate_file_normal, validate_empty_param, validate_doc_id, validate_permission_ids
@@ -386,6 +387,10 @@ class DocumentService(BaseService):
                         doc_status = 'chunked'
                         logger.info(
                             f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
+
+                        # 同步状态到外部系统
+                        sync_status_safely(doc_id, "chunked", request_id)
+
                         # 更新数据库状态为已切块
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
@@ -394,6 +399,10 @@ class DocumentService(BaseService):
                         logger.error(f"request_id={request_id}, 文档切块失败, error={e}")
                         doc_status = "chunk_failed"
                         logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
+
+                        # 同步状态到外部系统
+                        sync_status_safely(doc_id, "chunk_failed", request_id)
+
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
                         return
@@ -413,6 +422,10 @@ class DocumentService(BaseService):
                         doc_status = "splited"
                         logger.info(
                             f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}")
+
+                        # 同步状态到外部系统
+                        sync_status_safely(doc_id, "splited", request_id)
+
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
 
@@ -427,6 +440,10 @@ class DocumentService(BaseService):
                         logger.error(f"request_id={request_id}, 文档切页失败, error={e}")
                         doc_status = "split_failed"
                         logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
+
+                        # 同步状态到外部系统
+                        sync_status_safely(doc_id, "split_failed", request_id)
+
                         update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id,
                                                 {"process_status": doc_status})
 
