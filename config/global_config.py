@@ -186,58 +186,12 @@ class GlobalConfig:
         "verify_certs": False
     }
 
-    # DB_NAME = 'tk_rag'
-    # MILVUS_CONFIG = {
-    #     "uri": "http://localhost:19530/",
-    #     "host": "localhost",
-    #     "port": 19530,
-    #     # "token": "root:Milvus",
-    #     "token": os.getenv("MILVUS_TOKEN"),
-    #     "db_name": DB_NAME,
-    #     "collection_name": "rag_collection",
-    #     "vector_field": "vector",
-    #     "vector_dim": 1024,
-    #     "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
-    #     "index_params": {
-    #         "field_name": "vector",
-    #         "index_type": "IVF_FLAT",
-    #         "metric_type": "IP",
-    #         "params": {"nlist": 1024},
-    #     },
-    #     "search_params": {
-    #         "nprobe": 50
-    #     }
-    # }
-    #
-    # MYSQL_CONFIG = {
-    #     "host": "localhost",
-    #     "user": os.getenv("MYSQL_USER"),
-    #     "passwd": os.getenv("MYSQL_PASSWORD"),
-    #     "port": 3306,
-    #     "charset": "utf8mb4",
-    #     "database": DB_NAME,
-    #     "file_info_table": "doc_info",  # 文件信息表
-    #     "segment_info_table": "segment_info",  # 段落信息表
-    #     "permission_info_table": "permission_info",  # 权限信息表
-    #     "doc_page_info_table": "doc_page_info",  # 文档切页信息表
-    #     "chat_sessions_table": "chat_sessions",  # 聊天会话表
-    #     "chat_messages_table": "chat_messages",  # 聊天消息表
-    # }
+
     MYSQL_FIELD = {
         "max_path_len": 1000,
         "max_name_len": 500,
     }
 
-    # ES_CONFIG = {
-    #     "host": "http://localhost:9200",  # ES 服务器地址
-    #     "timeout": 30,  # 请求超时时间（秒）
-    #     "index_name": DB_NAME,  # ES 索引（数据库）名称
-    #     "username": os.getenv("ES_USER"),  # ES 用户名
-    #     "password": os.getenv("ES_PASSWORD"),  # ES 密码
-    #     "verify_certs": False  # 是否验证证书
-    # }
-
-    # 分块配置
     SEGMENT_CONFIG = {
         "batch_size": 10,  # 每批处理的记录数
         "max_text_length": 1000,  # 最大文本长度
