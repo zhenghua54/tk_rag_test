@@ -216,6 +216,10 @@ class FlatCollectionManager:
             )
 
             inserted_ids = result['ids']
+
+            # 执行持久化操作，确保数据持久化
+            self.client.flush(collection_name=self.collection_name)
+
             logger.info(f"[FLAT Milvus] Collection 数据插入成功，共 {len(inserted_ids)} 条")
             return inserted_ids
         except Exception as e:
@@ -312,32 +316,23 @@ class FlatCollectionManager:
         return self.client.has_collection(self.collection_name)
 
 
-def create_flat_collection() -> FlatCollectionManager:
-    """
-    创建并初始化 FLAT Collection 管理器
-
-    Returns：
-        FlatCollectionManager：FLAT Collection 管理器实例
-    """
-    manager = FlatCollectionManager()
-    manager.init_collection()
-    return manager
-
-
 if __name__ == '__main__':
     # 测试 FLAT collection 创建
     logger.info("开始测试 FLAT Collection 创建...")
 
     try:
         # 创建管理器
-        flat_manager = create_flat_collection()
+        flat_manager = FlatCollectionManager()
+        flat_manager.init_collection()
 
         # 删除 collection
         # flat_manager.drop_collection(True)
 
+        # 获取统计信息
+        stats = flat_manager.get_collection_stats()
+        logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+
     except Exception as e:
         logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
 
-    # 获取统计信息
-    stats = flat_manager.get_collection_stats()
-    logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+
