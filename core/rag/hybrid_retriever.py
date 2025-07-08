@@ -40,6 +40,18 @@ def init_retrievers():
 
     # 创建 Milvus 向量存储
     logger.debug(f"[检索系统] 创建Milvus向量存储")
+    # FLAT 集合
+    # vectorstore = Milvus(
+    #     embedding_function=embeddings,
+    #     collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],
+    #     connection_args={
+    #         "uri": GlobalConfig.MILVUS_CONFIG["uri"],
+    #         "token": GlobalConfig.MILVUS_CONFIG["token"],
+    #         "db_name": GlobalConfig.MILVUS_CONFIG["db_name"]
+    #     },
+    #     search_params=GlobalConfig.MILVUS_CONFIG["search_params"],  # 直接使用配置的搜索参数
+    #     text_field="seg_content"
+    # )
     vectorstore = Milvus(
         embedding_function=embeddings,
         collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],

@@ -2,7 +2,10 @@
 from collections import OrderedDict
 from typing import Union
 
+from PIL.ImageStat import Global
 from langchain_milvus import Milvus
+
+from config.global_config import GlobalConfig
 from utils.log_utils import logger
 
 
@@ -51,6 +54,12 @@ class VectorRetriever:
         seen_parent_ids = set()  # 用于记录已处理过的父片段ID
 
         try:
+            # FLAT 集合
+            # 使用 FLAT 索引的搜索参数
+            # search_params = GlobalConfig.MILVUS_CONFIG["search_params"].copy()
+            # search_params['search_type'] = "similarity"
+            # search_params['k'] = k
+
             # 不带权限过滤的检索
             search_params = {
                 "search_type": "similarity",
