@@ -1,11 +1,11 @@
-"""可靠的数据迁移工具
+"""基于 query_iterator 的数据迁移工具
 
-基于 Milvus 官方建议，使用 get 方法根据 ID 列表获取数据，
-避免 query 方法的分页限制问题。
+使用 Milvus 官方的 query_iterator 方法分批遍历所有数据，
+确保能获取并迁移全部数据，目标集合数量才会和源集合一致。
 
 使用示例：
     # 创建迁移器
-    migrator = ReliableMigrator("rag_collection", "rag_flat")
+    migrator = IteratorMigrator("rag_collection", "rag_flat")
 
     # 执行迁移
     success = migrator.migrate_all_data()
@@ -24,12 +24,12 @@ from databases.milvus.flat_collection import FlatCollectionManager
 from utils.log_utils import logger
 
 
-class ReliableMigrator:
+class IteratorMigrator:
     """
-    可靠的数据迁移器
+    基于 query_iterator 的数据迁移器
 
-    基于 Milvus 官方建议，使用 get 方法根据 ID 列表获取数据，
-    完全避免 query 方法的分页限制问题。
+    使用 Milvus 官方的 query_iterator 方法分批遍历所有数据，
+    确保能获取并迁移全部数据，目标集合数量才会和源集合一致。
 
     Attributes:
         source_collection: 源集合名称
@@ -63,20 +63,21 @@ class ReliableMigrator:
             self.target_manager = FlatCollectionManager(self.target_collection)
             self.target_manager.init_collection()
 
-            logger.info(f"[可靠迁移] 源集合：{self.source_collection}")
-            logger.info(f"[可靠迁移] 目标集合：{self.target_collection}")
+            logger.info(f"[迭代迁移] 源集合：{self.source_collection}")
+            logger.info(f"[迭代迁移] 目标集合：{self.target_collection}")
 
         except Exception as e:
-            logger.error(f"[可靠迁移] 初始化集合失败：{str(e)}")
+            logger.error(f"[迭代迁移] 初始化集合失败：{str(e)}")
             raise
 
-    def get_all_doc_ids(self) -> List[str]:
-        """获取源集合中所有的 doc_id 列表
+    def get_all_data_by_iterator(self) -> List[Dict[str, Any]]:
+        """使用 query_iterator 获取所有数据
 
-        使用 query 方法只获取 doc_id 字段，避免大数据量传输。
+        使用 Milvus 官方的 query_iterator 方法分批遍历所有数据，
+        确保能获取全部数据。
 
         Returns:
-            List[str]: doc_id 列表
+            List[Dict[str, Any]]: 所有数据列表
         """
         try:
             # 获取集合统计信息
@@ -85,73 +86,65 @@ class ReliableMigrator:
             )
             total_count = stats.get("row_count", 0)
 
-            logger.info(f"[可靠迁移] 源集合总数据量：{total_count}")
+            logger.info(f"[迭代迁移] 源集合总数据量：{total_count}")
 
-            # 分批获取所有 doc_id
-            all_doc_ids = []
-            offset = 0
-
-            while offset < total_count:
-                # 每次只获取 doc_id 字段，减少数据传输
-                batch_ids = self.source_milvus.client.query(
-                    collection_name=self.source_collection,
-                    filter='',
-                    output_fields=["doc_id"],  # 只获取 doc_id 字段
-                    limit=self.batch_size,
-                    offset=offset,
-                )
-
-                doc_ids = [item["doc_id"] for item in batch_ids]
-                all_doc_ids.extend(doc_ids)
-
-                logger.info(f"[可靠迁移] 获取 doc_id 进度：{len(all_doc_ids)}/{total_count}")
-
-                offset += self.batch_size
-
-                # 如果返回的数据量小于批次大小，说明已经获取完所有数据
-                if len(batch_ids) < self.batch_size:
-                    break
-
-            logger.info(f"[可靠迁移] 成功获取 {len(all_doc_ids)} 个 doc_id")
-            return all_doc_ids
-
-        except Exception as e:
-            logger.error(f"[可靠迁移] 获取 doc_id 列表失败：{str(e)}")
-            raise
-
-    def get_data_by_doc_ids(self, doc_ids: List[str]) -> List[Dict[str, Any]]:
-        """根据 doc_id 列表获取完整数据
-
-        使用 get 方法获取数据，避免 query 方法的分页限制。
-
-        Args:
-            doc_ids: doc_id 列表
-
-        Returns:
-            List[Dict[str, Any]]: 完整的数据列表
-        """
-        try:
+            # 使用 query_iterator 分批获取所有数据
             all_data = []
 
-            # 分批处理，避免一次性传递过多 ID
-            for i in range(0, len(doc_ids), self.batch_size):
-                batch_ids = doc_ids[i:i + self.batch_size]
+            # 创建迭代器
+            logger.info(f"[迭代迁移] 创建 query_iterator，批次大小：{self.batch_size}")
+            iterator = self.source_milvus.client.query_iterator(
+                collection_name=self.source_collection,
+                filter='',  # 空过滤条件，获取所有数据
+                output_fields=["*"],  # 获取所有字段
+                batch_size=self.batch_size
+            )
 
-                # 使用 get 方法获取数据
-                batch_data = self.source_milvus.client.get(
-                    collection_name=self.source_collection,
-                    ids=batch_ids,
-                    output_fields=["*"]
-                )
+            batch_count = 0
+            total_fetched = 0
 
-                all_data.extend(batch_data)
-                logger.info(f"[可靠迁移] 获取数据进度：{len(all_data)}/{len(doc_ids)}")
+            logger.info(f"[迭代迁移] 开始迭代获取数据...")
 
-            logger.info(f"[可靠迁移] 成功获取 {len(all_data)} 条完整数据")
+            while True:
+                try:
+                    # 获取下一批数据
+                    batch_data = iterator.next()
+
+                    if not batch_data:
+                        logger.info(f"[迭代迁移] 迭代器返回空数据，迭代结束")
+                        break
+
+                    # 添加批次数据到总数据列表
+                    all_data.extend(batch_data)
+                    batch_count += 1
+                    total_fetched += len(batch_data)
+
+                    logger.info(
+                        f"[迭代迁移] 批次 {batch_count}：获取 {len(batch_data)} 条，累计 {total_fetched}/{total_count} 条")
+
+                    # 如果累计获取的数据量已经达到或超过总数，说明已经获取完所有数据
+                    if total_fetched >= total_count:
+                        logger.info(f"[迭代迁移] 已获取所有数据，停止迭代")
+                        break
+
+                except Exception as e:
+                    logger.error(f"[迭代迁移] 迭代器获取数据失败：{str(e)}")
+                    break
+
+            logger.info(f"[迭代迁移] 迭代完成！总共获取 {len(all_data)} 条数据，期望 {total_count} 条")
+
+            # 验证数据完整性
+            if len(all_data) == total_count:
+                logger.info(f"[迭代迁移] ✅ 成功获取所有数据！")
+            elif len(all_data) > total_count:
+                logger.warning(f"[迭代迁移] ⚠️ 获取数据量超过统计数量：{len(all_data)} > {total_count}")
+            else:
+                logger.error(f"[迭代迁移] ❌ 数据不完整：{len(all_data)} < {total_count}")
+
             return all_data
 
         except Exception as e:
-            logger.error(f"[可靠迁移] 根据 doc_id 获取数据失败：{str(e)}")
+            logger.error(f"[迭代迁移] 使用迭代器获取数据失败：{str(e)}")
             raise
 
     def convert_data_format(self, source_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -187,10 +180,10 @@ class ReliableMigrator:
                 converted_data.append(convert_item)
 
             except Exception as e:
-                logger.error(f"[可靠迁移] 第 {idx+1} 条数据转换失败：{str(e)}，数据：{item}")
+                logger.error(f"[迭代迁移] 第 {idx + 1} 条数据转换失败：{str(e)}，数据：{item}")
                 continue
 
-        logger.info(f"[可靠迁移] 数据转换完成，成功转换 {len(converted_data)} 条，原始数据 {len(source_data)} 条")
+        logger.info(f"[迭代迁移] 数据转换完成，成功转换 {len(converted_data)} 条，原始数据 {len(source_data)} 条")
         return converted_data
 
     def migrate_all_data(self) -> bool:
@@ -201,44 +194,52 @@ class ReliableMigrator:
         """
         try:
             start_time = time.time()
-            logger.info(f"[可靠迁移] 开始从 {self.source_collection} 迁移数据到 {self.target_collection}")
+            logger.info(f"[迭代迁移] 开始从 {self.source_collection} 迁移数据到 {self.target_collection}")
 
-            # 步骤1：获取所有 doc_id
-            doc_ids = self.get_all_doc_ids()
-            if not doc_ids:
-                logger.warning("[可靠迁移] 源集合无数据，跳过迁移")
+            # 步骤1：使用迭代器获取所有数据
+            source_data = self.get_all_data_by_iterator()
+            if not source_data:
+                logger.warning("[迭代迁移] 源集合无数据，跳过迁移")
                 return True
 
-            # 步骤2：根据 doc_id 获取完整数据
-            source_data = self.get_data_by_doc_ids(doc_ids)
-            if not source_data:
-                logger.error("[可靠迁移] 获取源数据失败")
-                return False
-
-            # 步骤3：转换数据格式
+            # 步骤2：转换数据格式
             converted_data = self.convert_data_format(source_data)
             if not converted_data:
-                logger.error("[可靠迁移] 数据格式转换失败")
+                logger.error("[迭代迁移] 数据格式转换失败")
                 return False
 
-            # 步骤4：插入到目标集合
-            inserted_ids = self.target_manager.insert_data(converted_data)
+            # 步骤3：分批插入到目标集合
+            total_inserted = 0
+            insert_batch_size = 100  # 插入批次大小
+
+            for i in range(0, len(converted_data), insert_batch_size):
+                batch_data = converted_data[i:i + insert_batch_size]
+
+                try:
+                    inserted_ids = self.target_manager.insert_data(batch_data)
+                    total_inserted += len(inserted_ids)
+
+                    logger.info(f"[迭代迁移] 插入进度：{total_inserted}/{len(converted_data)}")
+
+                except Exception as e:
+                    logger.error(f"[迭代迁移] 插入批次 {i // insert_batch_size + 1} 失败：{str(e)}")
+                    continue
 
             end_time = time.time()
             duration = end_time - start_time
 
-            logger.info(f"[可靠迁移] 迁移完成！共迁移 {len(inserted_ids)} 条数据，耗时 {duration:.2f} 秒")
+            logger.info(f"[迭代迁移] 迁移完成！共迁移 {total_inserted} 条数据，耗时 {duration:.2f} 秒")
 
             # 验证迁移结果
-            if len(inserted_ids) == len(doc_ids):
-                logger.info("[可靠迁移] 数据数量验证通过")
+            if total_inserted == len(source_data):
+                logger.info("[迭代迁移] 数据数量验证通过")
                 return True
             else:
-                logger.warning(f"[可靠迁移] 数据数量不一致：期望 {len(doc_ids)}，实际 {len(inserted_ids)}")
+                logger.warning(f"[迭代迁移] 数据数量不一致：期望 {len(source_data)}，实际 {total_inserted}")
                 return False
 
         except Exception as e:
-            logger.error(f"[可靠迁移] 迁移失败：{str(e)}")
+            logger.error(f"[迭代迁移] 迁移失败：{str(e)}")
             return False
 
     def verify_migration(self) -> Dict[str, Any]:
@@ -258,8 +259,8 @@ class ReliableMigrator:
             target_stats = self.target_manager.get_collection_stats()
             target_count = target_stats.get("entity_count", 0)
 
-            logger.info(f"[可靠迁移] 源集合数据数量：{source_count}")
-            logger.info(f"[可靠迁移] 目标集合数据数量：{target_count}")
+            logger.info(f"[迭代迁移] 源集合数据数量：{source_count}")
+            logger.info(f"[迭代迁移] 目标集合数据数量：{target_count}")
 
             verification_result = {
                 "source_collection": self.source_collection,
@@ -271,20 +272,20 @@ class ReliableMigrator:
             }
 
             if source_count == target_count:
-                logger.info("[可靠迁移] 验证通过！数据数量一致")
+                logger.info("[迭代迁移] 验证通过！数据数量一致")
             else:
-                logger.error("[可靠迁移] 验证失败！数据数量不一致")
+                logger.error("[迭代迁移] 验证失败！数据数量不一致")
 
             return verification_result
 
         except Exception as e:
-            logger.error(f"[可靠迁移] 验证失败：{str(e)}")
+            logger.error(f"[迭代迁移] 验证失败：{str(e)}")
             return {"error": str(e)}
 
 
-def run_reliable_migration(source_collection: str = "rag_collection",
+def run_iterator_migration(source_collection: str = "rag_collection",
                           target_collection: str = "rag_flat") -> bool:
-    """执行可靠的数据迁移
+    """执行基于迭代器的数据迁移
 
     Args:
         source_collection: 源集合名称
@@ -293,7 +294,7 @@ def run_reliable_migration(source_collection: str = "rag_collection",
     Returns:
         bool: 迁移是否成功
     """
-    migrator = ReliableMigrator(source_collection, target_collection)
+    migrator = IteratorMigrator(source_collection, target_collection)
 
     try:
         success = migrator.migrate_all_data()
@@ -301,18 +302,18 @@ def run_reliable_migration(source_collection: str = "rag_collection",
         if success:
             # 验证迁移结果
             verification = migrator.verify_migration()
-            logger.info(f"[可靠迁移] 验证结果: {verification}")
+            logger.info(f"[迭代迁移] 验证结果: {verification}")
 
         return success
 
     except Exception as e:
-        logger.error(f"[可靠迁移] 迁移异常: {str(e)}")
+        logger.error(f"[迭代迁移] 迁移异常: {str(e)}")
         return False
 
 
 if __name__ == "__main__":
     # 执行迁移
-    success = run_reliable_migration("rag_collection", "rag_flat")
+    success = run_iterator_migration("rag_collection", "rag_flat")
 
     if success:
         print("数据迁移成功！")

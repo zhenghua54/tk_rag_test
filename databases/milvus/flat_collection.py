@@ -288,6 +288,8 @@ class FlatCollectionManager:
             bool: 删除是否成功
         """
         try:
+            self.client.using_database(self.db_name)
+
             if not self.client.has_collection(self.collection_name):
                 logger.warning(f"[FLAT Milvus] Collection {self.collection_name} 不存在")
                 return True
@@ -326,7 +328,7 @@ if __name__ == '__main__':
         flat_manager.init_collection()
 
         # 删除 collection
-        # flat_manager.drop_collection(True)
+        flat_manager.drop_collection(True)
 
         # 获取统计信息
         stats = flat_manager.get_collection_stats()

@@ -16,6 +16,9 @@ import torch
 # 禁用 HuggingFace 警告
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class GlobalConfig:
     """配置类：用于管理项目的所有配置信息"""
