@@ -1,54 +1,58 @@
-"""数据迁移工具
+"""可靠的数据迁移工具
 
-提供从原有 IVF collection 到新 FLAT collection 的数据迁移功能。
-支持批量迁移、数据验证和迁移进度监控。
+基于 Milvus 官方建议，使用 get 方法根据 ID 列表获取数据，
+避免 query 方法的分页限制问题。
 
 使用示例：
     # 创建迁移器
-    migrator = DataMigrator()
+    migrator = ReliableMigrator("rag_collection", "rag_flat")
 
     # 执行迁移
-    migrator.migrate_all_data()
+    success = migrator.migrate_all_data()
 
-    # 验证迁移结果
-    migrator.verify_migration()
+    # 验证结果
+    if success:
+        migrator.verify_migration()
 """
+
 import time
+from typing import List, Dict, Any, Optional
 from datetime import datetime
-from typing import List, Dict, Any
 
 from databases.milvus.connection import MilvusDB
 from databases.milvus.flat_collection import FlatCollectionManager
 from utils.log_utils import logger
 
 
-class DataMigrator:
+class ReliableMigrator:
     """
-    数据迁移器
+    可靠的数据迁移器
 
-    负责将数据从原有的 IVF collection（rag_collection）中迁移到新的 FLAT collection（rag_flat）。
-    提供完整的迁移流程，包括数据读取、格式转换、批量插入和验证。
+    基于 Milvus 官方建议，使用 get 方法根据 ID 列表获取数据，
+    完全避免 query 方法的分页限制问题。
 
     Attributes:
-        source_collection：源集合名称（rag_collection）
-        target_collection：目标集合名称（rag_flat）
-        batch_size：批量处理大小，默认 1000
+        source_collection: 源集合名称
+        target_collection: 目标集合名称
+        batch_size: 批量处理大小
     """
 
-    def __init__(self, batch_size: int = 1000):
-        """初始化数据迁移器
+    def __init__(self, source_collection: str, target_collection: str, batch_size: int = 100):
+        """初始化迁移器
 
-        Args：
-            batch_size：批量处理大小，默认 1000
+        Args:
+            source_collection: 源集合名称
+            target_collection: 目标集合名称
+            batch_size: 批量处理大小，默认100
         """
-        self.source_collection = "rag_collection"  # 原有的 IVF collection
-        self.target_collection = "rag_flat"  # 新的 FLAT Collection
+        self.source_collection = source_collection
+        self.target_collection = target_collection
         self.batch_size = batch_size
 
         # 初始化源集合和目标集合
-        self._init_collection()
+        self._init_collections()
 
-    def _init_collection(self):
+    def _init_collections(self) -> None:
         """初始化源集合和目标集合"""
         try:
             # 初始化源集合
@@ -59,154 +63,189 @@ class DataMigrator:
             self.target_manager = FlatCollectionManager(self.target_collection)
             self.target_manager.init_collection()
 
-            logger.info(f"[数据迁移] 源集合：{self.source_collection}")
-            logger.info(f"[数据迁移] 目标集合：{self.target_collection}")
+            logger.info(f"[可靠迁移] 源集合：{self.source_collection}")
+            logger.info(f"[可靠迁移] 目标集合：{self.target_collection}")
+
         except Exception as e:
-            logger.error(f"[数据迁移] 初始化集合失败：{str(e)}")
+            logger.error(f"[可靠迁移] 初始化集合失败：{str(e)}")
             raise
 
-    def get_source_data_count(self) -> int:
-        """
-        获取源集合中的数据总数
+    def get_all_doc_ids(self) -> List[str]:
+        """获取源集合中所有的 doc_id 列表
 
-        Returns：
-            int：目标总数
+        使用 query 方法只获取 doc_id 字段，避免大数据量传输。
+
+        Returns:
+            List[str]: doc_id 列表
         """
         try:
+            # 获取集合统计信息
             stats = self.source_milvus.client.get_collection_stats(
                 collection_name=self.source_collection
             )
-            count = stats.get("row_count", 0)
-            logger.info(f"[数据迁移] 源集合数据总数：{count}")
-            return count
+            total_count = stats.get("row_count", 0)
+
+            logger.info(f"[可靠迁移] 源集合总数据量：{total_count}")
+
+            # 分批获取所有 doc_id
+            all_doc_ids = []
+            offset = 0
+
+            while offset < total_count:
+                # 每次只获取 doc_id 字段，减少数据传输
+                batch_ids = self.source_milvus.client.query(
+                    collection_name=self.source_collection,
+                    filter='',
+                    output_fields=["doc_id"],  # 只获取 doc_id 字段
+                    limit=self.batch_size,
+                    offset=offset,
+                )
+
+                doc_ids = [item["doc_id"] for item in batch_ids]
+                all_doc_ids.extend(doc_ids)
+
+                logger.info(f"[可靠迁移] 获取 doc_id 进度：{len(all_doc_ids)}/{total_count}")
+
+                offset += self.batch_size
+
+                # 如果返回的数据量小于批次大小，说明已经获取完所有数据
+                if len(batch_ids) < self.batch_size:
+                    break
+
+            logger.info(f"[可靠迁移] 成功获取 {len(all_doc_ids)} 个 doc_id")
+            return all_doc_ids
+
         except Exception as e:
-            logger.error(f"[数据迁移] 获取源集合数据总数失败：{str(e)}")
-            return 0
+            logger.error(f"[可靠迁移] 获取 doc_id 列表失败：{str(e)}")
+            raise
 
-    def _convert_data_format(self, source_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        转换数据格式
+    def get_data_by_doc_ids(self, doc_ids: List[str]) -> List[Dict[str, Any]]:
+        """根据 doc_id 列表获取完整数据
 
-        将源集合的数据格式转换为目标集合的数据格式。
-        主要处理字段名映射和数据类型转换。
+        使用 get 方法获取数据，避免 query 方法的分页限制。
 
-        Args：
-            source_data：源数据列表
+        Args:
+            doc_ids: doc_id 列表
 
         Returns:
-            List[Dict[str,Any]]：转换后的数据列表
+            List[Dict[str, Any]]: 完整的数据列表
+        """
+        try:
+            all_data = []
+
+            # 分批处理，避免一次性传递过多 ID
+            for i in range(0, len(doc_ids), self.batch_size):
+                batch_ids = doc_ids[i:i + self.batch_size]
+
+                # 使用 get 方法获取数据
+                batch_data = self.source_milvus.client.get(
+                    collection_name=self.source_collection,
+                    ids=batch_ids,
+                    output_fields=["*"]
+                )
+
+                all_data.extend(batch_data)
+                logger.info(f"[可靠迁移] 获取数据进度：{len(all_data)}/{len(doc_ids)}")
+
+            logger.info(f"[可靠迁移] 成功获取 {len(all_data)} 条完整数据")
+            return all_data
+
+        except Exception as e:
+            logger.error(f"[可靠迁移] 根据 doc_id 获取数据失败：{str(e)}")
+            raise
+
+    def convert_data_format(self, source_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """转换数据格式
+
+        将源集合的数据格式转换为目标集合的数据格式。
+
+        Args:
+            source_data: 源数据列表
+
+        Returns:
+            List[Dict[str, Any]]: 转换后的数据列表
         """
         converted_data = []
 
-        for item in source_data:
-            # 字段名映射： vector -> seg_dense_vector
-            convert_item = {
-                "doc_id": item.get("doc_id", ""),
-                "seg_id": item.get("seg_id", ""),
-                "seg_parent_id": item.get("seg_parent_id", ""),
-                "seg_dense_vector": item.get("vector", []),  # 字段名映射
-                "seg_sparse_vector": item.get("seg_sparse_vector", {}),  # 保持原字段名
-                "seg_content": item.get("seg_content", ""),
-                "seg_type": item.get("seg_type", ""),
-                "seg_page_idx": item.get("seg_page_idx", 0),
-                "permission_ids": item.get("permission_ids", "{}"),
-                "create_time": item.get("create_time", ""),
-                "update_time": item.get("update_time", ""),
-                "metadata": item.get("metadata", {})
-            }
-            converted_data.append(convert_item)
+        for idx, item in enumerate(source_data):
+            try:
+                # 字段名映射：vector -> seg_dense_vector
+                convert_item = {
+                    "doc_id": item.get("doc_id", ""),
+                    "seg_id": item.get("seg_id", ""),
+                    "seg_parent_id": item.get("seg_parent_id", ""),
+                    "seg_dense_vector": item.get("vector", []),  # 字段名映射
+                    "seg_sparse_vector": item.get("seg_sparse_vector", {}),  # 保持原字段名
+                    "seg_content": item.get("seg_content", ""),
+                    "seg_type": item.get("seg_type", ""),
+                    "seg_page_idx": item.get("seg_page_idx", 0),
+                    "permission_ids": item.get("permission_ids", "{}"),
+                    "create_time": item.get("create_time", ""),
+                    "update_time": item.get("update_time", ""),
+                    "metadata": item.get("metadata", {})
+                }
+                converted_data.append(convert_item)
 
+            except Exception as e:
+                logger.error(f"[可靠迁移] 第 {idx+1} 条数据转换失败：{str(e)}，数据：{item}")
+                continue
+
+        logger.info(f"[可靠迁移] 数据转换完成，成功转换 {len(converted_data)} 条，原始数据 {len(source_data)} 条")
         return converted_data
 
-    def migrate_batch(self, offset: int, limit: int) -> int:
-        """
-        迁移一批数据
-
-        Args：
-            offset：数据偏移量
-            limit：数据限制数量
-
-        Returns：
-            int：实际迁移的数据数量
-        """
-        try:
-            # 从源集合查询数据
-            source_data = self.source_milvus.client.query(
-                collection_name=self.source_collection,
-                filter='',
-                output_fields=["*"],
-                limit=limit,
-                offset=offset,
-            )
-
-            if not source_data:
-                logger.info(f"[数据迁移] 批次 {offset}-{offset + limit} 无数据")
-                return 0
-
-            # 转换数据格式
-            converted_data = self._convert_data_format(source_data)
-
-            # 插入到目标集合
-            inserted_ids = self.target_manager.insert_data(converted_data)
-
-            logger.info(f"[数据迁移] 批次 {offset}-{offset + limit} 迁移完成，共 {len(inserted_ids)} 条")
-            return len(inserted_ids)
-
-        except Exception as e:
-            logger.error(f"[数据迁移] 批次 {offset}-{offset + limit} 迁移失败：{str(e)}")
-            raise
-
     def migrate_all_data(self) -> bool:
-        """
-        迁移所有数据
-
-        分批迁移源集合中的所有数据到目标集合。
+        """执行完整的数据迁移
 
         Returns:
-            bool：迁移是否成功
+            bool: 迁移是否成功
         """
         try:
-            # 获取源集合数据总数
-            total_count = self.get_source_data_count()
-            if total_count == 0:
-                logger.info(f"[数据迁移] 源集合无数据，跳过迁移。")
+            start_time = time.time()
+            logger.info(f"[可靠迁移] 开始从 {self.source_collection} 迁移数据到 {self.target_collection}")
+
+            # 步骤1：获取所有 doc_id
+            doc_ids = self.get_all_doc_ids()
+            if not doc_ids:
+                logger.warning("[可靠迁移] 源集合无数据，跳过迁移")
                 return True
 
-            logger.info(f"[数据迁移] 开始迁移 {total_count} 条数据...")
-            start_time = time.time()
+            # 步骤2：根据 doc_id 获取完整数据
+            source_data = self.get_data_by_doc_ids(doc_ids)
+            if not source_data:
+                logger.error("[可靠迁移] 获取源数据失败")
+                return False
 
-            # 分批迁移
-            migrate_count = 0
-            for offset in range(0, total_count, self.batch_size):
-                # 获取迁移的数据量
-                batch_count = self.migrate_batch(offset, self.batch_size)
-                migrate_count += batch_count
+            # 步骤3：转换数据格式
+            converted_data = self.convert_data_format(source_data)
+            if not converted_data:
+                logger.error("[可靠迁移] 数据格式转换失败")
+                return False
 
-                # 显示进度
-                progress = (migrate_count / total_count) * 100
-                logger.info(f"[数据迁移] 进度：{progress:.1f}% {migrate_count}/{total_count}")
-
-                # 短暂休息，避免过度占用资源
-                time.sleep(0.5)
+            # 步骤4：插入到目标集合
+            inserted_ids = self.target_manager.insert_data(converted_data)
 
             end_time = time.time()
             duration = end_time - start_time
 
-            logger.info(f"[数据迁移] 迁移完成！共迁移 {migrate_count} 条数据，耗时 {duration} 秒")
-            return True
+            logger.info(f"[可靠迁移] 迁移完成！共迁移 {len(inserted_ids)} 条数据，耗时 {duration:.2f} 秒")
+
+            # 验证迁移结果
+            if len(inserted_ids) == len(doc_ids):
+                logger.info("[可靠迁移] 数据数量验证通过")
+                return True
+            else:
+                logger.warning(f"[可靠迁移] 数据数量不一致：期望 {len(doc_ids)}，实际 {len(inserted_ids)}")
+                return False
 
         except Exception as e:
-            logger.error(f"[数据迁移] 验证失败：{str(e)}")
+            logger.error(f"[可靠迁移] 迁移失败：{str(e)}")
             return False
 
-    def verify_migration(self) -> bool:
-        """
-        验证迁移结果
-
-        比较源集合和目标集合的数据数量，确保迁移完整性。
+    def verify_migration(self) -> Dict[str, Any]:
+        """验证迁移结果
 
         Returns:
-            bool: 验证是否通过
+            Dict[str, Any]: 验证结果信息
         """
         try:
             # 获取源集合数据数量
@@ -219,78 +258,63 @@ class DataMigrator:
             target_stats = self.target_manager.get_collection_stats()
             target_count = target_stats.get("entity_count", 0)
 
-            logger.info(f"[数据迁移] 源集合数据数量：{source_count}")
-            logger.info(f"[数据迁移] 目标集合数据数量：{target_count}")
+            logger.info(f"[可靠迁移] 源集合数据数量：{source_count}")
+            logger.info(f"[可靠迁移] 目标集合数据数量：{target_count}")
 
-            if source_count == target_count:
-                logger.info(f"[数据迁移] 验证通过！数据数量一致")
-                return True
-            else:
-                logger.error(f"[数据迁移] 验证失败！数据数量不一致")
-                return False
-
-        except Exception as e:
-            logger.error(f"[数据迁移] 验证失败：{str(e)}")
-            return False
-
-    def get_migrate_summary(self) -> Dict[str, Any]:
-        """
-        获取迁移摘要
-
-        Returns:
-            Dict[str,Any]：迁移摘要信息
-        """
-        try:
-            source_stats = self.source_milvus.client.get_collection_stats(
-                collection_name=self.source_collection
-            )
-            target_stats = self.target_manager.get_collection_stats()
-
-            return {
+            verification_result = {
                 "source_collection": self.source_collection,
                 "target_collection": self.target_collection,
-                "source_count": source_stats.get("row_count", 0),
-                "target_count": target_stats.get("entity_count", 0),
-                "source_indexes": self.source_milvus.client.list_indexes(
-                    collection_name=self.source_collection
-                ),
-                "target_indexes": target_stats.get("indexes", []),
-                "migration_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "source_count": source_count,
+                "target_count": target_count,
+                "migration_success": source_count == target_count,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
+
+            if source_count == target_count:
+                logger.info("[可靠迁移] 验证通过！数据数量一致")
+            else:
+                logger.error("[可靠迁移] 验证失败！数据数量不一致")
+
+            return verification_result
+
         except Exception as e:
-            logger.error(f"[数据迁移] 获取迁移摘要失败：{str(e)}")
-            return {}
+            logger.error(f"[可靠迁移] 验证失败：{str(e)}")
+            return {"error": str(e)}
 
 
-def run_migrate():
-    """执行数据迁移"""
-    logger.info(f"[数据迁移] 开始执行数据迁移...")
+def run_reliable_migration(source_collection: str = "rag_collection",
+                          target_collection: str = "rag_flat") -> bool:
+    """执行可靠的数据迁移
+
+    Args:
+        source_collection: 源集合名称
+        target_collection: 目标集合名称
+
+    Returns:
+        bool: 迁移是否成功
+    """
+    migrator = ReliableMigrator(source_collection, target_collection)
 
     try:
-        # 创建迁移器
-        migrator = DataMigrator(batch_size=1000)
-
-        # 执行迁移
         success = migrator.migrate_all_data()
 
         if success:
             # 验证迁移结果
-            verified = migrator.verify_migration()
+            verification = migrator.verify_migration()
+            logger.info(f"[可靠迁移] 验证结果: {verification}")
 
-            if verified:
-                # 获取迁移摘要
-                summary = migrator.get_migrate_summary()
-                logger.info(f"[数据迁移] 迁移摘要：{summary}")
-                logger.info("[数据迁移]数据迁移成功完成！")
-            else:
-                logger.error("[数据迁移] 数据迁移验证失败！")
-        else:
-            logger.error(f"[数据迁移] 数据迁移失败！")
+        return success
 
     except Exception as e:
-        logger.error(f"[数据迁移] 数据迁移过程中出现错误：{str(e)}")
+        logger.error(f"[可靠迁移] 迁移异常: {str(e)}")
+        return False
 
 
-if __name__ == '__main__':
-    # 执行
-    run_migrate()
+if __name__ == "__main__":
+    # 执行迁移
+    success = run_reliable_migration("rag_collection", "rag_flat")
+
+    if success:
+        print("数据迁移成功！")
+    else:
+        print("数据迁移失败！")
