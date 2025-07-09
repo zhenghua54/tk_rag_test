@@ -43,6 +43,7 @@ class FlatCollectionManager:
     _instance = None
     _lock = threading.Lock()
     _initialized = False
+    _current_db = None
 
     def __new__(cls, *args, **kwargs):
         """现线程安全的单例模式实现"""
@@ -50,6 +51,7 @@ class FlatCollectionManager:
             with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
+                    cls._instance.__init__(*args, **kwargs)
         return cls._instance
 
     def __init__(self, collection_name="rag_flat"):
@@ -60,7 +62,8 @@ class FlatCollectionManager:
         Args:
             collection_name (str): 集合名称，默认为 "rag_flat"
         """
-        if self._initialized:
+        # 避免重复初始化
+        if hasattr(self, '_initialized') and self._initialized:
             return
 
         self.collection_name = collection_name
@@ -108,7 +111,9 @@ class FlatCollectionManager:
             )
 
             self.db_name = GlobalConfig.MILVUS_CONFIG["db_name"]
-            logger.info(f"[FLAT Milvus] Collection 管理器初始化成功，数据库： {self.db_name}")
+            self._current_db = 'default'  # 初始化为 default 数据库
+
+            logger.info(f"[FLAT Milvus] Collection 管理器初始化成功，数据库： {self._current_db}")
 
         except  Exception as e:
             logger.error(f"[FLAT Milvus] Collection 管理器初始化失败: {e}")
@@ -138,25 +143,32 @@ class FlatCollectionManager:
         Returns:
             bool: 初始化是否成功
         """
-
         try:
             # 检查数据库是否存在
             db_list = self.client.list_databases()
+            db_exists = self.db_name in db_list
 
-            if self.db_name in db_list:
-                if force_recreate:
+            # 如果需要强制重新创建或数据库不存在，则创建数据库
+            if force_recreate or not db_exists:
+                if db_exists:
                     logger.warning(f"[FLAT Milvus] Database {self.db_name} 已存在，强制重新创建")
                     self.client.drop_database(self.db_name)
-                else:
-                    logger.info(f"[FLAT Milvus] Database {self.db_name} 已存在，跳过创建")
-                    return True
 
-            # 创建数据库
-            logger.info(f"[FLAT Milvus] 创建Database {self.db_name} ...")
-            self.client.create_database(self.db_name)
+                logger.info(f"[FLAT Milvus] 创建Database {self.db_name} ...")
+                self.client.create_database(self.db_name)
+                logger.info(f"[FLAT Milvus] Database {self.db_name} 创建成功")
+            else:
+                logger.info(f"[FLAT Milvus] Database {self.db_name} 已存在，跳过创建")
 
-            logger.info(f"[FLAT Milvus] Database {self.db_name} 创建成功")
+            # 切换到目标数据库
+            if self._current_db != self.db_name:
+                logger.info(f"[FLAT Milvus] 切换Database到 {self.db_name}")
+                self.client.using_database(self.db_name)
+                self._current_db = self.db_name
+                logger.info(f"[FLAT Milvus] 切换Database成功!")
+
             return True
+
         except Exception as e:
             logger.error(f"[FLAT Milvus] Database 创建失败: {e}")
             return False
@@ -467,11 +479,11 @@ if __name__ == '__main__':
         flat_manager = FlatCollectionManager()
 
         # 删除 collection
-        flat_manager.drop_collection(True)
+        # flat_manager.drop_collection(True)
 
         # 获取统计信息
-        # stats = flat_manager.get_collection_stats()
-        # logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+        stats = flat_manager.get_collection_stats()
+        logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
 
     except Exception as e:
         logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
