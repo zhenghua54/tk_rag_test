@@ -14,12 +14,13 @@
     flat_manager.insert_data(data_list)
 """
 import json
+import threading
 from typing import Dict, Any, List
 
-from pymilvus import connections, MilvusClient, FieldSchema, DataType, CollectionSchema
+from pymilvus import connections, MilvusClient, FieldSchema, DataType, CollectionSchema, Function, FunctionType
 
 from config.global_config import GlobalConfig
-from config.milvus_config import MilvusConfig
+from config.milvus_config import MilvusFlatConfig
 from utils.log_utils import logger
 
 
@@ -38,17 +39,57 @@ class FlatCollectionManager:
         config: Milvus 配置对象
     """
 
+    # 单例模式
+    _instance = None
+    _lock = threading.Lock()
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+        """现线程安全的单例模式实现"""
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self, collection_name="rag_flat"):
-        """初始化 FLAT Collection 管理器
+        """初始化 FLAT Collection 管理器(单例模式)
+
+        初始化时自动创建数据库和集合.
 
         Args:
             collection_name (str): 集合名称，默认为 "rag_flat"
         """
+        if self._initialized:
+            return
+
         self.collection_name = collection_name
-        self.config = MilvusConfig()
+        self.config = MilvusFlatConfig()
 
         # 初始化 Milvus 客户端
         self._init_client()
+
+        # 自动初始化数据库
+        self._init_db()
+
+        # 自动初始化集合
+        self._init_collection()
+
+        # 标记初始化
+        self._initialized = True
+        logger.info(f"[FLAT Milvus] Collection 管理器初始化成功, collection_name: {self.collection_name}")
+
+    @classmethod
+    def get_instance(cls, collection_name="rag_flat"):
+        """获取单例实例
+        
+        Args:
+            collection_name (str): 集合名称，默认为 "rag_flat"
+            
+        Returns:
+            FlatCollectionManager: 单例实例
+        """
+        return cls(collection_name)
 
     def _init_client(self):
         """初始化 Milvus 客户端"""
@@ -88,7 +129,39 @@ class FlatCollectionManager:
 
         return schema_config
 
-    def init_collection(self, force_recreate: bool = False) -> bool:
+    def _init_db(self, force_recreate: bool = False) -> bool:
+        """创建 Database
+
+        Args:
+            force_recreate: 是否强制重新创建数据库
+
+        Returns:
+            bool: 初始化是否成功
+        """
+
+        try:
+            # 检查数据库是否存在
+            db_list = self.client.list_databases()
+
+            if self.db_name in db_list:
+                if force_recreate:
+                    logger.warning(f"[FLAT Milvus] Database {self.db_name} 已存在，强制重新创建")
+                    self.client.drop_database(self.db_name)
+                else:
+                    logger.info(f"[FLAT Milvus] Database {self.db_name} 已存在，跳过创建")
+                    return True
+
+            # 创建数据库
+            logger.info(f"[FLAT Milvus] 创建Database {self.db_name} ...")
+            self.client.create_database(self.db_name)
+
+            logger.info(f"[FLAT Milvus] Database {self.db_name} 创建成功")
+            return True
+        except Exception as e:
+            logger.error(f"[FLAT Milvus] Database 创建失败: {e}")
+            return False
+
+    def _init_collection(self, force_recreate: bool = False) -> bool:
         """
         初始化 FLAT collection
 
@@ -153,11 +226,25 @@ class FlatCollectionManager:
             enable_dynamic_field=schema_config.get('enable_dynamic_field', False)
         )
 
+        # 创建函数
+        if 'functions' in schema_config:
+            # 添加函数到 schema
+            for func in schema_config['functions']:
+                # 创建 BM25 函数
+                function = Function(
+                    name=func['name'],
+                    input_field_names=func['input_field_names'],
+                    output_field_names=func['output_field_names'],
+                    function_type=getattr(FunctionType, func['function_type'])
+                )
+                schema.add_function(function)
+
         # 创建集合
         self.client.create_collection(
             collection_name=self.collection_name,
             schema=schema
         )
+
         logger.info(f"[FLAT Milvus] Collection {self.collection_name} 创建成功")
 
     def _create_flat_index(self):
@@ -226,6 +313,59 @@ class FlatCollectionManager:
             logger.error(f"[FLAT Milvus] Collection 数据插入失败：{str(e)}")
             raise
 
+    def search(self, query_vector: List[float], top_k: int = 10,
+               output_fields: List[str] = None) -> List[Dict[str, Any]]:
+        """
+        执行向量相似性搜索
+
+        使用项目统一的 EmbeddingManager 生成查询向量，确保向量归一化一致性。
+
+        Args:
+            query_vector: 查询文本向量(1024维浮点数)
+            top_k: 返回结果数量，默认20
+            output_fields: 返回字段，默认使用配置的输出字段
+
+        Returns:
+            List[Dict[str, Any]]: 检索结果列表，包含 seg_id, score, seg_content 等字段
+
+        Raises:
+            ValueError: 当查询向量格式不正确时抛出
+            Exception: 当搜索失败时抛出
+        """
+        try:
+            # 验证查询向量格式
+            if not isinstance(query_vector, list) or len(query_vector) != 1024:
+                raise ValueError(
+                    f"查询向量必须是1024维的浮点数列表，当前维度: {len(query_vector) if isinstance(query_vector, list) else '非列表'}")
+
+            # 设置默认输出字段
+            if output_fields is None:
+                output_fields = GlobalConfig.MILVUS_CONFIG['output_fields']
+
+            # 构建搜索参数
+            results = self.client.search(
+                collection_name=self.collection_name,
+                data=[query_vector],  # 查询向量列表
+                anns_field="seg_dense_vector",  # 向量字段名
+                search_params={"metric_type": "IP", "params": {}},  # 搜索参数
+                limit=top_k,  # 返回结果数量
+                output_fields=output_fields,  # 返回字段
+            )
+
+            # 处理搜索结果
+            if results and len(results) > 0:
+                # 单个查询向量，只会有一个 hits，取第一个结果列表
+                search_results = results[0]
+                logger.info(f"[FLAT Milvus] 向量搜索成功，返回 {len(search_results)} 条结果")
+                return search_results
+            else:
+                logger.warning(f"[FLAT Milvus] 向量搜索未返回结果")
+                return []
+
+        except Exception as e:
+            logger.error(f"[FLAT Milvus] 向量搜索未返回结果: {str(e)}")
+            return []
+
     def _validate_data(self, data: List[Dict[str, Any]]):
         """
         验证数据格式
@@ -241,7 +381,7 @@ class FlatCollectionManager:
 
         # 加载 schema 获取必须字段
         schema_config = self._load_schema()
-        required_fields = [field['name'] for field in schema_config['fields']]
+        required_fields = [field['name'] for field in schema_config['fields'] if field['name'] != 'seg_sparse_vector']
 
         for idx, item in enumerate(data):
             # 检查必须字段
@@ -325,16 +465,13 @@ if __name__ == '__main__':
     try:
         # 创建管理器
         flat_manager = FlatCollectionManager()
-        flat_manager.init_collection()
 
         # 删除 collection
         flat_manager.drop_collection(True)
 
         # 获取统计信息
-        stats = flat_manager.get_collection_stats()
-        logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+        # stats = flat_manager.get_collection_stats()
+        # logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
 
     except Exception as e:
         logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
-
-

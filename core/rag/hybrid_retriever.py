@@ -1,18 +1,17 @@
 """混合检索模块"""
-from typing import List, Any, Dict, OrderedDict, Union
+from typing import List, Any, Dict, OrderedDict, Union, Optional
 
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.documents import Document
 from langchain.schema import BaseRetriever
-from langchain_milvus import Milvus
+from langchain_core.documents import Document
 
 from config.global_config import GlobalConfig
-from databases.elasticsearch.operations import ElasticsearchOperation
-from utils.log_utils import logger, log_exception
-from databases.mysql.operations import ChunkOperation
-from core.rag.retrieval.vector_retriever import VectorRetriever
 from core.rag.retrieval.bm25_retriever import BM25Retriever
+from core.rag.retrieval.vector_retriever import VectorRetriever
+from databases.elasticsearch.operations import ElasticsearchOperation
+from databases.milvus.flat_collection import FlatCollectionManager
+from databases.mysql.operations import ChunkOperation
 from utils.llm_utils import rerank_manager
+from utils.log_utils import logger, log_exception
 
 
 def init_retrievers():
@@ -31,46 +30,16 @@ def init_retrievers():
     logger.debug(f"[检索系统] 初始化BM25检索器")
     bm25_retriever = BM25Retriever(es_retriever=es_op)
 
-    # 初始化 embeddings
-    logger.debug(f"[检索系统] 初始化embeddings模型")
-    embeddings = HuggingFaceEmbeddings(
-        model_name=GlobalConfig.MODEL_PATHS["embedding"],
-        model_kwargs={'device': GlobalConfig.DEVICE}
-    )
-
-    # 创建 Milvus 向量存储
+    # 初始化向量检索器
     logger.debug(f"[检索系统] 创建Milvus向量存储")
-    # FLAT 集合
-    # vectorstore = Milvus(
-    #     embedding_function=embeddings,
-    #     collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],
-    #     connection_args={
-    #         "uri": GlobalConfig.MILVUS_CONFIG["uri"],
-    #         "token": GlobalConfig.MILVUS_CONFIG["token"],
-    #         "db_name": GlobalConfig.MILVUS_CONFIG["db_name"]
-    #     },
-    #     search_params=GlobalConfig.MILVUS_CONFIG["search_params"],  # 直接使用配置的搜索参数
-    #     text_field="seg_content"
-    # )
-    vectorstore = Milvus(
-        embedding_function=embeddings,
-        collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"],
-        connection_args={
-            "uri": GlobalConfig.MILVUS_CONFIG["uri"],
-            "token": GlobalConfig.MILVUS_CONFIG["token"],
-            "db_name": GlobalConfig.MILVUS_CONFIG["db_name"]
-        },
-        search_params={
-            "metric_type": GlobalConfig.MILVUS_CONFIG["index_params"]["metric_type"],
-            "params": GlobalConfig.MILVUS_CONFIG["search_params"]
-        },
-        text_field="seg_content"
-    )
+    # 使用自定义的 FlatCollectionManager
+    flat_manager = FlatCollectionManager(collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"])
+    flat_manager._init_collection(force_recreate=False)
 
-    logger.info(f"[检索系统] 检索系统初始化完成")
+    logger.info(f"[检索系统] 初始化完成")
 
     # 返回向量检索器实例
-    return VectorRetriever(vectorstore), bm25_retriever
+    return VectorRetriever(flat_manager),bm25_retriever
 
 
 def merge_search_results(
@@ -106,16 +75,21 @@ def merge_search_results(
 class HybridRetriever(BaseRetriever):
     """混合检索器，结合向量检索和 ES BM25 检索"""
 
-    def __init__(self, vector_retriever: VectorRetriever, bm25_retriever: BM25Retriever):
+    def __init__(self,**kwargs):
         """初始化混合检索器
-        
+
         Args:
-            vector_retriever: 向量检索器实例
-            bm25_retriever: BM25检索器实例
+            **kwargs: 传递给父类的参数
         """
-        super().__init__()
-        self._vector_retriever = vector_retriever
-        self._bm25_retriever = bm25_retriever
+        # 调用父类初始化
+        super().__init__(**kwargs)
+
+        # 初始化 FLAT Collection 管理器
+        self._flat_manager = FlatCollectionManager()
+
+        # 初始化向量检索器 和 BM25检索器
+        self._vector_retriever,self._bm25_retriever = init_retrievers()
+
 
     def _get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[
         Document]:
@@ -146,11 +120,11 @@ class HybridRetriever(BaseRetriever):
         else:
             return []
 
-    def invoke(self, input: str, **kwargs) -> List[Document]:
+    def invoke(self, user_input: str, **kwargs) -> List[Document]:
         """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
 
         Args:
-            input: 用户查询
+            user_input: 用户查询
             **kwargs: 其他参数
             
         Returns:
@@ -162,7 +136,7 @@ class HybridRetriever(BaseRetriever):
         chunk_op = kwargs.get("chunk_op")
 
         return self.search_documents(
-            input,
+            user_input,
             permission_ids=permission_ids,
             k=k,
             top_k=top_k,
@@ -217,6 +191,8 @@ class HybridRetriever(BaseRetriever):
             # 从 mysql 获取所需的原文内容(已过滤权限)
             seg_ids = list(merged_results.keys())
             logger.debug(f"[混合检索] 开始原文提取, 片段数量={len(seg_ids)}, 权限ID={permission_ids}")
+
+            mysql_records = []
 
             if chunk_op is not None:
                 mysql_records: List[Dict[str, Any]] = chunk_op.get_segment_contents(
@@ -314,6 +290,8 @@ class HybridRetriever(BaseRetriever):
         # 计算一阶差分：相邻两个分数之间的“下降值”
         deltas = [sorted_scores[i + 1] - sorted_scores[i] for i in range(len(sorted_scores) - 1)]
 
+        cliff_index: Optional[int] = None
+
         # 找出“下降最大”的位置（断崖点）
         min_delta = min(deltas)
         for idx, delta in enumerate(deltas):
@@ -400,14 +378,12 @@ class HybridRetriever(BaseRetriever):
             return []
 
 
-
-
 vector_retriever, bm25_retriever = init_retrievers()
-hybrid_retriever = HybridRetriever(vector_retriever, bm25_retriever)
+hybrid_retriever = HybridRetriever()
 
 if __name__ == '__main__':
     query = "发行人"
     vector_retriever, bm25_retriever = init_retrievers()
-    hyper_ob = HybridRetriever(vector_retriever, bm25_retriever)
+    hyper_ob = HybridRetriever()
     result = hyper_ob.get_relevant_documents(query, permission_ids="1")
     print(result)

@@ -159,48 +159,48 @@ class GlobalConfig:
 
     # Milvus配置
     # FLAT 集合
-    # MILVUS_CONFIG = {
-    #     "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
-    #     "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
-    #     "port": int(os.getenv("MILVUS_PORT", "19530")),
-    #     "token": os.getenv("MILVUS_TOKEN"),
-    #     "db_name": DB_NAME,
-    #     "collection_name": "rag_flat",  # 更新为新的 FLAT collection
-    #     "vector_field": "seg_dense_vector", # 新字段名
-    #     "vector_dim": 1024,
-    #     "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
-    #     "index_params": {
-    #         "field_name": "seg_dense_vector",   # 新字段名
-    #         "index_type": "FLAT",   # 更新为 FLAT 索引
-    #         "metric_type": "IP",
-    #         "params": {},   # FLAT 不需要额外的索引参数
-    #     },
-    #     "search_params": {
-    #         "top_k": 20,    # 返回结果数量
-    #         "round_decimal":8,  # 分数精度，提高结果稳定性
-    #         "consistency_level":"STRONG"    # 一致性级别
-    #     }
-    # }
     MILVUS_CONFIG = {
         "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
         "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
         "port": int(os.getenv("MILVUS_PORT", "19530")),
         "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
-        "collection_name": "rag_collection",
-        "vector_field": "vector",
+        "collection_name": "rag_flat",  # 更新为新的 FLAT collection
+        "vector_field": "seg_dense_vector", # 新字段名
         "vector_dim": 1024,
         "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
         "index_params": {
-            "field_name": "vector",
-            "index_type": "IVF_FLAT",
+            "field_name": "seg_dense_vector",   # 新字段名
+            "index_type": "FLAT",   # 更新为 FLAT 索引
             "metric_type": "IP",
-            "params": {"nlist": 1024},
+            "params": {},   # FLAT 不需要额外的索引参数
         },
         "search_params": {
-            "nprobe": 50
+            "top_k": 20,    # 返回结果数量
+            "round_decimal":8,  # 分数精度，提高结果稳定性
+            "consistency_level":"STRONG"    # 一致性级别
         }
     }
+    # MILVUS_CONFIG = {
+    #     "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
+    #     "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+    #     "port": int(os.getenv("MILVUS_PORT", "19530")),
+    #     "token": os.getenv("MILVUS_TOKEN"),
+    #     "db_name": DB_NAME,
+    #     "collection_name": "rag_collection",
+    #     "vector_field": "vector",
+    #     "vector_dim": 1024,
+    #     "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
+    #     "index_params": {
+    #         "field_name": "vector",
+    #         "index_type": "IVF_FLAT",
+    #         "metric_type": "IP",
+    #         "params": {"nlist": 1024},
+    #     },
+    #     "search_params": {
+    #         "nprobe": 50
+    #     }
+    # }
 
     # Elasticsearch配置
     ES_CONFIG = {

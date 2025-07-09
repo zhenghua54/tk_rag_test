@@ -193,7 +193,7 @@ def cleanup_database_connections():
     try:
         # 导入数据库相关模块
         from databases.mysql.base import MySQLConnectionPool
-        from databases.milvus.base import MilvusBase
+        from tests.base import MilvusBase
 
         # 关闭 MySQL 连接池
         MySQLConnectionPool().close()

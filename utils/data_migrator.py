@@ -16,8 +16,11 @@
 """
 
 import time
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
+
+
+from pymilvus.bulk_writer import LocalBulkWriter,BulkFileType
 
 from databases.milvus.connection import MilvusDB
 from databases.milvus.flat_collection import FlatCollectionManager
@@ -61,7 +64,7 @@ class IteratorMigrator:
 
             # 初始化目标集合
             self.target_manager = FlatCollectionManager(self.target_collection)
-            self.target_manager.init_collection()
+            self.target_manager._init_collection()
 
             logger.info(f"[迭代迁移] 源集合：{self.source_collection}")
             logger.info(f"[迭代迁移] 目标集合：{self.target_collection}")

@@ -12,6 +12,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+from databases.milvus.flat_collection import FlatCollectionManager
+
 # 添加项目根目录到 Python 路径
 root_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_path))
@@ -26,7 +28,6 @@ from config.global_config import GlobalConfig
 from utils.log_utils import logger
 from databases.mysql.base import MySQLUtils
 from scripts.subscript.init_mysql import init_mysql
-from scripts.subscript.init_milvus import init_milvus
 from scripts.subscript.init_es import init_es
 
 
@@ -93,7 +94,8 @@ def init_all():
 
         # 2. 初始化各个服务
         init_mysql()
-        init_milvus()
+        # init_milvus()
+        FlatCollectionManager()
         init_es()
 
         # 3. 测试所有连接

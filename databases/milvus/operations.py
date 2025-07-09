@@ -1,11 +1,13 @@
 """向量库操作"""
 
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from databases.milvus.connection import MilvusDB
-from utils.log_utils import logger
-from config.global_config import GlobalConfig
 import json
+from datetime import datetime
+from typing import List, Dict, Any, Optional
+
+from config.global_config import GlobalConfig
+# from databases.milvus.connection import MilvusDB
+from databases.milvus.flat_collection import FlatCollectionManager
+from utils.log_utils import logger
 
 
 class VectorOperation:
@@ -15,9 +17,10 @@ class VectorOperation:
         """初始化向量库操作类"""
         try:
             # 初始化 Milvus 数据库连接
-            self.milvus = MilvusDB()
+            # self.milvus = MilvusDB()    # 待删除
+            self.milvus = FlatCollectionManager()
             # 初始化数据库和集合
-            self.milvus.init_database()
+            # self.milvus.init_database()
             logger.info(f"[向量库初始化] 操作类初始化完成")
 
         except Exception as e:
@@ -33,7 +36,8 @@ class VectorOperation:
             logger.error(f"Milvus flush 操作失败: {str(e)}")
             raise
 
-    def _validate_milvus_data(self, data: List[Dict[str, Any]]) -> None:
+    @staticmethod
+    def _validate_milvus_data(data: List[Dict[str, Any]]) -> None:
         """验证 Milvus 数据格式
 
         Args:
@@ -43,22 +47,27 @@ class VectorOperation:
             ValueError: 当数据格式不符合要求时抛出
         """
         # 从配置文件中读取 Milvus schema 以获取必需字段
-        schema_path = GlobalConfig.PATHS.get("milvus_schema_path")
+        # schema_path = GlobalConfig.PATHS.get("milvus_schema_path")    # 待删除
+        schema_path = GlobalConfig.PATHS.get("milvus_flat_schema")
+
         with open(schema_path, 'r', encoding='utf-8') as f:
             schema_config = json.load(f)
 
         # 提取字段名作为必需字段列表
-        required_fields = [field["name"] for field in schema_config["fields"]]
+        required_fields = [field["name"] for field in schema_config["fields"] if field["name"] != 'seg_sparse_vector']
 
         for idx, item in enumerate(data):
             # 验证必需字段
-            missing_fields = [field for field in required_fields if field not in item]
+            # missing_fields = [field for field in required_fields if field not in item]
+            missing_fields = [field for field in required_fields if field not in item.keys()]
+            print(f'required_fields->{required_fields}')
+            print(f'item->{item.keys()}')
             if missing_fields:
                 raise ValueError(f"第 {idx + 1} 条数据缺少必需字段: {missing_fields}")
 
             # 验证字段类型和格式
-            if not isinstance(item["vector"], list) or len(item["vector"]) != 1024:
-                raise ValueError(f"第 {idx + 1} 条数据的 vector 字段必须是 1024 维的浮点数列表")
+            if not isinstance(item["seg_dense_vector"], list) or len(item["seg_dense_vector"]) != 1024:
+                raise ValueError(f"第 {idx + 1} 条数据的 seg_dense_vector 字段必须是 1024 维的浮点数列表")
 
             # 验证字符串类型字段
             string_fields = ["seg_id", "seg_parent_id", "doc_id", "seg_content",
@@ -71,6 +80,32 @@ class VectorOperation:
             # 验证 metadata 字段
             if "metadata" in item and not isinstance(item["metadata"], dict):
                 raise ValueError(f"第 {idx + 1} 条数据的 metadata 字段必须是字典")
+
+
+        # # 提取字段名作为必需字段列表
+        # required_fields = [field["name"] for field in schema_config["fields"] if field["name"] != 'seg_sparse_vector']
+        #
+        # for idx, item in enumerate(data):
+        #     # 验证必需字段
+        #     missing_fields = [field for field in required_fields if field not in item]
+        #     if missing_fields:
+        #         raise ValueError(f"第 {idx + 1} 条数据缺少必需字段: {missing_fields}")
+        #
+        #     # 验证字段类型和格式
+        #     if not isinstance(item["vector"], list) or len(item["vector"]) != 1024:
+        #         raise ValueError(f"第 {idx + 1} 条数据的 vector 字段必须是 1024 维的浮点数列表")
+        #
+        #     # 验证字符串类型字段
+        #     string_fields = ["seg_id", "seg_parent_id", "doc_id", "seg_content",
+        #                      "seg_type", "permission_ids", "create_time", "update_time"]
+        #     for field in string_fields:
+        #         if field in item and not isinstance(item[field], str):
+        #             raise ValueError(
+        #                 f"第 {idx + 1} 条数据的 {field} 字段必须是字符串, 内容: {item[field]}, 类型: {type(item[field])}")
+        #
+        #     # 验证 metadata 字段
+        #     if "metadata" in item and not isinstance(item["metadata"], dict):
+        #         raise ValueError(f"第 {idx + 1} 条数据的 metadata 字段必须是字典")
 
     def insert_data(self, data: List[Dict[str, Any]]) -> List[str]:
         """批量插入数据
@@ -221,7 +256,7 @@ class VectorOperation:
             # 确保删除操作被持久化
             self.flush()
 
-            logger.info(f"Milvus 数据删除成功, 共 {result['delete_count']-1} 条, doc_id={doc_id}")
+            logger.info(f"Milvus 数据删除成功, 共 {result['delete_count'] - 1} 条, doc_id={doc_id}")
             return result['delete_count']
 
         except Exception as e:

@@ -9,7 +9,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from config.global_config import GlobalConfig
 from databases.elasticsearch.operations import ElasticsearchOperation
-from databases.milvus.operations import VectorOperation
+from databases.milvus.flat_collection import FlatCollectionManager
+# from databases.milvus.operations import VectorOperation
 from databases.mysql.operations import ChunkOperation
 from utils.converters import convert_html_to_markdown
 from utils.file_ops import generate_seg_id, truncate_text
@@ -44,7 +45,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
         f"[文档切块] 开始处理文档, request_id={request_id}, doc_id={doc_id}, doc_process_path={doc_process_path}")
 
     # 后续准备迁移 Milvus,权限字段先使用 mysql 中的,milvus 中不做权限过滤
-    permission_ids_str = ""  # 空字符串表示公开访问
+    # permission_ids_str = ""  # 空字符串表示公开访问
 
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -59,7 +60,8 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
 
     # 初始化数据库操作实例
     chunk_op = ChunkOperation()
-    vector_op = VectorOperation()
+    # vector_op = VectorOperation()
+    flat_manager = FlatCollectionManager()
     es_op = ElasticsearchOperation()
 
     # 分批处理结果
@@ -122,14 +124,27 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 continue
 
                             # 构建milvus存储结果
+                            # text_milvus_res = {
+                            #     "vector": vector,
+                            #     "seg_id": seg_id,
+                            #     "seg_parent_id": "",
+                            #     "doc_id": doc_id,
+                            #     "seg_content": truncate_text(chunk),
+                            #     "seg_type": "text",
+                            #     "permission_ids": permission_ids_str,
+                            #     "create_time": current_time,
+                            #     "update_time": current_time,
+                            #     "metadata": {}
+                            # }
                             text_milvus_res = {
-                                "vector": vector,
+                                "seg_dense_vector": vector,
                                 "seg_id": seg_id,
                                 "seg_parent_id": "",
                                 "doc_id": doc_id,
                                 "seg_content": truncate_text(chunk),
                                 "seg_type": "text",
-                                "permission_ids": permission_ids_str,
+                                "seg_page_idx": int(page_idx) + 1,
+                                "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}
                                 "create_time": current_time,
                                 "update_time": current_time,
                                 "metadata": {}
@@ -194,14 +209,27 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                     table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
 
                     # 组装表格 milvus 元数据
+                    # table_milvus_res = {
+                    #     "vector": table_vector,
+                    #     "seg_id": table_seg_id,
+                    #     "seg_parent_id": "",
+                    #     "doc_id": doc_id,
+                    #     "seg_content": truncate_text(table_markdown),
+                    #     "seg_type": "table",
+                    #     "permission_ids": permission_ids_str,
+                    #     "create_time": current_time,
+                    #     "update_time": current_time,
+                    #     "metadata": {}
+                    # }
                     table_milvus_res = {
-                        "vector": table_vector,
+                        "seg_dense_vector": table_vector,
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_text(table_markdown),
+                        "seg_content": truncate_text(table_markdown, max_length=60000),  # TODO: 表格修改为线性文本
                         "seg_type": "table",
-                        "permission_ids": permission_ids_str,
+                        "seg_page_idx": int(page_idx) + 1,
+                        "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}
                         "create_time": current_time,
                         "update_time": current_time,
                         "metadata": {}
@@ -256,14 +284,27 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                 continue
 
                             # 组装子表 milvus 元数据
+                            # sub_milvus_res = {
+                            #     "vector": sub_table_vector,
+                            #     "seg_id": sub_seg_id,
+                            #     "seg_parent_id": table_seg_id,
+                            #     "doc_id": doc_id,
+                            #     "seg_content": truncate_text(table_segment),
+                            #     "seg_type": "table",
+                            #     "permission_ids": permission_ids_str,
+                            #     "create_time": current_time,
+                            #     "update_time": current_time,
+                            #     "metadata": {}
+                            # }
                             sub_milvus_res = {
-                                "vector": sub_table_vector,
+                                "seg_dense_vector": sub_table_vector,
                                 "seg_id": sub_seg_id,
                                 "seg_parent_id": table_seg_id,
                                 "doc_id": doc_id,
-                                "seg_content": truncate_text(table_segment),
+                                "seg_content": truncate_text(table_segment),  # TODO: 表格修改为线性文本
                                 "seg_type": "table",
-                                "permission_ids": permission_ids_str,
+                                "seg_page_idx": int(page_idx) + 1,
+                                "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}
                                 "create_time": current_time,
                                 "update_time": current_time,
                                 "metadata": {}
@@ -321,14 +362,27 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                     image_seg_id = generate_seg_id(img_caption)
 
                     # 组装图片 milvus 元数据
+                    # image_milvus_res = {
+                    #     "vector": image_vector,
+                    #     "seg_id": image_seg_id,
+                    #     "seg_parent_id": "",
+                    #     "doc_id": doc_id,
+                    #     "seg_content": truncate_text(img_caption),
+                    #     "seg_type": "image",
+                    #     "permission_ids": permission_ids_str,
+                    #     "create_time": current_time,
+                    #     "update_time": current_time,
+                    #     "metadata": {}
+                    # }
                     image_milvus_res = {
-                        "vector": image_vector,
+                        "seg_dense_vector": image_vector,
                         "seg_id": image_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
                         "seg_content": truncate_text(img_caption),
                         "seg_type": "image",
-                        "permission_ids": permission_ids_str,
+                        "seg_page_idx": int(page_idx) + 1,
+                        "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}   #
                         "create_time": current_time,
                         "update_time": current_time,
                         "metadata": {}
@@ -364,7 +418,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                 # 当批次达到指定大小时，保存到数据库
                 if len(milvus_batch) >= batch_size or len(mysql_batch) >= batch_size or len(es_batch) >= batch_size:
                     # 分别保存各个数据库的批次
-                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+                    save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, flat_manager, es_op)
                     total_records += len(mysql_batch)
                     milvus_batch = []
                     mysql_batch = []
@@ -372,7 +426,7 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
 
         # 保存剩余的批次
         if milvus_batch or mysql_batch or es_batch:
-            save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, vector_op, es_op)
+            save_batch_to_databases(milvus_batch, mysql_batch, es_batch, chunk_op, flat_manager, es_op)
             total_records += len(mysql_batch)
             logger.info(
                 f"request_id={request_id}, 已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}，ES:{len(es_batch)}")
@@ -392,7 +446,8 @@ def save_batch_to_databases(milvus_batch: List[Dict],
                             mysql_batch: List[Dict],
                             es_batch: List[Dict],
                             chunk_op,
-                            vector_op: VectorOperation,
+                            # vector_op: VectorOperation,
+                            flat_manager: FlatCollectionManager,
                             es_op: ElasticsearchOperation
                             ) -> None:
     """保存一批数据到各个数据库
@@ -402,7 +457,8 @@ def save_batch_to_databases(milvus_batch: List[Dict],
         mysql_batch: MySQL 数据批次
         es_batch: ES 数据批次
         chunk_op: 分MySQL 操作实例
-        vector_op: Milvus 操作实例
+        # vector_op: Milvus 操作实例
+        flat_manager: FLAT Collection 实例
         es_op: ES 操作实例
 
     Returns:
@@ -415,8 +471,8 @@ def save_batch_to_databases(milvus_batch: List[Dict],
 
         # 2. 保存到 Milvus(向量和元数据)
         if milvus_batch:
-            vector_op.insert_data(milvus_batch)
-            vector_op.flush()  # 执行 flush 操作
+            flat_manager.insert_data(milvus_batch)
+            # vector_op.flush()  # 执行 flush 操作
 
         # 3. 保存到 ES(用于 BM25 检索)
         if es_batch:

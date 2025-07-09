@@ -5,10 +5,10 @@
 
 使用示例：
     # 使用默认 FLAT 配置
-    config = MilvusConfig()
+    config = MilvusFlatConfig()
 
     # 使用自定义配置
-    config = MilvusConfig(top_k=10, round_decimal=8)
+    config = MilvusFlatConfig(top_k=10, round_decimal=8)
 """
 
 from dataclasses import dataclass
@@ -16,12 +16,11 @@ from typing import Dict, Any
 
 
 @dataclass
-class MilvusConfig:
+class MilvusFlatConfig:
     """
-    Milvus 配置类
+    Milvus FLAT Collection 配置类
 
-    当前阶段使用 FLAT 索引，专注于解决向量检索结果不稳定的问题。
-    FLAT 索引提供 100% 精确的搜索结果，适合小数据量场景。
+    FLAT 索引提供 100% 精确的搜索结果，适合小数据（<100万）量场景。
 
     Attributes:
         top_k: 返回结果数量，默认 20
@@ -67,7 +66,7 @@ class MilvusConfig:
         return {
             "field_name": "seg_sparse_vector",
             "index_type": "SPARSE_INVERTED_INDEX",
-            "metric_type": "IP"
+            "metric_type": "BM25"
         }
 
 
