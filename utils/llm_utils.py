@@ -233,8 +233,8 @@ class LLMManager(ModelManager):
                 messages.append({"role": "system", "content": system_prompt})
             if prompt:
                 messages.append({"role": "user", "content": prompt})
-            else:
-                raise ValueError("未提供 Prompt 或 messages")
+        if messages is None and  system_prompt is None and prompt is None:
+            raise ValueError("未提供 Prompt 或 messages")
 
         params = {
             "model": model_name,
