@@ -267,20 +267,20 @@ def parse_table_summary(value: str) -> Dict[str, str]:
 
 
 # === 摘要生成 ===
-def extract_table_summary(html: str) -> Dict[str, str]:
-    """提取表格摘要， 调用LLM接口并解析输出
-    Args:
-        html: HTML 格式的表格
-    Returns:
-        Dict[str, str]: 包含 title 和 summary 的字典
-    """
-    # 获取提示词
-    prompt, config = render_prompt("table_summary", {"table_html": html})
-    system_prompt = "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"
-    raw = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
-                             max_tokens=config['max_tokens'], invoke_type="表格摘要生成")
-    logger.debug(f"表格摘要生成成功: {raw[:100]}...")
-    return parse_table_summary(raw)
+# def extract_table_summary(html: str) -> Dict[str, str]:
+#     """提取表格摘要， 调用LLM接口并解析输出
+#     Args:
+#         html: HTML 格式的表格
+#     Returns:
+#         Dict[str, str]: 包含 title 和 summary 的字典
+#     """
+#     # 获取提示词
+#     prompt, config = render_prompt("table_summary", {"table_html": html})
+#     system_prompt = "你是一个专业的数据分析师，擅长从表格中提取关键信息并生成摘要。"
+#     raw = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
+#                              max_tokens=config['max_tokens'], invoke_type="表格摘要生成")
+#     logger.debug(f"表格摘要生成成功: {raw[:100]}...")
+#     return parse_table_summary(raw)
 
 
 def extract_text_summary(text: str) -> str:

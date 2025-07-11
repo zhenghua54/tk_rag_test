@@ -3,19 +3,18 @@ import json
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from config.global_config import GlobalConfig
 from databases.elasticsearch.operations import ElasticsearchOperation
 from databases.milvus.flat_collection import FlatCollectionManager
-# from databases.milvus.operations import VectorOperation
 from databases.mysql.operations import ChunkOperation
-from utils.converters import convert_html_to_markdown
 from utils.file_ops import generate_seg_id, truncate_text
 from utils.llm_utils import embedding_manager
 from utils.log_utils import logger
+from utils.table_linearized import html_to_structured_linear, escape_html_table
 
 
 def format_table_caption_footnote(value: Union[str, List]):
@@ -123,19 +122,6 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                                     f"request_id={request_id}, 向量生成异常: {seg_id}, 长度={len(vector) if isinstance(vector, list) else 'not a list'}, 内容={chunk}")
                                 continue
 
-                            # 构建milvus存储结果
-                            # text_milvus_res = {
-                            #     "vector": vector,
-                            #     "seg_id": seg_id,
-                            #     "seg_parent_id": "",
-                            #     "doc_id": doc_id,
-                            #     "seg_content": truncate_text(chunk),
-                            #     "seg_type": "text",
-                            #     "permission_ids": permission_ids_str,
-                            #     "create_time": current_time,
-                            #     "update_time": current_time,
-                            #     "metadata": {}
-                            # }
                             text_milvus_res = {
                                 "seg_dense_vector": vector,
                                 "seg_id": seg_id,
@@ -184,55 +170,60 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         logger.warning(f"request_id={request_id}, 表格内容为空: {content}")
                         continue
 
-                    # 表格解析为markdown
-                    table_markdown = convert_html_to_markdown(table_body)
-                    logger.debug(f"request_id={request_id}, 表格转换为 Markdown 格式，长度: {len(table_markdown)}")
-
-                    # 获取表格内容 Seg_id, seg_vector
-                    table_seg_id = generate_seg_id(table_body)
-                    # 根据表格长度选择所用内容，并 Embedding
-                    segment_content = content.get('summary', table_markdown) if len(
-                        table_markdown) > 1000 else table_markdown
-                    table_vector = embedding_manager.embed_text(segment_content)
-
-                    # 向量验证
-                    if not isinstance(table_vector, list) or len(table_vector) != 1024:
-                        logger.error(
-                            f"request_id={request_id}, 表格向量生成异常: {table_seg_id}, 长度={len(table_vector) if isinstance(table_vector, list) else 'not a list'}, 内容={segment_content}")
-                        continue
-
-                    # 初始化拆表标记
-                    chunk_table = False if len(table_markdown) <= 1000 else True
-
                     # 处理表格标题 - 可能是字符串或列表
                     table_caption = format_table_caption_footnote(content.get("table_caption", ""))
                     table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
 
-                    # 组装表格 milvus 元数据
-                    # table_milvus_res = {
-                    #     "vector": table_vector,
-                    #     "seg_id": table_seg_id,
-                    #     "seg_parent_id": "",
-                    #     "doc_id": doc_id,
-                    #     "seg_content": truncate_text(table_markdown),
-                    #     "seg_type": "table",
-                    #     "permission_ids": permission_ids_str,
-                    #     "create_time": current_time,
-                    #     "update_time": current_time,
-                    #     "metadata": {}
-                    # }
+                    # 线性化处理结果, 包含三种可能:
+                    # 规则提取线性化(parser-linear), 模型输出线性化(llm-linear), 模型输出未线性化(llm_fallback)
+                    table_linear_result: Dict[str, Any] = html_to_structured_linear(
+                        table_body,
+                        caption=table_caption
+                    )
+                    # 提取解析结果类型
+                    table_type: str = table_linear_result['source']
+                    # 提取解析结果
+                    table_content = table_linear_result['content']
+                    logger.debug(
+                        f"[Chunker] request_id={request_id}, Table Linearize 完成, type: {table_type}, table_content:{table_content}")
+
+                    # 将字典内容转为字符串, 字典按照 key 排序(非字典忽略排序),并禁止中文转义
+                    table_text = json.dumps(table_content, ensure_ascii=False, sort_keys=True)
+                    #
+
+                    # 编码 html 结果存储到 mysql
+                    escaped_html = escape_html_table(table_body)
+                    escaped_html_len = len(escaped_html) if escaped_html else 0
+
+                    # 线性化文本的切分: >3000, 按照分组切分, 若只有一个分组,则分组拆散后组合为多个子分组
+                    # html 源结构的切分:>3000, 根据表格内的<tr>进行切分,最终应该为<table>表 1</table>,<table>表 2</table>
+
+                    # 生成 Seg_id
+                    table_seg_id = generate_seg_id(table_text)
+                    # Embedding
+                    table_vector = embedding_manager.embed_text(table_text)
+
+                    # 向量验证
+                    if not isinstance(table_vector, list) or len(table_vector) != 1024:
+                        logger.error(
+                            f"[Chunker] request_id={request_id}, "
+                            f"表格向量生成异常: {len(table_vector) if isinstance(table_vector, list) else 'not a list'},"
+                            f"seg_id={table_seg_id}..."
+                            f"内容={table_text[:200]}...")
+                        continue
+
                     table_milvus_res = {
                         "seg_dense_vector": table_vector,
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": truncate_text(table_markdown, max_length=60000),  # TODO: 表格修改为线性文本
-                        "seg_type": "table",
+                        "seg_content": truncate_text(table_text, max_length=10000),
+                        "seg_type": table_type,
                         "seg_page_idx": int(page_idx) + 1,
                         "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}
                         "create_time": current_time,
                         "update_time": current_time,
-                        "metadata": {}
+                        "metadata": {**table_linear_result['meta']}
                     }
                     milvus_batch.append(table_milvus_res)
 
@@ -240,12 +231,12 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                     parent_mysql_res = {
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
-                        "seg_content": table_markdown,
+                        "seg_content": escaped_html,  # mysql 存储表格的源 HTML 格式(escape 编码后,避免字符异常)
                         "seg_image_path": content.get("img_path", ""),
                         "seg_caption": table_caption,
                         "seg_footnote": table_footnote,
-                        "seg_len": str(len(table_markdown)),
-                        "seg_type": "table",
+                        "seg_len": str(escaped_html_len),
+                        "seg_type": 'table',
                         "seg_page_idx": int(page_idx) + 1,
                         "doc_id": doc_id
                     }
@@ -256,84 +247,12 @@ def segment_text_content(doc_id: str, doc_process_path: str, permission_ids: Uni
                         "seg_id": table_seg_id,
                         "seg_parent_id": "",
                         "doc_id": doc_id,
-                        "seg_content": table_markdown,
-                        "seg_type": "table",
+                        "seg_content": truncate_text(table_text, max_length=10000),
+                        "seg_type": table_type,
                         "seg_page_idx": int(page_idx) + 1,
                         "update_time": current_time
                     }
                     es_batch.append(table_es_res)
-
-                    # 拆表流程
-                    if chunk_table:
-                        # 处理子表信息: 将markdown格式的内容送入切块
-                        sub_table_chunks = text_splitter.split_text(table_markdown)
-                        logger.debug(f"request_id={request_id}, 表格markdown分块完成，共 {len(sub_table_chunks)} 个子块")
-
-                        for table_segment in sub_table_chunks:
-                            if not table_segment.strip():  # 空文本没有意义
-                                logger.warning(f"request_id={request_id}, 跳过空的子表块: '{table_segment}'")
-                                continue
-
-                            sub_table_vector = embedding_manager.embed_text(table_segment)
-                            sub_seg_id = generate_seg_id(table_segment)
-
-                            # 向量验证
-                            if not isinstance(sub_table_vector, list) or len(sub_table_vector) != 1024:
-                                logger.error(
-                                    f"request_id={request_id}, 子表向量生成异常: {sub_seg_id}, 长度={len(sub_table_vector) if isinstance(sub_table_vector, list) else 'not a list'}, 内容={table_segment}")
-                                continue
-
-                            # 组装子表 milvus 元数据
-                            # sub_milvus_res = {
-                            #     "vector": sub_table_vector,
-                            #     "seg_id": sub_seg_id,
-                            #     "seg_parent_id": table_seg_id,
-                            #     "doc_id": doc_id,
-                            #     "seg_content": truncate_text(table_segment),
-                            #     "seg_type": "table",
-                            #     "permission_ids": permission_ids_str,
-                            #     "create_time": current_time,
-                            #     "update_time": current_time,
-                            #     "metadata": {}
-                            # }
-                            sub_milvus_res = {
-                                "seg_dense_vector": sub_table_vector,
-                                "seg_id": sub_seg_id,
-                                "seg_parent_id": table_seg_id,
-                                "doc_id": doc_id,
-                                "seg_content": truncate_text(table_segment),  # TODO: 表格修改为线性文本
-                                "seg_type": "table",
-                                "seg_page_idx": int(page_idx) + 1,
-                                "permission_ids": "",  # TODO: 修改存储权限{department_ids:[],role_ids:[],...}
-                                "create_time": current_time,
-                                "update_time": current_time,
-                                "metadata": {}
-                            }
-                            milvus_batch.append(sub_milvus_res)
-
-                            # 组装子表 mysql 元数据
-                            sub_mysql_res = {
-                                "seg_id": sub_seg_id,
-                                "seg_parent_id": table_seg_id,
-                                "seg_content": table_segment,
-                                "seg_len": str(len(table_segment)),
-                                "seg_type": "table",
-                                "seg_page_idx": int(page_idx) + 1,
-                                "doc_id": doc_id
-                            }
-                            mysql_batch.append(sub_mysql_res)
-
-                            # 组装子表 ES 元数据
-                            sub_es_res = {
-                                "seg_id": sub_seg_id,
-                                "seg_parent_id": table_seg_id,
-                                "doc_id": doc_id,
-                                "seg_content": table_segment,
-                                "seg_type": "table",
-                                "seg_page_idx": int(page_idx) + 1,
-                                "update_time": current_time
-                            }
-                            es_batch.append(sub_es_res)
 
                 elif content["type"] == "image":
                     # 判断图片内容是否为空

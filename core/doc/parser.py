@@ -17,8 +17,8 @@ from utils.validators import check_local_doc_exists, check_doc_ext
 
 from utils.log_utils import logger, log_exception
 from utils.validators import validate_param_type
-from utils.file_ops import extract_table_summary
-from utils.converters import convert_html_to_markdown
+# from utils.file_ops import extract_table_summary
+# from utils.converters import convert_html_to_markdown
 
 # 简单缓存锁
 cache_lock = threading.Lock()
@@ -105,9 +105,9 @@ def process_doc_by_page(json_doc_path: str):
                         "table_caption"]
 
                 # 通过 LLM 提取摘要信息（标题 + 内容摘要）
-                markdown_table = convert_html_to_markdown(item["table_body"])
-                table_summary = extract_table_summary(markdown_table)
-                item["summary"] = table_summary["summary"]
+                # markdown_table = convert_html_to_markdown(item["table_body"])
+                # table_summary = extract_table_summary(markdown_table)
+                # item["summary"] = table_summary["summary"]
 
                 # 处理表格标题
                 if not item["table_caption"].strip():
@@ -117,7 +117,8 @@ def process_doc_by_page(json_doc_path: str):
                     elif last_item and last_item["type"] == "text" and len(last_item["text"]) < 100:
                         caption = last_item.get("text").strip()
                     else:
-                        caption = table_summary["title"].strip()
+                        # caption = table_summary["title"].strip()
+                        caption = None
 
                     if caption:
                         item["table_caption"] = caption

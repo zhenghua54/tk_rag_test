@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class GlobalConfig:
     """配置类：用于管理项目的所有配置信息"""
 
@@ -166,19 +167,19 @@ class GlobalConfig:
         "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
         "collection_name": "rag_flat",  # 更新为新的 FLAT collection
-        "vector_field": "seg_dense_vector", # 新字段名
+        "vector_field": "seg_dense_vector",  # 新字段名
         "vector_dim": 1024,
         "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
         "index_params": {
-            "field_name": "seg_dense_vector",   # 新字段名
-            "index_type": "FLAT",   # 更新为 FLAT 索引
+            "field_name": "seg_dense_vector",  # 新字段名
+            "index_type": "FLAT",  # 更新为 FLAT 索引
             "metric_type": "IP",
-            "params": {},   # FLAT 不需要额外的索引参数
+            "params": {},  # FLAT 不需要额外的索引参数
         },
         "search_params": {
-            "top_k": 20,    # 返回结果数量
-            "round_decimal":8,  # 分数精度，提高结果稳定性
-            "consistency_level":"STRONG"    # 一致性级别
+            "top_k": 20,  # 返回结果数量
+            "round_decimal": 8,  # 分数精度，提高结果稳定性
+            "consistency_level": "STRONG"  # 一致性级别
         }
     }
     # MILVUS_CONFIG = {
@@ -212,7 +213,6 @@ class GlobalConfig:
         "verify_certs": False
     }
 
-
     MYSQL_FIELD = {
         "max_path_len": 1000,
         "max_name_len": 500,
@@ -233,6 +233,15 @@ class GlobalConfig:
             "temperature": 0.3,
             "max_tokens": 1024
         },
+        "table_summary_v2": {
+            "prompt_file": "prompts/table_summary.j2",
+            "model": LLM_NAME,
+            "temperature": 0,
+            "top_p": 0.9,  # 默认值
+            "max_tokens": 4096,
+            "stop": ["[END]"]
+        },
+
         "text_summary": {
             "prompt_file": "prompts/text_summary_prompt.txt",
             "model": LLM_NAME,
