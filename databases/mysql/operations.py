@@ -7,6 +7,7 @@ from error_codes import ErrorCode
 from api.response import APIException
 from databases.mysql.base import BaseDBOperation
 from utils.log_utils import logger
+from utils.table_linearized import unescape_html_table
 
 
 def normalize_records(records: List[Dict]) -> List[Dict]:
@@ -193,6 +194,7 @@ class ChunkOperation(BaseDBOperation):
                          s.seg_id,
                          s.seg_content,
                          s.seg_page_idx,
+                         s.seg_type,
                          f.doc_name,
                          f.doc_http_url,
                          f.created_at,
@@ -237,7 +239,7 @@ class ChunkOperation(BaseDBOperation):
                 if user_permissions:
                     # 构建权限过滤条件
                     perm_conditions = []
-                    for perm in user_permissions:
+                    for _ in user_permissions:
                         perm_conditions.append(f"p.permission_ids = %s")
 
                     # 使用 EXISTS 子查询检查权限
@@ -273,7 +275,7 @@ class ChunkOperation(BaseDBOperation):
 
             # 添加 GROUP BY 子句, 过滤重复内容
             sql += """
-            GROUP BY s.doc_id, s.seg_id, s.seg_content, s.seg_page_idx,
+            GROUP BY s.doc_id, s.seg_id, s.seg_content, s.seg_page_idx, s.seg_type,
                      f.doc_name, f.doc_http_url, f.created_at, f.updated_at, d.page_png_path
             """
 
@@ -300,11 +302,18 @@ class ChunkOperation(BaseDBOperation):
             # 转换结果格式
             results = []
             for record in segment_info:
+                # 增加: 表格原文反编码
+
+                if record.get('seg_type') == 'table':
+                    seg_content = unescape_html_table(record.get("seg_content"))
+                else:
+                    seg_content = record.get("seg_content")
+
                 result = {
                     # 片段信息
                     "doc_id": record.get("doc_id"),
                     "seg_id": record.get("seg_id"),
-                    "seg_content": record.get("seg_content"),
+                    "seg_content": seg_content,
                     "seg_page_idx": record.get("seg_page_idx"),
 
                     # 文档信息
