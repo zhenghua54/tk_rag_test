@@ -5,41 +5,41 @@ from langchain.schema import BaseRetriever
 from langchain_core.documents import Document
 
 from config.global_config import GlobalConfig
-from core.rag.retrieval.bm25_retriever import BM25Retriever
+# from core.rag.retrieval.bm25_retriever import BM25Retriever
 from core.rag.retrieval.vector_retriever import VectorRetriever
-from databases.elasticsearch.operations import ElasticsearchOperation
+# from databases.elasticsearch.operations import ElasticsearchOperation
 from databases.milvus.flat_collection import FlatCollectionManager
 from databases.mysql.operations import ChunkOperation
 from utils.llm_utils import rerank_manager
 from utils.log_utils import logger, log_exception
 
 
-def init_retrievers():
-    """初始化检索器
-    
-    Returns:
-        tuple: (vector_retriever, bm25_retriever)
-    """
-    logger.info(f"[检索系统] 开始初始化检索系统")
-
-    # 初始化 ES 检索器
-    logger.debug(f"[检索系统] 初始化ES检索器")
-    es_op = ElasticsearchOperation()
-
-    # 初始化 BM25 检索器
-    logger.debug(f"[检索系统] 初始化BM25检索器")
-    bm25_retriever = BM25Retriever(es_retriever=es_op)
-
-    # 初始化向量检索器
-    logger.debug(f"[检索系统] 创建Milvus向量存储")
-    # 使用自定义的 FlatCollectionManager
-    flat_manager = FlatCollectionManager(collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"])
-    flat_manager._init_collection(force_recreate=False)
-
-    logger.info(f"[检索系统] 初始化完成")
-
-    # 返回向量检索器实例
-    return VectorRetriever(flat_manager),bm25_retriever
+# def init_retrievers():
+#     """初始化检索器
+#
+#     Returns:
+#         tuple: (vector_retriever, bm25_retriever)
+#     """
+#     # logger.info(f"[检索系统] 开始初始化检索系统")
+#
+#     # # 初始化 ES 检索器
+#     # logger.debug(f"[检索系统] 初始化ES检索器")
+#     # es_op = ElasticsearchOperation()
+#
+#     # # 初始化 BM25 检索器
+#     # logger.debug(f"[检索系统] 初始化BM25检索器")
+#     # bm25_retriever = BM25Retriever(es_retriever=es_op)
+#
+#     # 初始化milvus 检索器
+#     logger.debug(f"[检索系统] 创建Milvus向量存储")
+#     # 使用自定义的 FlatCollectionManager
+#     flat_manager = FlatCollectionManager(collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"])
+#
+#     logger.info(f"[检索系统] 初始化完成")
+#
+#     # 返回向量检索器实例
+#     # return VectorRetriever(flat_manager),bm25_retriever
+#     return VectorRetriever(flat_manager)
 
 
 def merge_search_results(
@@ -75,7 +75,7 @@ def merge_search_results(
 class HybridRetriever(BaseRetriever):
     """混合检索器，结合向量检索和 ES BM25 检索"""
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         """初始化混合检索器
 
         Args:
@@ -85,15 +85,18 @@ class HybridRetriever(BaseRetriever):
         super().__init__(**kwargs)
 
         # 初始化 FLAT Collection 管理器
-        self._flat_manager = FlatCollectionManager()
+        self._flat_manager = FlatCollectionManager(
+            collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"]
+        )
 
         # 初始化向量检索器 和 BM25检索器
-        self._vector_retriever,self._bm25_retriever = init_retrievers()
+        # self._vector_retriever,self._bm25_retriever = init_retrievers()
+        # 初始化 Milvus 检索器
+        self._milvus_retriever = VectorRetriever(self._flat_manager)
 
-
-    def _get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[
-        Document]:
-        """实现抽象方法 _get_relevant_documents
+    def _get_relevant_documents(self, query: str, *, callbacks=None,
+                                tags=None, metadata=None, **kwargs) -> List[Document]:
+        """重写父类方法 _get_relevant_documents
         
         Args:
             query: 用户查询
@@ -121,7 +124,7 @@ class HybridRetriever(BaseRetriever):
             return []
 
     def invoke(self, user_input: str, **kwargs) -> List[Document]:
-        """实现 BaseRetriever 的方法(0.1.46 新版本统一接口)
+        """重写父类方法 BaseRetriever 的方法(0.1.46 新版本统一接口)
 
         Args:
             user_input: 用户查询
@@ -143,27 +146,27 @@ class HybridRetriever(BaseRetriever):
             chunk_op=chunk_op,
         )
 
-    # def get_relevant_documents(self, query: str, *, callbacks=None, tags=None, metadata=None, **kwargs) -> List[Document]:
-    #     """兼容旧接口（已弃用，内部调用 invoke）"""
-    #     return self.invoke(query, **kwargs)
-
-    def search_documents(self, query: str, *, permission_ids: Union[str, List[str]] = None, k: int = 20,
-                         top_k: int = 10,
-                         chunk_op=None) -> List[Document]:
+    def search_documents(self, query: str, *, cleaned_dep_ids: List[str] = None, k: int = 20,
+                         top_k: int = 10, chunk_op=None, request_id: str = None) -> List[Document]:
         """自定义搜索文档方法
 
         Args:
             query: 用户查询
-            permission_ids: 单个/多个权限ID
+            cleaned_dep_ids: 清洗后的权限 ID 列表
             k: 初始检索数量
             top_k: 最终返回结果数量
             chunk_op: ChunkOperation实例
+            request_id: 请求 ID
 
         Returns:
             List[Document]: 相关文档列表，分数存储在 metadata 中
         """
         try:
-            logger.info(f"[混合检索] 开始检索, 查询长度={len(query)}, 权限ID={permission_ids}, k={k}, top_k={top_k}")
+            logger.info(f"[混合检索] request_id={request_id}, 开始检索, 查询长度: {len(query)}, 权限ID: {cleaned_dep_ids}, k: {k}, top_k: {top_k}")
+
+
+            # 根据权限 ID 获取到 doc_ids
+
 
             # 向量检索
             vector_results: dict[str, float] = self._vector_retriever.search(
@@ -378,7 +381,10 @@ class HybridRetriever(BaseRetriever):
             return []
 
 
-vector_retriever, bm25_retriever = init_retrievers()
+
+
+
+# vector_retriever, bm25_retriever = init_retrievers()
 hybrid_retriever = HybridRetriever()
 
 if __name__ == '__main__':

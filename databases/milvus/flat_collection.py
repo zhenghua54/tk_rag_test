@@ -479,11 +479,11 @@ if __name__ == '__main__':
         flat_manager = FlatCollectionManager()
 
         # 删除 collection
-        # flat_manager.drop_collection(True)
+        flat_manager.drop_collection(True)
 
         # 获取统计信息
-        stats = flat_manager.get_collection_stats()
-        logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+        # stats = flat_manager.get_collection_stats()
+        # logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
 
     except Exception as e:
         logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")

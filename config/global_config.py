@@ -43,9 +43,11 @@ class GlobalConfig:
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
-        "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
-        "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
-        "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema.json"),
+        "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"),
+        # "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
+        # "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
+        "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"),
+        # "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema.json"),
         "es_schema_path": str(BASE_DIR / "databases" / "schema" / "es_schema.json"),  # schema 配置文件路径
     }
 
@@ -152,7 +154,8 @@ class GlobalConfig:
         "database": DB_NAME,
         "file_info_table": "doc_info",  # 文件信息表
         "segment_info_table": "segment_info",  # 段落信息表
-        "permission_info_table": "permission_info",  # 权限信息表
+        # "permission_info_table": "permission_info",  # 权限信息表
+        "permission_info_table": "permission_doc_link",  # 权限信息表
         "doc_page_info_table": "doc_page_info",  # 文档切页信息表
         "chat_sessions_table": "chat_sessions",  # 聊天会话表
         "chat_messages_table": "chat_messages",  # 聊天消息表
@@ -182,26 +185,6 @@ class GlobalConfig:
             "consistency_level": "STRONG"  # 一致性级别
         }
     }
-    # MILVUS_CONFIG = {
-    #     "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
-    #     "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
-    #     "port": int(os.getenv("MILVUS_PORT", "19530")),
-    #     "token": os.getenv("MILVUS_TOKEN"),
-    #     "db_name": DB_NAME,
-    #     "collection_name": "rag_collection",
-    #     "vector_field": "vector",
-    #     "vector_dim": 1024,
-    #     "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
-    #     "index_params": {
-    #         "field_name": "vector",
-    #         "index_type": "IVF_FLAT",
-    #         "metric_type": "IP",
-    #         "params": {"nlist": 1024},
-    #     },
-    #     "search_params": {
-    #         "nprobe": 50
-    #     }
-    # }
 
     # Elasticsearch配置
     ES_CONFIG = {

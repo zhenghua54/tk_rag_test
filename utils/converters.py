@@ -1,14 +1,14 @@
 """各类转换器（html2md、时间转换、大小转换等）"""
 import os
-from typing import Union, List
+from typing import List
+from urllib.parse import quote
 
 import pandas as pd
 from bs4 import BeautifulSoup
-from urllib.parse import quote
 
+from config.global_config import GlobalConfig
 from utils.log_utils import logger
 from utils.validators import validate_html
-from config.global_config import GlobalConfig
 
 
 # === 单位转换工具 ===
@@ -122,34 +122,75 @@ def local_path_to_url(local_path: str) -> str:
         raise ValueError("不支持的路径, 未注册的路径地址")
 
 
-def normalize_permission_ids(permission_ids) -> Union[List[str], str]:
+# def normalize_permission_ids(permission_ids) -> Union[List[str], str]:
+#     """
+#     规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
+#
+#     返回：
+#         - 空字符串 "" 表示无权限
+#         - 字符串（如 "deptA,deptB"）表示多个权限拼接
+#     """
+#
+#     # None -> 空字符串
+#     if permission_ids is None:
+#         return ""
+#
+#     # 空字符串或空白字符
+#     if isinstance(permission_ids, str):
+#         cleaned = permission_ids.strip()
+#         return cleaned if cleaned else ""
+#
+#     # 空列表或 [''] 视为公开权限
+#     if isinstance(permission_ids, list):
+#         cleaned_list = [pid.strip() for pid in permission_ids]
+#         if not cleaned_list:
+#             return ""
+#         if len(cleaned_list) == 1:
+#             return cleaned_list[0]
+#         if len(cleaned_list) == 0:
+#             return ""
+#         return cleaned_list
+#
+#     raise ValueError(f"不支持的权限 ID 类型: {type(permission_ids)}")
+
+
+def normalize_permission_ids(permission_ids) -> List[str]:
     """
     规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
 
-    返回：
-        - 空字符串 "" 表示无权限
-        - 字符串（如 "deptA,deptB"）表示多个权限拼接
+    Args:
+        permission_ids: 接口接收到的权限 ID 字段
+
+    Returns:
+        - None / 空字符串 → [""]（无权限）
+        - 字符串 → ["deptA"]
+        - 列表 → None 转换为 ""，保留 ""，去除多余空白，返回原始顺序
     """
 
     # None -> 空字符串
     if permission_ids is None:
-        return ""
+        return [""]
 
     # 空字符串或空白字符
     if isinstance(permission_ids, str):
         cleaned = permission_ids.strip()
-        return cleaned if cleaned else ""
+        return [cleaned] if cleaned else [""]
 
     # 空列表或 [''] 视为公开权限
     if isinstance(permission_ids, list):
-        cleaned_list = [pid.strip() for pid in permission_ids]
-        if not cleaned_list:
-            return ""
-        if len(cleaned_list) == 1:
-            return cleaned_list[0]
-        if len(cleaned_list) == 0:
-            return ""
-        return cleaned_list
+        cleaned_list = list()
+        # cleaned_set = set()
+        for pid in permission_ids:
+            if pid is None:
+                pid = ""
+            if not isinstance(pid, str):
+                raise ValueError(f"权限 ID 应为字符串, 但收到: {pid}({type(pid)})")
+            cleaned_list.append(pid.strip())
+
+        # 去重
+        cleaned_list = list(set(cleaned_list))
+
+        return cleaned_list if cleaned_list else [""]
 
     raise ValueError(f"不支持的权限 ID 类型: {type(permission_ids)}")
 
@@ -159,7 +200,15 @@ def normalize_permission_ids(permission_ids) -> Union[List[str], str]:
 
 
 if __name__ == '__main__':
-    # print("=== 测试表格转Markdown ===")
-    # markdown_table = convert_html_to_markdown(table_html)
-    # print(f"Markdown表格：\n{markdown_table}")
-    pass
+    # 测试权限转换
+    print(normalize_permission_ids(None))  # [""]
+
+    print(normalize_permission_ids("deptA"))  # ["deptA"]
+    print(normalize_permission_ids("   "))  # [""]
+
+    print(normalize_permission_ids(["deptA", "  ", "deptB"]))  # ["deptA", "", "deptB"]
+    print(normalize_permission_ids(["  "]))  # [""]
+    print(normalize_permission_ids([]))  # [""]
+    print(normalize_permission_ids(["deptA", None, "deptB"]))  # ["deptA", "deptB"]
+
+    print(normalize_permission_ids(["deptA", None, "deptB","deptB",'','       ', "deptA"]))  # ["deptA", "deptB"]

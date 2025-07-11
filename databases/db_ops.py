@@ -2,12 +2,11 @@
 import time
 from typing import Dict, Any, Union, List
 
-from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, PageOperation
-from databases.milvus.operations import VectorOperation
-from databases.elasticsearch.operations import ElasticsearchOperation
-
-from utils.log_utils import logger
 from config.global_config import GlobalConfig
+from databases.elasticsearch.operations import ElasticsearchOperation
+from databases.milvus.operations import VectorOperation
+from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, PageOperation
+from utils.log_utils import logger
 from utils.validators import validate_empty_param
 
 # 表明与操作类的映射
@@ -61,6 +60,7 @@ def select_records_by_doc_id(table_name: str, doc_id: str) -> Union[List[Dict[st
             return op.select_by_id_many(doc_id)
     except Exception as e:
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
+
 
 def delete_all_database_data(doc_id: str) -> None:
     """删除所有数据库中的相关数据
@@ -179,3 +179,31 @@ def insert_record(table_name: str, data: Union[Dict[str, Any], List[Dict[str, An
     except Exception as e:
         logger.error(f"MySQL 数据插入失败, 失败原因: {str(e)}")
         raise ValueError(f"MySQL 数据插入失败, 失败原因: {str(e)}") from e
+
+
+def select_ids_by_permission(table_name: str, permission_type:str,cleaned_dep_ids: List[str] = None) -> List[str]:
+    """
+    使用清洗后的权限 ID 从权限表中找出对应的所有 doc_id
+
+    Args:
+        table_name: 表名
+        permission_type: 权限类型
+        cleaned_dep_ids: 清洗后的权限 ID(目前为部门 ID)
+
+    Returns:
+        List[str]: doc_id 列表
+    """
+
+    if table_name not in TABLE_OPERATION_MAPPING:
+        raise ValueError(f"未知表名: {table_name}")
+
+    validate_empty_param(cleaned_dep_ids, "权限 ID 列表")
+
+    permission_type = 'department'
+    try:
+        operation_cls = TABLE_OPERATION_MAPPING[table_name]
+        with operation_cls() as op:
+            return op.get_ids_by_permission(permission_type=permission_type,subject_ids=cleaned_dep_ids)
+    except Exception as e:
+        logger.error(f"获取文档 ID 失败, 失败原因: {str(e)}")
+        raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e

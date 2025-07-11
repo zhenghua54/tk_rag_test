@@ -37,7 +37,7 @@ class DocumentService(BaseService):
 
         Args:
             document_http_url (str): 文档 url / 服务器path地址
-            permission_ids (Union[str, list[str], list[None]]): 部门权限 ID
+            permission_ids : 部门权限 ID, 可能有多种类型
             request_id (str): 请求 ID
 
         Returns:
@@ -47,7 +47,8 @@ class DocumentService(BaseService):
         # 部门格式验证
         validate_permission_ids(permission_ids)
         # 权限 ID 格式转换
-        permission_ids = normalize_permission_ids(permission_ids)
+        # permission_ids = normalize_permission_ids(permission_ids)
+        cleaned_dep_ids:List[str] = normalize_permission_ids(permission_ids)
 
         try:
             if document_http_url.startswith("http"):
@@ -99,23 +100,14 @@ class DocumentService(BaseService):
                 "updated_at": now,
             }
             # 组装permission_info
-            permission_info = None
-            if isinstance(permission_ids, str):
-                permission_info = {
-                    "permission_ids": permission_ids,
+            permission_info = []
+            for dep_id in cleaned_dep_ids:
+                permission_info.append({
+                    "permission_type":"department",
+                    "subject_id":dep_id,
                     "doc_id": doc_id,
                     "created_at": now,
-                    "updated_at": now,
-                }
-            elif isinstance(permission_ids, list):
-                permission_info = []
-                for permission_id in permission_ids:
-                    permission_info.append({
-                        "permission_ids": permission_id,
-                        "doc_id": doc_id,
-                        "created_at": now,
-                        "updated_at": now,
-                    })
+                })
 
             # 插入数据库元信息
             try:
@@ -124,7 +116,7 @@ class DocumentService(BaseService):
                     file_op.insert_data(doc_info)
                     # 插入权限信息到数据库
                     logger.info(
-                        f"request_id={request_id}, 开始权限入库, doc_id={doc_id}, permission_ids={permission_ids}")
+                        f"request_id={request_id}, 开始权限入库, doc_id={doc_id}, permission_ids={cleaned_dep_ids}")
                     permission_op.insert_datas(permission_info)
 
                     # 启动后台处理流程
@@ -141,7 +133,7 @@ class DocumentService(BaseService):
                         DocumentService._monitor_doc_process_and_segment(
                             doc_id=doc_id,
                             document_name=path.stem,
-                            permission_ids=permission_ids,
+                            cleaned_dep_ids=cleaned_dep_ids,
                             file_op=file_op,
                             request_id=request_id,
                         )
@@ -152,7 +144,7 @@ class DocumentService(BaseService):
                         "doc_name": path.name,
                         "doc_size": convert_bytes(path.stat().st_size),
                         "status": "uploaded",
-                        "permission_ids": permission_ids,
+                        "permission_ids": cleaned_dep_ids,
                     }
 
             except pymysql.IntegrityError as e:
@@ -216,15 +208,6 @@ class DocumentService(BaseService):
                 "status": "deleted",
                 "delete_type": "记录删除" if is_soft_delete else "记录+文件删除"
             }
-
-            # # 异步回调
-            # if callback_url:
-            #     try:
-            #         async with httpx.AsyncClient() as client:
-            #             await client.post(callback_url, json=result)
-            #     except Exception as e:
-            #         logger.error(f"回调失败, 错误原因: {str(e)}, 回调地址: {callback_url}")
-            #         # 回调失败不影响主流程
 
             return result
 
@@ -334,14 +317,16 @@ class DocumentService(BaseService):
         return values
 
     @staticmethod
-    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, permission_ids: Union[str, list[str]],
+    async def _monitor_doc_process_and_segment(doc_id: str, document_name: str, cleaned_dep_ids: list[str],
                                                file_op: FileInfoOperation, request_id: str = None) -> None:
         """监控文档处理状态，完成后启动文档切块
 
         Args:
-            doc_id (str): 文档ID
-            document_name (str): 文档名称
-            request_id (str): 请求 ID
+            doc_id: 文档ID
+            document_name: 文档名称
+            cleaned_dep_ids: 清洗后的部门 ID 列表
+            request_id: 请求 ID
+
         """
         try:
             logger.info(f"文档状态监控, doc_id={doc_id}, document_name={document_name}, request_id={request_id}")
@@ -379,10 +364,9 @@ class DocumentService(BaseService):
                         logger.info(f"request_id={request_id}, 开始文档切块")
                         await asyncio.to_thread(
                             segment_text_content,
-                            doc_id,
-                            doc_process_path,
-                            permission_ids,
-                            request_id,
+                            doc_id=doc_id,
+                            doc_process_path=doc_process_path,
+                            request_id=request_id,
                         )
                         doc_status = 'chunked'
                         logger.info(

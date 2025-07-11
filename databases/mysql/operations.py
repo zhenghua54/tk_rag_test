@@ -2,10 +2,11 @@
 import json
 from datetime import datetime
 from typing import List, Dict, Optional, Any, Union
-from config.global_config import GlobalConfig
-from error_codes import ErrorCode
+
 from api.response import APIException
+from config.global_config import GlobalConfig
 from databases.mysql.base import BaseDBOperation
+from error_codes import ErrorCode
 from utils.log_utils import logger
 from utils.table_linearized import unescape_html_table
 
@@ -375,6 +376,38 @@ class PermissionOperation(BaseDBOperation):
             raise APIException(ErrorCode.MYSQL_INSERT_FAIL)
         else:
             return res
+
+    def get_ids_by_permission(self, permission_type: str, subject_ids: List[str]):
+        """
+        根据权限 ID 返回对应的 doc_id
+
+        Args:
+            permission_type: 权限类型,目前只有: department
+            subject_ids: 处理后的权限 ID 列表
+
+        Returns:
+            List[str]: 检索到的 doc_id 列表
+        """
+
+        if not permission_type.strip():
+            raise ValueError(f'权限类型不能为空')
+
+        if not subject_ids:
+            subject_ids = []
+
+        # 构建 IN 子句的占位符
+        placeholders = ', '.join(['%s'] * len(subject_ids))
+        sql = f"""
+        select doc_id from {self.table_name}
+        where permission_type = %s and subject_id IN ({placeholders})
+        """
+
+        # 构建参数: permission_type + subject_ids 列表
+        params = [permission_type] + subject_ids
+
+        doc_ids: List[dict] = self._execute_query(sql, (permission_type, tuple(params)))
+
+        return [row['doc_ids'] for row in doc_ids if row.get('doc_id')]
 
 
 class PageOperation(BaseDBOperation):

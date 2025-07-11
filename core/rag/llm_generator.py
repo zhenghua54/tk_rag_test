@@ -1,13 +1,15 @@
 from typing import Dict, Optional, List, Union, Any
-from langchain_core.documents import Document
 
 from langchain.schema import BaseRetriever
+from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
-from utils.log_utils import logger, log_exception
-from utils.converters import local_path_to_url
-from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
+from databases.db_ops import select_ids_by_permission
 from databases.mysql.operations import ChatSessionOperation, ChatMessageOperation
+from utils.converters import local_path_to_url, normalize_permission_ids
+from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
+from utils.log_utils import logger, log_exception
+from utils.validators import validate_permission_ids
 
 
 class RAGGenerator:
@@ -177,6 +179,20 @@ class RAGGenerator:
             if not query or not query.strip():
                 raise ValueError("问题不能为空")
 
+            # 部门格式验证
+            validate_permission_ids(permission_ids)
+            # 权限 ID 格式转换
+            cleaned_dep_ids: List[str] = normalize_permission_ids(permission_ids)
+
+            # 根据权限 ID 列表获取对应的 doc_ids
+            permission_type = 'department'
+            doc_ids = select_ids_by_permission(
+                table_name='permission_info_table',
+                permission_type=permission_type,
+                cleaned_dep_ids=cleaned_dep_ids
+            )
+            # TODO: 增加根据 doc_ids 取向量库检索
+
             # 获取当前 session 的历史对话
             raw_history: List[BaseMessage] = self._get_history(session_id)
 
@@ -184,7 +200,7 @@ class RAGGenerator:
             rewrite_query = self._rewrite_query_with_history(history=raw_history, question=query, session_id=session_id)
 
             # 使用重写后的查询进行检索
-            docs = self.retriever.invoke(rewrite_query, permission_ids=permission_ids)
+            docs = self.retriever.invoke(rewrite_query, cleaned_dep_ids=cleaned_dep_ids, request_id=request_id)
 
             # 调试: 打印知识库信息
             for doc in docs:
@@ -244,8 +260,8 @@ class RAGGenerator:
 
     @staticmethod
     def _rewrite_query_with_history(history: List[BaseMessage],
-                                   question: str,
-                                   session_id: str) -> str:
+                                    question: str,
+                                    session_id: str) -> str:
         """使用LLM根据历史上下文重写用户 query，  生成检索用 query
 
         Args:
