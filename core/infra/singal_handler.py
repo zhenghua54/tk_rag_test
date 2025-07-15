@@ -19,8 +19,8 @@ import atexit
 import shutil
 import signal
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import List, Tuple, Callable
 
 from utils.log_utils import logger
 
@@ -44,11 +44,11 @@ class GlobalSignalHandler:
     def __init__(self):
         """初始化信号管理器"""
         # 避免重复初始化
-        if hasattr(self, '_cleanup_functions'):
+        if hasattr(self, "_cleanup_functions"):
             return
 
         # 存储清理函数的列表，每个元素为 (清理函数, 函数名称)
-        self._cleanup_functions: List[Tuple[Callable, str]] = []
+        self._cleanup_functions: list[tuple[Callable, str]] = []
 
         # 标记是否正在关闭，防止重复清理
         self._is_shutting_down = False
@@ -104,7 +104,9 @@ class GlobalSignalHandler:
             signum: 信号编号
             frame: 当前栈帧（通常不使用）
         """
-        signal_name = signal.Signals(signum).name if hasattr(signal, 'Signals') else str(signum)
+        signal_name = (
+            signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
+        )
         logger.info(f"收到信号 {signal_name}({signum})，开始清理...")
         self.cleanup_all()
 
@@ -192,15 +194,15 @@ def cleanup_database_connections():
     """
     try:
         # 导入数据库相关模块
+        from databases.milvus.flat_collection import FlatCollectionManager
         from databases.mysql.base import MySQLConnectionPool
-        from tests.base import MilvusBase
 
         # 关闭 MySQL 连接池
         MySQLConnectionPool().close()
         logger.info("MySQL 连接池已关闭")
 
         # 关闭 Milvus 连接
-        MilvusBase.close()
+        FlatCollectionManager().close()
         logger.info("Milvus 连接已关闭")
 
         # 如果有其他数据库连接，也可以在这里添加
@@ -218,7 +220,7 @@ def cleanup_models():
     """
     try:
         # 导入模型管理器
-        from utils.llm_utils import embedding_manager, rerank_manager, llm_manager
+        from utils.llm_utils import embedding_manager, llm_manager, rerank_manager
 
         # 卸载各个模型
         embedding_manager.unload_model()
@@ -243,7 +245,6 @@ def cleanup_temp_files():
     """
     try:
         import tempfile
-        import os
 
         # 获取系统临时目录
         temp_dir = Path(tempfile.gettempdir())
@@ -252,9 +253,11 @@ def cleanup_temp_files():
         # 查找并清理项目相关的临时文件
         for item in temp_dir.iterdir():
             # 检查文件名是否与项目相关
-            if (item.name.startswith("tk_rag_") or
-                    "libreoffice" in item.name.lower() or
-                    "page_cache" in item.name.lower()):
+            if (
+                item.name.startswith("tk_rag_")
+                or "libreoffice" in item.name.lower()
+                or "page_cache" in item.name.lower()
+            ):
                 try:
                     if item.is_file():
                         item.unlink()
@@ -296,5 +299,5 @@ def get_cleanup_status():
     return {
         "registered_functions": [name for _, name in global_handler._cleanup_functions],
         "is_shutting_down": global_handler._is_shutting_down,
-        "function_count": len(global_handler._cleanup_functions)
+        "function_count": len(global_handler._cleanup_functions),
     }

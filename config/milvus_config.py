@@ -12,7 +12,7 @@
 """
 
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
 
 
 @dataclass
@@ -28,6 +28,7 @@ class MilvusFlatConfig:
         use_round_robin: 是否使用轮询策略处理相同分数，默认 True
         random_seed: 随机种子，确保结果一致性，默认 42
     """
+
     top_k: int = 20
     round_decimal: int = 8
     use_round_robin: bool = True
@@ -42,7 +43,7 @@ class MilvusFlatConfig:
             raise ValueError("round_decimal 必须在 0-10 之间")
 
     @staticmethod
-    def get_dense_index_params() -> Dict[str, Any]:
+    def get_dense_index_params() -> dict[str, Any]:
         """
         获取稠密向量索引参数
 
@@ -52,11 +53,11 @@ class MilvusFlatConfig:
         return {
             "field_name": "seg_dense_vector",
             "index_type": "FLAT",
-            "metric_type": "IP"
+            "metric_type": "IP",
         }
 
     @staticmethod
-    def get_sparse_index_params() -> Dict[str, Any]:
+    def get_sparse_index_params() -> dict[str, Any]:
         """
         获取稀疏向量索引参数
 
@@ -66,11 +67,15 @@ class MilvusFlatConfig:
         return {
             "field_name": "seg_sparse_vector",
             "index_type": "SPARSE_INVERTED_INDEX",
-            "metric_type": "BM25"
+            "metric_type": "BM25",
+            "params": {
+                "inverted_index_algo": "DAAT_MAXSCORE",
+                "bm25_k1": 1.2,
+                "bm25_b": 0.75,
+            },
         }
 
-
-    def get_search_params(self) -> Dict[str, Any]:
+    def get_search_params(self) -> dict[str, Any]:
         """
         获取搜索参数
 
@@ -80,10 +85,10 @@ class MilvusFlatConfig:
         return {
             "top_k": self.top_k,
             "round_decimal": self.round_decimal,
-            "consistency_level": "STRONG"
+            "consistency_level": "STRONG",
         }
 
-    def get_config_summary(self) -> Dict[str, Any]:
+    def get_config_summary(self) -> dict[str, Any]:
         """
         获取配置摘要
 
@@ -96,5 +101,6 @@ class MilvusFlatConfig:
             "top_k": self.top_k,
             "round_decimal": self.round_decimal,
             "use_round_robin": self.use_round_robin,
-            "random_seed": self.random_seed
+            "random_seed": self.random_seed,
         }
+

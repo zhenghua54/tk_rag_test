@@ -1,39 +1,53 @@
-from typing import Dict, Optional, List, Union, Any
+import sys
+from pathlib import Path
 
-from langchain.schema import BaseRetriever
 from langchain_core.documents import Document
-from langchain_core.messages import HumanMessage, AIMessage, BaseMessage
 
-from databases.db_ops import select_ids_by_permission
-from databases.mysql.operations import ChatSessionOperation, ChatMessageOperation
+from utils.table_linearized import unescape_html_table
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from typing import Any
+
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+
+from core.rag.retriever import HybridRetriever
+from databases.db_ops import select_by_id, select_ids_by_permission
+from databases.mysql.operations import ChatMessageOperation, ChatSessionOperation
 from utils.converters import local_path_to_url, normalize_permission_ids
-from utils.llm_utils import llm_manager, render_prompt, get_messages_for_rag
-from utils.log_utils import logger, log_exception
+from utils.llm_utils import (
+    EmbeddingManager,
+    get_messages_for_rag,
+    llm_manager,
+    render_prompt,
+)
+from utils.log_utils import log_exception, logger
 from utils.validators import validate_permission_ids
 
 
 class RAGGenerator:
     """RAG 生成器，处理用户查询并生成回答"""
 
-    def __init__(self, retriever: BaseRetriever):
-        """初始化 RAG 生成器
-        
-        Args:
-            retriever: 混合检索器实例
-        """
-        self.retriever = retriever
+    # def __init__(self):
+    def __init__(self):
+        """初始化 RAG 生成器"""
         # 初始化会话操作类
         self.session_op = ChatSessionOperation()
         self.message_op = ChatMessageOperation()
         # 会话历史缓存(提高性能)
         self._cache = {}
 
-    def _get_history(self, session_id: str) -> List[BaseMessage]:
+        # 初始化 embedding 模型
+        self._embedding_manager = EmbeddingManager()
+        # 初始化混合检索对象
+        self._hybrid_search = HybridRetriever()
+
+    def _get_history(self, session_id: str) -> list[BaseMessage]:
         """获取历史对话
-    
+
         Args:
             session_id: 会话ID
-            
+
         Returns:
             List[BaseMessage]: 历史对话列表，按时间正序
         """
@@ -45,31 +59,42 @@ class RAGGenerator:
                 return self._cache[session_id]
 
             # 从数据库获取消息, 限制最大 10 条
-            messages_data = self.message_op.get_message_by_session_id(session_id, limit=10)
-            logger.debug(f"[历史消息] session_id={session_id}, 消息数量={len(messages_data)}")
+            messages_data = self.message_op.get_message_by_session_id(
+                session_id, limit=10
+            )
+            logger.debug(
+                f"[历史消息] session_id={session_id}, 消息数量={len(messages_data)}"
+            )
 
             # 转换为 BaseMessage 对象
             messages = []
             for msg_data in messages_data:
-                if msg_data['message_type'] == 'human':
-                    messages.append(HumanMessage(content=msg_data['content']))
-                elif msg_data['message_type'] == 'ai':
-                    messages.append(AIMessage(content=msg_data['content']))
+                if msg_data["message_type"] == "human":
+                    messages.append(HumanMessage(content=msg_data["content"]))
+                elif msg_data["message_type"] == "ai":
+                    messages.append(AIMessage(content=msg_data["content"]))
 
             # 更新缓存
             self._cache[session_id] = messages
-            logger.debug(f"[缓存更新] session_id={session_id}, 消息数量={len(messages)}")
+            logger.debug(
+                f"[缓存更新] session_id={session_id}, 消息数量={len(messages)}"
+            )
             return messages
 
         except Exception as e:
             logger.error(f"[历史消息失败] session_id={session_id}, error_msg={str(e)}")
             return []
 
-    def _save_to_history(self, session_id: str, query: str, answer: Union[str, None],
-                         metadata: Optional[Dict[str, Any]] = None,
-                         rewrite_query: str = None) -> None:
+    def _save_to_history(
+        self,
+        session_id: str,
+        query: str,
+        answer: str | None,
+        metadata: dict[str, Any] | None = None,
+        rewrite_query: str | None = None,
+    ) -> None:
         """保存用户与助手的每一轮对话到数据库
-    
+
         Args:
             session_id: 会话ID
             query: 用户查询
@@ -89,82 +114,174 @@ class RAGGenerator:
             # 保存用户消息
             self.message_op.save_message(
                 session_id=session_id,
-                message_type='human',
+                message_type="human",
                 content=query,
-                metadata=user_metadata
+                metadata=user_metadata,
             )
 
             # 保存 AI 回答
             self.message_op.save_message(
                 session_id=session_id,
-                message_type='ai',
-                content=answer,
-                metadata=metadata
+                message_type="ai",
+                content=answer if answer else "",
+                metadata=metadata,
             )
-            logger.info(f"[会话历史] 保存成功, session_id={session_id}, 消息类型=human+ai")
+            logger.info(
+                f"[会话历史] 保存成功, session_id={session_id}, 消息类型=human+ai"
+            )
 
             # 更新缓存
             if session_id in self._cache:
-                self._cache[session_id].extend([
-                    HumanMessage(content=query),
-                    AIMessage(content=answer)
-                ])
-                logger.debug(f"[缓存更新] session_id={session_id}, 消息数量={len(self._cache[session_id])}")
+                self._cache[session_id].extend(
+                    [
+                        HumanMessage(content=query),
+                        AIMessage(content=answer if answer else ""),
+                    ]
+                )
+                logger.debug(
+                    f"[缓存更新] session_id={session_id}, 消息数量={len(self._cache[session_id])}"
+                )
 
         except Exception as e:
             logger.error(f"保存会话历史失败: {str(e)}")
             raise e
 
-    @staticmethod
-    def _build_metadata(docs: List[Document]) -> Dict[str, Any]:
-        """构建元数据信息
+    def _build_metadata_from_reranked_results(
+        self, reranked_results: list[dict[str, Any]], request_id: str | None = None
+    ) -> dict[str, Any]:
+        """根据 rerank 排序后的结果, 从 MySQL 中获取完整元数据并构建最终数据结构
 
         Args:
-            docs: 检索到的文档列表
+            reranked_results: rerank 排序后的实体记录列表
+            request_id: 请求 ID
 
         Returns:
-            List[Dict]: 元数据列表
+            dict[str, Any]:  包含完整元数据和存储格式的字典
         """
-        metadata_storage: Dict[str, Any] = dict()
-        metadata_storage['doc_info'] = []
-        metadata = []
 
-        # if docs:
-        for doc in docs:
-            # 存储使用, 只保存 seg_id 和 rerank_score
-            metadata_storage['doc_info'].append({
-                "seg_id": doc.metadata.get("seg_id"),
-                "rerank_score": doc.metadata.get("rerank_score", 0.0)
-            })
+        try:
+            if not reranked_results:
+                logger.info(f"[元数据构建] request_id={request_id}, 重排序结果为空")
+                return {"metadata": [], "metadata_storage": {"doc_info": []}}
 
-            # 用于前端展示时, 包含所有字段
-            # 本地路径静态映射
-            raw_path = doc.metadata.get("page_png_path")
-            doc.metadata["page_png_path"] = local_path_to_url(raw_path) if raw_path else None
-            # 处理元数据中的非 JSON 序列化对象,如: datetime 等
-            clean_metadata = {}
-            for key, value in doc.metadata.items():
-                # 可序列化字段直接使用
-                if isinstance(value, (str, int, float, bool, list, dict)) or value is None:
-                    clean_metadata[key] = value
-                else:
-                    # 将其他类型转换为字符串
-                    clean_metadata[key] = str(value)
-            metadata.append(clean_metadata)
+            # 提取(doc_id, seg_id) 组合
+            doc_seg_pairs = []
+            rerank_scores = []
 
-        return {
-            "metadata": metadata,
-            "metadata_storage": metadata_storage
-        }
+            for result in reranked_results:
+                entity = result.get("entity", {})
+                doc_id = entity.get("doc_id")
+                seg_id = entity.get("seg_id")
+                rerank_score = result.get("rerank_score", 0.0)
 
-    def generate_response(self,
-                          query: str,
-                          session_id: str,
-                          permission_ids: Union[str, list[str]] = None,
-                          request_id: Optional[str] = None,
-                          ) -> Dict:
+                if doc_id and seg_id:
+                    doc_seg_pairs.append((doc_id, seg_id))
+                    rerank_scores.append(rerank_score)
+
+            logger.info(
+                f"[元数据构建] request_id={request_id}, 提取到 {len(doc_seg_pairs)} 个唯一记录"
+            )
+
+            # 从 mysql 获取完整记录
+            mysql_records = select_by_id(
+                table_name="segment_info",
+                seg_id_list=[seg_id for _, seg_id in doc_seg_pairs],
+                doc_id_list=[doc_id for doc_id, _ in doc_seg_pairs],
+            )
+
+            logger.info(
+                f"[元数据构建] request_id={request_id}, 从 mysql 获取到 {len(mysql_records)} 条记录"
+            )
+            logger.info(f"数据库查询到的记录为: {mysql_records}")
+
+            # 构建 (doc_id, seg_id) 到 mysql 记录的映射
+            mysql_record_map = {}
+            for record in mysql_records:
+                doc_id = record.get("doc_id")
+                seg_id = record.get("seg_id")
+                if doc_id and seg_id:
+                    mysql_record_map[(doc_id, seg_id)] = record
+
+            # 构建最终数据结构
+            metadata = []  # 前端展示格式
+            metadata_storage = {"doc_info": []}  # 存储格式
+
+            for result in reranked_results:
+                entity = result.get("entity", {})
+                doc_id = entity.get("doc_id")
+                seg_id = entity.get("seg_id")
+                rerank_score = result.get("rerank_score", 0.0)
+
+                if not doc_id or not seg_id:
+                    logger.warning(
+                        f"[元数据构建] request_id={request_id}, 记录缺少 doc_id 或 seg_id, 跳过: doc_id={doc_id}, seg_id={seg_id}"
+                    )
+                    continue
+
+                # 获取对应的 mysql 记录
+                mysql_record = mysql_record_map.get((doc_id, seg_id), {})
+
+                # 构建存储格式
+                storage_info = {
+                    "doc_id": doc_id,
+                    "seg_id": seg_id,
+                    "rerank_score": rerank_score,
+                    "seg_page_idx": entity.get("seg_page_idx", 0),
+                    "seg_type": entity.get("seg_type", ""),
+                }
+                metadata_storage["doc_info"].append(storage_info)
+
+                # 构建前端展示格式
+                display_metadata = {
+                    # 基础信息
+                    "doc_id": doc_id,
+                    "seg_id": seg_id,
+                    "seg_page_idx": entity.get("seg_page_idx", 0),
+                    "seg_type": entity.get("seg_type", ""),
+                    "seg_content": mysql_record.get("seg_content", ""),
+                    # 分数信息
+                    "rerank_score": rerank_score,
+                    "distance": result.get("distance", 0.0),
+                    "score": result.get("score", 0.0),
+                    # 从 mysql 获取的完整信息
+                    "doc_name": mysql_record.get("doc_name", ""),
+                    "doc_http_url": mysql_record.get("doc_http_url", ""),
+                    # 处理路径转换
+                    "page_png_path": local_path_to_url(
+                        mysql_record.get("page_png_path")
+                    ),
+                }
+
+                # 处理表格内容的反编码
+                if display_metadata.get("seg_type") == "table":
+                    display_metadata["seg_content"] = unescape_html_table(
+                        display_metadata["seg_content"]
+                    )
+
+                # 添加到最终结果
+                metadata.append(display_metadata)
+
+            logger.info(
+                f"[元数据构建] request_id={request_id}, 构建完成, 展示数据 {len(metadata)} 条, 存储数据 {len(metadata_storage['doc_info'])} 条"
+            )
+
+            return {"metadata": metadata, "metadata_storage": metadata_storage}
+
+        except Exception as e:
+            logger.error(
+                f"[元数据构建失败] request_id={request_id}, error_msg={str(e)}"
+            )
+            return {"metadata": [], "metadata_storage": {"doc_info": []}}
+
+    def generate_response(
+        self,
+        query: str,
+        session_id: str,
+        permission_ids: str | list[str] | None = None,
+        request_id: str | None = None,
+    ) -> dict:
         """生成回答
-        
+
         Args:
             query: 用户问题
             session_id: 会话ID
@@ -179,41 +296,69 @@ class RAGGenerator:
             if not query or not query.strip():
                 raise ValueError("问题不能为空")
 
-            # 部门格式验证
+            # 部门格式验证和转换
             validate_permission_ids(permission_ids)
-            # 权限 ID 格式转换
-            cleaned_dep_ids: List[str] = normalize_permission_ids(permission_ids)
+            cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
 
-            # 根据权限 ID 列表获取对应的 doc_ids
-            permission_type = 'department'
-            doc_ids = select_ids_by_permission(
-                table_name='permission_info_table',
-                permission_type=permission_type,
-                cleaned_dep_ids=cleaned_dep_ids
+            # 获取对应权限的文档 ID
+            permission_type = "department"
+            logger.debug(
+                f"[RAG对话] request_id={request_id}, 开始检索 doc_ids, 权限类型={permission_type}, 部门ID={cleaned_dep_ids}"
             )
-            # TODO: 增加根据 doc_ids 取向量库检索
+            doc_ids = select_ids_by_permission(
+                table_name="permission_doc_link",
+                permission_type=permission_type,
+                cleaned_dep_ids=cleaned_dep_ids,
+            )
 
             # 获取当前 session 的历史对话
-            raw_history: List[BaseMessage] = self._get_history(session_id)
+            raw_history: list[BaseMessage] = self._get_history(session_id)
 
-            # 使用历史对话重写查询
-            rewrite_query = self._rewrite_query_with_history(history=raw_history, question=query, session_id=session_id)
+            # 查询重写(根据历史对话)
+            rewrite_query = self._rewrite_query_with_history(
+                history=raw_history, question=query, session_id=session_id
+            )
 
-            # 使用重写后的查询进行检索
-            docs = self.retriever.invoke(rewrite_query, cleaned_dep_ids=cleaned_dep_ids, request_id=request_id)
+            # 生成查询向量
+            rewrite_query_vector = self._embedding_manager.embed_text(rewrite_query)
 
-            # 调试: 打印知识库信息
-            for doc in docs:
-                logger.debug(
-                    f"[检索结果] request_id={request_id}, doc_id={doc.metadata.get('doc_id', 'unknown')}, seg_id={doc.metadata.get('seg_id', 'unknown')}")
+            # 执行混合检索
+            if doc_ids:
+                # 有可查阅的文档,进行检索
+                reranked_results = self._hybrid_search.retrieve(
+                    query_text=rewrite_query,
+                    query_vector=rewrite_query_vector,
+                    doc_id_list=doc_ids,
+                    top_k=5,
+                    limit=10,
+                    request_id=request_id,
+                )
+            else:
+                # 没有可查阅的文档
+                reranked_results = []
 
-            # 初始化元数据变量
-            metadata = []
-            metadata_storage = {"doc_info": []}
-            if docs:
-                # 构建两种格式的 metadata
-                metadata_info = self._build_metadata(docs=docs)
-                metadata, metadata_storage = metadata_info['metadata'], metadata_info["metadata_storage"]
+            # 根据重排序结构构建元数据
+            metadata_info = self._build_metadata_from_reranked_results(
+                reranked_results=reranked_results, request_id=request_id
+            )
+            metadata, metadata_storage = (
+                metadata_info["metadata"],
+                metadata_info["metadata_storage"],
+            )
+
+            logger.info(
+                f"[RAG对话] request_id={request_id}, 构建后的存储元数据:\n metadata={metadata}\n metadata_storage={metadata_storage}"
+            )
+
+            # 构建 RAG 上下文(转换为 Document 格式)
+            docs = []
+            for result in reranked_results:
+                entity = result.get("entity", {})
+                doc = Document(
+                    page_content=entity.get("seg_content", ""),
+                    metadata={**entity},
+                )
+                docs.append(doc)
 
             # 构造 rag 上下文
             messages = get_messages_for_rag(
@@ -222,16 +367,20 @@ class RAGGenerator:
                 question=query,
             )
 
+            logger.info(
+                f"[RAG对话] request_id={request_id}, 构建好的上下文:\n {messages}"
+            )
+
             # 模型调用生成回答
             response_text = llm_manager.invoke(
-                messages=messages,
-                temperature=0.1,
-                invoke_type="RAG生成"
+                messages=messages, temperature=0.1, invoke_type="RAG生成"
             )
 
             # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
             if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
-                logger.warning(f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={response_text[:200]}...")
+                logger.warning(
+                    f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={response_text[:200]}..."
+                )
                 response_text = "抱歉，知识库中没有找到相关信息"
 
             # 保存历史对话到数据库
@@ -240,7 +389,7 @@ class RAGGenerator:
                 query=query,
                 answer=response_text,
                 metadata=metadata_storage,
-                rewrite_query=rewrite_query
+                rewrite_query=rewrite_query,
             )
 
             # 构建返回结果
@@ -254,14 +403,16 @@ class RAGGenerator:
             return result
 
         except Exception as e:
-            logger.error(f"[RAG生成失败] request_id={request_id}, session_id={session_id}, error_msg={str(e)}")
+            logger.error(
+                f"[RAG生成失败] request_id={request_id}, session_id={session_id}, error_msg={str(e)}"
+            )
             log_exception("RAG生成异常", exc=e)
-            raise ValueError(f"生成回答失败: {str(e)}")
+            raise ValueError(f"生成回答失败: {str(e)}") from e
 
     @staticmethod
-    def _rewrite_query_with_history(history: List[BaseMessage],
-                                    question: str,
-                                    session_id: str) -> str:
+    def _rewrite_query_with_history(
+        history: list[BaseMessage], question: str, session_id: str
+    ) -> str:
         """使用LLM根据历史上下文重写用户 query，  生成检索用 query
 
         Args:
@@ -285,6 +436,7 @@ class RAGGenerator:
             for msg in recent_history:
                 # 空内容
                 if not msg.content or not msg.content.strip():
+                    logger.warning(f"历史消息为空, 跳过: {msg}")
                     continue
 
                 if isinstance(msg, HumanMessage):
@@ -298,24 +450,29 @@ class RAGGenerator:
                 return question
 
             # 渲染查询重写提示词
-            prompt, config = render_prompt("query_rewrite", {
-                "history_content": history_content.strip(),
-                "current_question": question,
-            })
+            prompt, config = render_prompt(
+                "query_rewrite",
+                {
+                    "history_content": history_content.strip(),
+                    "current_question": question,
+                },
+            )
 
             # 调用 LLM 进行查询重写
             rewrite_query = llm_manager.invoke(
                 prompt=prompt,
                 temperature=config["temperature"],
                 max_tokens=config["max_tokens"],
-                invoke_type="查询重写"
+                invoke_type="查询重写",
             )
 
             # 清理和验证结果
             rewrite_query = rewrite_query.strip()
             # 改写后为空或超长,则返回源问题
             if not rewrite_query or len(rewrite_query) > config["max_tokens"]:
-                logger.warning(f"查询重写结果异常, 使用原问题, 重写结果:{rewrite_query}")
+                logger.warning(
+                    f"查询重写结果异常, 使用原问题, 重写结果:{rewrite_query}"
+                )
                 return question
             logger.info(f"查询重写完成- 原问题:{question}, 重写后:{rewrite_query}")
             return rewrite_query
@@ -327,7 +484,7 @@ class RAGGenerator:
 
     def clear_cache(self, session_id: str = None) -> None:
         """清除缓存
-        
+
         Args:
             session_id: 指定会话ID，如果为None则清除所有缓存
         """
@@ -350,3 +507,7 @@ class RAGGenerator:
         """结束会话，清理相关资源"""
         self.clear_cache(session_id)
         logger.info(f"会话结束，已清理缓存, session_id: {session_id}")
+
+
+if __name__ == "__main__":
+    pass

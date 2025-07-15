@@ -43,18 +43,23 @@ class GlobalConfig:
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
-        "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"),
+        "mysql_schema_path": str(
+            BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"
+        ),
         # "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
         # "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
-        "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"),
-        # "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema.json"),
-        "es_schema_path": str(BASE_DIR / "databases" / "schema" / "es_schema.json"),  # schema 配置文件路径
+        "milvus_flat_schema": str(
+            BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"
+        ),
+        # "es_schema_path": str(
+        #     BASE_DIR / "databases" / "schema" / "es_schema.json"
+        # ),  # schema 配置文件路径
     }
 
     # 模型相关配置
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "embedding" / "bge-m3"),
-        "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3")
+        "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3"),
     }
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
 
@@ -74,7 +79,7 @@ class GlobalConfig:
     }
 
     @classmethod
-    def get_llm_config(cls, model_name: str = None) -> dict:
+    def get_llm_config(cls, model_name: str | None = None) -> dict:
         """获取指定模型的配置"""
         model_name = model_name or cls.LLM_NAME
         if model_name not in cls.LLM_CONFIG:
@@ -88,8 +93,8 @@ class GlobalConfig:
 
     # 文件处理配置
     SUPPORTED_FILE_TYPES = {
-        "all": ['.doc', '.docx', '.ppt', '.pptx', '.pdf', '.txt'],
-        "libreoffice": ['.doc', '.docx', '.ppt', '.pptx'],
+        "all": [".doc", ".docx", ".ppt", ".pptx", ".pdf", ".txt"],
+        "libreoffice": [".doc", ".docx", ".ppt", ".pptx"],
     }
 
     FILE_STATUS = {
@@ -98,14 +103,14 @@ class GlobalConfig:
             "parsed": "处理中",
             "merged": "处理中",
             "chunked": "处理中",
-            "splited": "处理完成"
+            "splited": "处理完成",
         },
         "error": {
             "parse_failed": "解析失败",
             "merge_failed": "处理失败",
             "chunk_failed": "切块失败",
             "split_failed": "切页失败",
-        }
+        },
     }
     FILE_MAX_SIZE = 50  # Mb
 
@@ -113,7 +118,7 @@ class GlobalConfig:
     STATUS_SYNC_MILESTONES = {
         "layout_ready": "parsed",  # MinerU 解析完成, 可以获取 layout 版面 PDF
         "fully_processed": "splited",  # 全文完全处理完成, 可以获取所有信息
-        "processing_failed": "failed"  # 处理失败, 前端需要显示错误状态
+        "processing_failed": "failed",  # 处理失败, 前端需要显示错误状态
     }
 
     # 需要同步到外部系统的状态映射
@@ -129,16 +134,23 @@ class GlobalConfig:
 
     # 失败状态集合(用于快速判断是否为失败状态)
     FAILURE_STATUSES = {
-        "parse_failed", "merge_failed", "chunk_failed", "split_failed",
+        "parse_failed",
+        "merge_failed",
+        "chunk_failed",
+        "split_failed",
     }
 
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(
-        '<>:"/\\|?*' + ''.join(chr(c) for c in range(0x00, 0x20))  # 控制字符
+        '<>:"/\\|?*' + "".join(chr(c) for c in range(0x00, 0x20))  # 控制字符
     )
 
     # 系统相关配置
-    DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
+    DEVICE = (
+        "cuda"
+        if torch.cuda.is_available()
+        else ("mps" if torch.mps.is_available() else "cpu")
+    )
 
     # 数据库配置 - 根据环境动态配置
     # 数据库名称
@@ -146,7 +158,9 @@ class GlobalConfig:
 
     # MySQL配置
     MYSQL_CONFIG = {
-        "host": os.getenv("MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+        "host": os.getenv(
+            "MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"
+        ),
         "user": os.getenv("MYSQL_USER"),
         "passwd": os.getenv("MYSQL_PASSWORD"),
         "port": int(os.getenv("MYSQL_PORT", "3306")),
@@ -154,7 +168,6 @@ class GlobalConfig:
         "database": DB_NAME,
         "file_info_table": "doc_info",  # 文件信息表
         "segment_info_table": "segment_info",  # 段落信息表
-        # "permission_info_table": "permission_info",  # 权限信息表
         "permission_info_table": "permission_doc_link",  # 权限信息表
         "doc_page_info_table": "doc_page_info",  # 文档切页信息表
         "chat_sessions_table": "chat_sessions",  # 聊天会话表
@@ -164,15 +177,30 @@ class GlobalConfig:
     # Milvus配置
     # FLAT 集合
     MILVUS_CONFIG = {
-        "uri": os.getenv("MILVUS_URI", "http://192.168.5.199:19530/" if ENV == "dev" else "http://localhost:19530/"),
-        "host": os.getenv("MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+        "uri": os.getenv(
+            "MILVUS_URI",
+            "http://192.168.5.199:19530/"
+            if ENV == "dev"
+            else "http://localhost:19530/",
+        ),
+        "host": os.getenv(
+            "MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"
+        ),
         "port": int(os.getenv("MILVUS_PORT", "19530")),
         "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
         "collection_name": "rag_flat",  # 更新为新的 FLAT collection
         "vector_field": "seg_dense_vector",  # 新字段名
         "vector_dim": 1024,
-        "output_fields": ["seg_id", "seg_parent_id", "doc_id", "seg_content", "seg_type", "permission_ids"],
+        "output_fields": [
+            "doc_id",
+            "seg_id",
+            "seg_content",
+            "seg_type",
+            "seg_page_idx",
+            "created_at",
+        ],
+        "search_batch_size": 1000,
         "index_params": {
             "field_name": "seg_dense_vector",  # 新字段名
             "index_type": "FLAT",  # 更新为 FLAT 索引
@@ -182,19 +210,22 @@ class GlobalConfig:
         "search_params": {
             "top_k": 20,  # 返回结果数量
             "round_decimal": 8,  # 分数精度，提高结果稳定性
-            "consistency_level": "STRONG"  # 一致性级别
-        }
+            "consistency_level": "STRONG",  # 一致性级别
+        },
     }
 
-    # Elasticsearch配置
-    ES_CONFIG = {
-        "host": os.getenv("ES_HOST", "http://192.168.5.199:9200" if ENV == "dev" else "http://localhost:9200"),
-        "timeout": int(os.getenv("ES_TIMEOUT", "30")),
-        "index_name": DB_NAME,
-        "username": os.getenv("ES_USER"),
-        "password": os.getenv("ES_PASSWORD"),
-        "verify_certs": False
-    }
+    # # Elasticsearch配置
+    # ES_CONFIG = {
+    #     "host": os.getenv(
+    #         "ES_HOST",
+    #         "http://192.168.5.199:9200" if ENV == "dev" else "http://localhost:9200",
+    #     ),
+    #     "timeout": int(os.getenv("ES_TIMEOUT", "30")),
+    #     "index_name": DB_NAME,
+    #     "username": os.getenv("ES_USER"),
+    #     "password": os.getenv("ES_PASSWORD"),
+    #     "verify_certs": False,
+    # }
 
     MYSQL_FIELD = {
         "max_path_len": 1000,
@@ -205,52 +236,59 @@ class GlobalConfig:
         "batch_size": 10,  # 每批处理的记录数
         "max_text_length": 1000,  # 最大文本长度
         "memory_limit": 1024,  # 内存限制（MB）
-        "vector_batch_size": 10  # 向量生成的批处理大小
+        "vector_batch_size": 10,  # 向量生成的批处理大小
     }
 
     # 提示词模板
     PROMPT_TEMPLATE = {
-        "table_summary": {
-            "prompt_file": "prompts/table_summary_prompt.txt",
-            "model": LLM_NAME,
-            "temperature": 0.3,
-            "max_tokens": 1024
-        },
+        # "table_summary": {
+        #     "prompt_file": "prompts/table_summary_prompt.txt",
+        #     "model": LLM_NAME,
+        #     "temperature": 0.3,
+        #     "max_tokens": 1024,
+        # },
+        # "text_summary": {
+        #     "prompt_file": "prompts/text_summary_prompt.txt",
+        #     "model": LLM_NAME,
+        #     "temperature": 0.5,
+        #     "max_tokens": 1024,
+        # },
         "table_summary_v2": {
             "prompt_file": "prompts/table_summary.j2",
             "model": LLM_NAME,
             "temperature": 0,
             "top_p": 0.9,  # 默认值
             "max_tokens": 4096,
-            "stop": ["[END]"]
-        },
-
-        "text_summary": {
-            "prompt_file": "prompts/text_summary_prompt.txt",
-            "model": LLM_NAME,
-            "temperature": 0.5,
-            "max_tokens": 1024
+            "stop": ["[END]"],
         },
         "rag_system_prompt": {
             "prompt_file": "prompts/rag_system_prompt.j2",
             "temperature": 0.1,
-            "top_p": 0.9
+            "top_p": 0.9,
         },
         "query_rewrite": {
             "prompt_file": "prompts/query_rewrite_prompt.j2",
             "temperature": 0.3,
-            "max_tokens": 200
+            "max_tokens": 200,
         },
-
     }
 
     # 状态同步配置
     STATUS_SYNC_CONFIG = {
-        "enabled": os.getenv("STATUS_SYNC_ENABLED", "true").lower() == "true",  # 是否启用状态同步
-        "base_url": os.getenv("STATUS_SYNC_BASE_URL", "http://192.168.6.99:18101"),  # 状态同步接口基础URL
-        "timeout": int(os.getenv("STATUS_SYNC_TIMEOUT", "10")),  # 状态同步请求超时时间（秒）
-        "retry_attempts": int(os.getenv("STATUS_SYNC_RETRY_ATTEMPTS", "3")),  # 状态同步重试次数
-        "retry_delay": float(os.getenv("STATUS_SYNC_RETRY_DELAY", "1.0")),  # 状态同步重试延迟（秒）
+        "enabled": os.getenv("STATUS_SYNC_ENABLED", "true").lower()
+        == "true",  # 是否启用状态同步
+        "base_url": os.getenv(
+            "STATUS_SYNC_BASE_URL", "http://192.168.6.99:18101"
+        ),  # 状态同步接口基础URL
+        "timeout": int(
+            os.getenv("STATUS_SYNC_TIMEOUT", "10")
+        ),  # 状态同步请求超时时间（秒）
+        "retry_attempts": int(
+            os.getenv("STATUS_SYNC_RETRY_ATTEMPTS", "3")
+        ),  # 状态同步重试次数
+        "retry_delay": float(
+            os.getenv("STATUS_SYNC_RETRY_DELAY", "1.0")
+        ),  # 状态同步重试延迟（秒）
         "api_path": "/cbm/api/v5/knowledgeFile/parseStatusUpdated",  # 状态更新接口路径
     }
 

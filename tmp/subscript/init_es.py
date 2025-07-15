@@ -2,15 +2,15 @@
 
 import json
 
-from databases.elasticsearch.operations import ElasticsearchOperation
-from utils.log_utils import logger
 from config.global_config import GlobalConfig
+from tmp.elasticsearch.operations import ElasticsearchOperation
+from utils.log_utils import logger
 
 
 def load_schema():
     """加载 ES schema 配置"""
     schema_path = GlobalConfig.PATHS.get("es_schema_path")
-    with open(schema_path, 'r', encoding='utf-8') as f:
+    with open(schema_path, encoding="utf-8") as f:
         return json.load(f)
 
 

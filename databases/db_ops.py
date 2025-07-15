@@ -1,24 +1,35 @@
 """需要对所有数据库统一操作的代码工具"""
+
 import time
-from typing import Dict, Any, Union, List
+from typing import Any
 
 from config.global_config import GlobalConfig
-from databases.elasticsearch.operations import ElasticsearchOperation
-from databases.milvus.operations import VectorOperation
-from databases.mysql.operations import FileInfoOperation, PermissionOperation, ChunkOperation, PageOperation
+from databases.milvus.flat_collection import FlatCollectionManager
+from databases.mysql.operations import (
+    ChatMessageOperation,
+    ChatSessionOperation,
+    ChunkOperation,
+    FileInfoOperation,
+    PageOperation,
+    PermissionOperation,
+)
 from utils.log_utils import logger
 from utils.validators import validate_empty_param
 
 # 表明与操作类的映射
 TABLE_OPERATION_MAPPING = {
-    GlobalConfig.MYSQL_CONFIG["file_info_table"]: FileInfoOperation,
-    GlobalConfig.MYSQL_CONFIG["segment_info_table"]: ChunkOperation,
-    GlobalConfig.MYSQL_CONFIG["permission_info_table"]: PermissionOperation,
-    GlobalConfig.MYSQL_CONFIG["doc_page_info_table"]: PageOperation,
+    "doc_info": FileInfoOperation,  # 文件信息表
+    "segment_info": ChunkOperation,  # 段落信息表
+    "permission_doc_link": PermissionOperation,  # 权限信息表
+    "doc_page_info": PageOperation,  # 文档切页信息表
+    "chat_sessions": ChatSessionOperation,  # 聊天会话表
+    "chat_messages": ChatMessageOperation,  # 聊天消息表
 }
 
 
-def select_record_by_doc_id(table_name: str, doc_id: str) -> Union[Dict[str, Any], List[Dict[str, Any]], None]:
+def select_record_by_doc_id(
+    table_name: str, doc_id: str
+) -> dict[str, Any] | list[dict[str, Any]] | None:
     """根据 doc_id 查询数据库信息
 
     Args:
@@ -40,7 +51,7 @@ def select_record_by_doc_id(table_name: str, doc_id: str) -> Union[Dict[str, Any
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
 
-def select_records_by_doc_id(table_name: str, doc_id: str) -> Union[List[Dict[str, Any]], None]:
+def select_records_by_doc_id(table_name: str, doc_id: str) -> list[dict[str, Any]]:
     """根据 doc_id 查询数据库信息
 
     Args:
@@ -48,7 +59,7 @@ def select_records_by_doc_id(table_name: str, doc_id: str) -> Union[List[Dict[st
         doc_id: 文档Id
 
     Returns:
-        dict: 查询到的记录,未查询到时为 None
+        dict: 查询到的记录,未查询到时为[]
     """
 
     if table_name not in TABLE_OPERATION_MAPPING:
@@ -58,6 +69,37 @@ def select_records_by_doc_id(table_name: str, doc_id: str) -> Union[List[Dict[st
         operation_cls = TABLE_OPERATION_MAPPING[table_name]
         with operation_cls() as op:
             return op.select_by_id_many(doc_id)
+    except Exception as e:
+        logger.error(f"记录查询失败, 失败原因: {str(e)}")
+        return []
+
+
+def select_by_id(
+    table_name: str, seg_id_list: list[str], doc_id_list: list[str]
+) -> list[dict[str, Any]]:
+    """根据 doc_id 和 seg_id 查询数据库信息
+
+    Args:
+        table_name: 要查询的表名
+        seg_id_list: 分块 ID
+        doc_id_list: 文档 ID
+
+    Returns:
+        dict: 查询到的记录,未查询到时为 None
+    """
+
+    if table_name not in TABLE_OPERATION_MAPPING:
+        raise ValueError(f"未知表名: {table_name}")
+
+    logger.info(f"获取到的 id 列表: \n doc_id: {doc_id_list} \n seg_id: {seg_id_list}")
+
+    try:
+        operation_cls = TABLE_OPERATION_MAPPING[table_name]
+        with operation_cls() as op:
+            results = op.get_segment_contents(
+                seg_id_list=seg_id_list, doc_id_list=doc_id_list
+            )
+            return results if results else []
     except Exception as e:
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
@@ -74,63 +116,81 @@ def delete_all_database_data(doc_id: str) -> None:
 
     try:
         try:
-            logger.info(f"[MySQL删除] 开始删除MySQL数据")
-            with FileInfoOperation() as file_op, \
-                    PermissionOperation() as permission_op, \
-                    ChunkOperation() as chunk_op, \
-                    PageOperation() as page_op:
+            logger.info("[MySQL删除] 开始删除MySQL数据")
+            with (
+                FileInfoOperation() as file_op,
+                PermissionOperation() as permission_op,
+                ChunkOperation() as chunk_op,
+                PageOperation() as page_op,
+            ):
                 # 删除文件信息表
-                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录")
+                logger.info(
+                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录"
+                )
                 file_op_nums = file_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {file_op_nums} 条")
 
                 # 删除权限信息表
-                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录")
+                logger.info(
+                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录"
+                )
                 permission_op_nums = permission_op.delete_by_doc_id(doc_id)
-                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {permission_op_nums} 条")
+                logger.info(
+                    f"[MySQL删除] 文件信息表删除成功, 共 {permission_op_nums} 条"
+                )
 
                 # 删除分块信息表
-                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录")
+                logger.info(
+                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录"
+                )
                 chunk_op_nums = chunk_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {chunk_op_nums} 条")
 
                 # 删除分页信息表
-                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录")
+                logger.info(
+                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录"
+                )
                 page_op_nums = page_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {page_op_nums} 条")
 
                 # 记录操作成功
                 duration = int((time.time() - start_time) * 1000)
-                logger.info(
-                    f"[MySQL删除] 成功, duration={duration}ms")
+                logger.info(f"[MySQL删除] 成功, duration={duration}ms")
         except Exception as e:
             logger.error(f"[MySQL删除] 失败, 错误原因: {str(e)}")
             # MySQL删除失败不影响其他数据库的删除操作
 
         # 删除 Milvus 数据库记录
         try:
-            logger.info(f"Milvus 数据删除, 集合: {GlobalConfig.MILVUS_CONFIG['collection_name']}")
-            vector_op = VectorOperation()
+            logger.info(
+                f"Milvus 数据删除, 集合: {GlobalConfig.MILVUS_CONFIG['collection_name']}"
+            )
+            # vector_op = VectorOperation()
+            vector_op = FlatCollectionManager()
             vector_op.delete_by_doc_id(doc_id)
         except Exception as e:
             logger.error(f"Milvus 数据删除失败, 错误原因: {str(e)}")
             # 不中断主流程
 
-        # 删除ES中的数据
-        try:
-            logger.info(f"Elasticsearch 数据删除, 索引: {GlobalConfig.ES_CONFIG['index_name']}")
-            es_op = ElasticsearchOperation()
-            es_op.delete_by_doc_id(doc_id)
-        except Exception as e:
-            logger.error(f"Elasticsearch 数据删除: {str(e)}, doc_id: {doc_id}")
-            # 不中断主流程
+        # # 删除ES中的数据
+        # try:
+        #     logger.info(
+        #         f"Elasticsearch 数据删除, 索引: {GlobalConfig.ES_CONFIG['index_name']}"
+        #     )
+        #     es_op = ElasticsearchOperation()
+        #     es_op.delete_by_doc_id(doc_id)
+        # except Exception as e:
+        #     logger.error(f"Elasticsearch 数据删除: {str(e)}, doc_id: {doc_id}")
+        #     # 不中断主流程
 
     except Exception as e:
         logger.error(f"数据库记录删除失败, 错误原因: {str(e)}, doc_id: {doc_id}")
         # 不中断主流程
 
 
-def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: Dict[str, Any]) -> bool:
+def update_record_by_doc_id(
+    table_name: str, doc_id: str, kwargs: dict[str, Any]
+) -> bool:
     """通用表记录更新方法，根据表名和文档ID更新记录。
 
     Args:
@@ -150,7 +210,7 @@ def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: Dict[str, Any]
         raise ValueError("table_name, doc_id 和 args 均不能为空")
 
     # 清除 None 值可能导致的问题
-    kwargs: Dict = {k: v for k, v in kwargs.items() if v is not None}
+    kwargs: dict = {k: v for k, v in kwargs.items() if v is not None}
 
     try:
         operation_cls = TABLE_OPERATION_MAPPING[table_name]
@@ -160,7 +220,7 @@ def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: Dict[str, Any]
         raise e
 
 
-def insert_record(table_name: str, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> int:
+def insert_record(table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> int:
     """插入数据
 
     Args:
@@ -181,7 +241,9 @@ def insert_record(table_name: str, data: Union[Dict[str, Any], List[Dict[str, An
         raise ValueError(f"MySQL 数据插入失败, 失败原因: {str(e)}") from e
 
 
-def select_ids_by_permission(table_name: str, permission_type:str,cleaned_dep_ids: List[str] = None) -> List[str]:
+def select_ids_by_permission(
+    table_name: str, permission_type: str, cleaned_dep_ids: list[str] = None
+) -> list[str]:
     """
     使用清洗后的权限 ID 从权限表中找出对应的所有 doc_id
 
@@ -199,11 +261,13 @@ def select_ids_by_permission(table_name: str, permission_type:str,cleaned_dep_id
 
     validate_empty_param(cleaned_dep_ids, "权限 ID 列表")
 
-    permission_type = 'department'
+    permission_type = "department"
     try:
         operation_cls = TABLE_OPERATION_MAPPING[table_name]
         with operation_cls() as op:
-            return op.get_ids_by_permission(permission_type=permission_type,subject_ids=cleaned_dep_ids)
+            return op.get_ids_by_permission(
+                permission_type=permission_type, subject_ids=cleaned_dep_ids
+            )
     except Exception as e:
         logger.error(f"获取文档 ID 失败, 失败原因: {str(e)}")
         raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e
