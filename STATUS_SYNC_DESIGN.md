@@ -72,7 +72,7 @@ FAILURE_STATUSES = {
 ```bash
 # 状态同步配置
 STATUS_SYNC_ENABLED=true
-STATUS_SYNC_BASE_URL=http://192.168.6.99:18101
+#STATUS_SYNC_BASE_URL=http://192.168.6.99:18101 # 已改为动态传入
 STATUS_SYNC_TIMEOUT=10
 STATUS_SYNC_RETRY_ATTEMPTS=3
 STATUS_SYNC_RETRY_DELAY=1.0
@@ -83,7 +83,7 @@ STATUS_SYNC_RETRY_DELAY=1.0
 ### 主要接口函数
 
 ```python
-def sync_status_safely(doc_id: str, status: str, request_id: str = None) -> None:
+def sync_status_safely(doc_id: str, status: str, request_id: str = None, callback_url: str = None) -> None:
     """安全同步文档状态(不抛出异常)
     
     这是唯一的外部调用接口，内部自动处理：
@@ -155,10 +155,10 @@ class StatusSyncClient:
 from utils.status_sync import sync_status_safely
 
 # 同步成功状态
-sync_status_safely(doc_id="your_doc_id", status="parsed", request_id="your_request_id")
+sync_status_safely(doc_id="your_doc_id", status="parsed", request_id="your_request_id", callback_url="your_callback_url")
 
 # 同步失败状态
-sync_status_safely(doc_id="your_doc_id", status="parse_failed", request_id="your_request_id")
+sync_status_safely(doc_id="your_doc_id", status="parse_failed", request_id="your_request_id", callback_url="your_callback_url")
 ```
 
 ### 2. 在文档处理流程中的使用
@@ -167,18 +167,18 @@ sync_status_safely(doc_id="your_doc_id", status="parse_failed", request_id="your
 # 文档解析成功
 try:
     # ... 解析逻辑 ...
-    sync_status_safely(doc_id, "parsed", request_id)
+    sync_status_safely(doc_id, "parsed", request_id, callback_url)
 except Exception as e:
     # 解析失败
-    sync_status_safely(doc_id, "parse_failed", request_id)
+    sync_status_safely(doc_id, "parse_failed", request_id, callback_url)
 
 # 文档处理完成
 try:
     # ... 处理逻辑 ...
-    sync_status_safely(doc_id, "splited", request_id)
+    sync_status_safely(doc_id, "splited", request_id, callback_url)
 except Exception as e:
     # 处理失败
-    sync_status_safely(doc_id, "split_failed", request_id)
+    sync_status_safely(doc_id, "split_failed", request_id, callback_url)
 ```
 
 ## 监控和调试
@@ -244,44 +244,3 @@ except Exception as e:
 - 网络异常不影响主流程
 - 自动重试机制提高成功率
 - 完整的错误处理和日志记录
-
-## 代码优化说明
-
-### 1. 移除的冗余函数
-
-- `sync_document_status()` - 全局函数，未被使用
-- `should_sync_status()` - 全局函数，未被使用
-- `is_failure_status()` - 全局函数，未被使用
-
-### 2. 保留的核心功能
-
-- `sync_status_safely()` - 唯一的外部调用接口
-- `get_status_sync_client()` - 获取客户端实例（单例模式）
-- `StatusSyncClient` 类的所有内部方法
-
-### 3. 修复的问题
-
-- 修复了 `base_url` 处理错误（使用 `rstrip` 而不是 `rsplit`）
-- 修复了配置名称错误（使用 `FAILURE_STATUSES`）
-- 修复了 payload 构建错误（使用 `external_status`）
-- 修复了语法错误（移除多余空格）
-
-## 最佳实践
-
-### 1. 调用方式
-
-- 始终使用 `sync_status_safely()` 函数
-- 传入完整的参数（doc_id, status, request_id）
-- 不要直接调用内部方法
-
-### 2. 错误处理
-
-- 函数内部已处理所有异常，不会抛出异常
-- 检查日志确认同步结果
-- 失败状态同步失败时会有特殊警告
-
-### 3. 性能优化
-
-- 自动过滤不需要同步的状态
-- 单例模式避免重复创建客户端
-- 合理的重试策略和超时设置

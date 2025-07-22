@@ -1,24 +1,19 @@
 """处理文档内容, 包括表格、图片、文本等"""
+
+import hashlib
 import json
 import shutil
-import time
-import hashlib
-import uuid
 import threading
-
+import time
+import uuid
 from pathlib import Path
-from typing import Dict
 
 from config.global_config import GlobalConfig
 from databases.db_ops import update_record_by_doc_id
-from utils.file_ops import mineru_toolkit, get_doc_output_path, libreoffice_convert_toolkit
+from utils.file_ops import get_doc_output_path, libreoffice_convert_toolkit, mineru_toolkit
+from utils.log_utils import log_exception, logger
 from utils.status_sync import sync_status_safely
-from utils.validators import check_local_doc_exists, check_doc_ext
-
-from utils.log_utils import logger, log_exception
-from utils.validators import validate_param_type
-# from utils.file_ops import extract_table_summary
-# from utils.converters import convert_html_to_markdown
+from utils.validators import check_doc_ext, check_local_doc_exists, validate_param_type
 
 # 简单缓存锁
 cache_lock = threading.Lock()
@@ -34,7 +29,7 @@ def process_doc_by_page(json_doc_path: str):
     start_time = time.time()
     logger.info(f"[页面处理] 开始处理, json_path={json_doc_path}")
 
-    with open(json_doc_path, "r", encoding="utf-8") as f:
+    with open(json_doc_path, encoding="utf-8") as f:
         json_content = json.load(f)
 
     doc_hash = hashlib.md5(json_doc_path.encode("utf-8")).hexdigest()
@@ -52,9 +47,11 @@ def process_doc_by_page(json_doc_path: str):
     table_total, table_cap, table_cap_up, table_cap_miss = 0, 0, 0, 0
     img_total, img_cap, img_cap_up, img_cap_miss = 0, 0, 0, 0
 
+    # 定义常量
+    max_title_len = 100
+
     # 定义初始化存储
     try:
-
         # 按页面分组处理内容
         current_page = None
         page_contents = []  # 当前页面的内容
@@ -67,11 +64,7 @@ def process_doc_by_page(json_doc_path: str):
             if current_page is not None and current_page != page_idx:
                 # 处理最后一页遗留的文本
                 if text_buffer:
-                    page_contents.append({
-                        "type": "text",
-                        "text": "\n".join(text_buffer),
-                        "page_idx": current_page
-                    })
+                    page_contents.append({"type": "text", "text": "\n".join(text_buffer), "page_idx": current_page})
                     text_buffer = []
 
                 # 保存当前页内容
@@ -87,37 +80,26 @@ def process_doc_by_page(json_doc_path: str):
             if item["type"] == "text":
                 text_buffer.append(item["text"])
                 # 如果下一个不是文本,或到末尾, 则保存当前文本
-                if idx == len(json_content) - 1 or json_content[idx + 1]["type"] != "text":
-                    if text_buffer:  # 有文本合并
-                        page_contents.append({
-                            "type": "text",
-                            "text": "\n".join(text_buffer),
-                            "page_idx": current_page
-                        })
-                        text_buffer = []
+                if (idx == len(json_content) - 1 or json_content[idx + 1]["type"] != "text") and text_buffer:
+                    page_contents.append({"type": "text", "text": "\n".join(text_buffer), "page_idx": current_page})
+                    text_buffer = []
 
             # 提取表格元素
             elif item["type"] == "table":
                 table_total += 1
                 # 处理表格标题
-                item["table_caption"] = "".join(item["table_caption"]) if isinstance(item["table_caption"], list) else \
-                    item[
-                        "table_caption"]
-
-                # 通过 LLM 提取摘要信息（标题 + 内容摘要）
-                # markdown_table = convert_html_to_markdown(item["table_body"])
-                # table_summary = extract_table_summary(markdown_table)
-                # item["summary"] = table_summary["summary"]
+                item["table_caption"] = (
+                    "".join(item["table_caption"]) if isinstance(item["table_caption"], list) else item["table_caption"]
+                )
 
                 # 处理表格标题
                 if not item["table_caption"].strip():
                     last_item = json_content[idx - 1] if idx > 0 else None
                     if last_item and last_item["type"] == "table":
                         caption = str(last_item.get("table_caption", "")[0]).strip()
-                    elif last_item and last_item["type"] == "text" and len(last_item["text"]) < 100:
+                    elif last_item and last_item["type"] == "text" and len(last_item["text"]) < max_title_len:
                         caption = last_item.get("text").strip()
                     else:
-                        # caption = table_summary["title"].strip()
                         caption = None
 
                     if caption:
@@ -135,13 +117,14 @@ def process_doc_by_page(json_doc_path: str):
             elif item["type"] == "image":
                 img_total += 1
                 # 处理标题为字符串
-                item["img_caption"] = ", ".join(item["img_caption"]) if isinstance(item["img_caption"], list) else item[
-                    "img_caption"]
+                item["img_caption"] = (
+                    ", ".join(item["img_caption"]) if isinstance(item["img_caption"], list) else item["img_caption"]
+                )
 
                 # 处理图片标题
                 if not item["img_caption"].strip():
                     last_item = json_content[idx - 1] if idx > 0 else None
-                    if last_item and last_item["type"] == "text" and len(last_item["text"]) < 100:
+                    if last_item and last_item["type"] == "text" and len(last_item["text"]) < max_title_len:
                         caption = last_item.get("text").strip()
                         if caption:
                             item["img_caption"] = caption
@@ -157,11 +140,7 @@ def process_doc_by_page(json_doc_path: str):
         # 处理最后一页遗留的文本
         if current_page is not None:
             if text_buffer:
-                page_contents.append({
-                    "type": "text",
-                    "text": "\n".join(text_buffer),
-                    "page_idx": current_page
-                })
+                page_contents.append({"type": "text", "text": "\n".join(text_buffer), "page_idx": current_page})
                 text_buffer = []
 
             if page_contents:
@@ -175,8 +154,8 @@ def process_doc_by_page(json_doc_path: str):
 
         duration = int((time.time() - start_time) * 1000)
         logger.info(
-            f"[页面处理] 内容合并完成, duration={duration}ms, 图片总数={img_total}, 无需更新={img_cap}, 已更新={img_cap_up}, 缺少标题={img_cap_miss}, 表格总数={table_total}, 已有标题={table_cap}, 已更新={table_cap_up}, 缺少标题={table_cap_miss}")
-
+            f"[页面处理] 内容合并完成, duration={duration}ms, 图片总数={img_total}, 无需更新={img_cap}, 已更新={img_cap_up}, 缺少标题={img_cap_miss}, 表格总数={table_total}, 已有标题={table_cap}, 已更新={table_cap_up}, 缺少标题={table_cap_miss}"
+        )
 
     except Exception as e:
         logger.error(f"[页面处理失败] error_msg={str(e)}")
@@ -185,14 +164,14 @@ def process_doc_by_page(json_doc_path: str):
     # 合并页面
     try:
         # 合并所有缓存页
-        logger.info(f"[页面合并] 开始合并缓存页")
+        logger.info("[页面合并] 开始合并缓存页")
         merged = {}
         # 遍历临时目录中的所有页面文件，按页码顺序合并内容
-        for page_file in sorted(temp_dir.glob("page_*.json"), key=lambda x: int(x.stem.split('_')[1])):
+        for page_file in sorted(temp_dir.glob("page_*.json"), key=lambda x: int(x.stem.split("_")[1])):
             if not page_file.exists():
                 raise FileNotFoundError(f"找不到页面文件: {page_file}")
-            page_idx = int(page_file.stem.split('_')[1])
-            with open(page_file, "r", encoding="utf-8") as pf:
+            page_idx = int(page_file.stem.split("_")[1])
+            with open(page_file, encoding="utf-8") as pf:
                 # 读取每页的列表合并到 merged中
                 merged[str(page_idx)] = json.load(pf)
 
@@ -207,7 +186,7 @@ def process_doc_by_page(json_doc_path: str):
     except Exception as e:
         logger.error(f"[页面合并失败] error_msg={str(e)}")
         log_exception("页面合并异常", exc=e)
-        raise ValueError(f"文件合并页面异常: {str(e)}")
+        raise ValueError(f"文件合并页面异常: {str(e)}") from e
 
     finally:
         # 清理缓存(锁保护)
@@ -226,17 +205,18 @@ def process_doc_by_page(json_doc_path: str):
 
 
 # === 主入口函数（后台处理） ===
-def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> str:
+def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, callback_url: str | None = None) -> str:
     """处理文档内容:
     1. 非PDF文件先转换为PDF
     2. 使用MinerU解析 PDF 文档
     3. 填充表格和图片标题, 并按页合并内容, 写入json文件, 命名为 {json_doc_path}_merged.json
-    4. 如果提供了 doc_id，则更新数据库中的处理状态
+    4. 如果提供了 doc_id, 则更新数据库中的处理状态
 
     Args:
         doc_path (str): 源文档路径
-        doc_id (str, optional): 文档ID，如果提供则会更新数据库状态
-        request_id (str, optional): 请求ID，如果提供则会更新数据库状态
+        doc_id (str, optional): 文档ID, 如果提供则会更新数据库状态
+        request_id (str, optional): 请求ID, 如果提供则会更新数据库状态
+        callback_url (str, optional): 回调 URL
 
     Returns:
         save_path (str): 处理后的文档路径
@@ -251,7 +231,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
         doc_path = Path(doc_path)
 
         # 获取文档的输出路径
-        output_info: Dict[str, str] = get_doc_output_path(str(doc_path.resolve()))
+        output_info: dict[str, str] = get_doc_output_path(str(doc_path.resolve()))
         output_dir = output_info["output_path"]
         output_image_path = output_info["output_image_path"]
         doc_name = output_info["doc_name"]
@@ -260,7 +240,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
             pdf_path = doc_path
         else:
             # 检查格式是否支持 libreoffice 转换
-            check_doc_ext(doc_path.suffix, doc_type='libreoffice')
+            check_doc_ext(doc_path.suffix, doc_type="libreoffice")
             # 送入 libreoffice 转换
             pdf_path = libreoffice_convert_toolkit(str(doc_path.resolve()), output_dir)
 
@@ -291,20 +271,20 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
                     "process_status": "parsed",
                 }
                 # 同步状态到外部系统
-                sync_status_safely(doc_id, "parsed", request_id)
+                sync_status_safely(doc_id, "parsed", request_id, callback_url)
 
             else:
                 # 构建需要更新的字段
-                values = {
-                    "process_status": "parse_failed",
-                }
+                values = {"process_status": "parse_failed"}
                 # 同步状态到外部系统
-                sync_status_safely(doc_id, "parse_failed", request_id)
+                sync_status_safely(doc_id, "parse_failed", request_id, callback_url)
 
             logger.info(
-                f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}")
-            update_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id,
-                                    kwargs=values)
+                f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}"
+            )
+            update_record_by_doc_id(
+                table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id, kwargs=values
+            )
 
         # === 页面合并 ===
         json_path = results["json_path"]
@@ -319,29 +299,25 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
             logger.info(f"[数据库更新] request_id={request_id}, 合并失败, 更新状态为 merge_failed")
 
             # 同步状态到外部系统
-            sync_status_safely(doc_id, "merge_failed", request_id)
+            sync_status_safely(doc_id, "merge_failed", request_id, callback_url)
 
             update_record_by_doc_id(
                 table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
                 doc_id=doc_id,
-                kwargs={"process_status": "merge_failed"}
+                kwargs={"process_status": "merge_failed"},
             )
             raise ValueError(f"合并元素失败, 失败原因: {str(e)}") from e
 
         # 更新最终状态
-        logger.info(
-            f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status=merged")
+        logger.info(f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status=merged")
 
         # 同步状态到外部系统
-        sync_status_safely(doc_id, "merged", request_id)
+        sync_status_safely(doc_id, "merged", request_id, callback_url)
 
         update_record_by_doc_id(
             table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
             doc_id=doc_id,
-            kwargs={
-                "doc_process_path": save_path,
-                "process_status": "merged"
-            }
+            kwargs={"doc_process_path": save_path, "process_status": "merged"},
         )
 
         duration = int((time.time() - start_time) * 1000)
@@ -354,5 +330,5 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None) -> s
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass

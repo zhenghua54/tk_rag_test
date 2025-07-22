@@ -30,7 +30,7 @@ def test_config_loading():
     print(f"状态同步配置: {config}")
 
     # 检查必要的配置项
-    required_keys = ['enabled', 'base_url', 'timeout', 'retry_attempts', 'retry_delay', 'api_path']
+    required_keys = ["enabled", "base_url", "timeout", "retry_attempts", "retry_delay", "api_path"]
     for key in required_keys:
         if key not in config:
             print(f"❌ 缺少配置项: {key}")
@@ -54,7 +54,7 @@ def test_status_mapping():
     client = get_status_sync_client()
 
     # 测试需要同步的状态
-    sync_statuses = ['parsed', 'splited', 'parse_failed', 'merge_failed', 'chunk_failed', 'split_failed']
+    sync_statuses = ["parsed", "splited", "parse_failed", "merge_failed", "chunk_failed", "split_failed"]
     for status in sync_statuses:
         should_sync = client.should_sync_status(status)
         external_status = client.get_external_status(status)
@@ -66,7 +66,7 @@ def test_status_mapping():
         print(f"  是否失败: {is_failure}")
 
     # 测试不需要同步的状态
-    non_sync_statuses = ['uploaded', 'merged', 'chunked']
+    non_sync_statuses = ["uploaded", "merged", "chunked"]
     for status in non_sync_statuses:
         should_sync = client.should_sync_status(status)
         print(f"状态 {status}: 需要同步 = {should_sync}")
@@ -80,8 +80,8 @@ def test_network_connectivity():
 
     import requests
 
-    base_url = GlobalConfig.STATUS_SYNC_CONFIG['base_url']
-    timeout = GlobalConfig.STATUS_SYNC_CONFIG['timeout']
+    base_url = GlobalConfig.STATUS_SYNC_CONFIG["base_url"]
+    timeout = GlobalConfig.STATUS_SYNC_CONFIG["timeout"]
 
     try:
         # 测试基础连接
@@ -100,7 +100,7 @@ def test_network_connectivity():
     return True
 
 
-def test_sync_functionality():
+def test_sync_functionality(callback_url: str):
     """测试同步功能"""
     print("\n=== 测试同步功能 ===")
 
@@ -113,33 +113,33 @@ def test_sync_functionality():
 
     # 测试成功状态同步
     print("\n--- 测试成功状态同步 ---")
-    success_statuses = ['parsed', 'splited']
+    success_statuses = ["parsed", "splited"]
     for status in success_statuses:
         print(f"同步状态: {status}")
         try:
-            sync_status_safely(test_doc_id, status, test_request_id)
+            sync_status_safely(test_doc_id, status, test_request_id, callback_url)
             print(f"✅ 状态 {status} 同步完成")
         except Exception as e:
             print(f"❌ 状态 {status} 同步失败: {e}")
 
     # 测试失败状态同步
     print("\n--- 测试失败状态同步 ---")
-    failure_statuses = ['parse_failed', 'merge_failed', 'chunk_failed', 'split_failed']
+    failure_statuses = ["parse_failed", "merge_failed", "chunk_failed", "split_failed"]
     for status in failure_statuses:
         print(f"同步状态: {status}")
         try:
-            sync_status_safely(test_doc_id, status, test_request_id)
+            sync_status_safely(test_doc_id, status, test_request_id, callback_url)
             print(f"✅ 状态 {status} 同步完成")
         except Exception as e:
             print(f"❌ 状态 {status} 同步失败: {e}")
 
     # 测试不需要同步的状态
     print("\n--- 测试不需要同步的状态 ---")
-    non_sync_statuses = ['uploaded', 'merged', 'chunked']
+    non_sync_statuses = ["uploaded", "merged", "chunked"]
     for status in non_sync_statuses:
         print(f"尝试同步状态: {status}")
         try:
-            sync_status_safely(test_doc_id, status, test_request_id)
+            sync_status_safely(test_doc_id, status, test_request_id, callback_url)
             print(f"✅ 状态 {status} 处理完成（无需同步）")
         except Exception as e:
             print(f"❌ 状态 {status} 处理失败: {e}")
@@ -147,20 +147,20 @@ def test_sync_functionality():
     return True
 
 
-def test_error_handling():
+def test_error_handling(callback_url: str):
     """测试错误处理"""
     print("\n=== 测试错误处理 ===")
 
     # 测试空参数 - sync_status_safely 是安全函数，不会抛出异常
     print("--- 测试空参数 ---")
     try:
-        sync_status_safely("", "parsed", "test")
+        sync_status_safely("", "parsed", "test", callback_url)
         print("✅ 空doc_id正确处理（安全函数不抛出异常）")
     except Exception as e:
         print(f"❌ 空doc_id处理异常: {e}")
 
     try:
-        sync_status_safely("test_doc", "", "test")
+        sync_status_safely("test_doc", "", "test", callback_url)
         print("✅ 空status正确处理（安全函数不抛出异常）")
     except Exception as e:
         print(f"❌ 空status处理异常: {e}")
@@ -168,7 +168,7 @@ def test_error_handling():
     # 测试无效状态
     print("\n--- 测试无效状态 ---")
     try:
-        sync_status_safely("test_doc", "invalid_status", "test")
+        sync_status_safely("test_doc", "invalid_status", "test", callback_url)
         print("✅ 无效状态正确处理")
     except Exception as e:
         print(f"❌ 无效状态处理异常: {e}")
@@ -176,7 +176,7 @@ def test_error_handling():
     return True
 
 
-def test_real_document_sync():
+def test_real_document_sync(callback_url: str):
     """测试真实文档同步（可选）"""
     print("\n=== 测试真实文档同步 ===")
 
@@ -196,7 +196,7 @@ def test_real_document_sync():
     # 测试成功状态
     print("--- 测试成功状态 ---")
     try:
-        sync_status_safely(real_doc_id, "parsed", test_request_id)
+        sync_status_safely(real_doc_id, "parsed", test_request_id, callback_url)
         print("✅ 真实文档成功状态同步完成")
     except Exception as e:
         print(f"❌ 真实文档成功状态同步失败: {e}")
@@ -221,12 +221,15 @@ def main():
         test_real_document_sync,
     ]
 
+    # 定义 callback_url
+    callback_url = "http://192.168.6.99:18101/cbm/api/v5/knowledgeFile/parseStatusUpdated"
+
     passed = 0
     total = len(tests)
 
     for test_func in tests:
         try:
-            if test_func():
+            if test_func(callback_url):
                 passed += 1
                 print(f"✅ 测试 {test_func.__name__} 通过")
             else:

@@ -1,4 +1,3 @@
-from typing import Union
 from pydantic import BaseModel, Field
 
 
@@ -10,13 +9,14 @@ class ChatRequest(BaseModel):
         permission_ids: 权限ID，JSON格式字符串，可选
         session_id: 会话ID(可选)
     """
+
     query: str = Field(
         ...,  # 必填
         description="问题内容",
         min_length=1,
         max_length=2000,
     )
-    permission_ids: Union[str, list[str]] = Field(
+    permission_ids: str | list[str] = Field(
         None,
         description="部门ID列表，多个ID用逗号分隔",
     )

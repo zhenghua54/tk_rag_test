@@ -1,26 +1,28 @@
 """文档删除请求数据模型"""
-from typing import Union
 
 from pydantic import BaseModel, Field
 
 
+class DocumentStatusRequest(BaseModel):
+    """文档状态监测请求参数
+
+    Attributes:
+        doc_id: 要查询的文档 ID
+    """
+
+    doc_id: str = Field(..., description="文档ID", min_length=64, max_length=64)
+
+
 class DocumentDeleteRequest(BaseModel):
     """文档删除请求参数
-    
+
     Attributes:
         doc_id: 文档ID
         is_soft_delete: 是否只删除记录,不删除本地文件
     """
-    doc_id: str = Field(
-        ...,
-        description="文档ID",
-        min_length=64,
-        max_length=64
-    )
-    is_soft_delete: bool = Field(
-        False,
-        description="是否只删除记录,不删除本地文件"
-    )
+
+    doc_id: str = Field(..., description="文档ID", min_length=64, max_length=64)
+    is_soft_delete: bool = Field(False, description="是否只删除记录,不删除本地文件")
 
     # 自定义异常捕获逻辑
     # @field_validator('doc_id')
@@ -55,32 +57,17 @@ class DocumentDeleteRequest(BaseModel):
     #         ) from e
 
 
-class DocumentStatusRequest(BaseModel):
-    """文档状态监测请求参数
-
-    Attributes:
-        doc_id: 要查询的文档 ID
-    """
-    doc_id: str = Field(
-        ...,
-        description="文档ID",
-        min_length=64,
-        max_length=64
-    )
-
-
 class DocumentUploadRequest(BaseModel):
     """文档上传请求参数
 
     Attributes:
         document_http_url: 文档的 http 访问路径
         permission_ids: 部门ID
+        callback_url: 回调 URL
     """
+
     document_http_url: str = Field(
-        ...,
-        description="文档的存储路径，必须是一个可访问的 HTTP 路径",
-        min_length=1,
-        max_length=1000
+        ..., description="文档的存储路径，必须是一个可访问的 HTTP 路径", min_length=1, max_length=1000
     )
     # department_id: str = Field(
     #     None,
@@ -88,10 +75,10 @@ class DocumentUploadRequest(BaseModel):
     #     min_length=1,
     #     max_length=32,
     # )
-    permission_ids: Union[str, list[str], list[None]] = Field(
-        None,
-        description="部门ID列表，单个 ID 接收字符串格式, 多个 ID 接收列表格式, 公开文档使用空字符串或空数组",
+    permission_ids: str | list[str] | list[None] = Field(
+        None, description="部门ID列表，单个 ID 接收字符串格式, 多个 ID 接收列表格式, 公开文档使用空字符串或空数组"
     )
+    callback_url: str = Field(..., description="回调 URL", min_length=1, max_length=1000)
 
     # 自定义异常捕获逻辑
     # @field_validator('document_path')

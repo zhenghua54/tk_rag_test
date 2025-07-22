@@ -43,17 +43,8 @@ class GlobalConfig:
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
         "libreoffice_path": "/usr/bin/libreoffice",
-        "mysql_schema_path": str(
-            BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"
-        ),
-        # "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema.sql"),
-        # "milvus_schema_path": str(BASE_DIR / "databases" / "schema" / "milvus_schema.json"),
-        "milvus_flat_schema": str(
-            BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"
-        ),
-        # "es_schema_path": str(
-        #     BASE_DIR / "databases" / "schema" / "es_schema.json"
-        # ),  # schema 配置文件路径
+        "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"),
+        "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"),
     }
 
     # 模型相关配置
@@ -133,12 +124,7 @@ class GlobalConfig:
     }
 
     # 失败状态集合(用于快速判断是否为失败状态)
-    FAILURE_STATUSES = {
-        "parse_failed",
-        "merge_failed",
-        "chunk_failed",
-        "split_failed",
-    }
+    FAILURE_STATUSES = {"parse_failed", "merge_failed", "chunk_failed", "split_failed"}
 
     # 禁止字符集：Windows + 控制字符（包括不可打印ASCII），保持全平台兼容
     UNSUPPORTED_FILENAME_CHARS = set(
@@ -146,11 +132,7 @@ class GlobalConfig:
     )
 
     # 系统相关配置
-    DEVICE = (
-        "cuda"
-        if torch.cuda.is_available()
-        else ("mps" if torch.mps.is_available() else "cpu")
-    )
+    DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
 
     # 数据库配置 - 根据环境动态配置
     # 数据库名称
@@ -158,9 +140,7 @@ class GlobalConfig:
 
     # MySQL配置
     MYSQL_CONFIG = {
-        "host": os.getenv(
-            "MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"
-        ),
+        "host": os.getenv("MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
         "user": os.getenv("MYSQL_USER"),
         "passwd": os.getenv("MYSQL_PASSWORD"),
         "port": int(os.getenv("MYSQL_PORT", "3306")),
@@ -174,32 +154,17 @@ class GlobalConfig:
         "chat_messages_table": "chat_messages",  # 聊天消息表
     }
 
-    # Milvus配置
-    # FLAT 集合
+    # Milvus配置FLAT 集合
     MILVUS_CONFIG = {
-        "uri": os.getenv(
-            "MILVUS_URI",
-            "http://192.168.5.199:19530/"
-            if ENV == "dev"
-            else "http://localhost:19530/",
-        ),
-        "host": os.getenv(
-            "MILVUS_HOST", "192.168.5.199" if ENV == "dev" else "localhost"
-        ),
-        "port": int(os.getenv("MILVUS_PORT", "19530")),
+        "uri": os.getenv("MILVUS_URI"),
+        "host": os.getenv("MILVUS_HOST"),
+        "port": int(os.getenv("MILVUS_PORT")),
         "token": os.getenv("MILVUS_TOKEN"),
         "db_name": DB_NAME,
         "collection_name": "rag_flat",  # 更新为新的 FLAT collection
         "vector_field": "seg_dense_vector",  # 新字段名
         "vector_dim": 1024,
-        "output_fields": [
-            "doc_id",
-            "seg_id",
-            "seg_content",
-            "seg_type",
-            "seg_page_idx",
-            "created_at",
-        ],
+        "output_fields": ["doc_id", "seg_id", "seg_content", "seg_type", "seg_page_idx", "created_at"],
         "search_batch_size": 1000,
         "index_params": {
             "field_name": "seg_dense_vector",  # 新字段名
@@ -214,23 +179,7 @@ class GlobalConfig:
         },
     }
 
-    # # Elasticsearch配置
-    # ES_CONFIG = {
-    #     "host": os.getenv(
-    #         "ES_HOST",
-    #         "http://192.168.5.199:9200" if ENV == "dev" else "http://localhost:9200",
-    #     ),
-    #     "timeout": int(os.getenv("ES_TIMEOUT", "30")),
-    #     "index_name": DB_NAME,
-    #     "username": os.getenv("ES_USER"),
-    #     "password": os.getenv("ES_PASSWORD"),
-    #     "verify_certs": False,
-    # }
-
-    MYSQL_FIELD = {
-        "max_path_len": 1000,
-        "max_name_len": 500,
-    }
+    MYSQL_FIELD = {"max_path_len": 1000, "max_name_len": 500}
 
     SEGMENT_CONFIG = {
         "batch_size": 10,  # 每批处理的记录数
@@ -241,18 +190,6 @@ class GlobalConfig:
 
     # 提示词模板
     PROMPT_TEMPLATE = {
-        # "table_summary": {
-        #     "prompt_file": "prompts/table_summary_prompt.txt",
-        #     "model": LLM_NAME,
-        #     "temperature": 0.3,
-        #     "max_tokens": 1024,
-        # },
-        # "text_summary": {
-        #     "prompt_file": "prompts/text_summary_prompt.txt",
-        #     "model": LLM_NAME,
-        #     "temperature": 0.5,
-        #     "max_tokens": 1024,
-        # },
         "table_summary_v2": {
             "prompt_file": "prompts/table_summary.j2",
             "model": LLM_NAME,
@@ -261,34 +198,17 @@ class GlobalConfig:
             "max_tokens": 4096,
             "stop": ["[END]"],
         },
-        "rag_system_prompt": {
-            "prompt_file": "prompts/rag_system_prompt.j2",
-            "temperature": 0.1,
-            "top_p": 0.9,
-        },
-        "query_rewrite": {
-            "prompt_file": "prompts/query_rewrite_prompt.j2",
-            "temperature": 0.3,
-            "max_tokens": 200,
-        },
+        "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt.j2", "temperature": 0.1, "top_p": 0.9},
+        "query_rewrite": {"prompt_file": "prompts/query_rewrite_prompt.j2", "temperature": 0.3, "max_tokens": 200},
     }
 
     # 状态同步配置
     STATUS_SYNC_CONFIG = {
-        "enabled": os.getenv("STATUS_SYNC_ENABLED", "true").lower()
-        == "true",  # 是否启用状态同步
-        "base_url": os.getenv(
-            "STATUS_SYNC_BASE_URL", "http://192.168.6.99:18101"
-        ),  # 状态同步接口基础URL
-        "timeout": int(
-            os.getenv("STATUS_SYNC_TIMEOUT", "10")
-        ),  # 状态同步请求超时时间（秒）
-        "retry_attempts": int(
-            os.getenv("STATUS_SYNC_RETRY_ATTEMPTS", "3")
-        ),  # 状态同步重试次数
-        "retry_delay": float(
-            os.getenv("STATUS_SYNC_RETRY_DELAY", "1.0")
-        ),  # 状态同步重试延迟（秒）
+        "enabled": os.getenv("STATUS_SYNC_ENABLED", "true").lower() == "true",  # 是否启用状态同步
+        # "base_url": os.getenv("STATUS_SYNC_BASE_URL"),  # 状态同步接口基础URL
+        "timeout": int(os.getenv("STATUS_SYNC_TIMEOUT", "10")),  # 状态同步请求超时时间（秒）
+        "retry_attempts": int(os.getenv("STATUS_SYNC_RETRY_ATTEMPTS", "3")),  # 状态同步重试次数
+        "retry_delay": float(os.getenv("STATUS_SYNC_RETRY_DELAY", "1.0")),  # 状态同步重试延迟（秒）
         "api_path": "/cbm/api/v5/knowledgeFile/parseStatusUpdated",  # 状态更新接口路径
     }
 
@@ -301,7 +221,6 @@ if __name__ == "__main__":
     print(f"Database Name: {GlobalConfig.DB_NAME}")
     print(f"MySQL Host: {GlobalConfig.MYSQL_CONFIG['host']}")
     print(f"Milvus Host: {GlobalConfig.MILVUS_CONFIG['host']}")
-    print(f"ES Host: {GlobalConfig.ES_CONFIG['host']}")
     print("\nPaths:")
     for name, path in GlobalConfig.PATHS.items():
         print(f"  {name}: {path}")

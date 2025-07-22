@@ -1,4 +1,4 @@
-line-length = 88
+line-length = 120
 target-version = "py310"
 
 [lint]
@@ -9,3 +9,5 @@ ignore = ["E501"]
 quote-style = "double"
 indent-style = "space"
 line-ending = "lf"
+docstring-code-format = true #是否在注释中格式化代码片段
+skip-magic-trailing-comma = true #使用现有的尾随逗号作为短行应保持独立的指示

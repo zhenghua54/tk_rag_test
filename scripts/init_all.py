@@ -27,8 +27,6 @@ from pymilvus import Collection, connections
 
 from config.global_config import GlobalConfig
 from databases.mysql.base import MySQLUtils
-
-# from tests.init_es import init_es
 from utils.log_utils import logger
 
 
@@ -126,15 +124,6 @@ def test_connections():
         logger.error(f"Milvus 连接测试失败: {str(e)}")
         raise Exception(f"Milvus 连接失败: {str(e)}")
 
-    # # 测试 ES 连接
-    # try:
-    #     es_client = ElasticsearchOperation()
-    #     if not es_client.ping():
-    #         raise Exception("ES 连接失败！")
-    # except Exception as e:
-    #     logger.error(f"ES 连接测试失败: {str(e)}")
-    #     raise Exception(f"ES 连接失败: {str(e)}")
-
 
 def init_all():
     """初始化所有组件"""
@@ -146,9 +135,7 @@ def init_all():
 
         # 2. 初始化各个服务
         init_mysql()
-        # init_milvus()
         FlatCollectionManager()
-        # init_es()
 
         # 3. 测试所有连接
         test_connections()
