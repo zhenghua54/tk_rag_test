@@ -351,7 +351,7 @@ class HybridRetriever:
             logger.warning(
                 f"[梯度截断] request_id={request_id}, 差分列表为空，直接返回前 top_k 个结果"
             )
-            return results[:top_k]
+            return filtered_results[:top_k]
 
         # 找出“下降最大”的位置（断崖点）
         min_delta = min(deltas)
@@ -369,7 +369,7 @@ class HybridRetriever:
         )
 
         # 返回断崖前的文档列表
-        return results[:cliff_index]
+        return filtered_results[:cliff_index]
 
     def _custom_rerank(
         self,
@@ -417,7 +417,7 @@ class HybridRetriever:
             )
 
             # 相关性过滤(基于 rerank 分数)
-            relevance_threshold = -5  # 相关性阈值，可根据实际效果调整
+            relevance_threshold = -20  # 相关性阈值，可根据实际效果调整
             filtered_results = []
             for result in hybrid_results:
                 score = result.get("rerank_score", 0)

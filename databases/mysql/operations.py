@@ -344,13 +344,19 @@ class PermissionOperation(BaseDBOperation):
         placeholders = ", ".join(["%s"] * len(subject_ids))
         sql = f"""
         select doc_id from {self.table_name}
-        where permission_type = %s and subject_id IN ({placeholders})
+        where permission_type = %s 
+        and (
+            subject_id IN ({placeholders})
+            OR subject_id IS NULL 
+            OR subject_id = ''
+        )
         """
 
         # 构建参数: permission_type + subject_ids 列表
         params = [permission_type] + subject_ids
 
         doc_ids: list[dict] = self._execute_query(sql, tuple(params))
+        logger.info(f"根据权限查出的 doc_ids: {doc_ids}\n 权限为: {permission_type}: {subject_ids}")
 
         return [row["doc_id"] for row in doc_ids if row.get("doc_id")]
 

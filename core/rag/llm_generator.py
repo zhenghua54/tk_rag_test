@@ -189,6 +189,11 @@ class RAGGenerator:
                 doc_id_list=[doc_id for doc_id, _ in doc_seg_pairs],
             )
 
+            # 调试
+            logger.info(f"数据库查询时用到的seg_id_list: {[seg_id for _, seg_id in doc_seg_pairs]}")
+            logger.info(f"数据库查询时用到的doc_id_list: {[doc_id for doc_id, _ in doc_seg_pairs]}")
+
+
             logger.info(
                 f"[元数据构建] request_id={request_id}, 从 mysql 获取到 {len(mysql_records)} 条记录"
             )
@@ -201,6 +206,10 @@ class RAGGenerator:
                 seg_id = record.get("seg_id")
                 if doc_id and seg_id:
                     mysql_record_map[(doc_id, seg_id)] = record
+
+
+            # 调试
+            logger.info(f"从mysql 记录中提取后的结果: \n{mysql_record_map}")
 
             # 构建最终数据结构
             metadata = []  # 前端展示格式
@@ -221,6 +230,10 @@ class RAGGenerator:
                 # 获取对应的 mysql 记录
                 mysql_record = mysql_record_map.get((doc_id, seg_id), {})
 
+                # 调试
+                logger.info(f"从重排序的结果中提取到的信息为: doc_id: {doc_id}, seg_id: {seg_id} ")
+                logger.info(f"获取到的 mysql 记录为: \n{mysql_record}")
+
                 # 构建存储格式
                 storage_info = {
                     "doc_id": doc_id,
@@ -238,7 +251,7 @@ class RAGGenerator:
                     "seg_id": seg_id,
                     "seg_page_idx": entity.get("seg_page_idx", 0),
                     "seg_type": entity.get("seg_type", ""),
-                    "seg_content": mysql_record.get("seg_content", ""),
+                    "seg_content": mysql_record.get("seg_content", "") ,
                     # 分数信息
                     "rerank_score": rerank_score,
                     "distance": result.get("distance", 0.0),
@@ -308,7 +321,7 @@ class RAGGenerator:
             doc_ids = select_ids_by_permission(
                 table_name="permission_doc_link",
                 permission_type=permission_type,
-                cleaned_dep_ids=cleaned_dep_ids,
+                cleaned_dep_ids=cleaned_dep_ids + [''],
             )
 
             # 获取当前 session 的历史对话
