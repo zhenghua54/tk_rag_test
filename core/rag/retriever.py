@@ -6,7 +6,7 @@ from typing import Any
 from config.global_config import GlobalConfig
 from databases.milvus.flat_collection import FlatCollectionManager
 from utils.llm_utils import embedding_manager, rerank_manager
-from utils.log_utils import logger
+from utils.log_utils import log_exception, logger
 
 
 class HybridRetriever:
@@ -20,233 +20,6 @@ class HybridRetriever:
             collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"]
         )
 
-    # def _full_text_search(
-    #     self,
-    #     query_text: str,
-    #     doc_ids: list[str],
-    #     limit: int,
-    #     request_id: str | None = None,
-    # ) -> list[dict[str, Any]]:
-    #     """执行全文检索 (BM25)
-    #
-    #     Args:
-    #         query_text: 查询文本
-    #         doc_ids: 文档ID列表
-    #         limit: 返回结果数量
-    #         request_id: 请求 ID
-    #
-    #     Returns:
-    #         List[Dict[str, Any]]: 全文检索结果
-    #     """
-    #     try:
-    #         logger.info(
-    #             f"[全文检索] request_id={request_id}, 开始检索，查询: {query_text}"
-    #         )
-    #
-    #         # 获取全文检索迭代器
-    #         full_text_iterator = self._flat_manager.full_text_search(
-    #             query_text=query_text, doc_ids=doc_ids, output_fields=["*"]
-    #         )
-    #
-    #         if full_text_iterator is None:
-    #             logger.warning(f"[全文检索] request_id={request_id}, 迭代器为空")
-    #             return []
-    #
-    #         # 提取实体记录
-    #         full_text_results = []
-    #         try:
-    #             while True:
-    #                 batch = full_text_iterator.next()
-    #                 if not batch:
-    #                     break
-    #
-    #                 # 处理每个批次的结果
-    #                 for hit in batch:
-    #                     result = hit.to_dict()
-    #                     full_text_results.append(result)
-    #
-    #         except Exception as e:
-    #             logger.error(
-    #                 f"[全文检索] request_id={request_id}, 迭代器遍历失败: {str(e)}"
-    #             )
-    #         finally:
-    #             # 确保关闭迭代器
-    #             full_text_iterator.close()
-    #
-    #         # 根据分数排序（BM25 分数越高越好）并提取前 limit 条
-    #         full_text_results.sort(key=lambda x: x.get("score", 0), reverse=True)
-    #         full_text_results = full_text_results[:limit]
-    #
-    #         logger.info(
-    #             f"[全文检索] request_id={request_id}, 完成，返回 {len(full_text_results)} 条结果"
-    #         )
-    #         return full_text_results
-    #
-    #     except Exception as e:
-    #         logger.error(f"[全文检索] request_id={request_id}, 失败: {str(e)}")
-    #         return []
-    #
-    # def _vector_search(
-    #     self,
-    #     query_vector: list[float],
-    #     doc_ids: list[str],
-    #     limit: int,
-    #     request_id: str | None = None,
-    # ) -> list[dict[str, Any]]:
-    #     """执行向量检索
-    #
-    #     Args:
-    #         query_vector: 查询向量
-    #         doc_ids: 文档ID列表
-    #         limit: 返回结果数量
-    #         request_id: 请求 ID
-    #
-    #     Returns:
-    #         List[Dict[str, Any]]: 向量检索结果
-    #     """
-    #     try:
-    #         logger.info(
-    #             f"[向量检索] request_id={request_id}, 开始检索，向量维度: {len(query_vector)}"
-    #         )
-    #
-    #         # 获取向量检索迭代器
-    #         vector_iterator = self._flat_manager.vector_search_iterator(
-    #             query_vector=query_vector, doc_ids=doc_ids, output_fields=["*"]
-    #         )
-    #
-    #         if vector_iterator is None:
-    #             logger.warning(f"[向量检索] request_id={request_id}, 迭代器为空")
-    #             return []
-    #
-    #         # 提取实体记录
-    #         vector_results = []
-    #
-    #         try:
-    #             while True:
-    #                 batch = vector_iterator.next()
-    #                 if not batch:
-    #                     break
-    #
-    #                 # 处理每个批次的结果
-    #                 for hit in batch:
-    #                     result = hit.to_dict()
-    #                     vector_results.append(result)
-    #
-    #         except Exception as e:
-    #             logger.error(
-    #                 f"[向量检索] request_id={request_id}, 迭代器遍历失败: {str(e)}"
-    #             )
-    #         finally:
-    #             # 确保关闭迭代器
-    #             vector_iterator.close()
-    #
-    #         # 根据相似度排序（向量相似度越高越好）并提取前 limit 条
-    #         vector_results.sort(key=lambda x: x.get("distance", 0), reverse=True)
-    #         vector_results = vector_results[:limit]
-    #
-    #         logger.info(
-    #             f"[向量检索] request_id={request_id}, 完成，返回 {len(vector_results)} 条结果"
-    #         )
-    #         return vector_results
-    #
-    #     except Exception as e:
-    #         logger.error(f"[向量检索] request_id={request_id}, 失败: {str(e)}")
-    #         return []
-    #
-    # def _merge_results(
-    #     self,
-    #     full_text_results: list[dict[str, Any]],
-    #     vector_results: list[dict[str, Any]],
-    # ) -> list[dict[str, Any]]:
-    #     """合并全文检索和向量检索结果
-    #
-    #     Args:
-    #         full_text_results: 全文检索结果
-    #         vector_results: 向量检索结果
-    #
-    #     Returns:
-    #         List[Dict[str, Any]]: 合并后的结果
-    #     """
-    #     # 合并结果
-    #     merged_result = full_text_results + vector_results
-    #     logger.info(f"[结果合并] 合并后总数: {len(merged_result)} 条")
-    #
-    #     # 按 Milvus 分数排序(distance 和 score)
-    #     merged_result.sort(
-    #         key=lambda x: x.get("distance", x.get("score", 0)), reverse=True
-    #     )
-    #
-    #     logger.info(
-    #         f"[结果合并] 合并后的内容: {[(result['entity']['doc_id'], result['entity']['seg_id'], result['distance'], result['entity']['seg_content']) for result in merged_result]}"
-    #     )
-    #
-    #     # 去重(基于doc_id 和seg_id)
-    #     seen_keys = set()
-    #     unique_results = []
-    #     for result in merged_result:
-    #         entity = result.get("entity", {})
-    #         seg_id = entity.get("seg_id")
-    #         doc_id = entity.get("doc_id")
-    #
-    #         if doc_id and seg_id:
-    #             key = (doc_id, seg_id)
-    #             if key not in seen_keys:
-    #                 seen_keys.add(key)
-    #                 unique_results.append(result)
-    #
-    #             else:
-    #                 logger.debug(
-    #                     f"[结果合并] 发现重复记录: doc_id={doc_id}, seg_id={seg_id}"
-    #                 )
-    #         else:
-    #             logger.warning(
-    #                 f"[结果合并] 记录缺少必要字段: doc_id={doc_id}, seg_id={seg_id}"
-    #             )
-    #
-    #     logger.info(f"[结果合并] 去重后结果: {len(unique_results)} 条")
-    #     return unique_results
-    # def _hybrid_search(
-    #     self,
-    #     query_text: str,
-    #     query_vector: list[float],
-    #     doc_id_list: list[str],
-    #     limit: int,
-    # ) -> dict[str, Any] | None:
-    #     """milvus 向量库混合检索
-    #
-    #     Args:
-    #         query_text: 查询文本
-    #         query_vector: 查询向量
-    #         doc_id_list: 文档ID列表
-    #         limit: 返回结果数量
-    #
-    #     Returns:
-    #         List[Dict[str, Any]]: 检索结果列表
-    #     """
-    #     logger.info("[混合检索] 执行 Milvus 混合检索")
-    #     start_time = time.time()
-    #     try:
-    #         # 获取 Milvus 的混合检索结果
-    #         hybrid_results = self._flat_manager.optimized_hybrid_search(
-    #             query_text=query_text,
-    #             query_vector=query_vector,
-    #             doc_id_list=doc_id_list,
-    #             limit=limit,
-    #         )
-    #
-    #         # 计算耗时
-    #         duration = time.time() - start_time
-    #         logger.info(f"[混合检索] Milvus 混合检索完成, 耗时: {duration:.3f}s")
-    #
-    #         return {
-    #             "vector_results": vector_results,
-    #             "full_text_results": full_text_results,
-    #             "duration": duration,
-    #         }
-    #
-    #     except Exception as e:
-    #         logger.error(f"[混合检索] 检索失败: {str(e)}")
-    #         return None
 
     def retrieve(
         self,
@@ -271,13 +44,12 @@ class HybridRetriever:
             List[Document]: 重排序后的实体记录列表
         """
         logger.info(
-            f"[混合检索] request_id={request_id}, 开始检索, limit={limit}, top_k={top_k}"
+            f"[混合检索] request_id={request_id}, 开始检索, limit: {limit}, top_k: {top_k}"
         )
         start_time = time.time()
 
         # 执行混合检索
         try:
-            logger.info("[混合检索] 执行 Milvus 混合检索")
             # 获取 Milvus 的混合检索结果
             hybrid_results = self._flat_manager.optimized_hybrid_search(
                 query_text=query_text,
@@ -285,27 +57,16 @@ class HybridRetriever:
                 doc_id_list=doc_id_list,
                 limit=limit,
             )
+            logger.debug(f"[混合检索] hybrid_results 类型: {type(hybrid_results)}")
+            logger.debug("[混合检索] hybrid_results: ")
+            for result in hybrid_results[0]:
+                logger.debug(result)
 
             # 计算耗时
             duration = time.time() - start_time
-            logger.info(f"[混合检索] Milvus 混合检索完成, 耗时: {duration:.3f}s")
-            #
-            # # 执行全文检索(BM25)和向量检索
-            # full_text_results = self._full_text_search(
-            #     query_text=query_text, doc_ids=doc_ids, limit=limit
-            # )
-            # vector_results = self._vector_search(
-            #     query_vector=query_vector, doc_ids=doc_ids, limit=limit
-            # )
-            #
-            # # 合并结果并按 Milvus 分数排序
-            # merged_results = self._merge_results(
-            #     full_text_results=full_text_results,
-            #     vector_results=vector_results,
-            # )
-            # if not merged_results:
-            #     logger.info(f"[混合检索] request_id={request_id}, 没有检索到结果")
-            #     return []
+            logger.info(f"[混合检索] request_id={request_id}, Milvus 混合检索完成, 耗时: {duration:.3f}s, 召回数量：{len(hybrid_results[0])} ")
+            logger.debug(f"[混合检索] request_id={request_id}, Milvus 混合检索召回内容: "
+                         f"{[(entity['entity']['doc_id'],entity['entity']['seg_id'],entity['entity']['seg_content']) for entity in hybrid_results[0]] if hybrid_results else '无匹配内容'} ")
 
             # 执行 rerank 重排序
             reranked_results = self._custom_rerank(
@@ -318,7 +79,7 @@ class HybridRetriever:
             # 计算耗时
             duration = time.time() - start_time
             logger.info(
-                f"[混合检索] request_id={request_id}, 检索完成, 耗时: {duration:.3f}s, 返回={len(reranked_results)}条结果"
+                f"[混合检索] request_id={request_id}, 检索完成, 耗时: {duration:.3f}s, 返回: {len(reranked_results)} 条结果"
             )
 
             # 返回结果
@@ -326,6 +87,7 @@ class HybridRetriever:
 
         except Exception as e:
             logger.error(f"[混合检索] request_id={request_id}, 检索失败: {str(e)}")
+            log_exception("混合检索失败",exc=e)
             return []
 
     @staticmethod
@@ -412,12 +174,13 @@ class HybridRetriever:
             # 按 rerank 分数排序
             hybrid_results.sort(key=lambda x: x.get("rerank_score", 0), reverse=True)
 
-            logger.info(
-                f"[重排序] request_id={request_id}, 按照 rerank 分数排序后的结果:\n {hybrid_results}"
-            )
+            # 调试
+            logger.debug(f"[重排序] request_id={request_id}, 按照 rerank 分数排序后的结果:")
+            for result in hybrid_results:
+                logger.debug(result)
 
             # 相关性过滤(基于 rerank 分数)
-            relevance_threshold = -20  # 相关性阈值，可根据实际效果调整
+            relevance_threshold = -5  # 相关性阈值，可根据实际效果调整
             filtered_results = []
             for result in hybrid_results:
                 score = result.get("rerank_score", 0)
@@ -426,23 +189,29 @@ class HybridRetriever:
                 else:
                     seg_id = result.get("entity", {}).get("seg_id", "unknown")
                     logger.debug(
-                        f"[相关性过滤] request_id={request_id}, 过滤低相关性文档, score={score:.4f}, seg_id={seg_id}"
+                        f"[重排序] 阈值过滤, request_id={request_id}, 低于阈值,过滤掉该分块, seg_id: {seg_id}, score: {score:.4f}"
                     )
 
-            logger.info(
-                f"[相关性过滤] request_id={request_id}, 过滤前={len(hybrid_results)}, 过滤后={len(filtered_results)}, 阈值={relevance_threshold}"
+            # 调试
+            logger.debug(
+                f"[重排序] 阈值过滤, request_id={request_id}, 过滤前: {len(hybrid_results)}, 过滤后: {len(filtered_results)}, 阈值: {relevance_threshold}"
             )
 
             # 空结果处理
             if not filtered_results:
                 logger.warning(
-                    f"[相关性过滤] request_id={request_id}, 所有文档相关性都低于阈值: {relevance_threshold}"
+                    f"[重排序] 阈值过滤, request_id={request_id}, 所有文档相关性都低于阈值"
                 )
                 return []
 
+            # 调试
+            logger.debug(f"[重排序] 阈值过滤, request_id={request_id}, 阈值过滤后的分块内容如下:")
+            for result in filtered_results:
+                logger.debug(result)
+
             if len(filtered_results) <= top_k:
                 logger.info(
-                    f"[相关性过滤] request_id={request_id}, 文档数量: {len(filtered_results)} < {top_k}, 直接返回."
+                    f"[重排序] 阈值过滤, request_id={request_id}, 文档数量: {len(filtered_results)} < {top_k}, 直接返回."
                 )
                 return filtered_results
 
@@ -451,12 +220,19 @@ class HybridRetriever:
                 filtered_results, top_k=top_k, request_id=request_id
             )
             logger.info(
-                f"[重排序] request_id={request_id}, 完成, 梯度截断后={len(final_results)}条结果"
+                f"[重排序] 梯度过滤, request_id={request_id}, 梯度过滤完成, 过滤前 {len(filtered_results)} 条, 过滤后: {len(final_results)} 条"
             )
+
+            # 调试
+            if not final_results:
+                logger.debug(f"[重排序] 梯度过滤, request_id={request_id}, 阈值过滤后的分块内容如下:")
+                for result in final_results:
+                    logger.debug(result)
+
             return final_results
 
         except Exception as error:
-            logger.error(f"[重排序失败] error_msg={str(error)}")
+            logger.error(f"[重排序] 失败: {str(error)}")
             return []
 
 
@@ -485,17 +261,17 @@ if __name__ == "__main__":
     retriever = HybridRetriever()
 
     # 准备查询参数
-    query_text = "人工智能技术"
+    query_text = "省外出差补贴"
     query_vector = embedding_manager.embed_text(query_text)
-    doc_ids = ["doc_001", "doc_002", "doc_003"]
+    doc_id_list = ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]
     limit = 10
 
+
     # 执行混合检索
-    results = retriever._hybrid_search(
-        query_text=query_text, query_vector=query_vector, doc_ids=doc_ids, limit=limit
+    results = retriever.retrieve(
+        query_text=query_text, query_vector=query_vector, doc_id_list=doc_id_list, limit=limit,top_k=limit,
     )
 
     if results:
-        print(f"向量检索结果: {len(results['vector_results'])} 条")
-        print(f"全文检索结果: {len(results['full_text_results'])} 条")
-        print(f"检索耗时: {results['duration']:.3f}s")
+        for result in results:
+            print(result)

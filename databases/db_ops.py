@@ -1,10 +1,12 @@
 """需要对所有数据库统一操作的代码工具"""
 
 import time
+from contextlib import contextmanager
 from typing import Any
 
 from config.global_config import GlobalConfig
 from databases.milvus.flat_collection import FlatCollectionManager
+from databases.mysql.base import MySQLConnectionPool
 from databases.mysql.operations import (
     ChatMessageOperation,
     ChatSessionOperation,
@@ -14,7 +16,7 @@ from databases.mysql.operations import (
     PermissionOperation,
 )
 from utils.log_utils import logger
-from utils.validators import validate_empty_param
+from utils.validators import validate_doc_id, validate_empty_param
 
 # 表明与操作类的映射
 TABLE_OPERATION_MAPPING = {
@@ -27,9 +29,7 @@ TABLE_OPERATION_MAPPING = {
 }
 
 
-def select_record_by_doc_id(
-    table_name: str, doc_id: str
-) -> dict[str, Any] | list[dict[str, Any]] | None:
+def select_record_by_doc_id(table_name: str, doc_id: str) -> dict[str, Any] | list[dict[str, Any]] | None:
     """根据 doc_id 查询数据库信息
 
     Args:
@@ -51,32 +51,7 @@ def select_record_by_doc_id(
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
 
-def select_records_by_doc_id(table_name: str, doc_id: str) -> list[dict[str, Any]]:
-    """根据 doc_id 查询数据库信息
-
-    Args:
-        table_name: 要查询的表名
-        doc_id: 文档Id
-
-    Returns:
-        dict: 查询到的记录,未查询到时为[]
-    """
-
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
-
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.select_by_id_many(doc_id)
-    except Exception as e:
-        logger.error(f"记录查询失败, 失败原因: {str(e)}")
-        return []
-
-
-def select_by_id(
-    table_name: str, seg_id_list: list[str], doc_id_list: list[str]
-) -> list[dict[str, Any]]:
+def select_by_id(table_name: str, seg_id_list: list[str], doc_id_list: list[str]) -> list[dict[str, Any]]:
     """根据 doc_id 和 seg_id 查询数据库信息
 
     Args:
@@ -91,14 +66,10 @@ def select_by_id(
     if table_name not in TABLE_OPERATION_MAPPING:
         raise ValueError(f"未知表名: {table_name}")
 
-    logger.info(f"获取到的 id 列表: \n doc_id: {doc_id_list} \n seg_id: {seg_id_list}")
-
     try:
         operation_cls = TABLE_OPERATION_MAPPING[table_name]
         with operation_cls() as op:
-            results = op.get_segment_contents(
-                seg_id_list=seg_id_list, doc_id_list=doc_id_list
-            )
+            results = op.get_segment_contents(seg_id_list=seg_id_list, doc_id_list=doc_id_list)
             return results if results else []
     except Exception as e:
         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
@@ -124,32 +95,22 @@ def delete_all_database_data(doc_id: str) -> None:
                 PageOperation() as page_op,
             ):
                 # 删除文件信息表
-                logger.info(
-                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录"
-                )
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['file_info_table']} 记录")
                 file_op_nums = file_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {file_op_nums} 条")
 
                 # 删除权限信息表
-                logger.info(
-                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录"
-                )
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['permission_info_table']} 记录")
                 permission_op_nums = permission_op.delete_by_doc_id(doc_id)
-                logger.info(
-                    f"[MySQL删除] 文件信息表删除成功, 共 {permission_op_nums} 条"
-                )
+                logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {permission_op_nums} 条")
 
                 # 删除分块信息表
-                logger.info(
-                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录"
-                )
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['segment_info_table']} 记录")
                 chunk_op_nums = chunk_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {chunk_op_nums} 条")
 
                 # 删除分页信息表
-                logger.info(
-                    f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录"
-                )
+                logger.info(f"[MySQL删除] 删除表 {GlobalConfig.MYSQL_CONFIG['doc_page_info_table']} 记录")
                 page_op_nums = page_op.delete_by_doc_id(doc_id)
                 logger.info(f"[MySQL删除] 文件信息表删除成功, 共 {page_op_nums} 条")
 
@@ -162,9 +123,7 @@ def delete_all_database_data(doc_id: str) -> None:
 
         # 删除 Milvus 数据库记录
         try:
-            logger.info(
-                f"Milvus 数据删除, 集合: {GlobalConfig.MILVUS_CONFIG['collection_name']}"
-            )
+            logger.info(f"Milvus 数据删除, 集合: {GlobalConfig.MILVUS_CONFIG['collection_name']}")
             # vector_op = VectorOperation()
             vector_op = FlatCollectionManager()
             vector_op.delete_by_doc_id(doc_id)
@@ -188,9 +147,7 @@ def delete_all_database_data(doc_id: str) -> None:
         # 不中断主流程
 
 
-def update_record_by_doc_id(
-    table_name: str, doc_id: str, kwargs: dict[str, Any]
-) -> bool:
+def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: dict[str, Any]) -> bool:
     """通用表记录更新方法，根据表名和文档ID更新记录。
 
     Args:
@@ -241,9 +198,7 @@ def insert_record(table_name: str, data: dict[str, Any] | list[dict[str, Any]]) 
         raise ValueError(f"MySQL 数据插入失败, 失败原因: {str(e)}") from e
 
 
-def select_ids_by_permission(
-    table_name: str, permission_type: str, cleaned_dep_ids: list[str] = None
-) -> list[str]:
+def select_ids_by_permission(table_name: str, permission_type: str, cleaned_dep_ids: list[str] = None) -> list[str]:
     """
     使用清洗后的权限 ID 从权限表中找出对应的所有 doc_id
 
@@ -265,9 +220,41 @@ def select_ids_by_permission(
     try:
         operation_cls = TABLE_OPERATION_MAPPING[table_name]
         with operation_cls() as op:
-            return op.get_ids_by_permission(
-                permission_type=permission_type, subject_ids=cleaned_dep_ids
-            )
+            return op.get_ids_by_permission(permission_type=permission_type, subject_ids=cleaned_dep_ids)
     except Exception as e:
         logger.error(f"获取文档 ID 失败, 失败原因: {str(e)}")
         raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e
+
+
+def delete_record_by_doc_id(table_name: str, doc_id: str) -> None:
+    """根据 doc_id 删除指定数据库信息
+
+    Args:
+        table_name: 要删除的表名
+        doc_id: 文档ID
+    """
+    if table_name not in TABLE_OPERATION_MAPPING:
+        raise ValueError(f"未知表名: {table_name}")
+
+    validate_doc_id(doc_id)
+
+    try:
+        operation_cls = TABLE_OPERATION_MAPPING[table_name]
+        with operation_cls() as op:
+            return op.delete_by_doc_id(doc_id)
+    except Exception as e:
+        raise ValueError(f"删除记录失败, 失败原因: {str(e)}") from e
+
+
+@contextmanager
+def mysql_transaction():
+    """数据库事务管理器"""
+    conn = MySQLConnectionPool().get_connection()
+    try:
+        yield conn
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e from e
+    finally:
+        conn.close()

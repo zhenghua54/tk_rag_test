@@ -15,8 +15,8 @@ from core.doc.parser import process_doc_content
 from databases.db_ops import (
     delete_all_database_data,
     insert_record,
+    mysql_transaction,
     select_record_by_doc_id,
-    select_records_by_doc_id,
     update_record_by_doc_id,
 )
 from databases.mysql.operations import FileInfoOperation, PermissionOperation
@@ -90,15 +90,15 @@ class DocumentService(BaseService):
 
             # 查重
             doc_id = generate_doc_id(doc_path=str(path.resolve()))
-            logger.info(f"查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
+            logger.info(f"[文档上传] 查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
             records = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id)
 
             if records:
                 if records["process_status"] in GlobalConfig.FILE_STATUS.get("error"):
-                    logger.info(f"记录存在，状态异常，准备删除: {records}")
+                    logger.info(f"[文档上传] 记录存在，状态异常，准备删除: {records}")
                     delete_all_database_data(doc_id=doc_id)
                 elif records["process_status"] in GlobalConfig.FILE_STATUS.get("normal"):
-                    raise ValueError(f"文件已上传, 状态: {records['process_status']}")
+                    raise ValueError(f"[文档上传] 文件已上传, 状态: {records['process_status']}")
 
             # 文档不存在，进入上传 + 处理流程
             now = datetime.now()
@@ -125,11 +125,11 @@ class DocumentService(BaseService):
             # 插入数据库元信息
             try:
                 with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                    logger.info(f"request_id={request_id}, 开始文档入库, doc_id={doc_id}")
+                    logger.info(f"[文档上传] 开始文档入库, request_id={request_id}, doc_id={doc_id}")
                     file_op.insert_data(doc_info)
                     # 插入权限信息到数据库
                     logger.info(
-                        f"request_id={request_id}, 开始权限入库, doc_id={doc_id}, permission_ids={cleaned_dep_ids}"
+                        f"[文档上传] 开始权限入库, request_id={request_id}, doc_id={doc_id}, permission_ids={cleaned_dep_ids}"
                     )
                     permission_op.insert_datas(permission_info)
 
@@ -159,13 +159,75 @@ class DocumentService(BaseService):
             except pymysql.IntegrityError as e:
                 if e.args[0] == 1062:
                     # 唯一约束冲突
-                    raise APIException(ErrorCode.FILE_EXISTS_PROCESSED) from e
-                logger.error(f"数据库操作失败, error_msg={str(e)}, request_id={request_id}")
-                raise APIException(ErrorCode.MYSQL_INSERT_FAIL, str(e)) from e
+                    raise ValueError("文件已存在, 请勿重复上传")
+                logger.error(f"[文档上传] 数据库操作失败, error_msg={str(e)}, request_id={request_id}")
+                raise ValueError(f"数据库操作失败, error_msg={str(e)}") from e
 
         except Exception as e:
-            logger.error(f"文档上传失败, request_id={request_id}, error={str(e)}")
+            logger.error(f"[文档上传] 失败, request_id={request_id}, error={str(e)}")
             raise e from e
+
+    @staticmethod
+    async def update_permission(
+        doc_id: str, permission_ids: str | list[str] | list[None], request_id: str = None
+    ) -> dict:
+        """更新文档
+
+        Args:
+            doc_id: 已存在的文档 ID
+            permission_ids: 部门ID
+            request_id: 请求 ID
+
+        Returns:
+            dict: 更新结果
+        """
+        # 参数校验
+        # validate_empty_param(permission_ids, "权限 ID")
+        validate_doc_id(doc_id)
+
+        # 权限格式转换
+        cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
+
+        # 验证源文档是否存在
+        logger.debug(f"[文档权限更新] 查询文档是否存在, request_id={request_id}, doc_id={doc_id}")
+        source_doc_info = select_record_by_doc_id(
+            table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id
+        )
+        logger.debug(
+            f"[文档权限更新] 查询文档是否存在, request_id={request_id}, doc_id={doc_id}, 结果: {source_doc_info}"
+        )
+        if not source_doc_info:
+            logger.error(
+                f"[文档权限更新] 文档不存在, request_id={request_id}, doc_id={doc_id}, permission_ids={permission_ids}"
+            )
+            raise ValueError(f"文档不存在, doc_id={doc_id}")
+
+        # 构造新数据
+        now = datetime.now()
+
+        permission_data = []
+        for dep_id in cleaned_dep_ids:
+            permission_data.append(
+                {"permission_type": "department", "subject_id": dep_id, "doc_id": doc_id, "created_at": now}
+            )
+
+        with mysql_transaction() as conn:
+            with PermissionOperation(conn=conn) as permission_op:
+                # 删除原有权限
+                permission_op.delete_by_doc_id(doc_id)
+
+            # 写入新权限
+            result_num = permission_op.insert_datas(permission_data)
+            logger.debug(
+                f"[文档权限更新] 权限更新成功, request_id={request_id}, doc_id={doc_id}, 更新数量: {result_num}"
+            )
+
+        return {
+            "doc_id": doc_id,
+            "updated_permissions": cleaned_dep_ids,
+            "update_result": "success",
+            "update_count": result_num,
+        }
 
     @staticmethod
     async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> dict[str, Any]:
@@ -312,7 +374,7 @@ class DocumentService(BaseService):
 
         # 文档已切页, 增加分页信息
         if file_status == "splited":
-            doc_page_info: list[dict] = select_records_by_doc_id(
+            doc_page_info: list[dict] = select_record_by_doc_id(
                 table_name=GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], doc_id=doc_id
             )
             page_info_list = []
@@ -334,7 +396,7 @@ class DocumentService(BaseService):
         document_name: str,
         file_op: FileInfoOperation,
         request_id: str = None,
-        callback_url: str = None,
+        callback_url: str | None = None,
     ) -> None:
         """监控文档处理状态，完成后启动文档切块
 
@@ -389,9 +451,9 @@ class DocumentService(BaseService):
                         logger.info(
                             f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}"
                         )
-
-                        # 同步状态到外部系统
-                        sync_status_safely(doc_id, "chunked", request_id, callback_url)
+                        if callback_url:
+                            # 同步状态到外部系统
+                            sync_status_safely(doc_id, "chunked", request_id, callback_url)
 
                         # 更新数据库状态为已切块
                         update_record_by_doc_id(
@@ -403,8 +465,9 @@ class DocumentService(BaseService):
                         doc_status = "chunk_failed"
                         logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
 
-                        # 同步状态到外部系统
-                        sync_status_safely(doc_id, "chunk_failed", request_id, callback_url)
+                        if callback_url:
+                            # 同步状态到外部系统
+                            sync_status_safely(doc_id, "chunk_failed", request_id, callback_url)
 
                         update_record_by_doc_id(
                             GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
@@ -427,8 +490,9 @@ class DocumentService(BaseService):
                             f"request_id={request_id}, 文档切块完成, 开始更新数据库状态: process_status -> {doc_status}"
                         )
 
-                        # 同步状态到外部系统
-                        sync_status_safely(doc_id, "splited", request_id, callback_url)
+                        if callback_url:
+                            # 同步状态到外部系统
+                            sync_status_safely(doc_id, "splited", request_id, callback_url)
 
                         update_record_by_doc_id(
                             GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
@@ -446,8 +510,9 @@ class DocumentService(BaseService):
                         doc_status = "split_failed"
                         logger.info(f"request_id={request_id}, 开始更新数据库状态: process_status -> {doc_status}")
 
-                        # 同步状态到外部系统
-                        sync_status_safely(doc_id, "split_failed", request_id, callback_url)
+                        if callback_url:
+                            # 同步状态到外部系统
+                            sync_status_safely(doc_id, "split_failed", request_id, callback_url)
 
                         update_record_by_doc_id(
                             GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}

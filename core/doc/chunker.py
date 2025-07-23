@@ -150,7 +150,7 @@ def segment_text_content(
         length_function=len,
         separators=["\n\n", "\n", "。", "！", "？", "!", "?"],
     )
-    logger.info(f"request_id={request_id}, 文本分块器初始化完成")
+    logger.debug(f"request_id={request_id}, 文本分块器初始化完成")
 
     # 初始化数据库操作实例
     chunk_op = ChunkOperation()
@@ -198,14 +198,14 @@ def segment_text_content(
                         "max_text_length", 500
                     ):
                         # 文本长度小于chunk_size，直接处理不分块
-                        logger.info(
+                        logger.debug(
                             f"request_id={request_id}, 文本长度({len(text_content)})小于分块大小({GlobalConfig.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块"
                         )
                         text_chunks = [text_content]
                     else:
                         # 文本长度超过chunk_size，需要分块
                         text_chunks = text_splitter.split_text(text_content)
-                        logger.info(
+                        logger.debug(
                             f"request_id={request_id}, 文本内容分块完成，共 {len(text_chunks)} 个块"
                         )
 
@@ -383,7 +383,7 @@ def segment_text_content(
         if milvus_batch or mysql_batch:
             save_batch_to_databases(milvus_batch, mysql_batch, chunk_op, flat_manager)
             total_records += len(mysql_batch)
-            logger.info(
+            logger.debug(
                 f"request_id={request_id}, 已保存最后一批记录，Milvus:{len(milvus_batch)}，MySQL:{len(mysql_batch)}"
             )
 
@@ -426,7 +426,7 @@ def save_batch_to_databases(
 
         # 2. 保存到 Milvus
         if milvus_batch:
-            logger.info(
+            logger.debug(
                 f"[Chunker] 插入Milvus数据, 数据: {[(data['doc_id'], data['seg_id'], data['seg_content']) for data in milvus_batch]}"
             )
             flat_manager.insert_data(milvus_batch)

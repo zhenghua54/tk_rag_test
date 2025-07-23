@@ -216,7 +216,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
         doc_path (str): 源文档路径
         doc_id (str, optional): 文档ID, 如果提供则会更新数据库状态
         request_id (str, optional): 请求ID, 如果提供则会更新数据库状态
-        callback_url (str, optional): 回调 URL
+        callback_url (str, optional): 回调 URL, 为空时代表无需反馈文件状态
 
     Returns:
         save_path (str): 处理后的文档路径
@@ -270,14 +270,17 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
                     "doc_pdf_path": pdf_path,
                     "process_status": "parsed",
                 }
-                # 同步状态到外部系统
-                sync_status_safely(doc_id, "parsed", request_id, callback_url)
+
+                if callback_url:
+                    # 同步状态到外部系统
+                    sync_status_safely(doc_id, "parsed", request_id, callback_url)
 
             else:
                 # 构建需要更新的字段
                 values = {"process_status": "parse_failed"}
-                # 同步状态到外部系统
-                sync_status_safely(doc_id, "parse_failed", request_id, callback_url)
+                if callback_url:
+                    # 同步状态到外部系统
+                    sync_status_safely(doc_id, "parse_failed", request_id, callback_url)
 
             logger.info(
                 f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}"
@@ -298,8 +301,9 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
             log_exception(f"request_id={request_id}, 合并元素异常", exc=e)
             logger.info(f"[数据库更新] request_id={request_id}, 合并失败, 更新状态为 merge_failed")
 
-            # 同步状态到外部系统
-            sync_status_safely(doc_id, "merge_failed", request_id, callback_url)
+            if callback_url:
+                # 同步状态到外部系统
+                sync_status_safely(doc_id, "merge_failed", request_id, callback_url)
 
             update_record_by_doc_id(
                 table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
@@ -311,8 +315,9 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
         # 更新最终状态
         logger.info(f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status=merged")
 
-        # 同步状态到外部系统
-        sync_status_safely(doc_id, "merged", request_id, callback_url)
+        if callback_url:
+            # 同步状态到外部系统
+            sync_status_safely(doc_id, "merged", request_id, callback_url)
 
         update_record_by_doc_id(
             table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],

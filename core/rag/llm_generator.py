@@ -178,7 +178,8 @@ class RAGGenerator:
                     doc_seg_pairs.append((doc_id, seg_id))
                     rerank_scores.append(rerank_score)
 
-            logger.info(
+            # 调试
+            logger.debug(
                 f"[元数据构建] request_id={request_id}, 提取到 {len(doc_seg_pairs)} 个唯一记录"
             )
 
@@ -321,8 +322,11 @@ class RAGGenerator:
             doc_ids = select_ids_by_permission(
                 table_name="permission_doc_link",
                 permission_type=permission_type,
-                cleaned_dep_ids=cleaned_dep_ids + [''],
+                cleaned_dep_ids=cleaned_dep_ids,
             )
+
+            # 调试
+            logger.debug(f"根据权限查出的 doc_ids: {doc_ids}")
 
             # 获取当前 session 的历史对话
             raw_history: list[BaseMessage] = self._get_history(session_id)
@@ -343,7 +347,7 @@ class RAGGenerator:
                     query_vector=rewrite_query_vector,
                     doc_id_list=doc_ids,
                     top_k=5,
-                    limit=10,
+                    limit=1000,
                     request_id=request_id,
                 )
             else:
@@ -487,7 +491,10 @@ class RAGGenerator:
                     f"查询重写结果异常, 使用原问题, 重写结果:{rewrite_query}"
                 )
                 return question
-            logger.info(f"查询重写完成- 原问题:{question}, 重写后:{rewrite_query}")
+
+            # 调试
+            logger.debug(f"查询重写完成- 原问题:{question}, 重写后:{rewrite_query}")
+
             return rewrite_query
 
         except Exception as e:

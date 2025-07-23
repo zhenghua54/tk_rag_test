@@ -58,7 +58,7 @@ class ModelManager(ABC):
             )
             self._model = self._init_model()
             self._is_initialized = True
-            logger.info(f"[模型加载] {self.__class__.__name__}模型加载完成")
+            logger.debug(f"[模型加载] {self.__class__.__name__}模型加载完成")
         return self._model
 
     def check_idle(self):
@@ -68,7 +68,7 @@ class ModelManager(ABC):
             if (
                 idle_time > self._idle_timeout
             ):  # 如果空闲时间超过 _idle_timeout 则卸载模型
-                logger.info(
+                logger.debug(
                     f"[模型卸载] {self.__class__.__name__}模型已空闲{idle_time:.2f}秒，进行卸载"
                 )
                 self.unload_model()
@@ -83,12 +83,12 @@ class ModelManager(ABC):
     def unload_model(self):
         """重写卸载方法，同时清理 client"""
         if self._is_initialized:
-            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
+            logger.debug(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
             self._client = None
             self._is_initialized = False
-            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
+            logger.debug(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
     def get_model_status(self) -> dict[str, Any]:
         """获取模型状态"""
@@ -154,7 +154,7 @@ class RerankManager(ModelManager):
         """初始化Rerank模型"""
         try:
             model_path = GlobalConfig.MODEL_PATHS.get("rerank")
-            logger.info(f"[Rerank模型] 开始加载模型: {model_path}")
+            logger.debug(f"[Rerank模型] 开始加载模型: {model_path}")
             
             # 检查模型路径是否存在
             if not os.path.exists(model_path):
@@ -211,13 +211,13 @@ class RerankManager(ModelManager):
     def unload_model(self):  # 重写卸载方法，同时清理 tokenizer
         """重写卸载方法，同时清理 tokenizer"""
         if self._is_initialized:
-            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
+            logger.debug(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
             self._tokenizer = None  # 清理 tokenizer
             self._is_initialized = False
             self._last_used_time = None
-            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
+            logger.debug(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
 
 class LLMManager(ModelManager):
@@ -233,7 +233,7 @@ class LLMManager(ModelManager):
         # 初始化时获取配置
         self._model_config = GlobalConfig.get_current_llm_config()
         self._model_name = self._model_config["name"]
-        logger.info(f"[LLM初始化] 使用模型={self._model_name}")
+        logger.debug(f"[LLM初始化] 使用模型={self._model_name}")
 
     def _init_model(self) -> OpenAI:
         """初始化LLM模型"""
@@ -314,13 +314,13 @@ class LLMManager(ModelManager):
     def unload_model(self):
         """重写卸载方法，同时清理 client"""
         if self._is_initialized:
-            logger.info(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
+            logger.debug(f"[模型卸载] 开始卸载{self.__class__.__name__}模型")
             self.clear_cache()
             self._model = None
             self._client = None
             self._is_initialized = False
             self._last_used_time = None
-            logger.info(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
+            logger.debug(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
     @staticmethod
     def count_tokens(
@@ -398,7 +398,7 @@ def get_messages_for_rag(
     """
     try:
         # 记录输入参数基本信息
-        logger.info(
+        logger.debug(
             f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}"
         )
 
@@ -436,7 +436,7 @@ def get_messages_for_rag(
 
             # 如果知识库信息不为空，则添加到 messages
             if docs_content:
-                logger.info(
+                logger.debug(
                     f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={token_total}"
                 )
             else:
@@ -482,7 +482,7 @@ def get_messages_for_rag(
                     include_system=True,  # 是否保留 system message
                     allow_partial=True,  # 超限时是否保留部分片段
                 )
-                logger.info(
+                logger.debug(
                     f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}"
                 )
 
@@ -519,7 +519,7 @@ def get_messages_for_rag(
             logger.warning("[消息构建] 当前问题为空")
 
         # 记录最终结果
-        logger.info(
+        logger.debug(
             f"[消息构建] 完成, 构建消息条数={len(messages)}, 总token数={total_tokens}, 角色分布={dict([(role, len([m for m in messages if m['role'] == role])) for role in ['system', 'user', 'assistant']])}"
         )
 

@@ -34,7 +34,6 @@ from pymilvus.orm.iterator import SearchIterator
 
 from config.global_config import GlobalConfig
 from config.milvus_config import MilvusFlatConfig
-from utils.llm_utils import EmbeddingManager
 from utils.log_utils import logger
 
 
@@ -353,60 +352,6 @@ class FlatCollectionManager:
             logger.error(f"[FLAT Milvus] Collection 数据插入失败：{str(e)}")
             raise
 
-    # def vector_search(
-    #     self,
-    #     query_vector: list[float],
-    #     doc_ids: list[str],
-    #     top_k: int = 100,
-    #     output_fields: list[str] = None,
-    # ) -> list[Any] | None:
-    #     """
-    #     执行向量相似性搜索
-    #
-    #     使用项目统一的 EmbeddingManager 生成查询向量，确保向量归一化一致性。
-    #
-    #     Args:
-    #         query_vector: 查询文本向量(1024维浮点数)
-    #         doc_ids: 文档 ID 列表
-    #         top_k: 返回结果数量，默认100
-    #         output_fields: 返回字段，默认使用配置的输出字段
-    #
-    #     Returns:
-    #         list[Any] | None: 检索结果列表
-    #
-    #     Raises:
-    #         ValueError: 当查询向量格式不正确时抛出
-    #         Exception: 当搜索失败时抛出
-    #     """
-    #     try:
-    #         # 设置默认输出字段
-    #         output_fields = output_fields if output_fields else ["*"]
-    #
-    #         # 构建过滤条件
-    #         filter_expr = f"doc_id in {doc_ids}"
-    #
-    #         logger.debug(f"[Milvus 检索] filter: {filter_expr}")
-    #
-    #         # 构建搜索参数
-    #         results = self.client.search(
-    #             collection_name=self.collection_name,
-    #             data=[query_vector],  # 查询向量列表
-    #             anns_field="seg_dense_vector",  # 向量字段名
-    #             search_params={"metric_type": "IP", "params": {}},  # 搜索参数
-    #             limit=top_k,  # 返回结果数量
-    #             output_fields=output_fields,  # 返回字段
-    #             filter=filter_expr,  # 过滤条件
-    #         )
-    #
-    #         # 处理搜索结果: 单个查询向量，只会有一个 hits，取第一个结果列表
-    #         search_results = results[0] if results else []
-    #         logger.info(
-    #             f"[FLAT Milvus] 向量搜索完成，返回 {len(search_results)} 条结果"
-    #         )
-    #
-    #     except Exception as e:
-    #         logger.error(f"[FLAT Milvus] 向量搜索未返回结果: {str(e)}")
-    #         return []
 
     def vector_search_iterator(
         self,
@@ -596,7 +541,7 @@ class FlatCollectionManager:
 
             all_results.sort(key=lambda x: x["distance"], reverse=True)
 
-            return [all_results[:limit]]
+            return [all_results[:kwargs.get("limit")]]
         except Exception as e:
             logger.error(f"[FLAT Milvus] 批次混合检索失败: {str(e)}")
             return [[]]
@@ -795,71 +740,115 @@ class FlatCollectionManager:
 
 
 if __name__ == "__main__":
-    from rich import print
 
-    # 测试 FLAT collection 创建
-    logger.info("开始测试 FLAT Collection 创建...")
+    # # 测试 FLAT collection 创建
+    # logger.info("开始测试 FLAT Collection 创建...")
+    #
+    # try:
+    #     # 创建管理器
+    #     flat_manager = FlatCollectionManager()
+    #
+    #     # 删除 collection
+    #     # flat_manager.drop_collection(True)
+    #
+    #     # # 验证索引信息
+    #     # collection_info = flat_manager.client.describe_collection(
+    #     #     collection_name=flat_manager.collection_name
+    #     # )
+    #     # print(collection_info)
+    #     # print("=" * 60)
+    #     # index_info = flat_manager.client.describe_index(
+    #     #     collection_name=flat_manager.collection_name, index_name="seg_sparse_vector"
+    #     # )
+    #     # print(index_info)
+    #     #
+    #     # print("=" * 60)
+    #     #
+    #     # # 验证数据插入
+    #     # results = flat_manager.client.query(
+    #     #     collection_name=flat_manager.collection_name,
+    #     #     filter="doc_id == '308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52'",
+    #     #     output_fields=["seg_content", "doc_id"],
+    #     # )
+    #     # print(results)
+    #     # print("=" * 60)
+    #     #
+    #     # # # 测试稀疏向量
+    #     # search_params = {"params": {"drop_ratio_search": 0.2}}
+    #     #
+    #     # search_results = flat_manager.client.search(
+    #     #     collection_name=flat_manager.collection_name,
+    #     #     data=["红楼梦"],
+    #     #     anns_field="seg_sparse_vector",
+    #     #     search_params=search_params,
+    #     #     limit=5,
+    #     #     output_fields=["seg_content", "doc_id"],
+    #     # )
+    #     # print(search_results)
+    #     # print("=" * 60)
+    #
+    #     # 初始化embedding
+    #     embedding_manager = EmbeddingManager()
+    #     # 测试混合检索
+    #     hybrid_res: list[list[dict]] = flat_manager.optimized_hybrid_search(
+    #         doc_id_list=[
+    #             "308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52",
+    #         ],
+    #         query_text="红色",
+    #         query_vector=embedding_manager.embed_text("红色"),
+    #         limit=2,
+    #     )
+    #     print(len(hybrid_res))
+    #     print(hybrid_res)
+    #     print("=" * 60)
+    #     # 获取统计信息
+    #     # stats = flat_manager.get_collection_stats()
+    #     # logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+    #
+    # except Exception as e:
+    #     logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
 
-    try:
-        # 创建管理器
-        flat_manager = FlatCollectionManager()
 
-        # 删除 collection
-        # flat_manager.drop_collection(True)
+    # 准备查询参数
+    flat_manager = FlatCollectionManager()
 
-        # # 验证索引信息
-        # collection_info = flat_manager.client.describe_collection(
-        #     collection_name=flat_manager.collection_name
-        # )
-        # print(collection_info)
-        # print("=" * 60)
-        # index_info = flat_manager.client.describe_index(
-        #     collection_name=flat_manager.collection_name, index_name="seg_sparse_vector"
-        # )
-        # print(index_info)
-        #
-        # print("=" * 60)
-        #
-        # # 验证数据插入
-        # results = flat_manager.client.query(
-        #     collection_name=flat_manager.collection_name,
-        #     filter="doc_id == '308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52'",
-        #     output_fields=["seg_content", "doc_id"],
-        # )
-        # print(results)
-        # print("=" * 60)
-        #
-        # # # 测试稀疏向量
-        # search_params = {"params": {"drop_ratio_search": 0.2}}
-        #
-        # search_results = flat_manager.client.search(
-        #     collection_name=flat_manager.collection_name,
-        #     data=["红楼梦"],
-        #     anns_field="seg_sparse_vector",
-        #     search_params=search_params,
-        #     limit=5,
-        #     output_fields=["seg_content", "doc_id"],
-        # )
-        # print(search_results)
-        # print("=" * 60)
+    query_text = "省外出差补贴"
+    from utils.llm_utils import embedding_manager
+    query_vector = embedding_manager.embed_text(query_text)
+    doc_id_list = ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]
+    limit = 100
 
-        # 初始化embedding
-        embedding_manager = EmbeddingManager()
-        # 测试混合检索
-        hybrid_res: list[list[dict]] = flat_manager.optimized_hybrid_search(
-            doc_id_list=[
-                "308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52",
-            ],
-            query_text="红色",
-            query_vector=embedding_manager.embed_text("红色"),
-            limit=2,
-        )
-        print(len(hybrid_res))
-        print(hybrid_res)
-        print("=" * 60)
-        # 获取统计信息
-        # stats = flat_manager.get_collection_stats()
-        # logger.info(f"[FLAT Milvus] Collection 统计信息：{stats}")
+    # 查询集合数量
+    desc = flat_manager.client.describe_collection(flat_manager.collection_name)
 
-    except Exception as e:
-        logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
+    print(desc)
+    print('-' * 100)
+
+    print(flat_manager.client.get_collection_stats(flat_manager.collection_name))
+    print('-' * 100)
+
+    res = flat_manager.client.search(
+        collection_name=flat_manager.collection_name,
+        data=[query_vector],
+        anns_field="seg_dense_vector",
+        limit=limit,
+        output_fields=["seg_id","seg_content"],
+        filter = 'doc_id in ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]'
+    )
+
+    for hit in res[0]:
+        print(hit)
+
+    print('-' * 100)
+
+    sparse_res = flat_manager.client.search(
+        collection_name=flat_manager.collection_name,
+        data=[query_text],
+        anns_field="seg_sparse_vector",
+        limit=limit,
+        output_fields=["seg_id", "seg_content"],
+        filter='doc_id in ["123"]'
+    )
+
+    for hit in sparse_res[0]:
+        print(hit)

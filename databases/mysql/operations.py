@@ -216,33 +216,14 @@ class ChunkOperation(BaseDBOperation):
                 sql += f" AND s.doc_id IN ({placeholders}) "
                 params.extend(doc_id_list)
 
-            # 字符串,使用=
-            # if seg_ids:
-            #     if len(seg_ids) == 1:
-            #         sql += " AND s.seg_id = %s"
-            #         params.append(seg_ids[0])
-            #     else:
-            #         placeholders = ", ".join(["%s"] * len(seg_ids))
-            #         sql += f" AND s.seg_id IN ({placeholders})"
-            #         params.extend(seg_ids)
-            #
-            # if doc_ids:
-            #     if len(doc_ids) == 1:
-            #         sql += " AND s.doc_id = %s"
-            #         params.append(doc_ids[0])
-            #     else:
-            #         placeholders = ", ".join(["%s"] * len(doc_ids))
-            #         sql += f" AND s.doc_id IN ({placeholders})"
-            #         params.extend(doc_ids)
-
             # 添加 GROUP BY 子句, 过滤重复内容
             sql += """
             GROUP BY s.doc_id, s.seg_id, s.seg_content, s.seg_page_idx, s.seg_type,
                      f.doc_name, f.doc_http_url, d.page_png_path
             """
 
-            logger.info(f"最终的查询 SQL 为: {sql}")
-            logger.info(f"最终的查询 参数 为: {params}")
+            # logger.info(f"最终的查询 SQL 为: {sql}")
+            # logger.info(f"最终的查询 参数 为: {params}")
 
             # 执行查询
             segment_info: list[dict[str, Any]] = self._execute_query(sql, tuple(params))
@@ -304,8 +285,8 @@ class ChunkOperation(BaseDBOperation):
 class PermissionOperation(BaseDBOperation):
     """权限表(permission_info)操作类"""
 
-    def __init__(self):
-        super().__init__(GlobalConfig.MYSQL_CONFIG["permission_info_table"])
+    def __init__(self, conn=None):
+        super().__init__(GlobalConfig.MYSQL_CONFIG["permission_info_table"], conn=conn)
 
     def insert_datas(self, args: dict[str, Any] | list[dict[str, Any]]) -> int | None:
         """插入权限信息
@@ -355,10 +336,13 @@ class PermissionOperation(BaseDBOperation):
         # 构建参数: permission_type + subject_ids 列表
         params = [permission_type] + subject_ids
 
-        doc_ids: list[dict] = self._execute_query(sql, tuple(params))
-        logger.info(f"根据权限查出的 doc_ids: {doc_ids}\n 权限为: {permission_type}: {subject_ids}")
+        mysql_result: list[dict] = self._execute_query(sql, tuple(params))
 
-        return [row["doc_id"] for row in doc_ids if row.get("doc_id")]
+        doc_ids = [row["doc_id"] for row in mysql_result if row.get("doc_id")]
+
+
+
+        return doc_ids
 
 
 class PageOperation(BaseDBOperation):
@@ -389,11 +373,7 @@ class ChatSessionOperation(BaseDBOperation):
                 self.update_by_field("session_id", session_id, data)
             else:
                 # 创建新会话
-                session_data = {
-                    "session_id": session_id,
-                    "created_at": datetime.now(),
-                    "updated_at": datetime.now(),
-                }
+                session_data = {"session_id": session_id, "created_at": datetime.now(), "updated_at": datetime.now()}
                 self.insert(session_data)
         except Exception as e:
             logger.error(f"创建或更新会话失败: {str(e)}")
@@ -422,13 +402,7 @@ class ChatMessageOperation(BaseDBOperation):
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG["chat_messages_table"])
 
-    def save_message(
-        self,
-        session_id: str,
-        message_type: str,
-        content: str,
-        metadata: dict | None = None,
-    ):
+    def save_message(self, session_id: str, message_type: str, content: str, metadata: dict | None = None):
         """保存消息
 
         Args:
@@ -451,9 +425,7 @@ class ChatMessageOperation(BaseDBOperation):
             logger.error(f"保存消息失败: {str(e)}")
             raise e
 
-    def get_message_by_session_id(
-        self, session_id: str, limit: int = 100
-    ) -> list[dict]:
+    def get_message_by_session_id(self, session_id: str, limit: int = 100) -> list[dict]:
         """根据会话ID获取消息列表, 按时间正序排列, 默认获取100条
 
         Args:
@@ -467,9 +439,7 @@ class ChatMessageOperation(BaseDBOperation):
             sql = f"SELECT * FROM {self.table_name} WHERE session_id = %s ORDER BY created_at ASC LIMIT %s"
             return self._execute_query(sql, (session_id, limit))
         except Exception as e:
-            logger.error(
-                f"[消息查询] 失败, session_id={session_id}, limit={limit}, error={str(e)}"
-            )
+            logger.error(f"[消息查询] 失败, session_id={session_id}, limit={limit}, error={str(e)}")
             raise e
 
     def delete_message_by_session_id(self, session_id: str):
@@ -490,17 +460,12 @@ if __name__ == "__main__":
     # 使用上下文管理器
     with FileInfoOperation() as file_op:
         # 查询文件
-        file_info = file_op.get_file_by_doc_id(
-            "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83"
-        )
+        file_info = file_op.get_file_by_doc_id("215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83")
 
         # 更新文件
         file_op.update_by_doc_id(
-            "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83",
-            {"source_document_type": ".p"},
+            "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83", {"source_document_type": ".p"}
         )
 
         # 删除文件
-        file_op.delete_by_doc_id(
-            "f10e704816fda7c6cbf1d7f4aebc98a6ac1bfbe0602e0951af81277876adbcbc"
-        )
+        file_op.delete_by_doc_id("f10e704816fda7c6cbf1d7f4aebc98a6ac1bfbe0602e0951af81277876adbcbc")

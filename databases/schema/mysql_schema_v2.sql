@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS segment_info
 (
     cid            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '分块记录的唯一ID',
     seg_id         VARCHAR(64) NOT NULL COMMENT '分块的唯一ID',
-    seg_content    LONGTEXT COMMENT '分块的元内容（表格 HTML、图片标题、文本内容）',
+    seg_content    LONGTEXT COMMENT '分块的元内容（表格 HTML、图片标题、文本内容)',
     seg_image_path VARCHAR(255) COMMENT '分块对应的图片路径',
     seg_caption    TEXT COMMENT '分块的标题(表格标题、图片标题)',
     seg_footnote   TEXT COMMENT '分块的脚注(表格脚注、图片脚注)',
@@ -79,7 +79,6 @@ CREATE TABLE IF NOT EXISTS doc_page_info
     doc_id        VARCHAR(64) NOT NULL COMMENT '文档ID',
     page_idx      INT         NOT NULL COMMENT '页码',
     page_png_path VARCHAR(1024) COMMENT '分页图片存储路径',
-#     page_static_url VARCHAR(1024) COMMENT '',                  -- 页面的图片/HTML链接
     UNIQUE KEY uniq_doc_page (doc_id, page_idx), -- 防止重复页
     INDEX idx_doc_id (doc_id),
     FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE

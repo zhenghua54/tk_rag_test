@@ -1,6 +1,6 @@
 """各类转换器（html2md、时间转换、大小转换等）"""
+
 import os
-from typing import List
 from urllib.parse import quote
 
 import pandas as pd
@@ -15,8 +15,9 @@ from utils.validators import validate_html
 def convert_bytes(size: int) -> str:
     units = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]
     index = 0
-    while size >= 1024 and index < len(units) - 1:
-        size /= 1024
+    convert_size = 1024
+    while size >= convert_size and index < len(units) - 1:
+        size /= convert_size
         index += 1
     return f"{size:.2f} {units[index]}"
 
@@ -45,7 +46,7 @@ def convert_html_to_markdown(html: str) -> str:
         max_cols = 0
         row_spans = {}  # 记录每个列的 rowspan 状态
 
-        for row_idx, row in enumerate(table.find_all("tr")):
+        for _, row in enumerate(table.find_all("tr")):
             row_data = []
             col_idx = 0
 
@@ -122,39 +123,7 @@ def local_path_to_url(local_path: str) -> str:
         raise ValueError("不支持的路径, 未注册的路径地址")
 
 
-# def normalize_permission_ids(permission_ids) -> Union[List[str], str]:
-#     """
-#     规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
-#
-#     返回：
-#         - 空字符串 "" 表示无权限
-#         - 字符串（如 "deptA,deptB"）表示多个权限拼接
-#     """
-#
-#     # None -> 空字符串
-#     if permission_ids is None:
-#         return ""
-#
-#     # 空字符串或空白字符
-#     if isinstance(permission_ids, str):
-#         cleaned = permission_ids.strip()
-#         return cleaned if cleaned else ""
-#
-#     # 空列表或 [''] 视为公开权限
-#     if isinstance(permission_ids, list):
-#         cleaned_list = [pid.strip() for pid in permission_ids]
-#         if not cleaned_list:
-#             return ""
-#         if len(cleaned_list) == 1:
-#             return cleaned_list[0]
-#         if len(cleaned_list) == 0:
-#             return ""
-#         return cleaned_list
-#
-#     raise ValueError(f"不支持的权限 ID 类型: {type(permission_ids)}")
-
-
-def normalize_permission_ids(permission_ids) -> List[str]:
+def normalize_permission_ids(permission_ids) -> list[str]:
     """
     规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
 
@@ -179,7 +148,6 @@ def normalize_permission_ids(permission_ids) -> List[str]:
     # 空列表或 [''] 视为公开权限
     if isinstance(permission_ids, list):
         cleaned_list = list()
-        # cleaned_set = set()
         for pid in permission_ids:
             if pid is None:
                 pid = ""
@@ -199,7 +167,7 @@ def normalize_permission_ids(permission_ids) -> List[str]:
 # normalized_permission_ids = normalize_permission_ids(permission_ids)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 测试权限转换
     print(normalize_permission_ids(None))  # [""]
 
@@ -211,4 +179,4 @@ if __name__ == '__main__':
     print(normalize_permission_ids([]))  # [""]
     print(normalize_permission_ids(["deptA", None, "deptB"]))  # ["deptA", "deptB"]
 
-    print(normalize_permission_ids(["deptA", None, "deptB","deptB",'','       ', "deptA"]))  # ["deptA", "deptB"]
+    print(normalize_permission_ids(["deptA", None, "deptB", "deptB", "", "       ", "deptA"]))  # ["deptA", "deptB"]
