@@ -17,16 +17,17 @@ from html import escape, unescape
 if not hasattr(collections, "Callable") and hasattr(collections.abc, "Callable"):
     collections.Callable = collections.abc.Callable
 
+from typing import Any
+
 from bs4 import BeautifulSoup
 from html_table_extractor.extractor import Extractor
-from typing import List, Dict, Optional, Any
 from rich import print
 
+from utils.llm_utils import llm_manager, render_prompt
 from utils.log_utils import logger
-from utils.llm_utils import render_prompt, llm_manager
 
 
-def html_to_extractor_result(html: str) -> List[List[str]]:
+def html_to_extractor_result(html: str) -> list[list[str]]:
     """
     HTML 表格转换为 html_table_extractor 解析结果
 
@@ -34,7 +35,7 @@ def html_to_extractor_result(html: str) -> List[List[str]]:
         html: HTML 表格字符串
 
     Returns:
-        List[List[str]: html_table_extractor 解析后的数字键内容矩阵
+        list[list[str]: html_table_extractor 解析后的数字键内容矩阵
     """
     try:
         # 初始化html提取器
@@ -53,10 +54,10 @@ def html_to_extractor_result(html: str) -> List[List[str]]:
 
     except Exception as e:
         logger.error(f"[Table Linearize] HTML 表格解析失败: {str(e)}")
-        raise ValueError(f"HTML 表格解析失败: {str(e)}")
+        raise ValueError(f"HTML 表格解析失败: {str(e)}") from e
 
 
-def matrix_to_field_json(matrix: List[List[str]]) -> List[Dict[str, str]]:
+def matrix_to_field_json(matrix: list[list[str]]) -> list[dict[str, str]]:
     """
     将数字键矩阵转换为字段名结构的 JSON 内容
 
@@ -64,7 +65,7 @@ def matrix_to_field_json(matrix: List[List[str]]) -> List[Dict[str, str]]:
         matrix: html_table_extractor 解析后的数字键矩阵
 
     Return:
-        List[Dict[str,str]]: 字段名结构的 JSON 内容
+        list[dict[str,str]]: 字段名结构的 JSON 内容
     """
 
     if not matrix:
@@ -108,9 +109,7 @@ def matrix_to_field_json(matrix: List[List[str]]) -> List[Dict[str, str]]:
     return result
 
 
-def _build_groups(
-    json_data: List[Dict[str, str]], group_fields: List[str]
-) -> Dict[str, List[Dict[str, str]]]:
+def _build_groups(json_data: list[dict[str, str]], group_fields: list[str]) -> dict[str, list[dict[str, str]]]:
     """
     统一的分组构建函数
 
@@ -119,7 +118,7 @@ def _build_groups(
         group_fields: 分组字段列表，按优先级排序
 
     Returns:
-        Dict[str, List[Dict[str, str]]]: 分组后的内容
+        dict[str, list[dict[str, str]]]: 分组后的内容
     """
     if not json_data or not group_fields:
         return {"未分组": json_data}
@@ -139,10 +138,7 @@ def _build_groups(
                     group_key_parts.append(value)
 
         # 生成分组键
-        if group_key_parts:
-            group_key = " - ".join(group_key_parts)
-        else:
-            group_key = "未分类"
+        group_key = " - ".join(group_key_parts) if group_key_parts else "未分类"
 
         # 添加到分组
         if group_key not in groups:
@@ -152,7 +148,7 @@ def _build_groups(
     return groups
 
 
-def _determine_group_fields(json_data: List[Dict[str, str]]) -> List[str]:
+def _determine_group_fields(json_data: list[dict[str, str]]) -> list[str]:
     """
     根据数据特征决定使用哪些字段进行分组
 
@@ -160,13 +156,16 @@ def _determine_group_fields(json_data: List[Dict[str, str]]) -> List[str]:
         json_data: 字段名结构的 JSON 内容
 
     Returns:
-        List[str]: 分组字段列表，按优先级排序
+        list[str]: 分组字段列表，按优先级排序
     """
     if not json_data:
         return []
 
     field_names = list(json_data[0].keys()) if json_data[0] else []
-    if len(field_names) < 2:
+
+    col_size = 2
+
+    if len(field_names) < col_size:
         return field_names[:1]  # 只有一列时使用第一列
 
     first_field = field_names[0]
@@ -205,9 +204,7 @@ def _determine_group_fields(json_data: List[Dict[str, str]]) -> List[str]:
         return [first_field]
 
 
-def group_by_smart_strategy(
-    json_data: List[Dict[str, str]],
-) -> Dict[str, List[Dict[str, str]]]:
+def group_by_smart_strategy(json_data: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     """
     智能分组：组合使用分组字段确定和分组构建
 
@@ -215,7 +212,7 @@ def group_by_smart_strategy(
         json_data: 字段名结构的 JSON 内容
 
     Returns:
-        Dict[str, List[Dict[str, str]]]: 分组后的内容
+        dict[str, list[dict[str, str]]]: 分组后的内容
     """
     # 确定分组字段
     group_fields = _determine_group_fields(json_data)
@@ -224,9 +221,7 @@ def group_by_smart_strategy(
     return _build_groups(json_data, group_fields)
 
 
-def linearize_grouped_data(
-    grouped_data: Dict[str, List[Dict[str, str]]],
-) -> Dict[str, Any]:
+def linearize_grouped_data(grouped_data: dict[str, list[dict[str, str]]]) -> dict[str, Any]:
     """
     将分组后的内容转换为线性化文本
 
@@ -234,7 +229,7 @@ def linearize_grouped_data(
         grouped_data: 分组后的内容
 
     Returns:
-         Dict[str,Any]: 线性文本和相关统计信息
+         dict[str,Any]: 线性文本和相关统计信息
     """
     if not grouped_data:
         return {"groups": [], "total_chars": 0, "group_stats": []}
@@ -284,9 +279,7 @@ def linearize_grouped_data(
     return {"groups": groups, "total_chars": total_chars, "group_stats": group_stats}
 
 
-def html_to_structured_linear(
-    html: str, caption: Optional[str] = None
-) -> Dict[str, Any]:
+def html_to_structured_linear(html: str, caption: str | None = None) -> dict[str, Any]:
     """
     HTML 表格转换为结构化文本
 
@@ -295,27 +288,25 @@ def html_to_structured_linear(
         caption: 表格标题
 
     Returns:
-        Dict[str, Any]: 包含各种格式的转换结果, 转换失败时:
+        dict[str, Any]: 包含各种格式的转换结果, 转换失败时:
             - 优先对模型提取的结构化内容尝试线性化流程
             - 兜底则直接返回模型输出的结果
     """
     try:
         # 步骤1：HTML → html_table_extractor结果
-        matrix: List[List[str]] = html_to_extractor_result(html)
+        matrix: list[list[str]] = html_to_extractor_result(html)
 
         if not matrix or not matrix[0]:
             raise ValueError("html_table_extractor结果 提取为空表或结构异常")
 
         # 步骤2：数字键矩阵 → 字段名结构JSON
-        json_data: List[Dict[str, str]] = matrix_to_field_json(matrix)
+        json_data: list[dict[str, str]] = matrix_to_field_json(matrix)
 
         # 步骤3：字段名JSON → 分组内容
-        grouped_data: Dict[str, List[Dict[str, str]]] = group_by_smart_strategy(
-            json_data
-        )
+        grouped_data: dict[str, list[dict[str, str]]] = group_by_smart_strategy(json_data)
 
         # 步骤四: 分组内容 → 分组线性化文本列表()
-        linearize_result: Dict[str, Any] = linearize_grouped_data(grouped_data)
+        linearize_result: dict[str, Any] = linearize_grouped_data(grouped_data)
 
         # 添加标题
         if caption:
@@ -337,7 +328,7 @@ def html_to_structured_linear(
 
     except Exception as e:
         logger.error(f"[Table Linearize] 表格线性化失败: {str(e)}")
-        logger.debug(f"[Table Linearize] 使用模型提取方法...")
+        logger.debug("[Table Linearize] 使用模型提取方法...")
 
         # 降级处理: 使用大模型进行提取
         llm_output = extract_table_summary(html)
@@ -345,14 +336,12 @@ def html_to_structured_linear(
 
         try:
             # 尝试对大模型提取的表格结构进行分组
-            logger.debug(f"[Table Linearize] 分组模型提取结果")
-            grouped_data: Dict[str, List[Dict[str, str]]] = group_by_smart_strategy(
-                llm_output
-            )
+            logger.debug("[Table Linearize] 分组模型提取结果")
+            grouped_data: dict[str, list[dict[str, str]]] = group_by_smart_strategy(llm_output)
 
             # 步骤四: 分组内容 → 分组线性化文本列表()
-            logger.debug(f"[Table Linearize] 线性化分组后的表格内容")
-            linearize_result: Dict[str, Any] = linearize_grouped_data(grouped_data)
+            logger.debug("[Table Linearize] 线性化分组后的表格内容")
+            linearize_result: dict[str, Any] = linearize_grouped_data(grouped_data)
 
             # 添加标题
             if caption:
@@ -371,23 +360,13 @@ def html_to_structured_linear(
             }
 
         except Exception as fallback_error:
-            logger.error(
-                f"[Table Linearize] 对模型提取结果进行分组: {str(fallback_error)}"
-            )
-            logger.debug(
-                f"[Table Linearize] 分组/线性化模型提取结果失败, 使用模型输出结果"
-            )
-            return {
-                "source": "llm_fallback",
-                "content": llm_output,
-                "meta": {
-                    "total_chars": len(str(llm_output)),
-                },
-            }
+            logger.error(f"[Table Linearize] 对模型提取结果进行分组: {str(fallback_error)}")
+            logger.debug("[Table Linearize] 分组/线性化模型提取结果失败, 使用模型输出结果")
+            return {"source": "llm_fallback", "content": llm_output, "meta": {"total_chars": len(str(llm_output))}}
 
 
 # === 摘要生成 ===
-def _extract_json_array(text: str) -> List[Dict[str, str]]:
+def _extract_json_array(text: str) -> list[dict[str, str]]:
     """
     从模型输出中提取JSON数组
 
@@ -395,7 +374,7 @@ def _extract_json_array(text: str) -> List[Dict[str, str]]:
         text: 模型输出的文本
 
     Returns:
-        List[Dict[str, str]]: 提取的JSON数组
+        list[dict[str, str]]: 提取的JSON数组
     """
     try:
         # 匹配 ```json 和 ``` 之间的内容
@@ -411,18 +390,18 @@ def _extract_json_array(text: str) -> List[Dict[str, str]]:
 
     except json.JSONDecodeError as e:
         logger.error(f"JSON解析失败: {str(e)}")
-        raise ValueError(f"JSON解析失败: {str(e)}")
+        raise ValueError(f"JSON解析失败: {str(e)}") from e
     except Exception as e:
         logger.error(f"JSON提取失败: {str(e)}")
-        raise ValueError(f"JSON提取失败: {str(e)}")
+        raise ValueError(f"JSON提取失败: {str(e)}") from e
 
 
-def extract_table_summary(html: str) -> List[Dict[str, str]]:
+def extract_table_summary(html: str) -> list[dict[str, str]]:
     """提取表格摘要， 调用LLM接口并解析输出
     Args:
         html: HTML 格式的表格
     Returns:
-        List[Dict[str, str]]: 从 LLM 生成的 json 内容中提取出的解析结果
+        list[dict[str, str]]: 从 LLM 生成的 json 内容中提取出的解析结果
     """
     # 获取提示词
     prompt, config = render_prompt("table_summary_v2", {"table_html": html})

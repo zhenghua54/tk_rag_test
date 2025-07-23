@@ -1,5 +1,7 @@
 """FastAPI 应用入口"""
+
 from dotenv import load_dotenv
+
 load_dotenv(verbose=True)
 
 import sys
@@ -9,18 +11,18 @@ from pathlib import Path
 root_path = Path(__file__).resolve()
 sys.path.append(str(root_path))
 
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
-from fastapi.exception_handlers import RequestValidationError
-from starlette.middleware.base import BaseHTTPMiddleware
 import uuid
 
-from api.response import ResponseBuilder
-from error_codes import ErrorCode
-from config.global_config import GlobalConfig
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import RequestValidationError
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
 
+from api.response import ResponseBuilder
+from config.global_config import GlobalConfig
 from core.infra.lifecycle import lifespan
+from error_codes import ErrorCode
 
 
 # request_id 中间件
@@ -41,7 +43,7 @@ app = FastAPI(
     title=GlobalConfig.API_TITLE,
     description=GlobalConfig.API_DESCRIPTION,
     version=GlobalConfig.API_VERSION,
-    lifespan=lifespan  # 添加生命周期管理器
+    lifespan=lifespan,  # 添加生命周期管理器
 )
 
 
@@ -55,8 +57,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             error_code=ErrorCode.PARAM_ERROR.value,
             error_message="参数错误, 请检查请求参数是否完整且格式正确",
             request_id=getattr(request.state, "request_id", None),
-            data=exc.errors()
-        ).model_dump()
+            data=exc.errors(),
+        ).model_dump(),
     )
 
 
@@ -68,24 +70,21 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
         content=ResponseBuilder.error(
-            error_code=ErrorCode.INTERNAL_ERROR.value,
-            error_message="系统内部错误",
-            request_id=request_id,
-        ).model_dump()
+            error_code=ErrorCode.INTERNAL_ERROR.value, error_message="系统内部错误", request_id=request_id
+        ).model_dump(),
     )
 
 
 # 映射静态目录: /static/raw -> datas/raw, /static/processed -> datas/processed
 app.mount("/static/raw", StaticFiles(directory="./datas/raw"), name="static-raw")
-app.mount("/static/processed", StaticFiles(directory="./datas/processed"),
-          name="static-processed")
+app.mount("/static/processed", StaticFiles(directory="./datas/processed"), name="static-processed")
 
 # 添加 request_id 中间件
 app.add_middleware(RequestIDMiddleware)
 
 # 注册路由 - 为API路由添加前缀
-from api.chat_api import router as chat_router
 from api.base import router as base_router
+from api.chat_api import router as chat_router
 from api.doc_api import router as doc_router
 
 app.include_router(base_router, prefix=GlobalConfig.API_PREFIX)

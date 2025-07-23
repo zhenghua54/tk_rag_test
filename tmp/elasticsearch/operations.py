@@ -1,7 +1,7 @@
 """Elasticsearch 数据库操作类"""
+
 import json
 import os
-from typing import List, Dict, Any
 
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
@@ -19,14 +19,14 @@ class ElasticsearchOperation:
         """初始化 ES 客户端"""
         try:
             # 创建 ES 客户端实例，使用配置中的连接信息
-            es_username = GlobalConfig.ES_CONFIG.get('username', '')
-            es_password = GlobalConfig.ES_CONFIG.get('password', '')
+            es_username = GlobalConfig.ES_CONFIG.get("username", "")
+            es_password = GlobalConfig.ES_CONFIG.get("password", "")
 
             # 创建ES客户端配置
             es_params = {
-                "hosts": GlobalConfig.ES_CONFIG['host'],  # 使用配置的 host
+                "hosts": GlobalConfig.ES_CONFIG["host"],  # 使用配置的 host
                 "request_timeout": GlobalConfig.ES_CONFIG["timeout"],  # 超时设置
-                "verify_certs": GlobalConfig.ES_CONFIG.get('verify_certs', False)  # 是否验证证书
+                "verify_certs": GlobalConfig.ES_CONFIG.get("verify_certs", False),  # 是否验证证书
             }
 
             # 添加认证信息，基于ES版本选择合适的认证方式
@@ -43,7 +43,7 @@ class ElasticsearchOperation:
             if not self.ping():
                 raise Exception("无法连接到 Elasticsearch 服务器")
 
-            logger.info(f"[ES初始化] 客户端初始化成功")
+            logger.info("[ES初始化] 客户端初始化成功")
 
         except Exception as e:
             logger.error(f"[ES初始化失败] error_msg={str(e)}")
@@ -51,11 +51,11 @@ class ElasticsearchOperation:
 
     def create_index(self, index_name: str, schema_config: dict) -> bool:
         """创建索引
-        
+
         Args:
             index_name: 索引名称
             schema_config: 索引配置
-            
+
         Returns:
             bool: 是否创建成功
         """
@@ -68,10 +68,7 @@ class ElasticsearchOperation:
             logger.debug(f"创建索引 {index_name}，配置: {schema_config}")
 
             # 创建索引
-            response = self.client.indices.create(
-                index=index_name,
-                body=schema_config
-            )
+            response = self.client.indices.create(index=index_name, body=schema_config)
             logger.info(f"成功创建索引 {index_name}")
             return True
         except Exception as e:
@@ -79,9 +76,9 @@ class ElasticsearchOperation:
             logger.error(f"索引配置: {json.dumps(schema_config, ensure_ascii=False, indent=2)}")
             return False
 
-    def insert_data(self, data: List[Dict]):
+    def insert_data(self, data: list[dict]):
         """批量插入数据
-        
+
         Args:
             data: 要插入的数据列表，每条数据包含：
                 - seg_id: 段落ID
@@ -94,12 +91,7 @@ class ElasticsearchOperation:
             actions = []
             for doc in data:
                 # 构建 ES 文档格式
-                action = {
-                    "index": {
-                        "_index": self.index_name,
-                        "_id": doc["seg_id"]
-                    }
-                }
+                action = {"index": {"_index": self.index_name, "_id": doc["seg_id"]}}
                 actions.append(action)
                 actions.append(doc)  # 添加文档内容
 
@@ -112,13 +104,13 @@ class ElasticsearchOperation:
 
     def search(self, query: str, top_k: int = 5):
         """搜索数据
-        
+
         Args:
             query: 搜索查询文本
             top_k: 返回结果数量，默认5条
-            
+
         Returns:
-            List[Dict]: 搜索结果列表，每个结果包含：
+            list[dict]: 搜索结果列表，每个结果包含：
                 - _id: 文档ID
                 - _score: 相关度分数
                 - _source: 文档内容
@@ -136,19 +128,12 @@ class ElasticsearchOperation:
                                     "match_phrase": {
                                         "seg_content": {
                                             "query": query,
-                                            "boost": 3.0  # 提高精确匹配的权重
+                                            "boost": 3.0,  # 提高精确匹配的权重
                                         }
                                     }
                                 },
                                 # 使用term查询，直接匹配分词后的结果
-                                {
-                                    "term": {
-                                        "seg_content": {
-                                            "value": query,
-                                            "boost": 2.5
-                                        }
-                                    }
-                                },
+                                {"term": {"seg_content": {"value": query, "boost": 2.5}}},
                                 # 标准匹配，使用OR操作符增加召回率
                                 {
                                     "match": {
@@ -156,26 +141,18 @@ class ElasticsearchOperation:
                                             "query": query,
                                             "operator": "or",
                                             "boost": 1.0,
-                                            "fuzziness": "AUTO"  # 允许模糊匹配
+                                            "fuzziness": "AUTO",  # 允许模糊匹配
                                         }
                                     }
                                 },
                                 # 标准匹配，使用AND操作符提高精度
-                                {
-                                    "match": {
-                                        "seg_content": {
-                                            "query": query,
-                                            "operator": "and",
-                                            "boost": 2.0
-                                        }
-                                    }
-                                }
+                                {"match": {"seg_content": {"query": query, "operator": "and", "boost": 2.0}}},
                             ],
-                            "minimum_should_match": 1  # 至少匹配一个should条件
+                            "minimum_should_match": 1,  # 至少匹配一个should条件
                         }
                     },
-                    "size": top_k  # 返回结果数量
-                }
+                    "size": top_k,  # 返回结果数量
+                },
             )
             # 返回搜索结果
             return response["hits"]["hits"]
@@ -185,10 +162,10 @@ class ElasticsearchOperation:
 
     def delete_by_doc_id(self, doc_id: str) -> int:
         """根据文档ID删除所有相关数据
-        
+
         Args:
             doc_id: 要删除的文档ID
-            
+
         Returns:
             bool: 是否删除成功
         """
@@ -210,13 +187,7 @@ class ElasticsearchOperation:
             #     return False
 
             # 构建删除查询
-            query = {
-                "query": {
-                    "term": {
-                        "doc_id": doc_id
-                    }
-                }
-            }
+            query = {"query": {"term": {"doc_id": doc_id}}}
 
             # 执行删除并等待完成
             response = self.client.delete_by_query(
@@ -224,11 +195,11 @@ class ElasticsearchOperation:
                 body=query,
                 wait_for_completion=True,  # 等待删除完成
                 refresh=True,  # 立即刷新索引
-                conflicts="proceed"  # 遇到冲突时继续执行
+                conflicts="proceed",  # 遇到冲突时继续执行
             )
 
             logger.info(f"ES 数据删除完成, 共删除 {response['total']} 条")
-            return response['total']
+            return response["total"]
             # response={'took': 0, 'timed_out': False, 'total': 0, 'deleted': 0, 'batches': 0, 'version_conflicts': 0, 'noops': 0, 'retries': {'bulk': 0, 'search': 0}, 'throttled_millis': 0, 'requests_per_second': -1.0, 'throttled_until_millis': 0, 'failures': []}
 
             # # 验证删除是否成功
@@ -258,21 +229,18 @@ class ElasticsearchOperation:
 
     def delete_by_seg_id(self, seg_id: str) -> bool:
         """根据片段ID删除数据
-        
+
         Args:
             seg_id: 要删除的片段ID
-            
+
         Returns:
             bool: 是否删除成功
         """
         try:
             # 执行删除
-            response = self.client.delete(
-                index=self.index_name,
-                id=seg_id
-            )
+            response = self.client.delete(index=self.index_name, id=seg_id)
 
-            if response.get('result') == 'deleted':
+            if response.get("result") == "deleted":
                 logger.info(f"成功删除片段 {seg_id}")
                 return True
             else:
@@ -285,33 +253,26 @@ class ElasticsearchOperation:
 
     def clear_index(self) -> bool:
         """清空索引中的所有数据
-        
+
         Returns:
             bool: 是否清空成功
         """
         try:
             # 获取当前索引的文档数
             stats = self.get_stats()
-            doc_count = stats.get('doc_count', 0)
+            doc_count = stats.get("doc_count", 0)
 
             if doc_count == 0:
                 logger.info("索引已经是空的")
                 return True
 
             # 构建删除所有文档的查询
-            query = {
-                "query": {
-                    "match_all": {}
-                }
-            }
+            query = {"query": {"match_all": {}}}
 
             # 执行删除
-            response = self.client.delete_by_query(
-                index=self.index_name,
-                body=query
-            )
+            response = self.client.delete_by_query(index=self.index_name, body=query)
 
-            deleted_count = response.get('deleted', 0)
+            deleted_count = response.get("deleted", 0)
             logger.info(f"成功清空索引，删除了 {deleted_count} 条数据")
             return True
 
@@ -321,7 +282,7 @@ class ElasticsearchOperation:
 
     def delete_index(self) -> bool:
         """完全删除索引
-        
+
         Returns:
             bool: 是否删除成功
         """
@@ -334,7 +295,7 @@ class ElasticsearchOperation:
             # 删除索引
             response = self.client.indices.delete_file()
 
-            if response.get('acknowledged'):
+            if response.get("acknowledged"):
                 logger.info(f"成功删除索引 {self.index_name}")
                 return True
             else:
@@ -347,7 +308,7 @@ class ElasticsearchOperation:
 
     def ping(self) -> bool:
         """检查 ES 连接是否正常
-        
+
         Returns:
             bool: 连接是否正常
         """
@@ -357,69 +318,53 @@ class ElasticsearchOperation:
             logger.error(f"ES ping 失败: {str(e)}")
             return False
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """获取 ES 索引的统计信息
-        
+
         Returns:
-            Dict: 包含索引统计信息的字典
+            dict: 包含索引统计信息的字典
         """
         try:
             # 检查索引是否存在
             if not self.client.indices.exists(index=self.index_name):
                 logger.warning(f"索引 {self.index_name} 不存在")
-                return {
-                    'doc_count': 0,
-                    'store_size': 0,
-                    'shard_count': 0
-                }
+                return {"doc_count": 0, "store_size": 0, "shard_count": 0}
 
             # 获取索引统计信息
             stats = self.client.indices.stats(index=self.index_name)
-            index_stats = stats['indices'][self.index_name]['total']
+            index_stats = stats["indices"][self.index_name]["total"]
 
             # 获取文档总数
-            doc_count = index_stats['docs']['count']
+            doc_count = index_stats["docs"]["count"]
 
             # 获取索引大小
-            store_size = index_stats['store']['size_in_bytes']
+            store_size = index_stats["store"]["size_in_bytes"]
 
             # 获取分片信息
-            shard_count = index_stats.get('shards', {}).get('total', 0)
+            shard_count = index_stats.get("shards", {}).get("total", 0)
 
             logger.info(f"ES 索引 {self.index_name} 统计信息:")
             logger.info(f"- 文档总数: {doc_count}")
             logger.info(f"- 索引大小: {store_size / 1024 / 1024:.2f} MB")
             logger.info(f"- 分片数: {shard_count}")
 
-            return {
-                'doc_count': doc_count,
-                'store_size': store_size,
-                'shard_count': shard_count
-            }
+            return {"doc_count": doc_count, "store_size": store_size, "shard_count": shard_count}
         except Exception as e:
             logger.error(f"获取 ES 统计信息失败: {str(e)}")
             raise
 
-    def list_all_documents(self, size: int = 100) -> List[Dict]:
+    def list_all_documents(self, size: int = 100) -> list[dict]:
         """列出索引中的所有文档
-        
+
         Args:
             size: 返回的最大文档数，默认100
-            
+
         Returns:
-            List[Dict]: 文档列表
+            list[dict]: 文档列表
         """
         try:
             # 执行搜索，不设置查询条件，返回所有文档
-            response = self.client.search(
-                index=self.index_name,
-                body={
-                    "query": {
-                        "match_all": {}
-                    },
-                    "size": size
-                }
-            )
+            response = self.client.search(index=self.index_name, body={"query": {"match_all": {}}, "size": size})
 
             hits = response["hits"]["hits"]
             total = response["hits"]["total"]["value"]
@@ -458,7 +403,7 @@ class ElasticsearchOperation:
                                     "default": {
                                         "type": "custom",
                                         "tokenizer": "ik_max_word",
-                                        "filter": ["lowercase", "asciifolding"]
+                                        "filter": ["lowercase", "asciifolding"],
                                     }
                                 }
                             }
@@ -471,11 +416,11 @@ class ElasticsearchOperation:
                                 "seg_content": {
                                     "type": "text",
                                     "analyzer": "ik_max_word",
-                                    "search_analyzer": "ik_max_word"
-                                }
+                                    "search_analyzer": "ik_max_word",
+                                },
                             }
-                        }
-                    }
+                        },
+                    },
                 )
                 logger.info(f"ES索引 {self.index_name} 创建成功")
             else:
@@ -506,7 +451,7 @@ class ElasticsearchOperation:
             print(f"索引 '{index_name}' 不存在")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from rich import print
 
     load_dotenv(verbose=True)

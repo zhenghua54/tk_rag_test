@@ -21,8 +21,8 @@
 """
 
 import time
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any
 
 from databases.milvus.connection import MilvusDB
 from utils.log_utils import logger
@@ -51,37 +51,31 @@ class MilvusQueryTester:
 
         logger.info(f"[查询测试] 初始化测试器，集合：{collection_name}")
 
-    def test_statistics(self) -> Dict[str, Any]:
+    def test_statistics(self) -> dict[str, Any]:
         """测试集合统计信息
 
         Returns:
-            Dict[str, Any]: 统计信息
+            dict[str, Any]: 统计信息
         """
         try:
             logger.info("=" * 50)
             logger.info("[查询测试] 开始测试集合统计信息")
 
             # 获取集合统计信息
-            stats = self.milvus_db.client.get_collection_stats(
-                collection_name=self.collection_name
-            )
+            stats = self.milvus_db.client.get_collection_stats(collection_name=self.collection_name)
 
             # 获取加载状态
-            load_state = self.milvus_db.client.get_load_state(
-                collection_name=self.collection_name
-            )
+            load_state = self.milvus_db.client.get_load_state(collection_name=self.collection_name)
 
             # 获取集合信息
-            collection_info = self.milvus_db.client.describe_collection(
-                collection_name=self.collection_name
-            )
+            collection_info = self.milvus_db.client.describe_collection(collection_name=self.collection_name)
 
             result = {
                 "collection_name": self.collection_name,
                 "row_count": stats.get("row_count", 0),
                 "load_state": str(load_state),
                 "collection_info": collection_info,
-                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
 
             logger.info(f"[查询测试] 统计信息：{result}")
@@ -91,20 +85,18 @@ class MilvusQueryTester:
             logger.error(f"[查询测试] 获取统计信息失败：{str(e)}")
             return {"error": str(e)}
 
-    def test_query_all_data(self) -> Dict[str, Any]:
+    def test_query_all_data(self) -> dict[str, Any]:
         """测试查询所有数据（使用 query 方法）
 
         Returns:
-            Dict[str, Any]: 查询结果信息
+            dict[str, Any]: 查询结果信息
         """
         try:
             logger.info("=" * 50)
             logger.info("[查询测试] 开始测试查询所有数据")
 
             # 获取统计数量
-            stats = self.milvus_db.client.get_collection_stats(
-                collection_name=self.collection_name
-            )
+            stats = self.milvus_db.client.get_collection_stats(collection_name=self.collection_name)
             total_count = stats.get("row_count", 0)
 
             logger.info(f"[查询测试] 集合总数据量：{total_count}")
@@ -119,11 +111,7 @@ class MilvusQueryTester:
 
                 # 执行查询
                 results = self.milvus_db.client.query(
-                    collection_name=self.collection_name,
-                    filter='',
-                    output_fields=["*"],
-                    limit=limit,
-                    offset=0
+                    collection_name=self.collection_name, filter="", output_fields=["*"], limit=limit, offset=0
                 )
 
                 end_time = time.time()
@@ -140,37 +128,30 @@ class MilvusQueryTester:
                         "query_count": len(results),
                         "limit_used": limit,
                         "duration": duration,
-                        "method": "query"
+                        "method": "query",
                     }
                 else:
                     logger.warning(f"[查询测试] ⚠️ 数据不完整：期望 {total_count}，实际 {len(results)}")
 
             logger.error("[查询测试] ❌ 所有 limit 值都无法获取完整数据")
-            return {
-                "success": False,
-                "total_count": total_count,
-                "method": "query",
-                "error": "无法获取完整数据"
-            }
+            return {"success": False, "total_count": total_count, "method": "query", "error": "无法获取完整数据"}
 
         except Exception as e:
             logger.error(f"[查询测试] 查询所有数据失败：{str(e)}")
             return {"error": str(e)}
 
-    def test_batch_query(self) -> Dict[str, Any]:
+    def test_batch_query(self) -> dict[str, Any]:
         """测试分批查询
 
         Returns:
-            Dict[str, Any]: 分批查询结果信息
+            dict[str, Any]: 分批查询结果信息
         """
         try:
             logger.info("=" * 50)
             logger.info("[查询测试] 开始测试分批查询")
 
             # 获取统计数量
-            stats = self.milvus_db.client.get_collection_stats(
-                collection_name=self.collection_name
-            )
+            stats = self.milvus_db.client.get_collection_stats(collection_name=self.collection_name)
             total_count = stats.get("row_count", 0)
 
             logger.info(f"[查询测试] 集合总数据量：{total_count}")
@@ -188,10 +169,10 @@ class MilvusQueryTester:
                 # 执行分批查询
                 batch_data = self.milvus_db.client.query(
                     collection_name=self.collection_name,
-                    filter='',
+                    filter="",
                     output_fields=["*"],
                     limit=batch_size,
-                    offset=offset
+                    offset=offset,
                 )
 
                 all_data.extend(batch_data)
@@ -216,7 +197,7 @@ class MilvusQueryTester:
                     "query_count": len(all_data),
                     "batch_size": batch_size,
                     "duration": duration,
-                    "method": "batch_query"
+                    "method": "batch_query",
                 }
             else:
                 logger.error(f"[查询测试] ❌ 分批查询数据不完整：期望 {total_count}，实际 {len(all_data)}")
@@ -225,18 +206,18 @@ class MilvusQueryTester:
                     "total_count": total_count,
                     "query_count": len(all_data),
                     "method": "batch_query",
-                    "error": "分批查询数据不完整"
+                    "error": "分批查询数据不完整",
                 }
 
         except Exception as e:
             logger.error(f"[查询测试] 分批查询失败：{str(e)}")
             return {"error": str(e)}
 
-    def test_get_method(self) -> Dict[str, Any]:
+    def test_get_method(self) -> dict[str, Any]:
         """测试 get 方法（根据 ID 获取数据）
 
         Returns:
-            Dict[str, Any]: get 方法测试结果
+            dict[str, Any]: get 方法测试结果
         """
         try:
             logger.info("=" * 50)
@@ -244,11 +225,7 @@ class MilvusQueryTester:
 
             # 先获取一些 doc_id
             sample_ids = self.milvus_db.client.query(
-                collection_name=self.collection_name,
-                filter='',
-                output_fields=["doc_id"],
-                limit=10,
-                offset=0
+                collection_name=self.collection_name, filter="", output_fields=["doc_id"], limit=10, offset=0
             )
 
             if not sample_ids:
@@ -261,11 +238,7 @@ class MilvusQueryTester:
             # 使用 get 方法获取数据
             start_time = time.time()
 
-            results = self.milvus_db.client.get(
-                collection_name=self.collection_name,
-                ids=doc_ids,
-                output_fields=["*"]
-            )
+            results = self.milvus_db.client.get(collection_name=self.collection_name, ids=doc_ids, output_fields=["*"])
 
             end_time = time.time()
             duration = end_time - start_time
@@ -279,7 +252,7 @@ class MilvusQueryTester:
                     "requested_count": len(doc_ids),
                     "returned_count": len(results),
                     "duration": duration,
-                    "method": "get"
+                    "method": "get",
                 }
             else:
                 logger.warning(f"[查询测试] ⚠️ get 方法数据不完整：期望 {len(doc_ids)}，实际 {len(results)}")
@@ -288,18 +261,18 @@ class MilvusQueryTester:
                     "requested_count": len(doc_ids),
                     "returned_count": len(results),
                     "method": "get",
-                    "error": "get 方法数据不完整"
+                    "error": "get 方法数据不完整",
                 }
 
         except Exception as e:
             logger.error(f"[查询测试] get 方法测试失败：{str(e)}")
             return {"error": str(e)}
 
-    def run_all_tests(self) -> Dict[str, Any]:
+    def run_all_tests(self) -> dict[str, Any]:
         """运行所有测试
 
         Returns:
-            Dict[str, Any]: 所有测试结果
+            dict[str, Any]: 所有测试结果
         """
         logger.info("=" * 60)
         logger.info("[查询测试] 开始运行所有测试")
@@ -307,7 +280,7 @@ class MilvusQueryTester:
         results = {
             "collection_name": self.collection_name,
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "tests": {}
+            "tests": {},
         }
 
         # 运行各项测试
@@ -324,14 +297,14 @@ class MilvusQueryTester:
         return results
 
 
-def test_milvus_query(collection_name: str = "rag_collection") -> Dict[str, Any]:
+def test_milvus_query(collection_name: str = "rag_collection") -> dict[str, Any]:
     """测试 Milvus 查询功能
 
     Args:
         collection_name: 集合名称
 
     Returns:
-        Dict[str, Any]: 测试结果
+        dict[str, Any]: 测试结果
     """
     tester = MilvusQueryTester(collection_name)
     return tester.run_all_tests()
@@ -347,14 +320,14 @@ if __name__ == "__main__":
     print(f"集合名称：{results['collection_name']}")
     print(f"测试时间：{results['timestamp']}")
 
-    for test_name, test_result in results['tests'].items():
+    for test_name, test_result in results["tests"].items():
         print(f"\n{test_name}:")
-        if 'success' in test_result:
-            status = "✅ 成功" if test_result['success'] else "❌ 失败"
+        if "success" in test_result:
+            status = "✅ 成功" if test_result["success"] else "❌ 失败"
             print(f"  状态：{status}")
-        if 'error' in test_result:
+        if "error" in test_result:
             print(f"  错误：{test_result['error']}")
-        if 'total_count' in test_result:
+        if "total_count" in test_result:
             print(f"  总数：{test_result['total_count']}")
-        if 'query_count' in test_result:
+        if "query_count" in test_result:
             print(f"  查询数：{test_result['query_count']}")

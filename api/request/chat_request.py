@@ -16,18 +16,9 @@ class ChatRequest(BaseModel):
         min_length=1,
         max_length=2000,
     )
-    permission_ids: str | list[str] = Field(
-        None,
-        description="部门ID列表，多个ID用逗号分隔",
-    )
-    session_id: str = Field(
-        ...,
-        description="会话 ID，可保持上下文",
-    )
-    timeout: int = Field(
-        30,
-        description="超时等待时间",
-    )
+    permission_ids: str | list[str] = Field(None, description="部门ID列表，多个ID用逗号分隔")
+    session_id: str = Field(..., description="会话 ID，可保持上下文")
+    timeout: int = Field(30, description="超时等待时间")
 
     # @field_validator("query")
     # def validate_query(cls, v):

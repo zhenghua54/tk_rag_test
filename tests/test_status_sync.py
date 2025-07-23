@@ -8,9 +8,7 @@
 4. 错误处理测试
 """
 
-import os
 import sys
-import time
 import uuid
 from pathlib import Path
 
@@ -19,7 +17,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from config.global_config import GlobalConfig
-from utils.status_sync import sync_status_safely, get_status_sync_client
+from utils.status_sync import get_status_sync_client, sync_status_safely
 
 
 def test_config_loading():

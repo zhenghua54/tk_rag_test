@@ -31,7 +31,7 @@ async def upload_document(request: DocumentUploadRequest, fastapi_request: Reque
         fastapi_request: FastAPI请求对象，用于获取请求ID等信息
 
     Returns:
-        Dict: 包含文档ID等信息的响应
+        dict: 包含文档ID等信息的响应
     """
     # 获取服务实例
     doc_service = DocumentService.get_instance()
@@ -87,7 +87,7 @@ async def update_document_permission(
         fastapi_request: FastAPI请求对象, 用于获取请求ID等信息
 
     Returns:
-        Dict: 更新结果信息
+        dict: 更新结果信息
     """
     # 获取服务实例
     doc_service = DocumentService.get_instance()
@@ -132,7 +132,7 @@ async def delete_document(request: DocumentDeleteRequest, fastapi_request: Reque
         fastapi_request: FastAPI请求对象, 用于获取请求ID等信息
 
     Returns:
-        Dict: 删除结果信息
+        dict: 删除结果信息
     """
     # 获取服务实例
     doc_service = DocumentService.get_instance()
@@ -186,7 +186,7 @@ async def check_document_status(request: DocumentStatusRequest, fastapi_request:
         fastapi_request: FastAPI 请求对象,用于获取请求 ID 等信息
 
     Returns:
-        Dict: 文件状态相关信息
+        dict: 文件状态相关信息
     """
     # 获取服务器实例
     doc_service = DocumentService.get_instance()
@@ -232,7 +232,7 @@ async def get_doc_result(doc_id: str, fastapi_request: Request) -> dict[str, Any
         fastapi_request: FastAPI 请求对象,用于获取请求 ID 等信息
 
     Returns:
-        Dict: 文档信息响应
+        dict: 文档信息响应
     """
 
     # 获取服务器实例

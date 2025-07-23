@@ -1,7 +1,8 @@
 """限流控制器: 根据在线 API 的限流规则进行设置"""
 
-import time
 import threading
+import time
+
 from config.global_config import GlobalConfig
 from utils.log_utils import logger
 

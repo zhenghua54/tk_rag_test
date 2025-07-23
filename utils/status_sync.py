@@ -49,7 +49,7 @@ class StatusSyncClient:
             internal_status (str): 内部状态名称
 
         Returns:
-            Optional[str]: 外部状态名称, 如果不存在则返回None
+            str | None: 外部状态名称, 如果不存在则返回None
         """
         return self.status_mapping.get(internal_status)
 
@@ -119,6 +119,7 @@ class StatusSyncClient:
         )
 
         # 执行请求，支持重试
+        success = False
         for attempt in range(self.retry_attempts):
             try:
                 response = requests.post(url=self.base_url, json=payload, headers=headers, timeout=self.timeout)
@@ -133,7 +134,8 @@ class StatusSyncClient:
                         logger.info(
                             f"[StatusSyncClient] {status_type}同步成功, request_id={request_id}, doc_id={doc_id}, internal_status={status}, external_status={external_status}"
                         )
-                        return True
+                        success = True
+                        break
                     else:
                         error_msg = response_data.get("message", "未知错误")
                         logger.warning(
@@ -144,7 +146,8 @@ class StatusSyncClient:
                             logger.error(
                                 f"[StatusSyncClient] 失败状态同步失败，前端可能一直处于等待状态, request_id={request_id}, doc_id={doc_id}"
                             )
-                        return False
+                        success = False
+                        break
                 else:
                     logger.warning(
                         f"[StatusSyncClient] {status_type}同步失败(HTTP错误), request_id={request_id}, doc_id={doc_id}, internal_status={status}, external_status={external_status}, status_code={response.status_code}"
@@ -152,7 +155,8 @@ class StatusSyncClient:
                     if attempt < self.retry_attempts - 1:
                         time.sleep(self.retry_delay)
                         continue
-                    return False
+                    success = False
+                    break
 
             except Timeout:
                 logger.warning(
@@ -161,7 +165,8 @@ class StatusSyncClient:
                 if attempt < self.retry_attempts - 1:
                     time.sleep(self.retry_delay)
                     continue
-                return False
+                success = False
+                break
 
             except RequestException as e:
                 logger.error(
@@ -170,15 +175,17 @@ class StatusSyncClient:
                 if attempt < self.retry_attempts - 1:
                     time.sleep(self.retry_delay)
                     continue
-                return False
+                success = False
+                break
 
             except Exception as e:
                 logger.error(
                     f"[StatusSyncClient] {status_type}同步未知异常, request_id={request_id}, doc_id={doc_id}, internal_status={status}, external_status={external_status}, error={str(e)}"
                 )
-                return False
+                success = False
+                break
 
-        return False
+        return success
 
     def sync_status_safely(self, doc_id: str, status: str, request_id: str = None) -> None:
         """安全同步文档状态(不抛出异常), 包含异常处理和重试机制

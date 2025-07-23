@@ -104,9 +104,7 @@ class GlobalSignalHandler:
             signum: 信号编号
             frame: 当前栈帧（通常不使用）
         """
-        signal_name = (
-            signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
-        )
+        signal_name = signal.Signals(signum).name if hasattr(signal, "Signals") else str(signum)
         logger.info(f"收到信号 {signal_name}({signum})，开始清理...")
         self.cleanup_all()
 

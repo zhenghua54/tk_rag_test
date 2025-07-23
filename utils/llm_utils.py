@@ -14,12 +14,7 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, trim_m
 from openai import APIError, OpenAI, RateLimitError
 from requests import RequestException
 from sentence_transformers import SentenceTransformer
-from tenacity import (
-    retry,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential,
-)
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 from transformers.models.auto.modeling_auto import AutoModelForSequenceClassification
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 
@@ -53,9 +48,7 @@ class ModelManager(ABC):
         """懒加载模型， 如果模型未初始化，则初始化模型"""
         self._last_used_time = time.time()  # 更新模型最后一次使用时间
         if not self._is_initialized:
-            logger.debug(
-                f"[模型加载] 首次使用，开始加载{self.__class__.__name__}模型..."
-            )
+            logger.debug(f"[模型加载] 首次使用，开始加载{self.__class__.__name__}模型...")
             self._model = self._init_model()
             self._is_initialized = True
             logger.debug(f"[模型加载] {self.__class__.__name__}模型加载完成")
@@ -65,12 +58,8 @@ class ModelManager(ABC):
         """检查模型是否空闲， 如果空闲时间超过 _idle_timeout 则卸载模型"""
         if self._is_initialized and self._last_used_time:
             idle_time = time.time() - self._last_used_time
-            if (
-                idle_time > self._idle_timeout
-            ):  # 如果空闲时间超过 _idle_timeout 则卸载模型
-                logger.debug(
-                    f"[模型卸载] {self.__class__.__name__}模型已空闲{idle_time:.2f}秒，进行卸载"
-                )
+            if idle_time > self._idle_timeout:  # 如果空闲时间超过 _idle_timeout 则卸载模型
+                logger.debug(f"[模型卸载] {self.__class__.__name__}模型已空闲{idle_time:.2f}秒，进行卸载")
                 self.unload_model()
 
     @staticmethod
@@ -94,12 +83,8 @@ class ModelManager(ABC):
         """获取模型状态"""
         return {
             "is_initialized": self._is_initialized,
-            "model_name": self._model.__class__.__name__
-            if self._is_initialized
-            else None,
-            "memory_usage": torch.cuda.memory_allocated()
-            if torch.cuda.is_available() and self._is_initialized
-            else 0,
+            "model_name": self._model.__class__.__name__ if self._is_initialized else None,
+            "memory_usage": torch.cuda.memory_allocated() if torch.cuda.is_available() and self._is_initialized else 0,
         }
 
 
@@ -111,10 +96,7 @@ class EmbeddingManager(ModelManager):
     def _init_model(self) -> SentenceTransformer:
         """初始化Embedding模型"""
         try:
-            model = SentenceTransformer(
-                GlobalConfig.MODEL_PATHS.get("embedding"),
-                device=GlobalConfig.DEVICE,
-            )
+            model = SentenceTransformer(GlobalConfig.MODEL_PATHS.get("embedding"), device=GlobalConfig.DEVICE)
             # 设置最大序列长度
             model.max_seq_length = 1024
             return model
@@ -155,11 +137,11 @@ class RerankManager(ModelManager):
         try:
             model_path = GlobalConfig.MODEL_PATHS.get("rerank")
             logger.debug(f"[Rerank模型] 开始加载模型: {model_path}")
-            
+
             # 检查模型路径是否存在
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"模型路径不存在: {model_path}")
-            
+
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_path,
                 device_map="auto",  # 自动设备分配， 需要 'accelerate>=0.26.0' 支持
@@ -188,11 +170,7 @@ class RerankManager(ModelManager):
 
             # 构建输入
             inputs = self._tokenizer(
-                [query] * len(passages),
-                passages,
-                padding=True,
-                truncation=True,
-                return_tensors="pt",
+                [query] * len(passages), passages, padding=True, truncation=True, return_tensors="pt"
             )
 
             # 移动到正确的设备
@@ -239,9 +217,7 @@ class LLMManager(ModelManager):
         """初始化LLM模型"""
         try:
             client = OpenAI(
-                api_key=self._model_config.get("api_key"),
-                base_url=self._model_config.get("base_url"),
-                timeout=60.0,
+                api_key=self._model_config.get("api_key"), base_url=self._model_config.get("base_url"), timeout=60.0
             )
             self._client = client
             return client
@@ -323,14 +299,10 @@ class LLMManager(ModelManager):
             logger.debug(f"[模型卸载] {self.__class__.__name__}模型卸载完成")
 
     @staticmethod
-    def count_tokens(
-        message: BaseMessage | str | list[BaseMessage | str] | list[dict],
-    ) -> int:
+    def count_tokens(message: BaseMessage | str | list[BaseMessage | str] | list[dict]) -> int:
         # 统一转字符串
         if isinstance(message, list):
-            message = "".join(
-                [m.content if isinstance(m, BaseMessage) else str(m) for m in message]
-            )
+            message = "".join([m.content if isinstance(m, BaseMessage) else str(m) for m in message])
         elif isinstance(message, BaseMessage):
             message = message.content
         elif not isinstance(message, str):
@@ -366,14 +338,10 @@ def check_models_status():
     llm_manager.check_idle()
 
 
-def render_prompt(
-    name: str, variables: dict[str, str], as_str: bool = True
-) -> str | Template | tuple[str, dict]:
+def render_prompt(name: str, variables: dict[str, str], as_str: bool = True) -> str | Template | tuple[str, dict]:
     """渲染提示词模板为字符串（或返回模板对象）"""
     prompt_config = GlobalConfig.PROMPT_TEMPLATE[name]
-    prompt_path = os.path.join(
-        GlobalConfig.BASE_DIR, "config", prompt_config["prompt_file"]
-    )
+    prompt_path = os.path.join(GlobalConfig.BASE_DIR, "config", prompt_config["prompt_file"])
     with open(prompt_path, encoding="utf-8") as f:
         template = Template(f.read())
 
@@ -385,9 +353,7 @@ def render_prompt(
         raise e
 
 
-def get_messages_for_rag(
-    history: list[BaseMessage], docs: list[Document], question: str
-) -> list[dict]:
+def get_messages_for_rag(history: list[BaseMessage], docs: list[Document], question: str) -> list[dict]:
     """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
     - 注意: 该方法为 OPENAI 接口构建数据,因此角色名称应为: system, user, assistant
 
@@ -398,9 +364,7 @@ def get_messages_for_rag(
     """
     try:
         # 记录输入参数基本信息
-        logger.debug(
-            f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}"
-        )
+        logger.debug(f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}")
 
         # 初始化长度剪裁参数
         # token_total = 32768  # Qwen Turbo 模型输入输出总长度
@@ -424,9 +388,7 @@ def get_messages_for_rag(
                         segment_tokens = llm_count_tokens(seg_content)
                         # 超限切割
                         if token_total + segment_tokens > context_max_len:
-                            logger.debug(
-                                "[消息构建] 知识库内容token数达到限制，裁剪后续内容"
-                            )
+                            logger.debug("[消息构建] 知识库内容token数达到限制，裁剪后续内容")
                             break
 
                         docs_content += f"{seg_content}\n\n"
@@ -448,15 +410,8 @@ def get_messages_for_rag(
             logger.debug("[消息构建] 检索结果为空，知识库中无相关信息")
 
         # ==== 构建完整的系统提示词 ====
-        logger.debug(
-            f"[消息构建] 开始构建系统提示词, 知识库内容长度={len(docs_content)}"
-        )
-        complete_system_prompt, _ = render_prompt(
-            "rag_system_prompt",
-            {
-                "retrieved_knowledge": docs_content,
-            },
-        )
+        logger.debug(f"[消息构建] 开始构建系统提示词, 知识库内容长度={len(docs_content)}")
+        complete_system_prompt, _ = render_prompt("rag_system_prompt", {"retrieved_knowledge": docs_content})
         system_tokens = llm_count_tokens(complete_system_prompt)
         total_tokens += system_tokens
 
@@ -474,7 +429,7 @@ def get_messages_for_rag(
                 logger.debug("[消息构建] 历史对话为空或只有一条消息，不进行裁剪")
             else:
                 trimmed_history: list[BaseMessage] = trim_messages(
-                    messages=history,  # List[BaseMessage]（历史对话）
+                    messages=history,  # list[BaseMessage]（历史对话）
                     token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
                     max_tokens=history_max_len,  # 限定最大 token 数
                     strategy="last",  # 保留最近对话, "first"保留最早对话
@@ -482,9 +437,7 @@ def get_messages_for_rag(
                     include_system=True,  # 是否保留 system message
                     allow_partial=True,  # 超限时是否保留部分片段
                 )
-                logger.debug(
-                    f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}"
-                )
+                logger.debug(f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}")
 
             # 转换为 OpenAI 接口格式
             history_tokens = 0

@@ -18,19 +18,7 @@ import json
 import threading
 from typing import Any
 
-from pymilvus import (
-    AnnSearchRequest,
-    CollectionSchema,
-    DataType,
-    FieldSchema,
-    Function,
-    FunctionType,
-    MilvusClient,
-    WeightedRanker,
-    connections,
-)
-from pymilvus.client.search_iterator import SearchIteratorV2
-from pymilvus.orm.iterator import SearchIterator
+from pymilvus import CollectionSchema, DataType, FieldSchema, Function, FunctionType, MilvusClient, connections
 
 from config.global_config import GlobalConfig
 from config.milvus_config import MilvusFlatConfig
@@ -93,9 +81,7 @@ class FlatCollectionManager:
 
         # 标记初始化
         self._initialized = True
-        logger.info(
-            f"[FLAT Milvus] Collection 管理器初始化成功, collection_name: {self.collection_name}"
-        )
+        logger.info(f"[FLAT Milvus] Collection 管理器初始化成功, collection_name: {self.collection_name}")
 
     @classmethod
     def get_instance(cls, collection_name="rag_flat"):
@@ -113,8 +99,7 @@ class FlatCollectionManager:
         """初始化 Milvus 客户端"""
         try:
             self.client = MilvusClient(
-                uri=GlobalConfig.MILVUS_CONFIG["uri"],
-                token=GlobalConfig.MILVUS_CONFIG.get("token"),
+                uri=GlobalConfig.MILVUS_CONFIG["uri"], token=GlobalConfig.MILVUS_CONFIG.get("token")
             )
 
             # 建立连接
@@ -128,9 +113,7 @@ class FlatCollectionManager:
             self.db_name = GlobalConfig.MILVUS_CONFIG["db_name"]
             self._current_db = "default"  # 初始化为 default 数据库
 
-            logger.info(
-                f"[FLAT Milvus] Collection 管理器初始化成功，数据库： {self._current_db}"
-            )
+            logger.info(f"[FLAT Milvus] Collection 管理器初始化成功，数据库： {self._current_db}")
 
         except Exception as e:
             logger.error(f"[FLAT Milvus] Collection 管理器初始化失败: {e}")
@@ -143,7 +126,7 @@ class FlatCollectionManager:
         使用与原有 collection 相同的字段结构，确保数据兼容性。
 
         Returns:
-            Dict[str, Any]: schema 配置字典
+            dict[str, Any]: schema 配置字典
         """
         schema_path = GlobalConfig.PATHS.get("milvus_flat_schema")
         with open(schema_path, encoding="utf-8") as f:
@@ -168,9 +151,7 @@ class FlatCollectionManager:
             # 如果需要强制重新创建或数据库不存在，则创建数据库
             if force_recreate or not db_exists:
                 if db_exists:
-                    logger.warning(
-                        f"[FLAT Milvus] Database {self.db_name} 已存在，强制重新创建"
-                    )
+                    logger.warning(f"[FLAT Milvus] Database {self.db_name} 已存在，强制重新创建")
                     self.client.drop_database(self.db_name)
 
                 logger.info(f"[FLAT Milvus] 创建Database {self.db_name} ...")
@@ -213,14 +194,10 @@ class FlatCollectionManager:
 
             if self.collection_name in collections:
                 if force_recreate:
-                    logger.warning(
-                        f"[FLAT Milvus] Collection {self.collection_name} 已存在，强制重新创建"
-                    )
+                    logger.warning(f"[FLAT Milvus] Collection {self.collection_name} 已存在，强制重新创建")
                     self.drop_collection()
                 else:
-                    logger.info(
-                        f"[FLAT Milvus] Collection {self.collection_name} 已存在，跳过创建"
-                    )
+                    logger.info(f"[FLAT Milvus] Collection {self.collection_name} 已存在，跳过创建")
                     return True
 
             # 创建集合
@@ -249,20 +226,14 @@ class FlatCollectionManager:
                 dtype=getattr(DataType, field_config["type"]),
                 description=field_config.get("description", ""),
                 is_primary=field_config.get("is_primary", False),
-                **{
-                    k: v
-                    for k, v in field_config.items()
-                    if k not in ["name", "type", "description", "is_primary"]
-                },
+                **{k: v for k, v in field_config.items() if k not in ["name", "type", "description", "is_primary"]},
             )
             fields.append(field)
 
         # 创建 schema
         schema = CollectionSchema(
             fields=fields,
-            description=schema_config.get(
-                "description", "FLAT 索引向量库，搜索结果稳定性高"
-            ),
+            description=schema_config.get("description", "FLAT 索引向量库，搜索结果稳定性高"),
             enable_dynamic_field=schema_config.get("enable_dynamic_field", False),
         )
 
@@ -280,9 +251,7 @@ class FlatCollectionManager:
                 schema.add_function(function)
 
         # 创建集合
-        self.client.create_collection(
-            collection_name=self.collection_name, schema=schema
-        )
+        self.client.create_collection(collection_name=self.collection_name, schema=schema)
 
         logger.info(f"[FLAT Milvus] Collection {self.collection_name} 创建成功")
 
@@ -301,15 +270,11 @@ class FlatCollectionManager:
             index_params.add_index(**sparse_index_params)
 
             logger.info("[FLAT Milvus] 正在为向量字段创建 FLAT 索引 ...")
-            self.client.create_index(
-                collection_name=self.collection_name, index_params=index_params
-            )
+            self.client.create_index(collection_name=self.collection_name, index_params=index_params)
 
             # 验证索引创建
             indexes = self.client.list_indexes(collection_name=self.collection_name)
-            logger.info(
-                f"[FLAT Milvus] Collection {self.collection_name} 索引列表: {indexes}"
-            )
+            logger.info(f"[FLAT Milvus] Collection {self.collection_name} 索引列表: {indexes}")
 
             # 加载集合
             self.client.load_collection(collection_name=self.collection_name)
@@ -327,7 +292,7 @@ class FlatCollectionManager:
             data: 要插入的数据列表
 
         Returns:
-            List[str]: 插入成功的数据 ID 列表
+            list[str]: 插入成功的数据 ID 列表
 
         Raises:
             ValueError: 当数据格式不符合要求时抛出
@@ -344,21 +309,14 @@ class FlatCollectionManager:
             # 执行持久化操作，确保数据持久化
             self.client.flush(collection_name=self.collection_name)
 
-            logger.info(
-                f"[FLAT Milvus] Collection 数据插入成功，共 {len(inserted_ids)} 条"
-            )
+            logger.info(f"[FLAT Milvus] Collection 数据插入成功，共 {len(inserted_ids)} 条")
             return inserted_ids
         except Exception as e:
             logger.error(f"[FLAT Milvus] Collection 数据插入失败：{str(e)}")
             raise
 
-
     def vector_search(
-        self,
-        query_vector: list[float],
-        doc_ids: list[str],
-            limit:int,
-        output_fields: list[str] = None,
+        self, query_vector: list[float], doc_ids: list[str], limit: int, output_fields: list[str] = None
     ) -> list[list[dict]]:
         """
         执行向量相似性搜索,返回迭代器,用于处理大量检索结果数据
@@ -407,7 +365,7 @@ class FlatCollectionManager:
             return [[{}]]
 
     def full_text_search(
-        self, query_text: str, doc_ids: list[str], limit:int,output_fields: list[str] = None
+        self, query_text: str, doc_ids: list[str], limit: int, output_fields: list[str] = None
     ) -> list[list[dict]]:
         """
         执行全文检索(BM25)
@@ -453,10 +411,7 @@ class FlatCollectionManager:
             logger.error(f"[FLAT Milvus] 全文搜索检索失败: {str(e)}")
             return [[{}]]
 
-    def _less_hybrid_search(
-        self,
-        **kwargs
-    ) -> list[list[dict]]:
+    def _less_hybrid_search(self, **kwargs) -> list[list[dict]]:
         """
         Milvus 混合检索(根据doc_id)
 
@@ -468,15 +423,15 @@ class FlatCollectionManager:
             output_fields: 输出字段
 
         Returns:
-            List[List[dict]]: 混合检索后的结果列表,
+            list[list[dict]]: 混合检索后的结果列表,
         """
         try:
             # 提取参数
-            doc_id_list = kwargs.get('doc_id_list')
-            query_text= kwargs.get('query_text')
-            query_vector= kwargs.get('query_vector')
-            limit= kwargs.get('limit')
-            output_fields= kwargs.get('output_fields')
+            doc_id_list = kwargs.get("doc_id_list")
+            query_text = kwargs.get("query_text")
+            query_vector = kwargs.get("query_vector")
+            limit = kwargs.get("limit")
+            output_fields = kwargs.get("output_fields")
             #
             # # 构建过滤条件
             # filter_expr = f"doc_id in {doc_id_list}"
@@ -523,23 +478,16 @@ class FlatCollectionManager:
             #     logger.info(f"[混合检索] 检索到 {len(res)} 条")
             #     logger.info(f"检索内容: {res}")
 
-
             # 直接调取向量检索和全文检索
             vecctor_results = self.vector_search(
-                query_vector=query_vector,
-                doc_ids=doc_id_list,
-                limit=limit,
-                output_fields=output_fields,
+                query_vector=query_vector, doc_ids=doc_id_list, limit=limit, output_fields=output_fields
             )
 
             full_text_results = self.full_text_search(
-                query_text=query_text,
-                doc_ids=doc_id_list,
-                limit=limit,
-                output_fields=output_fields,
+                query_text=query_text, doc_ids=doc_id_list, limit=limit, output_fields=output_fields
             )
 
-            res  =vecctor_results + full_text_results
+            res = vecctor_results + full_text_results
 
             return res
 
@@ -556,7 +504,7 @@ class FlatCollectionManager:
             **kwargs: 参数集合,包括: 文档 ID 列表\查询文本\查询向量\文档数量\输出字段
 
         Returns:
-            List[dict]:
+            list[dict]:
         """
 
         try:
@@ -575,13 +523,13 @@ class FlatCollectionManager:
 
             all_results.sort(key=lambda x: x["distance"], reverse=True)
 
-            return [all_results[:kwargs.get("limit")]]
+            return [all_results[: kwargs.get("limit")]]
         except Exception as e:
             logger.error(f"[FLAT Milvus] 批次混合检索失败: {str(e)}")
             return [[]]
 
     @staticmethod
-    def _merge_and_deduplicate( results: list[list[dict]]) -> list[list[dict]]:
+    def _merge_and_deduplicate(results: list[list[dict]]) -> list[list[dict]]:
         """对混合排序结果去重
 
         Args:
@@ -591,7 +539,7 @@ class FlatCollectionManager:
             list[list[dict]]: 去重后的结果
 
         """
-        logger.info(f"[FLAT Milvus] 混合检索去重...")
+        logger.info("[FLAT Milvus] 混合检索去重...")
         source_entity = []
         seen = set()
         merged = []
@@ -607,7 +555,7 @@ class FlatCollectionManager:
                     merged.append(entity)
         logger.info(f"[FLAT Milvus] 去重完成, 去重前: {len(source_entity)}, 去重后: {len(seen)}")
 
-        return [merged]  # 保持 List[List[dict]] 的结构
+        return [merged]  # 保持 list[list[dict]] 的结构
 
     def optimized_hybrid_search(
         self,
@@ -632,11 +580,7 @@ class FlatCollectionManager:
         """
         try:
             # 处理输出字段
-            output_fields = (
-                output_fields
-                if output_fields
-                else GlobalConfig.MILVUS_CONFIG["output_fields"]
-            )
+            output_fields = output_fields if output_fields else GlobalConfig.MILVUS_CONFIG["output_fields"]
 
             # 设置批次
             batch_size = GlobalConfig.MILVUS_CONFIG["search_batch_size"]
@@ -680,44 +624,30 @@ class FlatCollectionManager:
 
         # 加载 schema 获取必须字段
         schema_config = self._load_schema()
-        required_fields = [
-            field["name"]
-            for field in schema_config["fields"]
-            if field["name"] != "seg_sparse_vector"
-        ]
+        required_fields = [field["name"] for field in schema_config["fields"] if field["name"] != "seg_sparse_vector"]
 
         for idx, item in enumerate(data):
             # 检查必须字段
             missing_fields = set(required_fields) - set(item.keys())
             if missing_fields:
-                raise ValueError(
-                    f"[FLAT Milvus] 第 {idx + 1} 条数据缺少必须字段：{missing_fields}"
-                )
+                raise ValueError(f"[FLAT Milvus] 第 {idx + 1} 条数据缺少必须字段：{missing_fields}")
 
             # 验证向量字段
-            if (
-                not isinstance(item["seg_dense_vector"], list)
-                or len(item["seg_dense_vector"]) != 1024
-            ):
-                raise ValueError(
-                    f"[FLAT Milvus] 第 {idx + 1} 条数据的 seg_dense_vector 字段必须是 1024维的浮点数列表"
-                )
+            embed_dim = GlobalConfig.MILVUS_CONFIG["vector_dim"]
+            if not isinstance(item["seg_dense_vector"], list) or len(item["seg_dense_vector"]) != embed_dim:
+                raise ValueError(f"[FLAT Milvus] 第 {idx + 1} 条数据的 seg_dense_vector 字段必须是 1024维的浮点数列表")
 
     def get_collection_stats(self) -> dict[str, Any]:
         """
         获取集合统计信息
 
         Returns:
-            Dict[str, Any]: 集合统计信息
+            dict[str, Any]: 集合统计信息
         """
         try:
-            stats = self.client.get_collection_stats(
-                collection_name=self.collection_name
-            )
+            stats = self.client.get_collection_stats(collection_name=self.collection_name)
             indexes = self.client.list_indexes(collection_name=self.collection_name)
-            load_state = self.client.get_load_state(
-                collection_name=self.collection_name
-            )
+            load_state = self.client.get_load_state(collection_name=self.collection_name)
 
             return {
                 "collection_name": self.collection_name,
@@ -745,15 +675,11 @@ class FlatCollectionManager:
             self.client.using_database(self.db_name)
 
             if not self.client.has_collection(self.collection_name):
-                logger.warning(
-                    f"[FLAT Milvus] Collection {self.collection_name} 不存在"
-                )
+                logger.warning(f"[FLAT Milvus] Collection {self.collection_name} 不存在")
                 return True
 
             if not force:
-                logger.warning(
-                    f"[FLAT Milvus] 即将删除集合 {self.collection_name}, 此操作不可恢复！"
-                )
+                logger.warning(f"[FLAT Milvus] 即将删除集合 {self.collection_name}, 此操作不可恢复！")
                 confirm = input(f"确定要删除集合 {self.collection_name} 吗？（y/n）：")
                 if confirm.lower() != "y":
                     logger.info("已取消删除操作")
@@ -777,16 +703,12 @@ class FlatCollectionManager:
         """
         try:
             # 执行删除
-            result: dict[str, int] = self.client.delete(
-                collection_name=self.collection_name, ids=doc_id
-            )
+            result: dict[str, int] = self.client.delete(collection_name=self.collection_name, ids=doc_id)
 
             # 确保删除操作被持久化
             self.client.flush(collection_name=self.collection_name)
 
-            logger.info(
-                f"Milvus 数据删除成功, 共 {result['delete_count'] - 1} 条, doc_id={doc_id}"
-            )
+            logger.info(f"Milvus 数据删除成功, 共 {result['delete_count'] - 1} 条, doc_id={doc_id}")
             return result["delete_count"]
 
         except Exception as e:
@@ -808,7 +730,6 @@ class FlatCollectionManager:
 
 
 if __name__ == "__main__":
-
     # # 测试 FLAT collection 创建
     # logger.info("开始测试 FLAT Collection 创建...")
     #
@@ -876,37 +797,42 @@ if __name__ == "__main__":
     # except Exception as e:
     #     logger.error(f"[FLAT Milvus] 测试过程中出现错误：{str(e)}")
 
-
     # 准备查询参数
     flat_manager = FlatCollectionManager()
 
     query_text = "出差旅费报销单"
     from utils.llm_utils import embedding_manager
+
     query_vector = embedding_manager.embed_text(query_text)
-    doc_id_list = ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]
+    doc_id_list = [
+        "308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52",
+        "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021",
+        "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26",
+        "c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62",
+    ]
     limit = 100
 
     # 查询集合数量
     desc = flat_manager.client.describe_collection(flat_manager.collection_name)
 
     print(desc)
-    print('-' * 100)
+    print("-" * 100)
 
     print(flat_manager.client.get_collection_stats(flat_manager.collection_name))
-    print('-' * 100)
+    print("-" * 100)
 
     res = flat_manager.client.search(
         collection_name=flat_manager.collection_name,
         data=[query_vector],
         anns_field="seg_dense_vector",
         limit=limit,
-        output_fields=["seg_id","seg_content"],
+        output_fields=["seg_id", "seg_content"],
     )
 
     for hit in res[0]:
         print(hit)
 
-    print('-' * 100)
+    print("-" * 100)
 
     sparse_res = flat_manager.client.search(
         collection_name=flat_manager.collection_name,
@@ -914,7 +840,7 @@ if __name__ == "__main__":
         anns_field="seg_sparse_vector",
         limit=limit,
         output_fields=["seg_id", "seg_content"],
-        filter='doc_id in ["123"]'
+        filter='doc_id in ["123"]',
     )
 
     for hit in sparse_res[0]:

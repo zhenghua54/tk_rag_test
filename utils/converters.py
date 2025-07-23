@@ -143,7 +143,7 @@ def normalize_permission_ids(permission_ids) -> list[str]:
     # 空字符串或空白字符
     if isinstance(permission_ids, str):
         cleaned = permission_ids.strip()
-        return [cleaned] if cleaned else [""]
+        return [cleaned, ""] if cleaned else [""]
 
     # 空列表或 [''] 视为公开权限
     if isinstance(permission_ids, list):
@@ -154,6 +154,9 @@ def normalize_permission_ids(permission_ids) -> list[str]:
             if not isinstance(pid, str):
                 raise ValueError(f"权限 ID 应为字符串, 但收到: {pid}({type(pid)})")
             cleaned_list.append(pid.strip())
+
+        # 添加空权限(支持公开文档查询)
+        cleaned_list.append("")
 
         # 去重
         cleaned_list = list(set(cleaned_list))

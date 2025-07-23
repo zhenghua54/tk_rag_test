@@ -16,10 +16,10 @@ def normalize_records(records: list[dict]) -> list[dict]:
     对缺失字段使用 None 补齐，方便批量数据库插入时字段对齐。
 
     Args:
-        records (List[Dict]): 输入的多条字典记录，字段可能不一致。
+        records (list[dict]): 输入的多条字典记录，字段可能不一致。
 
     Returns:
-        List[Dict]: 规范化后的记录列表，每条记录字段完全一致。
+        list[dict]: 规范化后的记录列表，每条记录字段完全一致。
     """
 
     # 收集所有记录中出现的字段, 形成完整集合
@@ -51,7 +51,7 @@ class FileInfoOperation(BaseDBOperation):
             doc_id (str): 文档ID
 
         Returns:
-            Optional[Dict]: 查询到的文件信息字典，如果未找到则返回 None
+            dict | None: 查询到的文件信息字典，如果未找到则返回 None
         """
         try:
             return self.select_by_id(doc_id)
@@ -63,7 +63,7 @@ class FileInfoOperation(BaseDBOperation):
         """获取所有非PDF文件
 
         Returns:
-            List[Dict]: 非PDF文件的数据库记录列表
+            list[dict] | None: 非PDF文件的数据库记录列表
         """
         try:
             sql = f"SELECT * FROM {self.table_name} WHERE doc_pdf_path IS NULL"
@@ -76,7 +76,7 @@ class FileInfoOperation(BaseDBOperation):
         """获取所有PDF文件
 
         Returns:
-            List[Dict]: PDF文件的数据库记录列表
+            list[dict] | None: PDF文件的数据库记录列表
         """
         try:
             sql = f"SELECT * FROM {self.table_name} WHERE doc_pdf_path IS NOT NULL"
@@ -90,7 +90,7 @@ class FileInfoOperation(BaseDBOperation):
         """插入文件信息
 
         Args:
-            args (Dict): 文件信息字典，包含文档ID和其他相关信息
+            args: 文件信息字典，包含文档ID和其他相关信息
 
         Returns:
             bool: 插入是否成功
@@ -104,8 +104,8 @@ class FileInfoOperation(BaseDBOperation):
         """更新文件信息
 
         Args:
-            doc_id (str): 文档ID
-            args (Dict): 文件信息字典，包含除了文档ID外的其他相关信息
+            doc_id: 文档ID
+            args: 文件信息字典，包含除了文档ID外的其他相关信息
 
         Returns:
             bool: 更新是否成功
@@ -129,7 +129,7 @@ class ChunkOperation(BaseDBOperation):
             doc_id (str): 文档ID
 
         Returns:
-            List[Dict]: 文档分块的数据库记录列表
+            list[dict]: 文档分块的数据库记录列表
         """
         try:
             return self.select_record(conditions={"doc_id": doc_id})
@@ -141,7 +141,7 @@ class ChunkOperation(BaseDBOperation):
         """插入分块信息
 
         Args:
-            chunks (List[Dict]): 分块信息列表，每个分块是一个字典, 列表中每个元素字段需一致
+            chunks: 分块信息列表，每个分块是一个字典, 列表中每个元素字段需一致
 
         Returns:
             bool: 插入是否成功
@@ -160,7 +160,7 @@ class ChunkOperation(BaseDBOperation):
             seg_id (str): 分段ID
 
         Returns:
-            Optional[Dict]: 删除操作的结果，如果成功则返回删除的记录数，否则返回 None
+            dict | None: 删除操作的结果，如果成功则返回删除的记录数，否则返回 None
         """
         try:
             sql = "DELETE FROM %s WHERE seg_id = %s"
@@ -180,7 +180,7 @@ class ChunkOperation(BaseDBOperation):
             doc_id_list: 文档 ID 列表
 
         Returns:
-            List[Dict[str, Any]]: 片段信息列表，包含所有字段
+            list[dict[str, Any]]: 片段信息列表，包含所有字段, 列表中每个元素字段需一致
         """
         try:
             # 确保至少有一个查询条件
@@ -292,7 +292,7 @@ class PermissionOperation(BaseDBOperation):
         """插入权限信息
 
         Args:
-            args (Dict): 权限信息字典，包含部门ID、文档ID等信息
+            args: 权限信息字典，包含部门ID、文档ID等信息
 
         Returns:
             bool: 插入是否成功
@@ -312,7 +312,7 @@ class PermissionOperation(BaseDBOperation):
             subject_ids: 处理后的权限 ID 列表
 
         Returns:
-            List[str]: 检索到的 doc_id 列表
+            list[str]: 检索到的 doc_id 列表
         """
 
         if not permission_type.strip():
@@ -329,7 +329,6 @@ class PermissionOperation(BaseDBOperation):
         and (
             subject_id IN ({placeholders})
             OR subject_id IS NULL 
-            OR subject_id = ''
         )
         """
 
@@ -339,8 +338,6 @@ class PermissionOperation(BaseDBOperation):
         mysql_result: list[dict] = self._execute_query(sql, tuple(params))
 
         doc_ids = [row["doc_id"] for row in mysql_result if row.get("doc_id")]
-
-
 
         return doc_ids
 
@@ -386,7 +383,7 @@ class ChatSessionOperation(BaseDBOperation):
             session_id: 会话ID
 
         Returns:
-            Optional[Dict]: 会话信息字典，如果未找到则返回 None
+            dict | None: 会话信息字典，如果未找到则返回 None
         """
         try:
             result = self.select_record(conditions={"session_id": session_id})
@@ -433,7 +430,7 @@ class ChatMessageOperation(BaseDBOperation):
             limit: 获取消息数量(默认100)
 
         Returns:
-            List[Dict]: 消息列表
+            list[dict]: 消息列表
         """
         try:
             sql = f"SELECT * FROM {self.table_name} WHERE session_id = %s ORDER BY created_at ASC LIMIT %s"

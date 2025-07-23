@@ -14,14 +14,14 @@ from logging.handlers import RotatingFileHandler
 from config.global_config import GlobalConfig
 
 # 确保日志目录存在
-os.makedirs(GlobalConfig.PATHS['log_dir'], exist_ok=True)
+os.makedirs(GlobalConfig.PATHS["log_dir"], exist_ok=True)
 
 # 从环境变量获取日志级别，默认为 INFO
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 log_level = getattr(logging, LOG_LEVEL, logging.INFO)
 
 # 日志格式定义
-LOG_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 formatter = logging.Formatter(LOG_FORMAT)
 
 # === 主日志 ===
@@ -30,10 +30,10 @@ main_logger.setLevel(log_level)
 
 # 文件日志, 单份日志最大10M, 最多保留最新的5份日志
 file_handler = RotatingFileHandler(
-    os.path.join(GlobalConfig.PATHS['log_dir'], 'app.log'),
+    os.path.join(GlobalConfig.PATHS["log_dir"], "app.log"),
     maxBytes=10 * 1024 * 1024,  # 10MB
     backupCount=5,
-    encoding='utf-8'
+    encoding="utf-8",
 )
 file_handler.setFormatter(formatter)
 main_logger.addHandler(file_handler)
@@ -48,10 +48,10 @@ error_logger = logging.getLogger("error")
 error_logger.setLevel(logging.ERROR)
 
 error_file_handler = RotatingFileHandler(
-    filename=os.path.join(GlobalConfig.PATHS['log_dir'], 'error.log'),
+    filename=os.path.join(GlobalConfig.PATHS["log_dir"], "error.log"),
     maxBytes=10 * 1024 * 1024,
     backupCount=5,
-    encoding='utf-8'
+    encoding="utf-8",
 )
 error_file_handler.setFormatter(formatter)
 error_logger.addHandler(error_file_handler)

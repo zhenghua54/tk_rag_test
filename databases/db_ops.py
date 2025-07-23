@@ -153,7 +153,7 @@ def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: dict[str, Any]
     Args:
         table_name (str): 要操作的数据库表名
         doc_id (str): 文档ID
-        kwargs (Dict[str, Any]): 更新字段和值
+        kwargs (dict[str, Any]): 更新字段和值
 
     Returns:
         bool: 是否更新成功
@@ -182,7 +182,7 @@ def insert_record(table_name: str, data: dict[str, Any] | list[dict[str, Any]]) 
 
     Args:
         table_name (str): 要插入数据的表
-        data (Dict[str, Any]): 要插入的数据
+        data (dict[str, Any]): 要插入的数据
     """
     if table_name not in TABLE_OPERATION_MAPPING:
         raise ValueError(f"未知表名: {table_name}")
@@ -208,7 +208,7 @@ def select_ids_by_permission(table_name: str, permission_type: str, cleaned_dep_
         cleaned_dep_ids: 清洗后的权限 ID(目前为部门 ID)
 
     Returns:
-        List[str]: doc_id 列表
+        list[str]: doc_id 列表
     """
 
     if table_name not in TABLE_OPERATION_MAPPING:

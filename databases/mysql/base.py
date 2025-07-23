@@ -112,7 +112,7 @@ class BaseDBOperation:
             doc_id (str): 文档ID
 
         Returns:
-            Optional[Dict]: 查询结果，如果未找到则返回 None
+            dict | None: 查询结果，如果未找到则返回 None
         """
         try:
             sql = f"SELECT * FROM {self.table_name} WHERE doc_id = %s"
@@ -126,11 +126,11 @@ class BaseDBOperation:
         """查询记录
 
         Args:
-            fields (List[str], optional): 查询的字段列表，如果为 None 则查询所有字段
-            conditions (Dict, optional): 查询条件，默认为 None
+            fields: 查询的字段列表，如果为 None 则查询所有字段
+            conditions : 查询条件，默认为 None
 
         Returns:
-            List[Dict]: 查询到的记录列表
+            list[dict] | None: 查询到的记录列表
         """
         try:
             # 构建 SELECT 子句
@@ -207,7 +207,7 @@ class BaseDBOperation:
 
         Args:
             doc_id (str): 文档ID
-            data (Dict[str, Any]): 要更新的数据
+            data (dict[str, Any]): 要更新的数据
 
         Returns:
             bool: 是否更新成功

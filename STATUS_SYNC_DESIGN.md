@@ -101,7 +101,7 @@ class StatusSyncClient:
     def should_sync_status(self, internal_status: str) -> bool:
         """判断是否需要同步该状态"""
 
-    def get_external_status(self, internal_status: str) -> Optional[str]:
+    def get_external_status(self, internal_status: str) -> str | None:
         """获取对应的外部状态"""
 
     def is_failure_status(self, internal_status: str) -> bool:

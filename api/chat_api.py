@@ -10,10 +10,7 @@ from core.rag.llm_generator import RAGGenerator
 from error_codes import ErrorCode
 from utils.log_utils import log_exception, logger
 
-router = APIRouter(
-    prefix="/chat",
-    tags=["聊天相关"],
-)
+router = APIRouter(prefix="/chat", tags=["聊天相关"])
 
 
 @router.post("/rag_chat")
@@ -27,17 +24,13 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
         fastapi_request: FastAPI请求对象，用于获取请求ID等信息
 
     Returns:
-        Dict: 包含模型回答和来源文档信息的响应
+        dict: 包含模型回答和来源文档信息的响应
 
     Raises:
         HTTPException: 当发生错误时抛出相应的错误码和信息
     """
     # 获取请求ID
-    request_id = (
-        fastapi_request.state.request_id
-        if hasattr(fastapi_request.state, "request_id")
-        else None
-    )
+    request_id = fastapi_request.state.request_id if hasattr(fastapi_request.state, "request_id") else None
 
     start_time = time.time()
     logger.info(
@@ -60,15 +53,13 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
 
         duration = int((time.time() - start_time) * 1000)
         logger.info(
-            f"[RAG对话] 成功, request_id={request_id}, session_id={request.session_id}, duration={duration}ms, answer_length={len(result.get('answer', ''))}"
+            f"[RAG对话] request_id={request_id}, 对话完成, session_id={request.session_id}, duration={duration}ms, answer_length={len(result.get('answer', ''))}"
         )
 
         return ResponseBuilder.success(data=result, request_id=request_id)
 
     except ValueError as e:
-        logger.error(
-            f"[RAG对话] 失败, request_id={request_id}, session_id={request.session_id}, error_code=PARAM_ERROR, error_msg={str(e)}"
-        )
+        logger.error(f"[RAG对话] request_id={request_id}, 对话失败: {str(e)}, session_id={request.session_id}")
         return APIException(error_code=ErrorCode.PARAM_ERROR, message=str(e))
     except TimeoutError:
         logger.error(
@@ -76,10 +67,7 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
         )
         return ResponseBuilder.error(
             error_code=ErrorCode.MODEL_TIMEOUT.value,
-            data={
-                "timeout": request.timeout,
-                "session_id": request.session_id,
-            },
+            data={"timeout": request.timeout, "session_id": request.session_id},
         )
     except Exception as e:
         # 记录未预期的错误
@@ -87,6 +75,4 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
             f"[RAG对话] 失败, request_id={request_id}, session_id={request.session_id}, error_code=CHAT_EXCEPTION, error_msg={str(e)}"
         )
         log_exception("聊天异常错误", exc=e)
-        return ResponseBuilder.error(
-            error_code=ErrorCode.CHAT_EXCEPTION.value, error_message=str(e)
-        )
+        return ResponseBuilder.error(error_code=ErrorCode.CHAT_EXCEPTION.value, error_message=str(e))

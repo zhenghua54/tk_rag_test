@@ -4,7 +4,8 @@
 """
 
 import time
-from typing import List, Dict, Any, Tuple
+from typing import Any
+
 import numpy as np
 
 from config.global_config import GlobalConfig
@@ -29,7 +30,7 @@ class IndexComparisonTester:
         # FLAT collection (新的)
         self.flat_manager = FlatCollectionManager("rag_flat")
 
-    def compare_search_results(self, test_queries: List[str], iterations: int = 5) -> Dict[str, Any]:
+    def compare_search_results(self, test_queries: list[str], iterations: int = 5) -> dict[str, Any]:
         """
         对比两种索引的搜索结果
 
@@ -38,14 +39,14 @@ class IndexComparisonTester:
             iterations: 每个查询的测试次数
 
         Returns:
-            Dict[str, Any]: 对比结果
+            dict[str, Any]: 对比结果
         """
         results = {
             "test_queries": test_queries,
             "iterations": iterations,
             "ivf_results": {},
             "flat_results": {},
-            "comparison": {}
+            "comparison": {},
         }
 
         for query in test_queries:
@@ -69,7 +70,7 @@ class IndexComparisonTester:
 
         return results
 
-    def _test_ivf_search(self, query: str, iterations: int) -> List[List[Dict[str, Any]]]:
+    def _test_ivf_search(self, query: str, iterations: int) -> list[list[dict[str, Any]]]:
         """
         测试 IVF 索引搜索
 
@@ -78,7 +79,7 @@ class IndexComparisonTester:
             iterations: 测试次数
 
         Returns:
-            List[List[Dict[str, Any]]]: 多次搜索结果
+            list[list[dict[str, Any]]]: 多次搜索结果
         """
         search_results = []
 
@@ -88,7 +89,7 @@ class IndexComparisonTester:
                 search_params = {
                     "search_type": "similarity",
                     "k": 10,
-                    "nprobe": 50  # IVF 特有的参数
+                    "nprobe": 50,  # IVF 特有的参数
                 }
 
                 # 这里需要实现真正的搜索逻辑
@@ -98,12 +99,12 @@ class IndexComparisonTester:
                 time.sleep(0.1)
 
             except Exception as e:
-                logger.error(f"[IVF测试] 第 {i+1} 次搜索失败: {e}")
+                logger.error(f"[IVF测试] 第 {i + 1} 次搜索失败: {e}")
                 search_results.append([])
 
         return search_results
 
-    def _test_flat_search(self, query: str, iterations: int) -> List[List[Dict[str, Any]]]:
+    def _test_flat_search(self, query: str, iterations: int) -> list[list[dict[str, Any]]]:
         """
         测试 FLAT 索引搜索
 
@@ -112,7 +113,7 @@ class IndexComparisonTester:
             iterations: 测试次数
 
         Returns:
-            List[List[Dict[str, Any]]]: 多次搜索结果
+            list[list[dict[str, Any]]]: 多次搜索结果
         """
         search_results = []
 
@@ -130,12 +131,12 @@ class IndexComparisonTester:
                 time.sleep(0.1)
 
             except Exception as e:
-                logger.error(f"[FLAT测试] 第 {i+1} 次搜索失败: {e}")
+                logger.error(f"[FLAT测试] 第 {i + 1} 次搜索失败: {e}")
                 search_results.append([])
 
         return search_results
 
-    def _mock_ivf_search(self, query: str, search_params: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _mock_ivf_search(self, query: str, search_params: dict[str, Any]) -> list[dict[str, Any]]:
         """
         模拟 IVF 搜索（临时实现）
 
@@ -144,7 +145,7 @@ class IndexComparisonTester:
             search_params: 搜索参数
 
         Returns:
-            List[Dict[str, Any]]: 搜索结果
+            list[dict[str, Any]]: 搜索结果
         """
         # 模拟 IVF 索引可能的不稳定性
         base_scores = [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45]
@@ -153,12 +154,9 @@ class IndexComparisonTester:
         noise = np.random.normal(0, 0.05, len(base_scores))
         scores = [max(0, min(1, score + noise[i])) for i, score in enumerate(base_scores)]
 
-        return [
-            {"seg_id": f"seg_{i}", "score": scores[i]}
-            for i in range(search_params["k"])
-        ]
+        return [{"seg_id": f"seg_{i}", "score": scores[i]} for i in range(search_params["k"])]
 
-    def _mock_flat_search(self, query: str, search_params: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _mock_flat_search(self, query: str, search_params: dict[str, Any]) -> list[dict[str, Any]]:
         """
         模拟 FLAT 搜索（临时实现）
 
@@ -167,7 +165,7 @@ class IndexComparisonTester:
             search_params: 搜索参数
 
         Returns:
-            List[Dict[str, Any]]: 搜索结果
+            list[dict[str, Any]]: 搜索结果
         """
         # 模拟 FLAT 索引的稳定性
         base_scores = [0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.55, 0.5, 0.45]
@@ -176,13 +174,11 @@ class IndexComparisonTester:
         noise = np.random.normal(0, 0.001, len(base_scores))
         scores = [max(0, min(1, score + noise[i])) for i, score in enumerate(base_scores)]
 
-        return [
-            {"seg_id": f"seg_{i}", "score": scores[i]}
-            for i in range(search_params["k"])
-        ]
+        return [{"seg_id": f"seg_{i}", "score": scores[i]} for i in range(search_params["k"])]
 
-    def _compare_results(self, ivf_results: List[List[Dict[str, Any]]],
-                        flat_results: List[List[Dict[str, Any]]]) -> Dict[str, Any]:
+    def _compare_results(
+        self, ivf_results: list[list[dict[str, Any]]], flat_results: list[list[dict[str, Any]]]
+    ) -> dict[str, Any]:
         """
         对比两种索引的结果
 
@@ -191,7 +187,7 @@ class IndexComparisonTester:
             flat_results: FLAT 搜索结果
 
         Returns:
-            Dict[str, Any]: 对比结果
+            dict[str, Any]: 对比结果
         """
         # 计算稳定性分数
         ivf_stability = self._calculate_stability_score(ivf_results)
@@ -208,10 +204,10 @@ class IndexComparisonTester:
             "flat_stability": flat_stability,
             "stability_improvement": stability_improvement,
             "result_consistency": result_consistency,
-            "recommendation": "FLAT" if stability_improvement > 0.1 else "IVF"
+            "recommendation": "FLAT" if stability_improvement > 0.1 else "IVF",
         }
 
-    def _calculate_stability_score(self, search_results: List[List[Dict[str, Any]]]) -> float:
+    def _calculate_stability_score(self, search_results: list[list[dict[str, Any]]]) -> float:
         """
         计算稳定性分数
 
@@ -248,8 +244,9 @@ class IndexComparisonTester:
         # 返回平均一致性分数
         return np.mean(consistency_scores) if consistency_scores else 0.0
 
-    def _calculate_result_consistency(self, ivf_results: List[List[Dict[str, Any]]],
-                                    flat_results: List[List[Dict[str, Any]]]) -> float:
+    def _calculate_result_consistency(
+        self, ivf_results: list[list[dict[str, Any]]], flat_results: list[list[dict[str, Any]]]
+    ) -> float:
         """
         计算两种索引结果的一致性
 
@@ -315,5 +312,5 @@ def run_index_comparison():
         logger.info("❌ FLAT 索引稳定性提升不明显，建议继续使用 IVF")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_index_comparison()

@@ -26,9 +26,7 @@ class MilvusSegmentData:
     seg_content: str
     seg_type: str
     seg_page_idx: int
-    current_time: str = field(
-        default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+    current_time: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -44,9 +42,7 @@ class MySQLSegmentData:
     seg_image_path: str = ""
     seg_caption: str = ""
     seg_footnote: str = ""
-    current_time: str = field(
-        default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    )
+    current_time: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
 def format_table_caption_footnote(value: str | list):
@@ -58,9 +54,7 @@ def format_table_caption_footnote(value: str | list):
     return value
 
 
-def _build_milvus_data(
-    params: MilvusSegmentData,
-) -> dict[str, Any]:
+def _build_milvus_data(params: MilvusSegmentData) -> dict[str, Any]:
     """
     构建 milvus 存储数据结构
 
@@ -68,7 +62,7 @@ def _build_milvus_data(
         params (MilvusSegmentData): Milvus 构建参数数据类
 
     Returns:
-        Dict[str,Any]: 构建好的 Milvus 数据对象
+        dict[str,Any]: 构建好的 Milvus 数据对象
     """
 
     # 数据验证
@@ -90,9 +84,7 @@ def _build_milvus_data(
     return data
 
 
-def _build_mysql_data(
-    params: MySQLSegmentData,
-) -> dict[str, Any]:
+def _build_mysql_data(params: MySQLSegmentData) -> dict[str, Any]:
     """
     构建 mysql 存储数据结构
 
@@ -100,7 +92,7 @@ def _build_mysql_data(
         params (MySQLSegmentData): Mysql 构建参数数据类
 
     Returns:
-        Dict[str,Any]: 构建好的 mysql 数据对象
+        dict[str,Any]: 构建好的 mysql 数据对象
     """
 
     # 数据验证
@@ -123,9 +115,7 @@ def _build_mysql_data(
     return data
 
 
-def segment_text_content(
-    doc_id: str, doc_process_path: str, request_id: str | None = None
-) -> bool:
+def segment_text_content(doc_id: str, doc_process_path: str, request_id: str | None = None) -> bool:
     """分块文本内容
 
     Args:
@@ -178,9 +168,7 @@ def segment_text_content(
         logger.info(f"request_id={request_id}, 共需处理 {total_pages} 页内容")
 
         for page_idx, page_contents in json_content.items():
-            logger.debug(
-                f"[文档切块] request_id={request_id}, 处理第{page_idx}页, 总页数={total_pages}"
-            )
+            logger.debug(f"[文档切块] request_id={request_id}, 处理第{page_idx}页, 总页数={total_pages}")
             for content in page_contents:
                 # 文本元素处理
                 if content["type"] == "text":
@@ -188,15 +176,11 @@ def segment_text_content(
                     text_content = content["text"].strip()
 
                     if not text_content:
-                        logger.warning(
-                            f"[Chunker] request_id={request_id}, 跳过空文本块: '{text_content}'"
-                        )
+                        logger.warning(f"[Chunker] request_id={request_id}, 跳过空文本块: '{text_content}'")
                         continue
 
                     # 根据固定长度切块
-                    if len(text_content) <= GlobalConfig.SEGMENT_CONFIG.get(
-                        "max_text_length", 500
-                    ):
+                    if len(text_content) <= GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500):
                         # 文本长度小于chunk_size，直接处理不分块
                         logger.debug(
                             f"request_id={request_id}, 文本长度({len(text_content)})小于分块大小({GlobalConfig.SEGMENT_CONFIG.get('max_text_length', 500)})，不进行分块"
@@ -205,9 +189,7 @@ def segment_text_content(
                     else:
                         # 文本长度超过chunk_size，需要分块
                         text_chunks = text_splitter.split_text(text_content)
-                        logger.debug(
-                            f"request_id={request_id}, 文本内容分块完成，共 {len(text_chunks)} 个块"
-                        )
+                        logger.debug(f"request_id={request_id}, 文本内容分块完成，共 {len(text_chunks)} 个块")
 
                     # 分批处理文本块
                     for i in range(0, len(text_chunks), batch_size):
@@ -217,10 +199,7 @@ def segment_text_content(
                         for chunk in batch_chunks:
                             # 构建 milvus 数据存储
                             milvus_params = MilvusSegmentData(
-                                doc_id=doc_id,
-                                seg_content=chunk,
-                                seg_type="text",
-                                seg_page_idx=int(page_idx) + 1,
+                                doc_id=doc_id, seg_content=chunk, seg_type="text", seg_page_idx=int(page_idx) + 1
                             )
                             milvus_data = _build_milvus_data(milvus_params)
                             if milvus_data:
@@ -241,30 +220,20 @@ def segment_text_content(
 
                 elif content["type"] == "table":
                     # 处理表格内容
-                    logger.info(
-                        f"request_id={request_id}, 处理第 {page_idx} 页的表格内容..."
-                    )
+                    logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的表格内容...")
 
                     table_body = content.get("table_body", "").strip()
                     if not table_body:
-                        logger.warning(
-                            f"request_id={request_id}, 表格内容为空: {content}"
-                        )
+                        logger.warning(f"request_id={request_id}, 表格内容为空: {content}")
                         continue
 
                     # 处理表格标题 - 可能是字符串或列表
-                    table_caption = format_table_caption_footnote(
-                        content.get("table_caption", "")
-                    )
-                    table_footnote = format_table_caption_footnote(
-                        content.get("table_footnote", "")
-                    )
+                    table_caption = format_table_caption_footnote(content.get("table_caption", ""))
+                    table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
 
                     # 线性化处理结果, 包含三种可能:
                     # 规则提取线性化(parser-linear), 模型输出线性化(llm-linear), 模型输出未线性化(llm_fallback)
-                    table_linear_result: dict[str, Any] = html_to_structured_linear(
-                        table_body, caption=table_caption
-                    )
+                    table_linear_result: dict[str, Any] = html_to_structured_linear(table_body, caption=table_caption)
                     # 提取解析结果类型
                     table_type: str = table_linear_result["source"]
                     # 提取解析结果
@@ -274,9 +243,7 @@ def segment_text_content(
                     )
 
                     # 将字典内容转为字符串, 字典按照 key 排序(非字典忽略排序),并禁止中文转义
-                    table_text = json.dumps(
-                        table_content, ensure_ascii=False, sort_keys=True
-                    )
+                    table_text = json.dumps(table_content, ensure_ascii=False, sort_keys=True)
 
                     # 编码 html 结果存储到 mysql
                     escaped_html = escape_html_table(table_body)
@@ -317,37 +284,22 @@ def segment_text_content(
                 elif content["type"] == "image":
                     # 判断图片内容是否为空
                     if not content.get("img_path", ""):
-                        logger.warning(
-                            f"request_id={request_id}, 图片内容为空: {content}"
-                        )
+                        logger.warning(f"request_id={request_id}, 图片内容为空: {content}")
                         continue
 
-                    logger.info(
-                        f"request_id={request_id}, 处理第 {page_idx} 页的图片内容..."
-                    )
+                    logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的图片内容...")
 
                     # 生成图片信息 - 处理标题可能是列表的情况
-                    img_caption = format_table_caption_footnote(
-                        content.get("img_caption", "")
-                    )
-                    img_footnote = format_table_caption_footnote(
-                        content.get("img_footnote", "")
-                    )
+                    img_caption = format_table_caption_footnote(content.get("img_caption", ""))
+                    img_footnote = format_table_caption_footnote(content.get("img_footnote", ""))
 
                     if not img_caption:
-                        logger.warning(
-                            f"request_id={request_id}, 图片标题为空，使用默认标题"
-                        )
-                        img_caption = (
-                            f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
-                        )
+                        logger.warning(f"request_id={request_id}, 图片标题为空，使用默认标题")
+                        img_caption = f"图片_{page_idx}_{len(mysql_batch)}"  # 页码+批次号
 
                     # 构建 milvus 数据存储
                     milvus_params = MilvusSegmentData(
-                        doc_id=doc_id,
-                        seg_content=img_caption,
-                        seg_type="image",
-                        seg_page_idx=int(page_idx) + 1,
+                        doc_id=doc_id, seg_content=img_caption, seg_type="image", seg_page_idx=int(page_idx) + 1
                     )
                     milvus_data = _build_milvus_data(milvus_params)
                     if milvus_data:
@@ -372,9 +324,7 @@ def segment_text_content(
             # 当批次达到指定大小时，保存到数据库
             if len(milvus_batch) >= batch_size or len(mysql_batch) >= batch_size:
                 # 分别保存各个数据库的批次
-                save_batch_to_databases(
-                    milvus_batch, mysql_batch, chunk_op, flat_manager
-                )
+                save_batch_to_databases(milvus_batch, mysql_batch, chunk_op, flat_manager)
                 total_records += len(mysql_batch)
                 milvus_batch = []
                 mysql_batch = []
@@ -396,17 +346,12 @@ def segment_text_content(
         return True
 
     except Exception as e:
-        logger.error(
-            f"[文档处理失败] request_id={request_id}, doc_id={doc_id}, error={str(e)}"
-        )
+        logger.error(f"[文档处理失败] request_id={request_id}, doc_id={doc_id}, error={str(e)}")
         raise
 
 
 def save_batch_to_databases(
-    milvus_batch: list[dict],
-    mysql_batch: list[dict],
-    chunk_op,
-    flat_manager: FlatCollectionManager,
+    milvus_batch: list[dict], mysql_batch: list[dict], chunk_op, flat_manager: FlatCollectionManager
 ) -> bool:
     """保存一批数据到各个数据库
 
@@ -441,10 +386,7 @@ def save_batch_to_databases(
 if __name__ == "__main__":
     # 初始化分块器
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=100,
-        length_function=len,
-        separators=["\n\n", "\n", "。", "！", "？", "!", "?"],
+        chunk_size=500, chunk_overlap=100, length_function=len, separators=["\n\n", "\n", "。", "！", "？", "!", "?"]
     )
     print(GlobalConfig.SEGMENT_CONFIG.get("max_text_length", 500))
     print(text_splitter.__dict__)

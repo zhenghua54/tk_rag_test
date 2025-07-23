@@ -1,33 +1,30 @@
 """文件工具方法"""
-import os
 
+import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import hashlib
 import json
 import re
-
-import fitz
-import requests
-import hashlib
 import shutil
 import subprocess
 import tempfile
-
 from pathlib import Path
-from typing import Dict, Tuple, Optional, List, Union
+
+import fitz
+import requests
+
 # mineru 解析使用
 from magic_pdf.config.enums import SupportedPdfParseMethod
-from magic_pdf.data.data_reader_writer import FileBasedDataWriter, FileBasedDataReader
+from magic_pdf.data.data_reader_writer import FileBasedDataReader, FileBasedDataWriter
 from magic_pdf.data.dataset import PymuDocDataset
 from magic_pdf.model.doc_analyze_by_custom_model import doc_analyze
 
 from config.global_config import GlobalConfig
-from error_codes import ErrorCode
-from api.response import APIException
-from utils.log_utils import logger, log_exception
 from utils.llm_utils import llm_manager, render_prompt
+from utils.log_utils import log_exception, logger
 
 
 # === 输出路径获取 ===
@@ -51,11 +48,7 @@ def get_doc_output_path(doc_path: str) -> dict:
     output_path = output_data_dir / doc_path.stem
     output_image_path = output_path / "images"
 
-    return {
-        "output_path": str(output_path),
-        "output_image_path": str(output_image_path),
-        "doc_name": doc_path.stem,
-    }
+    return {"output_path": str(output_path), "output_image_path": str(output_image_path), "doc_name": doc_path.stem}
 
 
 # === 文档 ID 生成 ===
@@ -80,7 +73,7 @@ def generate_doc_id(doc_path: str, add_title: bool = True, algo: str = "sha256")
     if add_title:
         doc_path = Path(doc_path)
         # 将文件名转换为字节并添加到哈希计算中
-        hasher.update(str(doc_path.name).encode('utf-8'))
+        hasher.update(str(doc_path.name).encode("utf-8"))
 
     return hasher.hexdigest()
 
@@ -117,11 +110,11 @@ def truncate_text(text: str, max_length: int = None) -> str:
     if len(text.strip()) <= max_length:
         return text
     # 在最大长度处截断，并添加省略号
-    return text.strip()[:max_length - 3] + "..."
+    return text.strip()[: max_length - 3] + "..."
 
 
 # === 文档删除 ===
-def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
+def delete_local_file(file_path_list: list[str]) -> bool | None:
     """删除本地文档和文件夹服务
 
     Args:
@@ -133,7 +126,7 @@ def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
     total_num: int = len(file_path_list)
 
     if total_num == 0:
-        logger.error(f"没有需要删除的文件/目录")
+        logger.error("没有需要删除的文件/目录")
         return True
 
     try:
@@ -142,7 +135,7 @@ def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
         for file_path in file_path_list:
             logger.info(f"开始删除文件: {file_path}")
             if not file_path:
-                logger.info(f"跳过删除, 路径不存在")
+                logger.info("跳过删除, 路径不存在")
                 total_num -= 1
                 continue
             try:
@@ -152,15 +145,15 @@ def delete_local_file(file_path_list: List[str]) -> Optional[bool]:
                     continue
                 path = Path(file_path)
                 if not path.exists():
-                    logger.warning(f"文件不存在")
+                    logger.warning("文件不存在")
                     total_num -= 1
                     continue
                 if path.is_file():
                     path.unlink()
-                    logger.info(f"文件删除成功")
+                    logger.info("文件删除成功")
                 elif path.is_dir():
                     shutil.rmtree(path)
-                    logger.info(f"文件删除成功")
+                    logger.info("文件删除成功")
             except OSError as e:
                 log_exception("系统IO错误", e)
                 raise ValueError(str(e)) from e
@@ -190,9 +183,9 @@ async def download_file_step_by_step(url: str, local_path: str = None, chunk_siz
 
     try:
         # 从 URL 中获取文件名
-        file_name = url.split('/')[-1]
+        file_name = url.split("/")[-1]
         if not file_name:
-            raise APIException(ErrorCode.HTTP_FILE_NOT_FOUND, "无法从URL中获取文件名")
+            raise ValueError("无法从URL中获取文件名")
 
         # 设置本地保存路径
         if local_path is None:
@@ -215,7 +208,7 @@ async def download_file_step_by_step(url: str, local_path: str = None, chunk_siz
         logger.debug(f"文件下载完成，保存到: {local_path}")
         return local_path
     except Exception as e:
-        raise APIException(ErrorCode.HTTP_FILE_NOT_FOUND, str(e)) from e
+        raise ValueError(f"下载文件失败, 错误原因: {str(e)}") from e
 
 
 # === 文档名称非法字符处理 ===
@@ -230,12 +223,12 @@ def sanitize_doc_name(doc_name: str) -> str:
 def _clean_json_block(text: str) -> str:
     """去除 markdown 中的代码块标记，返回纯 JSON 字符串"""
     text = text.strip()
-    text = re.sub(r'^```(json)?\n?', '', text)
-    text = re.sub(r'\n?```$', '', text)
+    text = re.sub(r"^```(json)?\n?", "", text)
+    text = re.sub(r"\n?```$", "", text)
     return text
 
 
-def _validate_summary_dict(data: Dict[str, str]) -> Dict[str, str]:
+def _validate_summary_dict(data: dict[str, str]) -> dict[str, str]:
     """验证并清洗 JSON 对象的字段"""
     title = data.get("title", "").strip()
     summary = data.get("summary", "").strip()
@@ -245,34 +238,34 @@ def _validate_summary_dict(data: Dict[str, str]) -> Dict[str, str]:
     return {"title": title, "summary": summary}
 
 
-def parse_table_summary(value: str) -> Dict[str, str]:
+def parse_table_summary(value: str) -> dict[str, str]:
     """解析并验证表格摘要内容
     Args:
         value: 模型输出的原始摘要文本
     Returns:
-        Dict[str, str]: 包含 title 和 summary 的字典
+        dict[str, str]: 包含 title 和 summary 的字典
     Raises:
         ValueError: 当摘要格式不正确时抛出
     """
     try:
         # 清理输入文本
         json_str = _clean_json_block(value)
-        start = json_str.index('{')
-        end = json_str.rindex('}')
-        json_part = json_str[start:end + 1]
+        start = json_str.index("{")
+        end = json_str.rindex("}")
+        json_part = json_str[start : end + 1]
         parsed = json.loads(json_part)
         return _validate_summary_dict(parsed)
     except Exception as e:
-        raise ValueError(f"[表格摘要解析失败] 输入内容: {value[:100]}..., 错误: {str(e)}")
+        raise ValueError(f"[表格摘要解析失败] 输入内容: {value[:100]}..., 错误: {str(e)}") from e
 
 
 # === 摘要生成 ===
-# def extract_table_summary(html: str) -> Dict[str, str]:
+# def extract_table_summary(html: str) -> dict[str, str]:
 #     """提取表格摘要， 调用LLM接口并解析输出
 #     Args:
 #         html: HTML 格式的表格
 #     Returns:
-#         Dict[str, str]: 包含 title 和 summary 的字典
+#         dict[str, str]: 包含 title 和 summary 的字典
 #     """
 #     # 获取提示词
 #     prompt, config = render_prompt("table_summary", {"table_html": html})
@@ -294,15 +287,22 @@ def extract_text_summary(text: str) -> str:
     """
     # 加载提示词
     prompt, config = render_prompt("text_summary", {"content": text})
-    system_prompt = "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。请直接输出摘要内容，不要包含任何其他说明文字。"
-    summary = llm_manager.invoke(prompt=prompt, temperature=config['temperature'], system_prompt=system_prompt,
-                                 max_tokens=config['max_tokens'], invoke_type="文本摘要生成")
+    system_prompt = (
+        "你是一个专业的文本分析师，擅长从文本中提取关键信息并生成摘要。请直接输出摘要内容，不要包含任何其他说明文字。"
+    )
+    summary = llm_manager.invoke(
+        prompt=prompt,
+        temperature=config["temperature"],
+        system_prompt=system_prompt,
+        max_tokens=config["max_tokens"],
+        invoke_type="文本摘要生成",
+    )
     logger.info(f"[文本摘要] 生成成功, 摘要长度={len(summary)}, {summary[:100]}...")
     return summary.strip()
 
 
 # === 文档转换 ===
-def _check_system_requirements() -> Tuple[bool, str]:
+def _check_system_requirements() -> tuple[bool, str]:
     """
     检查系统环境要求
 
@@ -340,10 +340,10 @@ def _check_system_requirements() -> Tuple[bool, str]:
             # 尝试使用 fc-list 命令检查字体
             try:
                 result = subprocess.run(
+                    # ["fc-list", ":", "lang=zh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
                     ["fc-list", ":", "lang=zh"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True
+                    capture_output=True,
+                    text=True,
                 )
                 if result.returncode == 0 and result.stdout.strip():
                     font_found = True
@@ -352,9 +352,12 @@ def _check_system_requirements() -> Tuple[bool, str]:
                 pass
 
         if not font_found:
-            return False, "未检测到中文字体，建议安装：\n" + \
-                          "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n" + \
-                          "CentOS/RHEL: sudo yum install google-noto-cjk-fonts"
+            return (
+                False,
+                "未检测到中文字体，建议安装：\n"
+                + "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n"
+                + "CentOS/RHEL: sudo yum install google-noto-cjk-fonts",
+            )
         else:
             logger.debug(f"已检测到中文字体: {found_font}")
         return True, ""
@@ -363,7 +366,7 @@ def _check_system_requirements() -> Tuple[bool, str]:
         return False, f"检查系统环境时发生错误: {str(e)}"
 
 
-def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None) -> Optional[str]:
+def libreoffice_convert_toolkit(doc_path: str, output_dir: str | None = None) -> str | None:
     """
     使用 LibreOffice 将文件转换为 PDF 格式
 
@@ -386,7 +389,7 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
             raise RuntimeError(error_msg)
     except Exception as e:
         logger.error(f"Libreoffice 系统环境时发生错误: {str(e)}")
-        raise ValueError(f"检查系统环境时发生错误: {str(e)}")
+        raise ValueError(f"检查系统环境时发生错误: {str(e)}") from e
 
     try:
         office_doc_path = Path(doc_path)
@@ -403,7 +406,7 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
         logger.debug(f"输出文件路径: {output_file}")
     except Exception as e:
         logger.error(f"Libreoffice 转换路径构建失败: {str(e)}")
-        raise ValueError(f"Libreoffice 转换路径构建失败: {str(e)}")
+        raise ValueError(f"Libreoffice 转换路径构建失败: {str(e)}") from e
 
     try:
         # 创建临时目录
@@ -416,10 +419,12 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
             # 构建 LibreOffice 命令
             cmd = [
                 GlobalConfig.PATHS["libreoffice_path"],
-                '--headless',
-                '--convert-to', 'pdf',
-                '--outdir', temp_dir,
-                temp_input
+                "--headless",
+                "--convert-to",
+                "pdf",
+                "--outdir",
+                temp_dir,
+                temp_input,
             ]
             logger.debug(f"执行命令: {' '.join(cmd)}")
 
@@ -428,7 +433,7 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=dict(os.environ, LANG='zh_CN.UTF-8')  # 设置环境变量确保中文支持
+                env=dict(os.environ, LANG="zh_CN.UTF-8"),  # 设置环境变量确保中文支持
             )
 
             # 获取转换输出
@@ -440,7 +445,7 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
             # 检查转换是否成功
             if process.returncode == 0:
                 # 检查临时目录中的 PDF 文件
-                temp_pdf = os.path.join(temp_dir, f"input.pdf")
+                temp_pdf = os.path.join(temp_dir, "input.pdf")
                 if os.path.exists(temp_pdf):
                     # 移动 PDF 文件到目标目录
                     shutil.move(temp_pdf, output_file)
@@ -448,20 +453,18 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: Optional[str] = None)
                     return output_file
                 else:
                     error_msg = f"转换命令成功但临时 PDF 文件不存在: {temp_pdf}"
-                    logger.error(f"[转换失败]  error_code={ErrorCode.CONVERT_FAILED},error_msg={error_msg}")
-                    raise APIException(ErrorCode.CONVERT_FAILED, error_msg)
+                    logger.error(f"转换失败: {error_msg}")
+                    raise ValueError(error_msg)
             else:
-                logger.error(
-                    f"[转换失败] doc_path={str(office_doc_path.resolve())}, error_code={ErrorCode.CONVERT_FAILED}, error_msg={stderr.decode()}")
-                raise APIException(ErrorCode.CONVERT_FAILED, stderr.decode())
-
+                logger.error(f"转换失败: {stderr.decode()}, doc_path: {str(office_doc_path.resolve())}")
+                raise ValueError(f"转换失败: {stderr.decode()}")
     except Exception as e:
-        logger.error(f"[转换失败] error_code={ErrorCode.CONVERT_FAILED},error_msg={str(e)}")
-        raise APIException(ErrorCode.CONVERT_FAILED, str(e))
+        logger.error(f"转换失败: {str(e)}")
+        raise ValueError(f"转换失败: {str(e)}") from e
 
 
 # === PDF 文档解析 ===
-def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> Union[Dict, None]:
+def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, doc_name: str) -> dict[str, str] | None:
     """解析 PDF 文件, 返回 json 文件信息
 
     Args:
@@ -478,7 +481,6 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
     """
 
     try:
-
         # 初始化数据写入器，用于保存图片和 Markdown 文件
         image_writer, md_writer = FileBasedDataWriter(output_image_path), FileBasedDataWriter(output_dir)
 
@@ -491,11 +493,11 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
 
         # 根据文档分类结果选择处理方式
         if ds.classify() == SupportedPdfParseMethod.OCR:  # 如果文档需要 OCR 处理
-            logger.info(f"文档需要 OCR 处理")
+            logger.info("文档需要 OCR 处理")
             infer_result = ds.apply(doc_analyze, ocr=True)  # 应用自定义模型进行 OCR 分析
             pipe_result = infer_result.pipe_ocr_mode(image_writer)  # 进行 OCR 模式下的管道处理
         else:
-            logger.info(f"文档不需要 OCR 处理")
+            logger.info("文档不需要 OCR 处理")
             infer_result = ds.apply(doc_analyze, ocr=False)  # 否则进行普通文本分析
             pipe_result = infer_result.pipe_txt_mode(image_writer)  # 进行文本模式下的管道处理
 
@@ -512,11 +514,7 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
         pipe_result.dump_content_list(md_writer, json_path, output_image_path)
 
         logger.info(f"MinerU 解析完成, JSON 文件已保存至: {json_path}")
-        results = {
-            "json_path": json_path,
-            "spans_path": spans_path,
-            "layout_path": layout_path,
-        }
+        results = {"json_path": json_path, "spans_path": spans_path, "layout_path": layout_path}
         return results
     except Exception as e:
         logger.error(f"Mineru 解析文档失败, 错误原因: {str(e)}")
@@ -524,7 +522,7 @@ def mineru_toolkit(pdf_doc_path: str, output_dir: str, output_image_path: str, d
 
 
 # === 文档分页切割 ===
-def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str, str]]:
+def split_pdf_to_pages(input_path, output_dir) -> dict[str, str] | None:
     """按页切割文档,返回保存的页面地址列表"""
     os.makedirs(output_dir, exist_ok=True)
     doc = fitz.open(input_path)
@@ -551,7 +549,7 @@ def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str, str]]:
             # 保存图片为 PNG 格式
             save_path: str = f"{output_dir}/page_{page_num + 1}.png"
             pix.save(save_path)
-            
+
             result[str(page_num + 1)] = save_path
 
             # 清理内存
@@ -571,7 +569,7 @@ def split_pdf_to_pages(input_path, output_dir) -> Optional[dict[str, str]]:
 # === 文档删除 ===
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     text = """
 1. 复杂问题下只做RAG优化精度提升有限，是否引入微调？（包含您的问题1/2/4）
 

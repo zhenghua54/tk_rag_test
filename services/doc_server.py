@@ -8,7 +8,6 @@ from typing import Any
 
 import pymysql
 
-from api.response import APIException
 from config.global_config import GlobalConfig
 from core.doc.chunker import segment_text_content
 from core.doc.parser import process_doc_content
@@ -20,7 +19,6 @@ from databases.db_ops import (
     update_record_by_doc_id,
 )
 from databases.mysql.operations import FileInfoOperation, PermissionOperation
-from error_codes import ErrorCode
 from services.base import BaseService
 from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
 from utils.file_ops import delete_local_file, download_file_step_by_step, generate_doc_id, split_pdf_to_pages
@@ -182,7 +180,6 @@ class DocumentService(BaseService):
             dict: 更新结果
         """
         # 参数校验
-        # validate_empty_param(permission_ids, "权限 ID")
         validate_doc_id(doc_id)
 
         # 权限格式转换
@@ -216,18 +213,13 @@ class DocumentService(BaseService):
                 # 删除原有权限
                 permission_op.delete_by_doc_id(doc_id)
 
-            # 写入新权限
-            result_num = permission_op.insert_datas(permission_data)
-            logger.debug(
-                f"[文档权限更新] 权限更新成功, request_id={request_id}, doc_id={doc_id}, 更新数量: {result_num}"
-            )
+                # 写入新权限
+                result_num = permission_op.insert_datas(permission_data)
+                logger.debug(
+                    f"[文档权限更新] 权限更新成功, request_id={request_id}, doc_id={doc_id}, 更新数量: {result_num}"
+                )
 
-        return {
-            "doc_id": doc_id,
-            "updated_permissions": cleaned_dep_ids,
-            "update_result": "success",
-            "update_count": result_num,
-        }
+        return {"doc_id": doc_id, "updated_permissions": cleaned_dep_ids, "update_count": result_num}
 
     @staticmethod
     async def delete_file(doc_id: str, is_soft_delete: bool = True, callback_url: str = None) -> dict[str, Any]:
@@ -239,7 +231,7 @@ class DocumentService(BaseService):
             callback_url: 删除完成后的回调URL
 
         Returns:
-            Dict: 删除响应数据
+            dict: 删除响应数据
         """
         # 参数验证
         validate_doc_id(doc_id)
@@ -256,7 +248,7 @@ class DocumentService(BaseService):
                         logger.info(f"MySQL中未找到文档记录: {doc_id}")
             except ValueError as e:
                 logger.error(f"尝试从 MySQL 中获取文件信息失败, 错误原因: {str(e)}, doc_id: {doc_id}")
-                raise APIException(ErrorCode.PARAM_ERROR, str(e)) from e
+                raise ValueError(f"尝试从 MySQL 中获取文件信息失败, 错误原因: {str(e)}, doc_id: {doc_id}") from e
 
             # 删除所有数据库记录
             delete_all_database_data(doc_id)
@@ -343,7 +335,7 @@ class DocumentService(BaseService):
             doc_id: 文档 ID
 
         Returns:
-            Dict: 文档的所有相关信息
+            dict: 文档的所有相关信息
         """
         file_info: dict = select_record_by_doc_id(
             table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id

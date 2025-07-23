@@ -48,13 +48,9 @@ class MilvusFlatConfig:
         获取稠密向量索引参数
 
         Returns:
-            Dict[str, Any]: FLAT 索引参数字典
+            dict[str, Any]: FLAT 索引参数字典
         """
-        return {
-            "field_name": "seg_dense_vector",
-            "index_type": "FLAT",
-            "metric_type": "IP",
-        }
+        return {"field_name": "seg_dense_vector", "index_type": "FLAT", "metric_type": "IP"}
 
     @staticmethod
     def get_sparse_index_params() -> dict[str, Any]:
@@ -62,17 +58,13 @@ class MilvusFlatConfig:
         获取稀疏向量索引参数
 
         Returns:
-            Dict[str, Any]: FLAT 索引参数字典
+            dict[str, Any]: FLAT 索引参数字典
         """
         return {
             "field_name": "seg_sparse_vector",
             "index_type": "SPARSE_INVERTED_INDEX",
             "metric_type": "BM25",
-            "params": {
-                "inverted_index_algo": "DAAT_MAXSCORE",
-                "bm25_k1": 1.2,
-                "bm25_b": 0.75,
-            },
+            "params": {"inverted_index_algo": "DAAT_MAXSCORE", "bm25_k1": 1.2, "bm25_b": 0.75},
         }
 
     def get_search_params(self) -> dict[str, Any]:
@@ -80,20 +72,16 @@ class MilvusFlatConfig:
         获取搜索参数
 
         Returns:
-            Dict[str, Any]: 搜索参数字典
+            dict[str, Any]: 搜索参数字典
         """
-        return {
-            "top_k": self.top_k,
-            "round_decimal": self.round_decimal,
-            "consistency_level": "STRONG",
-        }
+        return {"top_k": self.top_k, "round_decimal": self.round_decimal, "consistency_level": "STRONG"}
 
     def get_config_summary(self) -> dict[str, Any]:
         """
         获取配置摘要
 
         Returns:
-            Dict[str, Any]: 配置摘要字典
+            dict[str, Any]: 配置摘要字典
         """
         return {
             "index_type": "FLAT",
@@ -103,4 +91,3 @@ class MilvusFlatConfig:
             "use_round_robin": self.use_round_robin,
             "random_seed": self.random_seed,
         }
-

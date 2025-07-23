@@ -2,14 +2,16 @@
 
 定义服务接口的基本结构，便于切换 mock/真实 实现
 """
+
 import importlib
 from abc import ABC
+
 from config.global_config import GlobalConfig
 
 
 class BaseService(ABC):
     """服务接口基类
-    
+
     所有服务类都继承此类，并实现相应的抽象方法
     """
 

@@ -1,11 +1,13 @@
 """使用 PyMuPDF 检查 pdf 文件结构, 避免 MinerU 解析崩溃"""
+
 import json
 import os
 import re
 import shutil
 from pathlib import Path
-import requests
+
 import fitz
+import requests
 
 from config.global_config import GlobalConfig
 
@@ -21,7 +23,7 @@ def validate_file_normal(doc_path: str):
             f.read(1024)  # 只读取前1KB验证文件可读性
 
         # 2. 如果是PDF文件，额外进行结构验证
-        if file_ext == '.pdf':
+        if file_ext == ".pdf":
             with fitz.open(abs_file_path) as doc:
                 if doc.is_encrypted:
                     raise ValueError("PDF文件已加密, 无法读取")
@@ -60,8 +62,7 @@ def validate_doc_id(value):
 
 def validate_seg_id(value):
     """验证分块ID格式"""
-    if not isinstance(value, str) or not re.match(r'^[a-zA-Z0-9_-]+$', value) or not re.match(r'^[a-f0-9]{64}$',
-                                                                                              value):
+    if not isinstance(value, str) or not re.match(r"^[a-zA-Z0-9_-]+$", value) or not re.match(r"^[a-f0-9]{64}$", value):
         raise ValueError(f"非法的 seg_id: {value}")
 
 
@@ -110,10 +111,7 @@ def validate_html(value: str) -> bool:
         return False
 
     # 简单正则校验是否包含完整 <table> 标签结构
-    pattern = re.compile(
-        r"<table.*?>.*?</table>",
-        re.IGNORECASE | re.DOTALL
-    )
+    pattern = re.compile(r"<table.*?>.*?</table>", re.IGNORECASE | re.DOTALL)
     match = pattern.search(value)
     return bool(match)
 
@@ -156,7 +154,8 @@ def check_doc_ext(ext: str, doc_type: str):
     allowed_ext = GlobalConfig.SUPPORTED_FILE_TYPES.get(doc_type, [])
     if ext not in allowed_ext:
         raise ValueError(
-            f"不支持的文档扩展名: {ext}, 仅支持: {', '.join(GlobalConfig.SUPPORTED_FILE_TYPES.get(doc_type, []))}")
+            f"不支持的文档扩展名: {ext}, 仅支持: {', '.join(GlobalConfig.SUPPORTED_FILE_TYPES.get(doc_type, []))}"
+        )
 
 
 # === 文档大小 ===
@@ -173,11 +172,11 @@ def check_json_list_format(json_str: str):
     try:
         lst = json.loads(json_str)
         if not isinstance(lst, list):
-            raise ValueError(f"JSON 不是列表格式")
+            raise ValueError("JSON 不是列表格式")
         if not isinstance(lst[0], dict):
-            raise ValueError(f"JSON 元素错误，应为字典格式")
+            raise ValueError("JSON 元素错误，应为字典格式")
     except Exception:
-        raise ValueError(f"非法 JSON 格式")
+        raise ValueError("非法 JSON 格式")
 
 
 # === 磁盘空间校验 ===
@@ -187,8 +186,8 @@ def check_disk_space_sufficient(doc_path: str):
     # 获取项目根目录所在磁盘的可用空间
     total, used, free = shutil.disk_usage(str(Path(__file__)))
     if free <= file_size * 4:  # 预留4倍空间作为缓冲, 需要确保后续文档的生成空间
-        raise ValueError(f"磁盘剩余空间不足")
+        raise ValueError("磁盘剩余空间不足")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
