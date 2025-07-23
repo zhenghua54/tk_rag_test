@@ -353,18 +353,20 @@ class FlatCollectionManager:
             raise
 
 
-    def vector_search_iterator(
+    def vector_search(
         self,
         query_vector: list[float],
         doc_ids: list[str],
+            limit:int,
         output_fields: list[str] = None,
-    ) -> SearchIteratorV2 | SearchIterator | None:
+    ) -> list[list[dict]]:
         """
         执行向量相似性搜索,返回迭代器,用于处理大量检索结果数据
 
         Args:
             query_vector: 查询文本向量(1024维浮点数)
             doc_ids: 文档 ID 列表
+            limit: 限制条数
             output_fields: 返回字段
 
         Returns:
@@ -380,18 +382,18 @@ class FlatCollectionManager:
             # 构建过滤条件
             filter_expr = f"doc_id in {doc_ids}"
 
-            logger.debug(f"[Milvus 检索] filter: {filter_expr}")
+            # 调试
+            logger.info(f"向量检索的过滤条件: {filter_expr}")
 
             # 构建搜索参数
             search_params = {"metric_type": "IP", "params": {}}
 
             # 迭代检索
-            results_iterator = self.client.search_iterator(
+            results_iterator = self.client.search(
                 collection_name=self.collection_name,
                 data=[query_vector],  # 查询向量列表
                 anns_field="seg_dense_vector",  # 向量字段名
-                batch_size=1000,  # 每批返回数量,默认 1000
-                limit=-1,  # 返回所有检索结果
+                limit=limit,  # 返回所有检索结果
                 search_params=search_params,  # 搜索参数
                 output_fields=output_fields,  # 返回字段
                 filter=filter_expr,  # 过滤条件
@@ -402,17 +404,18 @@ class FlatCollectionManager:
 
         except Exception as e:
             logger.error(f"[FLAT Milvus] 向量搜索检索失败: {str(e)}")
-            return None
+            return [[{}]]
 
     def full_text_search(
-        self, query_text: str, doc_ids: list[str], output_fields: list[str] = None
-    ) -> SearchIteratorV2 | SearchIterator | None:
+        self, query_text: str, doc_ids: list[str], limit:int,output_fields: list[str] = None
+    ) -> list[list[dict]]:
         """
         执行全文检索(BM25)
 
         Args:
             query_text: 查询文本
             doc_ids: 文档 ID
+            limit: 限制条数
             output_fields: 返回字段
 
         Returns:
@@ -431,13 +434,16 @@ class FlatCollectionManager:
             # 构建过滤条件
             filter_expr = f"doc_id in {doc_ids}"
 
-            iterator = self.client.search_iterator(
+            # 调试
+            logger.info(f"全文检索的过滤条件: {filter_expr}")
+
+            iterator = self.client.search(
                 collection_name=self.collection_name,
                 data=[query_text],
                 anns_field="seg_sparse_vector",
                 search_params=search_params,
                 filter=filter_expr,
-                limit=-1,
+                limit=limit,
                 output_fields=output_fields,
             )
 
@@ -445,15 +451,11 @@ class FlatCollectionManager:
             return iterator
         except Exception as e:
             logger.error(f"[FLAT Milvus] 全文搜索检索失败: {str(e)}")
-            return None
+            return [[{}]]
 
     def _less_hybrid_search(
         self,
-        doc_id_list: list[str],
-        query_text: str,
-        query_vector: list[float],
-        limit: int,
-        output_fields: list[str] = None,
+        **kwargs
     ) -> list[list[dict]]:
         """
         Milvus 混合检索(根据doc_id)
@@ -469,43 +471,75 @@ class FlatCollectionManager:
             List[List[dict]]: 混合检索后的结果列表,
         """
         try:
-            # 构建过滤条件
-            filter_expr = f"doc_id in {doc_id_list}"
+            # 提取参数
+            doc_id_list = kwargs.get('doc_id_list')
+            query_text= kwargs.get('query_text')
+            query_vector= kwargs.get('query_vector')
+            limit= kwargs.get('limit')
+            output_fields= kwargs.get('output_fields')
+            #
+            # # 构建过滤条件
+            # filter_expr = f"doc_id in {doc_id_list}"
+            #
+            # logger.info(f"混合检索构建的参数: {filter_expr}")
+            #
+            # # 创建向量搜索请求
+            # similar_param = {"metric_type": "IP", "params": {}}
+            # search_vector = {
+            #     "data": [query_vector],
+            #     "anns_field": "seg_dense_vector",
+            #     "param": similar_param,
+            #     "limit": limit,
+            #     "expr": filter_expr,
+            # }
+            # # 执行向量 ANN 检索请求
+            # vector_request = AnnSearchRequest(**search_vector)
+            #
+            # # 创建全文搜索请求
+            # text_param = {"metric_type": "BM25", "params": {"drop_ratio_search": 0.2}}
+            # search_text = {
+            #     "data": [query_text],
+            #     "anns_field": "seg_sparse_vector",
+            #     "param": text_param,
+            #     "limit": limit,
+            #     "expr": filter_expr,
+            # }
+            # # 执行全文 ANN 检索请求
+            # text_request = AnnSearchRequest(**search_text)
+            #
+            # # 执行混合搜索
+            # ranker = WeightedRanker(0.6, 0.4)  # 设置向量检索和全文检索的权重
+            # reqs = [vector_request, text_request]
+            # res = self.client.hybrid_search(
+            #     collection_name=self.collection_name,
+            #     reqs=reqs,
+            #     ranker=ranker,
+            #     limit=limit,
+            #     output_fields=output_fields,
+            # )
+            #
+            # # 调试
+            # if res:
+            #     logger.info(f"[混合检索] 检索到 {len(res)} 条")
+            #     logger.info(f"检索内容: {res}")
 
-            # 创建向量搜索请求
-            similar_param = {"metric_type": "IP", "params": {}}
-            search_vector = {
-                "data": [query_vector],
-                "anns_field": "seg_dense_vector",
-                "param": similar_param,
-                "limit": 50,
-                "expr": filter_expr,
-            }
-            # 执行向量 ANN 检索请求
-            vector_requtst = AnnSearchRequest(**search_vector)
 
-            # 创建全文搜索请求
-            text_param = {"metric_type": "BM25", "params": {"drop_ratio_search": 0.2}}
-            search_text = {
-                "data": [query_text],
-                "anns_field": "seg_sparse_vector",
-                "param": text_param,
-                "limit": 50,
-                "expr": filter_expr,
-            }
-            # 执行全文 ANN 检索请求
-            text_request = AnnSearchRequest(**search_text)
-
-            # 执行混合搜索
-            ranker = WeightedRanker(0.7, 0.3)  # 设置向量检索和全文检索的权重
-            reqs = [vector_requtst, text_request]
-            res = self.client.hybrid_search(
-                collection_name=self.collection_name,
-                reqs=reqs,
-                ranker=ranker,
+            # 直接调取向量检索和全文检索
+            vecctor_results = self.vector_search(
+                query_vector=query_vector,
+                doc_ids=doc_id_list,
                 limit=limit,
                 output_fields=output_fields,
             )
+
+            full_text_results = self.full_text_search(
+                query_text=query_text,
+                doc_ids=doc_id_list,
+                limit=limit,
+                output_fields=output_fields,
+            )
+
+            res  =vecctor_results + full_text_results
 
             return res
 
@@ -530,14 +564,14 @@ class FlatCollectionManager:
 
             for i in range(0, len(kwargs.get("doc_id_list")), batch_size):
                 batch_doc_ids = kwargs.get("doc_id_list")[i : i + batch_size]
-                res = self._less_hybrid_search(
+                batch_res = self._less_hybrid_search(
                     doc_id_list=batch_doc_ids,
                     query_text=kwargs.get("query_text"),
                     query_vector=kwargs.get("query_vector"),
                     limit=kwargs.get("limit"),
                     output_fields=kwargs.get("output_fields"),
                 )
-                all_results += res[0]
+                all_results += batch_res[0]
 
             all_results.sort(key=lambda x: x["distance"], reverse=True)
 
@@ -545,6 +579,35 @@ class FlatCollectionManager:
         except Exception as e:
             logger.error(f"[FLAT Milvus] 批次混合检索失败: {str(e)}")
             return [[]]
+
+    @staticmethod
+    def _merge_and_deduplicate( results: list[list[dict]]) -> list[list[dict]]:
+        """对混合排序结果去重
+
+        Args:
+            results: 混合检索合并后的结果
+
+        Returns:
+            list[list[dict]]: 去重后的结果
+
+        """
+        logger.info(f"[FLAT Milvus] 混合检索去重...")
+        source_entity = []
+        seen = set()
+        merged = []
+
+        for sublist in results:
+            for entity in sublist:
+                doc_id = entity.get("doc_id")
+                seg_id = entity.get("entity", {}).get("seg_id")
+                key = (doc_id, seg_id)
+                source_entity.append(key)
+                if key not in seen:
+                    seen.add(key)
+                    merged.append(entity)
+        logger.info(f"[FLAT Milvus] 去重完成, 去重前: {len(source_entity)}, 去重后: {len(seen)}")
+
+        return [merged]  # 保持 List[List[dict]] 的结构
 
     def optimized_hybrid_search(
         self,
@@ -587,11 +650,16 @@ class FlatCollectionManager:
                 "output_fields": output_fields,
             }
 
+            # 调试
+            logger.info(f"要过滤的doc_id 数量: {len(doc_id_list)}")
+
             if len(doc_id_list) > batch_size:
-                return self._batch_hybrid_search(batch_size=batch_size, **params)
+                res = self._batch_hybrid_search(batch_size=batch_size, **params)
 
             else:
-                return self._less_hybrid_search(**params)
+                res = self._less_hybrid_search(**params)
+
+            return self._merge_and_deduplicate(res)
 
         except Exception as e:
             logger.error(f"[FLAT Milvus] 混合检索失败: {str(e)}")

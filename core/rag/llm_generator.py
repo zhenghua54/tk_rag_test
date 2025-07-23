@@ -347,7 +347,7 @@ class RAGGenerator:
                     query_vector=rewrite_query_vector,
                     doc_id_list=doc_ids,
                     top_k=5,
-                    limit=1000,
+                    limit=50,
                     request_id=request_id,
                 )
             else:

@@ -171,7 +171,7 @@ class BaseDBOperation:
                 placeholders = ", ".join(["%s"] * len(data))
                 sql = f"INSERT INTO {self.table_name} ({columns}) VALUES ({placeholders})"
                 affected_rows = self._execute_update(sql, tuple(data.values()))
-                logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
+                logger.debug(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
                 logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {str(e)}, 数据: {data}")
                 raise ValueError(f"数据插入失败: {str(e)}") from e
@@ -196,7 +196,7 @@ class BaseDBOperation:
                         conn.commit()
                         affected_rows = cursor.rowcount
 
-                logger.info(f"Mysql 数据插入成功, 共 {affected_rows} 条")
+                logger.debug(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
                 logger.error(f"MySQL 数据插入失败，表 {self.table_name}: {str(e)}, 共 {len(data)} 条记录")
                 raise ValueError(f"批量数据插入失败: {str(e)}, 数据情况: {data}") from e
@@ -218,7 +218,7 @@ class BaseDBOperation:
             sql = f"UPDATE {self.table_name} SET {set_clause} WHERE doc_id = %s"
             values = list(data.values())
             values.append(doc_id)
-            logger.info("MySQL 记录更新成功 ")
+            logger.debug("MySQL 记录更新成功 ")
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
             logger.error(f"MySQL 记录更新失败: {str(e)}")
@@ -249,7 +249,7 @@ class BaseDBOperation:
             sql = f"UPDATE {self.table_name} SET {set_clause} WHERE {field_name} = %s"
             values = list(data.values())
             values.append(field_value)
-            logger.info(f"MySQL 记录更新成功, 表={self.table_name}, 字段={field_name}")
+            logger.debug(f"MySQL 记录更新成功, 表={self.table_name}, 字段={field_name}")
             return self._execute_update(sql, tuple(values)) > 0
         except Exception as e:
             logger.error(f"MySQL 记录更新失败: {str(e)}")

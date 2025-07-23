@@ -21,6 +21,7 @@ class HybridRetriever:
         )
 
 
+
     def retrieve(
         self,
         query_text: str,
@@ -50,8 +51,9 @@ class HybridRetriever:
 
         # 执行混合检索
         try:
-            # 获取 Milvus 的混合检索结果, 类型: <class 'pymilvus.client.search_result.SearchResult'>
-            hybrid_results = self._flat_manager.optimized_hybrid_search(
+            # 获取 Milvus 的混合检索结果, (milvus自带混合检索)类型: <class 'pymilvus.client.search_result.SearchResult'>
+            # 获取 Milvus 的混合检索结果, (自定义实现混合检索)类型: list[list[dict]]
+            hybrid_results: list[list[dict]] = self._flat_manager.optimized_hybrid_search(
                 query_text=query_text,
                 query_vector=query_vector,
                 doc_id_list=doc_id_list,
@@ -64,8 +66,18 @@ class HybridRetriever:
             # 计算耗时
             duration = time.time() - start_time
             logger.info(f"[混合检索] request_id={request_id}, Milvus 混合检索完成, 耗时: {duration:.3f}s, 召回数量：{len(hybrid_results[0])} ")
-            logger.debug(f"[混合检索] request_id={request_id}, Milvus 混合检索召回内容: "
-                         f"{[(entity['entity']['doc_id'],entity['entity']['seg_id'],entity['entity']['seg_content']) for entity in hybrid_results[0]] if hybrid_results else '无匹配内容'} ")
+
+            # 调试
+            if hybrid_results:
+                logger.info(f"[混合检索] request_id={request_id}, Milvus 混合检索召回内容: ")
+                for result in hybrid_results[0]:
+                    logger.info(f"doc_id: {result['entity']['doc_id']}")
+                    logger.info(f"seg_id: {result['entity']['seg_id']}")
+                    logger.info(f"seg_content: {result['entity']['seg_content']}")
+
+
+            # 去重并提取信息
+
 
             # 执行 rerank 重排序
             reranked_results = self._custom_rerank(
