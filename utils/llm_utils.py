@@ -153,15 +153,26 @@ class RerankManager(ModelManager):
     def _init_model(self) -> AutoModelForSequenceClassification:
         """初始化Rerank模型"""
         try:
+            model_path = GlobalConfig.MODEL_PATHS.get("rerank")
+            logger.info(f"[Rerank模型] 开始加载模型: {model_path}")
+            
+            # 检查模型路径是否存在
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"模型路径不存在: {model_path}")
+            
             model = AutoModelForSequenceClassification.from_pretrained(
-                GlobalConfig.MODEL_PATHS.get("rerank"),
+                model_path,
                 device_map="auto",  # 自动设备分配， 需要 'accelerate>=0.26.0' 支持
                 max_memory={0: "40GiB"},  # 指定每个 GPU 的最大内存
                 offload_folder="offload",  # 将部分权重卸载到 CPU
                 offload_state_dict=True,  # 自动管理状态字典
+                trust_remote_code=True,  # 信任远程代码
+                local_files_only=True,  # 明确为本地模型路径
             )
             self._tokenizer = AutoTokenizer.from_pretrained(
-                GlobalConfig.MODEL_PATHS.get("rerank")
+                model_path,
+                trust_remote_code=True,  # 信任远程代码
+                local_files_only=True,  # 明确为本地模型路径
             )
             return model
         except Exception as e:

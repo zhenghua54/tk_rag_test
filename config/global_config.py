@@ -50,7 +50,7 @@ class GlobalConfig:
     # 模型相关配置
     MODEL_PATHS = {
         "embedding": str(MODEL_BASE / "embedding" / "bge-m3"),
-        "rerank": str(MODEL_BASE / "reranker" / "bge-reranker-v2-m3"),
+        "rerank": str(MODEL_BASE / "rerank" / "bge-reranker-v2-m3"),
     }
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
 
