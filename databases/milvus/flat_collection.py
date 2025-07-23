@@ -812,7 +812,7 @@ if __name__ == "__main__":
     # 准备查询参数
     flat_manager = FlatCollectionManager()
 
-    query_text = "省外出差补贴"
+    query_text = "出差旅费报销单"
     from utils.llm_utils import embedding_manager
     query_vector = embedding_manager.embed_text(query_text)
     doc_id_list = ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]
@@ -833,7 +833,6 @@ if __name__ == "__main__":
         anns_field="seg_dense_vector",
         limit=limit,
         output_fields=["seg_id","seg_content"],
-        filter = 'doc_id in ["308802d4082973cf8c3a548413585e753b4d37ffa8f8e16a3a005e8023066e52", "84bf50f240e290c94c850ee5f936838368c61b7f1e3be4f321f4aa9c2b843021", "162680e39129e7f6a7df0005160ac5fbb11d7c7fd1b65d7182e4ea8b2b258b26","c2815526bd0fafe2ab7874b43efe9b58cf840c6dba94d49228a2d9506cbffd62"]'
     )
 
     for hit in res[0]:

@@ -50,14 +50,13 @@ class HybridRetriever:
 
         # 执行混合检索
         try:
-            # 获取 Milvus 的混合检索结果
+            # 获取 Milvus 的混合检索结果, 类型: <class 'pymilvus.client.search_result.SearchResult'>
             hybrid_results = self._flat_manager.optimized_hybrid_search(
                 query_text=query_text,
                 query_vector=query_vector,
                 doc_id_list=doc_id_list,
                 limit=limit,
             )
-            logger.debug(f"[混合检索] hybrid_results 类型: {type(hybrid_results)}")
             logger.debug("[混合检索] hybrid_results: ")
             for result in hybrid_results[0]:
                 logger.debug(result)
