@@ -96,7 +96,15 @@ def process_doc_by_page(json_doc_path: str):
                 if not item["table_caption"].strip():
                     last_item = json_content[idx - 1] if idx > 0 else None
                     if last_item and last_item["type"] == "table":
-                        caption = str(last_item.get("table_caption", "")[0]).strip()
+                        # 修复：安全地处理 table_caption，避免索引越界
+                        last_caption = last_item.get("table_caption", "")
+                        if isinstance(last_caption, list) and len(last_caption) > 0:
+                            caption = str(last_caption[0]).strip()
+                        elif isinstance(last_caption, str) and last_caption.strip():
+                            caption = last_caption.strip()
+                        else:
+                            caption = None
+                        
                     elif last_item and last_item["type"] == "text" and len(last_item["text"]) < max_title_len:
                         caption = last_item.get("text").strip()
                     else:
