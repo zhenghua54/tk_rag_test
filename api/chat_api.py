@@ -34,7 +34,7 @@ async def rag_chat(request: ChatRequest, fastapi_request=Request):
 
     start_time = time.time()
     logger.info(
-        f"[RAG对话] 开始, request_id={request_id}, session_id={request.session_id}, query_length={len(request.query)}, permission_ids={request.permission_ids}"
+        f"[RAG对话] 开始, request_id={request_id}, query:{request.query}, permission_ids:{request.permission_ids}, session_id:{request.session_id}"
     )
 
     try:

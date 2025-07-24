@@ -154,7 +154,13 @@ class RAGGenerator:
                     doc_seg_pairs.append((doc_id, seg_id))
                     rerank_scores.append(rerank_score)
 
-            # 调试
+            # 调试：记录从 Milvus 获取的原始数据
+            logger.info(f"[元数据构建] request_id={request_id}, Milvus 返回的原始数据:")
+            for i, result in enumerate(reranked_results):
+                entity = result.get("entity", {})
+                logger.info(
+                    f"  结果 {i + 1}: doc_id={entity.get('doc_id')}, seg_id={entity.get('seg_id')}, content={entity.get('seg_content', '')[:100]}..."
+                )
             logger.debug(f"[元数据构建] request_id={request_id}, 提取到 {len(doc_seg_pairs)} 个唯一记录")
 
             # 从 mysql 获取完整记录
@@ -167,6 +173,16 @@ class RAGGenerator:
             # 调试
             logger.info(f"数据库查询时用到的seg_id_list: {[seg_id for _, seg_id in doc_seg_pairs]}")
             logger.info(f"数据库查询时用到的doc_id_list: {[doc_id for doc_id, _ in doc_seg_pairs]}")
+            # 检查数据一致性
+            milvus_seg_ids = set(seg_id for _, seg_id in doc_seg_pairs)
+            mysql_seg_ids = set(record.get("seg_id") for record in mysql_records if record.get("seg_id"))
+
+            missing_in_mysql = milvus_seg_ids - mysql_seg_ids
+            if missing_in_mysql:
+                logger.warning(
+                    f"[数据一致性检查] request_id={request_id}, 以下 seg_id 在 Milvus 中存在但在 MySQL 中缺失: {missing_in_mysql}"
+                )
+                logger.warning(f"[数据一致性检查] request_id={request_id}, 这可能是数据同步问题，建议检查文档处理日志")
 
             logger.info(f"[元数据构建] request_id={request_id}, 从 mysql 获取到 {len(mysql_records)} 条记录")
             logger.info(f"数据库查询到的记录为: {mysql_records}")
