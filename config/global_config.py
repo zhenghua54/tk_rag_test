@@ -42,7 +42,7 @@ class GlobalConfig:
         "processed_data": str(BASE_DIR / "datas/processed"),
         "model_base": str(MODEL_BASE),
         "log_dir": str(BASE_DIR / "logs"),
-        "libreoffice_path": "/usr/bin/libreoffice",
+        "libreoffice_path": os.getenv('LIBREOFFICE_PATH',"/usr/bin/libreoffice"),
         "mysql_schema_path": str(BASE_DIR / "databases" / "schema" / "mysql_schema_v2.sql"),
         "milvus_flat_schema": str(BASE_DIR / "databases" / "schema" / "milvus_flat_schema_v2.json"),
     }

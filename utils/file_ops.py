@@ -1,6 +1,7 @@
 """文件工具方法"""
 
 import os
+import platform
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -316,54 +317,58 @@ def _check_system_requirements() -> tuple[bool, str]:
     else:
         logger.debug(f"LibreOffice 已安装: {GlobalConfig.PATHS['libreoffice_path']}")
 
-    # 检查中文字体
-    try:
-        # 检查高质量中文字体，优先使用思源系列字体
-        chinese_fonts = [
-            "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",  # Noto Sans CJK
-            "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",  # Noto Serif CJK
-            "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # 备选路径
-            "/usr/share/fonts/truetype/noto/NotoSerifCJK-Regular.ttc",  # 备选路径
-            "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",  # 文泉驿微米黑
-            "/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc",  # 文泉驿正黑
-        ]
+    if platform.system() == "Linux":
+        # 检查中文字体
+        try:
+            # 检查高质量中文字体，优先使用思源系列字体
+            chinese_fonts = [
+                "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",  # Noto Sans CJK
+                "/usr/share/fonts/opentype/noto/NotoSerifCJK-Regular.ttc",  # Noto Serif CJK
+                "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",  # 备选路径
+                "/usr/share/fonts/truetype/noto/NotoSerifCJK-Regular.ttc",  # 备选路径
+                "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",  # 文泉驿微米黑
+                "/usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc",  # 文泉驿正黑
+            ]
 
-        font_found = False
-        found_font = None
-        for font in chinese_fonts:
-            if os.path.exists(font):
-                font_found = True
-                found_font = font
-                break
-
-        if not font_found:
-            # 尝试使用 fc-list 命令检查字体
-            try:
-                result = subprocess.run(
-                    # ["fc-list", ":", "lang=zh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-                    ["fc-list", ":", "lang=zh"],
-                    capture_output=True,
-                    text=True,
-                )
-                if result.returncode == 0 and result.stdout.strip():
+            font_found = False
+            found_font = None
+            for font in chinese_fonts:
+                if os.path.exists(font):
                     font_found = True
-                    found_font = "通过 fc-list 检测到中文字体"
-            except FileNotFoundError:
-                pass
+                    found_font = font
+                    break
 
-        if not font_found:
-            return (
-                False,
-                "未检测到中文字体，建议安装：\n"
-                + "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n"
-                + "CentOS/RHEL: sudo yum install google-noto-cjk-fonts",
-            )
-        else:
-            logger.debug(f"已检测到中文字体: {found_font}")
+            if not font_found:
+                # 尝试使用 fc-list 命令检查字体
+                try:
+                    result = subprocess.run(
+                        # ["fc-list", ":", "lang=zh"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                        ["fc-list", ":", "lang=zh"],
+                        capture_output=True,
+                        text=True,
+                    )
+                    if result.returncode == 0 and result.stdout.strip():
+                        font_found = True
+                        found_font = "通过 fc-list 检测到中文字体"
+                except FileNotFoundError:
+                    pass
+
+            if not font_found:
+                return (
+                    False,
+                    "未检测到中文字体，建议安装：\n"
+                    + "Ubuntu/Debian: sudo apt install fonts-noto-cjk\n"
+                    + "CentOS/RHEL: sudo yum install google-noto-cjk-fonts",
+                )
+            else:
+                logger.debug(f"已检测到中文字体: {found_font}")
+
+        except Exception as e:
+            return False, f"检查系统环境时发生错误: {str(e)}"
+    else:
+        # 非 Linux 系统跳过中文字体检查
+        logger.debug(f"当前系统为 {platform.system()}，跳过中文字体检查")
         return True, ""
-
-    except Exception as e:
-        return False, f"检查系统环境时发生错误: {str(e)}"
 
 
 def libreoffice_convert_toolkit(doc_path: str, output_dir: str | None = None) -> str | None:
@@ -381,15 +386,15 @@ def libreoffice_convert_toolkit(doc_path: str, output_dir: str | None = None) ->
         FileNotFoundError: 当输入文件不存在时
         ValueError: 当输入文件格式不支持时
     """
-    try:
-        # 检查系统环境
-        is_ready, error_msg = _check_system_requirements()
-        if not is_ready:
-            logger.error(error_msg)
-            raise RuntimeError(error_msg)
-    except Exception as e:
-        logger.error(f"Libreoffice 系统环境时发生错误: {str(e)}")
-        raise ValueError(f"检查系统环境时发生错误: {str(e)}") from e
+    # try:
+    #     # 检查系统环境
+    #     is_ready, error_msg = _check_system_requirements()
+    #     if not is_ready:
+    #         logger.error(error_msg)
+    #         raise RuntimeError(error_msg)
+    # except Exception as e:
+    #     logger.error(f"Libreoffice 系统环境时发生错误: {str(e)}")
+    #     raise ValueError(f"检查系统环境时发生错误: {str(e)}") from e
 
     try:
         office_doc_path = Path(doc_path)
