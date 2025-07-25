@@ -1,9 +1,9 @@
 """文档内容分块"""
 
 import json
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
-import time
 from pathlib import Path
 from typing import Any
 
@@ -47,13 +47,24 @@ class MySQLSegmentData:
     current_time: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
-def format_table_caption_footnote(value: str | list) -> str:
+def format_table_caption_footnote(value: str | list | None) -> str:
     """处理标题和脚注为列表或者空的问题"""
-    if isinstance(value, str) and not value.strip():
+    try:
+        if value is None:
+            return ""
+        elif isinstance(value, str):
+            return value.strip() if value.strip() else ""
+        elif isinstance(value, list):
+            if len(value) == 0:
+                return ""
+            # 确保列表中的每个元素都能转换为字符串
+            return ",".join(str(item).strip() for item in value if item is not None)
+        else:
+            # 对于其他类型，尝试转换为字符串
+            return str(value).strip() if str(value).strip() else ""
+    except Exception as e:
+        logger.warning(f"format_table_caption_footnote 处理异常: {str(e)}, value: {value}, type: {type(value)}")
         return ""
-    elif isinstance(value, list):
-        return "" if len(value) == 0 else ",".join(str(item) for item in value)
-    return value
 
 
 def _build_milvus_data(params: MilvusSegmentData) -> dict[str, Any]:
@@ -173,66 +184,72 @@ def _chunk_table_content(
 ) -> tuple[list[dict], list[dict]]:
     """处理表格内容"""
 
-    logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的表格内容...")
+    try:
+        logger.info(f"request_id={request_id}, 处理第 {page_idx} 页的表格内容...")
 
-    table_body = content.get("table_body", "").strip()
-    if not table_body:
-        logger.warning(f"request_id={request_id}, 表格内容为空: {content}")
+        table_body = content.get("table_body", "").strip()
+        if not table_body:
+            logger.warning(f"request_id={request_id}, 表格内容为空: {content}")
+            return [], []
+
+        table_caption = format_table_caption_footnote(content.get("table_caption", ""))
+        table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
+
+        # 统一生成 seg_id(表格标题+表格内容)
+        table_seg_id = generate_seg_id((str(table_caption) or "") + (str(table_body or "")))
+
+        # 线性化处理结果, 包含三种可能:
+        # 规则提取线性化(parser-linear), 模型输出线性化(llm-linear), 模型输出未线性化(llm_fallback)
+        table_linear_result: dict[str, Any] = html_to_structured_linear(table_body, caption=table_caption)
+        # 提取解析结果类型
+        table_type: str = table_linear_result["source"]
+        # 提取解析结果
+        table_content = table_linear_result["content"]
+        logger.debug(
+            f"[Chunker] request_id={request_id}, Table Linearize 完成, type: {table_type}, table_content:{table_content}"
+        )
+
+        # 将字典内容转为字符串, 字典按照 key 排序(非字典忽略排序),并禁止中文转义
+        table_text = json.dumps(table_content, ensure_ascii=False, sort_keys=True)
+
+        # 编码 html 结果存储到 mysql
+        escaped_html = escape_html_table(table_body)
+
+        # TODO: 后续根据情况,可增加子块切分逻辑
+        # 线性化文本的切分: >3000, 按照分组切分, 若只有一个分组,则分组拆散后组合为多个子分组
+        # html 源结构的切分:>3000, 根据表格内的<tr>进行切分,最终应该为<table>表 1</table>,<table>表 2</table>
+
+        milvus_data = _build_milvus_data(
+            MilvusSegmentData(
+                doc_id=doc_id,
+                seg_id=table_seg_id,
+                seg_content=table_text,
+                seg_type=table_type,
+                seg_page_idx=int(page_idx) + 1,
+                metadata={**table_linear_result["meta"]},
+            )
+        )
+        mysql_data = _build_mysql_data(
+            MySQLSegmentData(
+                doc_id=doc_id,
+                seg_id=table_seg_id,
+                seg_content=escaped_html,  # mysql 存储表格的源 HTML 格式(escape 编码后,避免字符异常)
+                seg_type="table",
+                seg_page_idx=int(page_idx) + 1,
+                seg_len=len(escaped_html) if escaped_html else 0,
+                seg_image_path=content.get("img_path", ""),
+                seg_caption=table_caption,
+                seg_footnote=table_footnote,
+                current_time=current_time,
+            )
+        )
+
+        return [milvus_data], [mysql_data]
+
+    except Exception as e:
+        logger.error(f"[Chunker] request_id={request_id}, 表格内容处理失败: {str(e)}")
+        logger.error(f"[Chunker] request_id={request_id}, 表格内容: {content}")
         return [], []
-
-    table_caption = format_table_caption_footnote(content.get("table_caption", ""))
-    table_footnote = format_table_caption_footnote(content.get("table_footnote", ""))
-
-    # 统一生成 seg_id(表格标题+表格内容)
-    table_seg_id = generate_seg_id((str(table_caption) or "") + (str(table_body or "")))
-
-    # 线性化处理结果, 包含三种可能:
-    # 规则提取线性化(parser-linear), 模型输出线性化(llm-linear), 模型输出未线性化(llm_fallback)
-    table_linear_result: dict[str, Any] = html_to_structured_linear(table_body, caption=table_caption)
-    # 提取解析结果类型
-    table_type: str = table_linear_result["source"]
-    # 提取解析结果
-    table_content = table_linear_result["content"]
-    logger.debug(
-        f"[Chunker] request_id={request_id}, Table Linearize 完成, type: {table_type}, table_content:{table_content}"
-    )
-
-    # 将字典内容转为字符串, 字典按照 key 排序(非字典忽略排序),并禁止中文转义
-    table_text = json.dumps(table_content, ensure_ascii=False, sort_keys=True)
-
-    # 编码 html 结果存储到 mysql
-    escaped_html = escape_html_table(table_body)
-
-    # TODO: 后续根据情况,可增加子块切分逻辑
-    # 线性化文本的切分: >3000, 按照分组切分, 若只有一个分组,则分组拆散后组合为多个子分组
-    # html 源结构的切分:>3000, 根据表格内的<tr>进行切分,最终应该为<table>表 1</table>,<table>表 2</table>
-
-    milvus_data = _build_milvus_data(
-        MilvusSegmentData(
-            doc_id=doc_id,
-            seg_id=table_seg_id,
-            seg_content=table_text,
-            seg_type=table_type,
-            seg_page_idx=int(page_idx) + 1,
-            metadata={**table_linear_result["meta"]},
-        )
-    )
-    mysql_data = _build_mysql_data(
-        MySQLSegmentData(
-            doc_id=doc_id,
-            seg_id=table_seg_id,
-            seg_content=escaped_html,  # mysql 存储表格的源 HTML 格式(escape 编码后,避免字符异常)
-            seg_type="table",
-            seg_page_idx=int(page_idx) + 1,
-            seg_len=len(escaped_html) if escaped_html else 0,
-            seg_image_path=content.get("img_path", ""),
-            seg_caption=table_caption,
-            seg_footnote=table_footnote,
-            current_time=current_time,
-        )
-    )
-
-    return [milvus_data], [mysql_data]
 
 
 def _chunk_image_content(

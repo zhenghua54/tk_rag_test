@@ -180,28 +180,32 @@ def _determine_group_fields(json_data: list[dict[str, str]]) -> list[str]:
     unique_second = len(set([v for v in second_col_values if v]))
 
     # 决策逻辑
-    if unique_first == 0:
-        # 第一列全为空，使用第二列
-        if unique_second == 0:
+    result = []
+    match unique_first:
+        case 0:
+            # 第一列全为空，使用第二列
             # 第二列也为空,最多使用第三列
-            return field_names[:3]
-        else:
-            # 使用第二列
-            return [second_field]
-    elif unique_first == 1:
-        # 第一列只有一个值，使用两列组合
-        if unique_second == 0:
-            # 第二列全为空, 只使用第一列
-            return [first_field]
-        elif unique_second == 1:
-            # 第二列也只有一列,那就使用第三列
-            return field_names[:3]
-        else:
-            # 使用两列组合
-            return [first_field, second_field]
-    else:
-        # 第一列有多个值，只使用第一列
-        return [first_field]
+            result = field_names[:3] if unique_second == 0 else [second_field]
+            logger.debug(f"第一列全为空，使用第二列, 第二列也为空,最多使用第三列, 结果: {result}")
+
+        case 1:
+            # 第一列只有一个值，使用两列组合
+            result = (
+                [first_field]
+                if unique_second == 0
+                else field_names[:3]
+                if unique_second == 1
+                else [first_field, second_field]
+            )
+            logger.debug(
+                f"第一列只有一个值，使用两列组合, 第二列全为空, 只使用第一列, 第二列也只有一列,那就使用第三列, 使用两列组合, 结果: {result}"
+            )
+
+        case _:
+            # 第一列有多个值，只使用第一列
+            result = [first_field]
+
+    return result
 
 
 def group_by_smart_strategy(json_data: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
@@ -332,14 +336,14 @@ def html_to_structured_linear(html: str, caption: str | None = None) -> dict[str
 
         # 降级处理: 使用大模型进行提取
         llm_output = extract_table_summary(html)
-        logger.debug(f"[Table Linearize] 模型输出清洗后: \n {llm_output:500}")
+        logger.debug(f"[Table Linearize] 模型输出清洗后: \n {str(llm_output)[:500]}")
 
         try:
             # 尝试对大模型提取的表格结构进行分组
             logger.debug("[Table Linearize] 分组模型提取结果")
             grouped_data: dict[str, list[dict[str, str]]] = group_by_smart_strategy(llm_output)
 
-            # 步骤四: 分组内容 → 分组线性化文本列表()
+            # 分组内容 → 分组线性化文本列表()
             logger.debug("[Table Linearize] 线性化分组后的表格内容")
             linearize_result: dict[str, Any] = linearize_grouped_data(grouped_data)
 
@@ -384,15 +388,33 @@ def _extract_json_array(text: str) -> list[dict[str, str]]:
         if match:
             json_content = match.group(1).strip()
             logger.debug(f"模型生成的表格摘要:\n {json_content}")
-            return json.loads(json_content)
+
+            # 解析 json
+            parsed_data = json.loads(json_content)
+
+            # 确保返回的是列表
+            if isinstance(parsed_data, list):
+                logger.debug(f"JSON解析成功，返回列表，长度: {len(parsed_data)}")
+                return parsed_data
+            elif isinstance(parsed_data, dict):
+                # 如果是字典，包装成列表
+                logger.debug("JSON解析为字典，包装成列表")
+                return [parsed_data]
+            else:
+                # 如果是其他类型，尝试转换为列表
+                logger.warning(f"JSON解析结果类型为 {type(parsed_data)}，尝试转换")
+                return [parsed_data] if parsed_data else []
+
         else:
             raise ValueError("未找到JSON代码块")
 
     except json.JSONDecodeError as e:
         logger.error(f"JSON解析失败: {str(e)}")
+        logger.error(f"JSON内容: {json_content if 'json_content' in locals() else 'N/A'}")
         raise ValueError(f"JSON解析失败: {str(e)}") from e
     except Exception as e:
         logger.error(f"JSON提取失败: {str(e)}")
+        logger.error(f"原始文本: {text[:200]}...")
         raise ValueError(f"JSON提取失败: {str(e)}") from e
 
 
