@@ -323,13 +323,16 @@ class PermissionOperation(BaseDBOperation):
 
         # 构建 IN 子句的占位符
         placeholders = ", ".join(["%s"] * len(subject_ids))
+        
         sql = f"""
-        select doc_id from {self.table_name}
-        where permission_type = %s 
+        select distinct p.doc_id from {self.table_name} p 
+        left join doc_info d on p.doc_id = d.doc_id
+        where p.permission_type = %s 
         and (
-            subject_id IN ({placeholders})
-            OR subject_id IS NULL 
+            p.subject_id IN ({placeholders})
+            OR p.subject_id IS NULL 
         )
+        and d.is_visible = true
         """
 
         # 构建参数: permission_type + subject_ids 列表

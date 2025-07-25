@@ -7,6 +7,7 @@ from fastapi import APIRouter, Request
 
 from api.request.doc_request import (
     DocumentDeleteRequest,
+    DocumentMetadataUpdateRequest,
     DocumentPermissionUpdateRequest,
     DocumentStatusRequest,
     DocumentUploadRequest,
@@ -266,6 +267,56 @@ async def get_doc_result(doc_id: str, fastapi_request: Request) -> dict[str, Any
             f"[文档信息查询失败] request_id={request_id}, doc_id={doc_id}, error_code=FILE_STATUS_CHECK_FAIL, error_msg={str(e)}"
         )
         log_exception("文档信息查询异常", exc=e)
+        return ResponseBuilder.error(
+            error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value, error_message=str(e), request_id=request_id
+        ).model_dump()
+
+
+@router.put("/metadata")
+async def update_doc_metadata(
+    request: DocumentMetadataUpdateRequest, fastapi_request: Request
+) -> dict[str, Any] | None:
+    """更新文档元数据接口
+
+    Args:
+        request: 更新请求参数{doc_id, is_visible}
+        fastapi_request: FastAPI 请求对象,用于获取请求 ID 等信息
+
+    Returns:
+        dict: 文档信息响应
+    """
+
+    # 获取服务器实例
+    doc_service = DocumentService.get_instance()
+    # 获取请求 ID
+    request_id = getattr(fastapi_request.state, "request_id", None)
+
+    # 记录操作开始
+    start_time = time.time()
+    logger.info(
+        f"[文档元数据更新] 开始, request_id={request_id}, doc_id={request.doc_id}, is_visible={request.is_visible}"
+    )
+
+    try:
+        validate_doc_id(request.doc_id)
+
+        result = await doc_service.update_doc_metadata(
+            doc_id=request.doc_id, is_visible=request.is_visible, request_id=request_id
+        )
+
+        # 记录操作成功
+        duration = int((time.time() - start_time) * 1000)
+        logger.info(
+            f"[文档元数据更新] 成功, request_id={request_id}, doc_id={request.doc_id}, is_visible={request.is_visible}, duration={duration}ms"
+        )
+
+        return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
+
+    except Exception as e:
+        logger.error(
+            f"[文档元数据更新失败] request_id={request_id}, doc_id={request.doc_id}, error_code=FILE_STATUS_CHECK_FAIL, error_msg={str(e)}"
+        )
+        log_exception("文档元数据更新异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value, error_message=str(e), request_id=request_id
         ).model_dump()

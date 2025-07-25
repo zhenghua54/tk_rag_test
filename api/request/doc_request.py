@@ -56,3 +56,15 @@ class DocumentPermissionUpdateRequest(BaseModel):
     permission_ids: str | list[str] | None = Field(
         None, description="部门ID列表, 单个 ID 接收字符串格式, 多个 ID 接收列表格式, 公开文档使用空数组"
     )
+
+
+class DocumentMetadataUpdateRequest(BaseModel):
+    """文档元数据更新请求参数
+
+    Attributes:
+        doc_id: 文档ID
+        is_visible: 文档在RAG中的可见性，TRUE可见并参与，FALSE不参与
+    """
+
+    doc_id: str = Field(..., description="文档ID")
+    is_visible: bool = Field(..., description="文档在RAG中的可见性，TRUE可见并参与，FALSE不参与")

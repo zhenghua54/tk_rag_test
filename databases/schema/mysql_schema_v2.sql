@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS doc_info
     doc_images_path  VARCHAR(1024) COMMENT 'json文件中的图片源文件',
     doc_process_path VARCHAR(1024) COMMENT '合并处理后的文档路径',
     process_status   VARCHAR(20) COMMENT '文档的处理状态',
+    is_visible       BOOLEAN DEFAULT TRUE COMMENT '文档在RAG中的可见性，TRUE可见并参与，FALSE不参与',
     created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间', -- 同 Python 中的 current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     UNIQUE uk_doc_id (doc_id),

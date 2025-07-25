@@ -226,7 +226,7 @@ def select_ids_by_permission(table_name: str, permission_type: str, cleaned_dep_
         raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e
 
 
-def delete_record_by_doc_id(table_name: str, doc_id: str) -> None:
+def delete_record_by_doc_id(table_name: str, doc_id: str) -> int | None:
     """根据 doc_id 删除指定数据库信息
 
     Args:

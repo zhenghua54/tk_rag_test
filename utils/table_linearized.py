@@ -102,7 +102,7 @@ def matrix_to_field_json(matrix: list[list[str]]) -> list[dict[str, str]]:
                 cell_value = normalize_row[i]
                 if cell_value is None:
                     cell_value = ""
-                row_dict[field_name] = normalize_row[i].strip()
+                row_dict[field_name] = cell_value.strip()
 
         result.append(row_dict)
 
@@ -180,7 +180,6 @@ def _determine_group_fields(json_data: list[dict[str, str]]) -> list[str]:
     unique_second = len(set([v for v in second_col_values if v]))
 
     # 决策逻辑
-    result = []
     match unique_first:
         case 0:
             # 第一列全为空，使用第二列

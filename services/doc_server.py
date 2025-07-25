@@ -155,9 +155,6 @@ class DocumentService(BaseService):
                     }
 
             except pymysql.IntegrityError as e:
-                if e.args[0] == 1062:
-                    # 唯一约束冲突
-                    raise ValueError("文件已存在, 请勿重复上传")
                 logger.error(f"[文档上传] 数据库操作失败, error_msg={str(e)}, request_id={request_id}")
                 raise ValueError(f"数据库操作失败, error_msg={str(e)}") from e
 
@@ -519,3 +516,35 @@ class DocumentService(BaseService):
 
         except Exception as e:
             logger.error(f"request_id={request_id}, 文档监控任务异常：{str(e)}")
+
+    @staticmethod
+    async def update_doc_metadata(doc_id: str, is_visible: bool, request_id: str = None) -> None:
+        """更新文档是否参与问答
+
+        Args:
+            doc_id: 文档ID
+            is_visible: 文档是否参与问答
+            request_id: 请求ID
+
+        Returns:
+            None
+        """
+        try:
+            # 参数校验
+            validate_empty_param(is_visible, "is_visible")
+
+            # 查重
+            logger.info(f"[文档元数据更新] 查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
+            records = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id)
+            if not records:
+                logger.info(f"[文档元数据更新] 未查询到相关记录, doc_id: {doc_id}")
+                raise ValueError(f"未查询到相关记录, doc_id: {doc_id}")
+
+            # 更新数据库
+            update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"is_visible": is_visible})
+
+            # 返回成功响应
+            return {"doc_id": doc_id, "is_visible": is_visible}
+        except Exception as e:
+            logger.error(f"[文档元数据更新] 更新失败, doc_id: {doc_id}, error: {str(e)}")
+            raise ValueError(f"更新失败, doc_id: {doc_id}, error: {str(e)}") from e
