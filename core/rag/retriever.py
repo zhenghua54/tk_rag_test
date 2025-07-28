@@ -68,8 +68,6 @@ class HybridRetriever:
                     logger.info(f"seg_id: {result['entity']['seg_id']}")
                     logger.info(f"seg_content: {result['entity']['seg_content']}")
 
-            # 去重并提取信息
-
             # 执行 rerank 重排序
             reranked_results = self._custom_rerank(
                 query_text=query_text, hybrid_results=hybrid_results[0], top_k=top_k, request_id=request_id

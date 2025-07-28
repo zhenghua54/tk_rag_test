@@ -1,3 +1,4 @@
+import re
 import sys
 from pathlib import Path
 
@@ -9,13 +10,13 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 from typing import Any
 
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, trim_messages
 
 from core.rag.retriever import HybridRetriever
 from databases.db_ops import select_by_id, select_ids_by_permission
 from databases.mysql.operations import ChatMessageOperation, ChatSessionOperation
 from utils.converters import local_path_to_url, normalize_permission_ids
-from utils.llm_utils import EmbeddingManager, get_messages_for_rag, llm_manager, render_prompt
+from utils.llm_utils import EmbeddingManager, llm_count_tokens, llm_manager, render_prompt
 from utils.log_utils import log_exception, logger
 from utils.validators import validate_permission_ids
 
@@ -122,8 +123,9 @@ class RAGGenerator:
             logger.error(f"保存会话历史失败: {str(e)}")
             raise e
 
+    @staticmethod
     def _build_metadata_from_reranked_results(
-        self, reranked_results: list[dict[str, Any]], request_id: str | None = None
+        reranked_results: list[dict[str, Any]], request_id: str | None = None
     ) -> dict[str, Any]:
         """根据 rerank 排序后的结果, 从 MySQL 中获取完整元数据并构建最终数据结构
 
@@ -204,6 +206,7 @@ class RAGGenerator:
 
             for result in reranked_results:
                 entity = result.get("entity", {})
+                seg_idx = int(entity.get("seg_idx"))
                 doc_id = entity.get("doc_id")
                 seg_id = entity.get("seg_id")
                 rerank_score = result.get("rerank_score", 0.0)
@@ -223,6 +226,7 @@ class RAGGenerator:
 
                 # 构建存储格式
                 storage_info = {
+                    "seg_idx": seg_idx,
                     "doc_id": doc_id,
                     "seg_id": seg_id,
                     "rerank_score": rerank_score,
@@ -233,6 +237,7 @@ class RAGGenerator:
 
                 # 构建前端展示格式
                 display_metadata = {
+                    "seg_idx": seg_idx,
                     # 基础信息
                     "doc_id": doc_id,
                     "seg_id": seg_id,
@@ -299,6 +304,22 @@ class RAGGenerator:
                 table_name="permission_doc_link", permission_type=permission_type, cleaned_dep_ids=cleaned_dep_ids
             )
 
+            # 如果无文档可查，直接结束问答
+            if not doc_ids:
+                logger.warning(f"[RAG对话] request_id={request_id}, 无文档可查, 直接返回")
+
+                answer = "抱歉，知识库中没有找到相关信息"
+
+                # 保存历史对话到数据库
+                self._save_to_history(session_id=session_id, query=query, answer=answer, metadata=[], rewrite_query="")
+                return {
+                    "query": query,
+                    "rewrite_query": query,
+                    "answer": answer,
+                    "session_id": session_id,
+                    "metadata": [],
+                }
+
             # 调试
             logger.debug(f"根据权限查出的 doc_ids: {doc_ids}")
 
@@ -312,66 +333,97 @@ class RAGGenerator:
             rewrite_query_vector = self._embedding_manager.embed_text(rewrite_query)
 
             # 执行混合检索
-            if doc_ids:
-                # 有可查阅的文档,进行检索
-                reranked_results = self._hybrid_search.retrieve(
-                    query_text=rewrite_query,
-                    query_vector=rewrite_query_vector,
-                    doc_id_list=doc_ids,
-                    top_k=5,
-                    limit=50,
-                    request_id=request_id,
+            reranked_results = self._hybrid_search.retrieve(
+                query_text=rewrite_query,
+                query_vector=rewrite_query_vector,
+                doc_id_list=doc_ids,
+                top_k=5,
+                limit=50,
+                request_id=request_id,
+            )
+
+            # 如果检索结果为空，直接返回
+            if not reranked_results:
+                logger.warning(f"[RAG对话] request_id={request_id}, 检索结果为空, 直接返回")
+
+                answer = "抱歉，知识库中没有找到相关信息"
+
+                # 保存历史对话到数据库
+                self._save_to_history(
+                    session_id=session_id, query=query, answer=answer, metadata=[], rewrite_query=rewrite_query
                 )
-            else:
-                # 没有可查阅的文档
-                reranked_results = []
+                return {
+                    "query": query,
+                    "rewrite_query": rewrite_query,
+                    "answer": answer,
+                    "session_id": session_id,
+                    "metadata": [],
+                }
 
-            # 根据重排序结构构建元数据
-            metadata_info = self._build_metadata_from_reranked_results(
-                reranked_results=reranked_results, request_id=request_id
-            )
-            metadata, metadata_storage = (metadata_info["metadata"], metadata_info["metadata_storage"])
-
-            logger.info(
-                f"[RAG对话] request_id={request_id}, 构建后的存储元数据:\n metadata={metadata}\n metadata_storage={metadata_storage}"
-            )
-
-            # 构建 RAG 上下文(转换为 Document 格式)
             docs = []
-            for result in reranked_results:
-                entity = result.get("entity", {})
-                doc = Document(page_content=entity.get("seg_content", ""), metadata={**entity})
-                docs.append(doc)
+            if reranked_results:
+                # 为片段增加索引信息
+                reranked_results = self._add_seg_idx(reranked_results)
+                # 构建 RAG 上下文(转换为 Document 格式)
+                docs = [
+                    Document(
+                        page_content=result.get("entity", {}).get("seg_content", ""),
+                        metadata={**result.get("entity", {})},
+                    )
+                    for result in reranked_results
+                ]
 
-            # 构造 rag 上下文
-            messages = get_messages_for_rag(history=raw_history, docs=docs, question=query)
+                # 调试
+                logger.info(f"增加了索引的上下文: \n{docs[0] if docs else None}")
+
+            # 构造上下文
+            messages = self._get_messages_for_rag(history=raw_history, docs=docs, question=query)
 
             logger.info(f"[RAG对话] request_id={request_id}, 构建好的上下文:\n {messages}")
 
             # 模型调用生成回答
             response_text = llm_manager.invoke(messages=messages, temperature=0.1, invoke_type="RAG生成")
 
-            # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
-            if not docs and "抱歉，知识库中没有找到相关信息" not in response_text:
-                logger.warning(f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={response_text[:200]}...")
-                response_text = "抱歉，知识库中没有找到相关信息"
+            # 提取引用编号, 清洗回答
+            segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
+
+            # 根据重排序结构构建元数据
+            filtered_reranked_results = []
+            if segment_idx:
+                filtered_reranked_results = [m for m in reranked_results if int(m.get("seg_idx")) in segment_idx]
+
+            metadata_info = self._build_metadata_from_reranked_results(
+                reranked_results=filtered_reranked_results, request_id=request_id
+            )
+
+            logger.info(
+                f"[RAG对话] request_id={request_id}, 构建后的存储元数据:\n metadata={metadata_info['metadata']}\n metadata_storage={metadata_info['metadata_storage']}"
+            )
 
             # 保存历史对话到数据库
             self._save_to_history(
                 session_id=session_id,
                 query=query,
-                answer=response_text,
-                metadata=metadata_storage,
+                answer=cleaned_answer,
+                metadata=metadata_info["metadata_storage"],
                 rewrite_query=rewrite_query,
             )
+
+            # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
+            # if not docs and "抱歉，知识库中没有找到相关信息" not in cleaned_answer:
+            #     logger.warning(f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={cleaned_answer[:200]}...")
+            #     cleaned_answer = "抱歉，知识库中没有找到相关信息"
+            if reranked_results and not segment_idx and "抱歉" not in cleaned_answer:
+                logger.warning(f"[RAG修正] 模型回答没有引用任何知识段，进行修正, 模型回答={cleaned_answer[:200]}...")
+                cleaned_answer = "抱歉，知识库中没有找到相关信息"
 
             # 构建返回结果
             result = {
                 "query": query,
                 "rewrite_query": rewrite_query,
-                "answer": response_text.strip(),
+                "answer": cleaned_answer,
                 "session_id": session_id,
-                "metadata": metadata,
+                "metadata": metadata_info["metadata"],
             }
             return result
 
@@ -447,6 +499,191 @@ class RAGGenerator:
             logger.error(f"查询重写失败: {str(e)}")
             # 发生异常时返回原问题,确保系统正常运行
             return question
+
+    @staticmethod
+    def _get_messages_for_rag(history: list[BaseMessage], docs: list[Document], question: str) -> list[dict]:
+        """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
+        - 注意: 该方法为 OPENAI 接口构建数据,因此角色名称应为: system, user, assistant
+
+        Args:
+            history: 历史对话
+            docs: 知识库信息, 分数在 metadata 中
+            question: 用户最新问题
+        """
+        try:
+            # 记录输入参数基本信息
+            logger.debug(
+                f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}"
+            )
+
+            # 初始化长度剪裁参数
+            # token_total = 32768  # Qwen Turbo 模型输入输出总长度
+            context_max_len = 10000
+            history_max_len = 10000
+            messages = []
+            total_tokens = 0
+
+            # ===== 知识库信息 =====
+            docs_content = ""
+            if docs:
+                token_total = 0
+                context_lines = []
+                processed_docs = 0
+
+                for doc in docs:
+                    if hasattr(doc, "metadata") and doc.metadata:
+                        seg_content = doc.metadata.get("seg_content", "")
+                        seg_idx = doc.metadata.get("seg_idx")
+                        if seg_content:
+                            # 计算当前片段的 token 数
+                            segment_tokens = llm_count_tokens(seg_content)
+                            # 超限切割
+                            if token_total + segment_tokens > context_max_len:
+                                logger.debug("[消息构建] 知识库内容token数达到限制，裁剪后续内容")
+                                break
+
+                            docs_content += f"[段{seg_idx}]{seg_content}\n\n"
+                            token_total += segment_tokens
+                            context_lines.append(seg_content)
+                            processed_docs += 1
+
+                # 如果知识库信息不为空，则添加到 messages
+                if docs_content:
+                    logger.debug(
+                        f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={token_total}"
+                    )
+                else:
+                    docs_content += "知识库中无相关信息"
+                    logger.debug("[消息构建] 知识库中无相关信息")
+            else:
+                # 当docs为空时，添加无相关信息提示
+                docs_content += "知识库中无相关信息"
+                logger.debug("[消息构建] 检索结果为空，知识库中无相关信息")
+
+            # ==== 构建完整的系统提示词 ====
+            logger.debug(f"[消息构建] 开始构建系统提示词, 知识库内容长度={len(docs_content)}")
+            complete_system_prompt, _ = render_prompt("rag_system_prompt", {"retrieved_knowledge": docs_content})
+            system_tokens = llm_count_tokens(complete_system_prompt)
+            total_tokens += system_tokens
+
+            # 添加系统提示词(包含知识库信息)
+            messages.append({"role": "system", "content": complete_system_prompt.strip()})
+            logger.debug(f"[消息构建] 系统提示词构建完成, token数={system_tokens}")
+
+            # ===== 历史对话处理 =====
+            if history:
+                logger.debug(f"[消息构建] 开始处理历史对话, 原始条数={len(history)}")
+
+                # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
+                if len(history) <= 1:
+                    trimmed_history = history
+                    logger.debug("[消息构建] 历史对话为空或只有一条消息，不进行裁剪")
+                else:
+                    trimmed_history: list[BaseMessage] = trim_messages(
+                        messages=history,  # list[BaseMessage]（历史对话）
+                        token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
+                        max_tokens=history_max_len,  # 限定最大 token 数
+                        strategy="last",  # 保留最近对话, "first"保留最早对话
+                        start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
+                        include_system=True,  # 是否保留 system message
+                        allow_partial=True,  # 超限时是否保留部分片段
+                    )
+                    logger.debug(
+                        f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}"
+                    )
+
+                # 转换为 OpenAI 接口格式
+                history_tokens = 0
+                for msg in trimmed_history:
+                    if not msg.content or not msg.content.strip():
+                        continue  # 忽略空内容
+
+                    msg_tokens = llm_count_tokens(msg.content)
+                    history_tokens += msg_tokens
+
+                    if isinstance(msg, HumanMessage):
+                        messages.append({"role": "user", "content": msg.content})
+                    elif isinstance(msg, AIMessage):
+                        messages.append({"role": "assistant", "content": msg.content})
+
+                total_tokens += history_tokens
+                logger.debug(
+                    f"[消息构建] 历史对话处理完成, 有效条数={len([m for m in messages if m['role'] in ['user', 'assistant']])}, token数={history_tokens}"
+                )
+
+            else:
+                logger.debug("[消息构建] 无历史对话")
+
+            # ===== 当前问题 =====
+            if question and question.strip():
+                question_tokens = llm_count_tokens(question.strip())
+                total_tokens += question_tokens
+                messages.append({"role": "user", "content": question.strip()})
+                logger.debug(f"[消息构建] 当前问题添加完成, token数={question_tokens}")
+
+            else:
+                logger.warning("[消息构建] 当前问题为空")
+
+            # 记录最终结果
+            logger.debug(
+                f"[消息构建] 完成, 构建消息条数={len(messages)}, 总token数={total_tokens}, 角色分布={dict([(role, len([m for m in messages if m['role'] == role])) for role in ['system', 'user', 'assistant']])}"
+            )
+
+            return messages
+
+        except Exception as e:
+            logger.error(f"[消息构建] 失败: {str(e)}")
+            log_exception("消息构建异常", exc=e)
+            raise e
+
+    @staticmethod
+    def _extract_segment_and_clean_answer(answer: str) -> tuple[list, str]:
+        """从模型输出中提取引用片段,并清洗模型输出
+
+        Args:
+            answer: 大模型回答
+
+        Returns:
+            tuple[list, str]: 片段索引列表和清洗后的模型回答
+        """
+        # 匹配标识符
+        referenced = re.findall(r"\[段(\d+)]", answer)
+        referenced_indices = set(int(x) for x in referenced)
+
+        # 去除回答中的 [段x] 标签(后续可替换为其他信息)
+        cleaned_answer = re.sub(r"\[段\d+]", "", answer)
+
+        return list(referenced_indices), cleaned_answer.strip()
+
+    @staticmethod
+    def _filter_metadata_by_segment_indices(
+        metadata: list[dict[str, str]], segment_idx: list[int]
+    ) -> list[dict[str, str]]:
+        """根据片段索引,从元数据中提取相关片段
+
+        Args:
+            metadata: 重排序后的元数据
+            segment_idx: 片段索引列表
+
+        Returns:
+            list[dict[str, str]]: 提取出的相关片段
+        """
+        return [m for m in metadata if m.get("seg_idx") in segment_idx]
+
+    @staticmethod
+    def _add_seg_idx(reranked_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """为重排序结果增加片段索引,提供给大模型定位使用
+
+        Args:
+            reranked_results: 重排序结果
+
+        Returns:
+            list[dict[str, Any]]: 增加了片段索引的重排序结果
+        """
+
+        for idx, result in enumerate(reranked_results):
+            result["entity"]["seg_idx"] = idx + 1
+        return reranked_results
 
     def clear_cache(self, session_id: str = None) -> None:
         """清除缓存
