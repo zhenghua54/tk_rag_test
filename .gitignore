@@ -44,8 +44,8 @@ Thumbs.db
 # 环境变量文件
 ##################################
 .env
-.env.*
-!.env.example
+docs/.env.example
+!docs/.env.example
 
 ##################################
 # 数据、日志、模型（不入 Git）

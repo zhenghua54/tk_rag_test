@@ -55,7 +55,7 @@ class GlobalConfig:
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
 
     LLM_CONFIG = {
-        "qwen": {
+        "qwen-turbo-1101": {
             "name": "qwen-turbo-1101",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
             "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
@@ -66,7 +66,7 @@ class GlobalConfig:
             "retry_delay_base": 2,  # 重试延迟基数
             "retry_delay_max": 60,  # 最大重试延迟
         },
-        "qwen-72": {
+        "qwen2.5-32b-instruct": {
             # "name": "qwen2.5-72b-instruct",
             "name": "qwen2.5-32b-instruct",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),

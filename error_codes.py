@@ -54,15 +54,6 @@ if __name__ == "__main__":
         return {"error_code": error_code, "error_message": error_message}
 
     # 错误处理示例
-    response = handle_error(ErrorCode.MYSQL_INSERT_FAIL)
-    print(response)  # 输出：{'error_code': 1001, 'error_message': '数据新增失败，请检查插入数据是否符合要求'}
+    response = handle_error(ErrorCode.FILE_STATUS_CHECK_FAIL)
+    print(response)  # 输出：{'error_code': 1001, 'error_message': '文档状态检查失败'}
 
-    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT)
-    print(
-        response_with_extra
-    )  # 输出：{'error_code': 4004, 'error_message': '不支持的文件格式，请使用支持的文件格式，jpg'}
-
-    response_with_extra = handle_error(ErrorCode.UNSUPPORTED_FORMAT)
-    print(
-        response_with_extra
-    )  # 输出：{'error_code': 4004, 'error_message': '不支持的文件格式，请使用支持的文件格式 $placeholder'}
