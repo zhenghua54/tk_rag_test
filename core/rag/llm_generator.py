@@ -157,10 +157,10 @@ class RAGGenerator:
                     rerank_scores.append(rerank_score)
 
             # 调试：记录从 Milvus 获取的原始数据
-            logger.info(f"[元数据构建] request_id={request_id}, Milvus 返回的原始数据:")
+            logger.debug(f"[元数据构建] request_id={request_id}, Milvus 返回的原始数据:")
             for i, result in enumerate(reranked_results):
                 entity = result.get("entity", {})
-                logger.info(
+                logger.debug(
                     f"  结果 {i + 1}: doc_id={entity.get('doc_id')}, seg_id={entity.get('seg_id')}, content={entity.get('seg_content', '')[:100]}..."
                 )
             logger.debug(f"[元数据构建] request_id={request_id}, 提取到 {len(doc_seg_pairs)} 个唯一记录")
@@ -173,8 +173,8 @@ class RAGGenerator:
             )
 
             # 调试
-            logger.info(f"数据库查询时用到的seg_id_list: {[seg_id for _, seg_id in doc_seg_pairs]}")
-            logger.info(f"数据库查询时用到的doc_id_list: {[doc_id for doc_id, _ in doc_seg_pairs]}")
+            logger.debug(f"数据库查询时用到的seg_id_list: {[seg_id for _, seg_id in doc_seg_pairs]}")
+            logger.debug(f"数据库查询时用到的doc_id_list: {[doc_id for doc_id, _ in doc_seg_pairs]}")
             # 检查数据一致性
             milvus_seg_ids = set(seg_id for _, seg_id in doc_seg_pairs)
             mysql_seg_ids = set(record.get("seg_id") for record in mysql_records if record.get("seg_id"))
@@ -198,7 +198,7 @@ class RAGGenerator:
                     mysql_record_map[(doc_id, seg_id)] = record
 
             # 调试
-            logger.info(f"从mysql 记录中提取后的结果: \n{mysql_record_map}")
+            logger.debug(f"从mysql 记录中提取后的结果: \n{mysql_record_map}")
 
             # 构建最终数据结构
             metadata = []  # 前端展示格式
@@ -377,7 +377,7 @@ class RAGGenerator:
                 logger.info(f"增加了索引的上下文: \n{docs[0] if docs else None}")
 
             # 构造上下文
-            messages = self._get_messages_for_rag(history=raw_history, docs=docs, question=query)
+            messages = self._get_messages_for_rag(history=raw_history, docs=docs, query=query)
 
             logger.info(f"[RAG对话] request_id={request_id}, 构建好的上下文:\n {messages}")
 
@@ -386,6 +386,9 @@ class RAGGenerator:
 
             # 提取引用编号, 清洗回答
             segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
+
+            # 调试
+            logger.debug(f"[RAG对话] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}")
 
             # 根据重排序结构构建元数据
             filtered_reranked_results = []
@@ -396,9 +399,12 @@ class RAGGenerator:
                 reranked_results=filtered_reranked_results, request_id=request_id
             )
 
-            logger.info(
-                f"[RAG对话] request_id={request_id}, 构建后的存储元数据:\n metadata={metadata_info['metadata']}\n metadata_storage={metadata_info['metadata_storage']}"
-            )
+            # 调试
+            logger.debug(f"[RAG对话] request_id={request_id}, 过滤前的上下文:\n {reranked_results}")
+            logger.debug(f"[RAG对话] request_id={request_id}, 提取后的上下文:\n {filtered_reranked_results}")
+            # logger.debug(
+            #     f"[RAG对话] request_id={request_id}, 构建后的存储元数据:\n metadata={metadata_info['metadata']}\n\n metadata_storage={metadata_info['metadata_storage']}"
+            # )
 
             # 保存历史对话到数据库
             self._save_to_history(
@@ -410,9 +416,6 @@ class RAGGenerator:
             )
 
             # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
-            # if not docs and "抱歉，知识库中没有找到相关信息" not in cleaned_answer:
-            #     logger.warning(f"[模型修正] 知识库为空但模型回答了内容, 进行修正, 模型回答={cleaned_answer[:200]}...")
-            #     cleaned_answer = "抱歉，知识库中没有找到相关信息"
             if reranked_results and not segment_idx and "抱歉" not in cleaned_answer:
                 logger.warning(f"[RAG修正] 模型回答没有引用任何知识段，进行修正, 模型回答={cleaned_answer[:200]}...")
                 cleaned_answer = "抱歉，知识库中没有找到相关信息"
@@ -501,133 +504,173 @@ class RAGGenerator:
             return question
 
     @staticmethod
-    def _get_messages_for_rag(history: list[BaseMessage], docs: list[Document], question: str) -> list[dict]:
-        """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构
-        - 注意: 该方法为 OPENAI 接口构建数据,因此角色名称应为: system, user, assistant
+    def _build_history_messages(history: list[BaseMessage], history_max_len: int = 10000) -> tuple[list[dict], int]:
+        """构建历史对话消息, 用于 OpenAI 接口构建数据
+        - langchain的角色名称为: system, human, ai
+        - openai的角色名称为: system, user, assistant
 
         Args:
-            history: 历史对话
-            docs: 知识库信息, 分数在 metadata 中
-            question: 用户最新问题
+            history: 历史对话, 采用 langchain 的 BaseMessage 格式, 角色名称应为: HumanMessage, AIMessage
+
+        Returns:
+            tuple(list[dict], int): 历史对话消息和 token 数
         """
+
+        messages = []
+        total_tokens = 0
+
+        if not history:
+            logger.debug("[消息构建] 无历史对话")
+            return messages, total_tokens
+
+        # ===== 历史对话处理 =====
+        logger.debug(f"[消息构建] 开始处理历史对话, 原始条数={len(history)}")
+
+        # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
+        if len(history) <= 1:
+            trimmed_history = history
+            logger.debug("[消息构建] 历史对话为空或只有一条消息，不进行裁剪")
+        else:
+            trimmed_history: list[BaseMessage] = trim_messages(
+                messages=history,  # list[BaseMessage]（历史对话）
+                token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
+                max_tokens=history_max_len,  # 限定最大 token 数
+                strategy="last",  # 保留最近对话, "first"保留最早对话
+                start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
+                include_system=True,  # 是否保留 system message
+                allow_partial=True,  # 超限时是否保留部分片段
+            )
+            logger.debug(f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}")
+
+        # 转换为 OpenAI 接口格式
+        history_tokens = 0
+        for msg in trimmed_history:
+            if not msg.content or not msg.content.strip():
+                continue  # 忽略空内容
+
+            msg_tokens = llm_count_tokens(msg.content)
+            history_tokens += msg_tokens
+
+            if isinstance(msg, HumanMessage):
+                messages.append({"role": "user", "content": msg.content})
+            elif isinstance(msg, AIMessage):
+                messages.append({"role": "assistant", "content": msg.content})
+
+        total_tokens += history_tokens
+        logger.debug(
+            f"[消息构建] 历史对话处理完成, 有效条数={len([m for m in messages if m['role'] in ['user', 'assistant']])}, token数={history_tokens}"
+        )
+        return messages, total_tokens
+
+    @staticmethod
+    def _build_knowledge_context(docs: list[Document], context_max_len: int = 10000) -> tuple[str, int]:
+        """构建召回结果上下文, 用于 OpenAI 接口构建数据, 角色名称应为: system, user, assistant
+
+        Args:
+            docs: 召回结果, 采用 langchain 的 Document 格式
+            context_max_len: 召回结果上下文最大长度
+
+        Returns:
+            tuple(str, int): 召回结果上下文和 token 数
+        """
+        total_tokens = 0
+        docs_content = ""
+
+        if not docs:
+            docs_content += "知识库中无相关信息"
+            logger.debug("[消息构建] 无召回结果")
+            return docs_content, total_tokens
+
+        # ===== 知识库信息 =====
+        context_lines = []
+        processed_docs = 0
+
+        for doc in docs:
+            if hasattr(doc, "metadata") and doc.metadata:
+                seg_content = doc.metadata.get("seg_content", "")
+                seg_idx = doc.metadata.get("seg_idx")
+                if seg_content:
+                    # 计算当前片段的 token 数
+                    segment_tokens = llm_count_tokens(seg_content)
+                    # 超限切割
+                    if total_tokens + segment_tokens > context_max_len:
+                        logger.debug("[消息构建] 知识库内容token数达到限制，裁剪后续内容")
+                        break
+
+                    docs_content += f"[段{seg_idx}]{seg_content}\n\n"
+                    total_tokens += segment_tokens
+                    context_lines.append(seg_content)
+                    processed_docs += 1
+
+        # 如果知识库信息不为空，则添加到 messages
+        if docs_content:
+            logger.debug(
+                f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={total_tokens}"
+            )
+        else:
+            # 当docs为空时，添加无相关信息提示
+            docs_content += "知识库中无相关信息"
+            logger.debug("[消息构建] 检索结果为空，知识库中无相关信息")
+
+        return docs_content, total_tokens
+
+    @staticmethod
+    def _build_final_context(
+        knowledge_content: str, history_messages: list[dict], query: str, history_tokens: int
+    ) -> tuple[list[dict], int]:
+        """构建最终的上下文, 用于 OpenAI 接口构建数据
+
+        Args:
+            knowledge_content: 知识库上下文
+            history_messages: 历史对话消息
+            query: 用户问题
+            history_tokens: 历史对话 token 数
+
+        Returns:
+            tuple[list[dict], int]: 最终的上下文, 总 TOKEN 数
+        """
+
+        # 构建系统提示词
+        system_prompt, _ = render_prompt("rag_system_prompt", {"retrieved_knowledge": knowledge_content})
+        # 计算提示词 token 数量
+        prompt_tokens = llm_count_tokens(system_prompt)
+
+        messages = [{"role": "system", "content": system_prompt.strip()}]
+        logger.debug("[上下文构建] 系统提示词构建完成")
+
+        # 合并历史对话
+        total_tokens = history_tokens + prompt_tokens
+        messages.extend(history_messages)
+        logger.debug("[上下文构建] 历史对话拼接完成")
+
+        # 合并问题
+        query_tokens = llm_count_tokens(query.strip())
+        total_tokens += query_tokens
+        messages.append({"role": "user", "content": query.strip()})
+        logger.debug("[上下文构建] 最新问题拼接完成")
+
+        return messages, total_tokens
+
+    def _get_messages_for_rag(self, history: list[BaseMessage], docs: list[Document], query: str) -> list[dict]:
+        """通过系统提示词, 历史对话, 用户提示词构造用于 Chat-style 模型的 messages 消息结构"""
         try:
-            # 记录输入参数基本信息
-            logger.debug(
-                f"[消息构建] 开始, history条数={len(history)}, docs条数={len(docs)}, question长度={len(question)}"
+            logger.info(f"[上下文构建] 开始, 历史对话数: {len(history)}, 文档数: {len(docs)}")
+
+            # 1. 构建知识库上下文
+            knowledge_content, knowledge_tokens = self._build_knowledge_context(docs)
+
+            # 2. 构建历史对话
+            history_messages, history_tokens = self._build_history_messages(history)
+
+            # 3. 构建最终上下文
+            messages, total_tokens = self._build_final_context(
+                knowledge_content=knowledge_content,
+                history_messages=history_messages,
+                query=query,
+                history_tokens=history_tokens,
             )
 
-            # 初始化长度剪裁参数
-            # token_total = 32768  # Qwen Turbo 模型输入输出总长度
-            context_max_len = 10000
-            history_max_len = 10000
-            messages = []
-            total_tokens = 0
-
-            # ===== 知识库信息 =====
-            docs_content = ""
-            if docs:
-                token_total = 0
-                context_lines = []
-                processed_docs = 0
-
-                for doc in docs:
-                    if hasattr(doc, "metadata") and doc.metadata:
-                        seg_content = doc.metadata.get("seg_content", "")
-                        seg_idx = doc.metadata.get("seg_idx")
-                        if seg_content:
-                            # 计算当前片段的 token 数
-                            segment_tokens = llm_count_tokens(seg_content)
-                            # 超限切割
-                            if token_total + segment_tokens > context_max_len:
-                                logger.debug("[消息构建] 知识库内容token数达到限制，裁剪后续内容")
-                                break
-
-                            docs_content += f"[段{seg_idx}]{seg_content}\n\n"
-                            token_total += segment_tokens
-                            context_lines.append(seg_content)
-                            processed_docs += 1
-
-                # 如果知识库信息不为空，则添加到 messages
-                if docs_content:
-                    logger.debug(
-                        f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={token_total}"
-                    )
-                else:
-                    docs_content += "知识库中无相关信息"
-                    logger.debug("[消息构建] 知识库中无相关信息")
-            else:
-                # 当docs为空时，添加无相关信息提示
-                docs_content += "知识库中无相关信息"
-                logger.debug("[消息构建] 检索结果为空，知识库中无相关信息")
-
-            # ==== 构建完整的系统提示词 ====
-            logger.debug(f"[消息构建] 开始构建系统提示词, 知识库内容长度={len(docs_content)}")
-            complete_system_prompt, _ = render_prompt("rag_system_prompt", {"retrieved_knowledge": docs_content})
-            system_tokens = llm_count_tokens(complete_system_prompt)
-            total_tokens += system_tokens
-
-            # 添加系统提示词(包含知识库信息)
-            messages.append({"role": "system", "content": complete_system_prompt.strip()})
-            logger.debug(f"[消息构建] 系统提示词构建完成, token数={system_tokens}")
-
-            # ===== 历史对话处理 =====
-            if history:
-                logger.debug(f"[消息构建] 开始处理历史对话, 原始条数={len(history)}")
-
-                # 剪裁历史对话, 控制最大 token 长度, 避免使用 start_on 参数, 如果历史对话为空或只有一条消息，则不进行裁剪
-                if len(history) <= 1:
-                    trimmed_history = history
-                    logger.debug("[消息构建] 历史对话为空或只有一条消息，不进行裁剪")
-                else:
-                    trimmed_history: list[BaseMessage] = trim_messages(
-                        messages=history,  # list[BaseMessage]（历史对话）
-                        token_counter=llm_count_tokens,  # 函数，逐条调用, 计算每条消息的 token 数
-                        max_tokens=history_max_len,  # 限定最大 token 数
-                        strategy="last",  # 保留最近对话, "first"保留最早对话
-                        start_on="human",  # 裁剪指定角色前的内容, "ai"为从 AI 回答开始
-                        include_system=True,  # 是否保留 system message
-                        allow_partial=True,  # 超限时是否保留部分片段
-                    )
-                    logger.debug(
-                        f"[消息构建] 历史对话裁剪完成, 原始条数={len(history)}, 裁剪后条数={len(trimmed_history)}"
-                    )
-
-                # 转换为 OpenAI 接口格式
-                history_tokens = 0
-                for msg in trimmed_history:
-                    if not msg.content or not msg.content.strip():
-                        continue  # 忽略空内容
-
-                    msg_tokens = llm_count_tokens(msg.content)
-                    history_tokens += msg_tokens
-
-                    if isinstance(msg, HumanMessage):
-                        messages.append({"role": "user", "content": msg.content})
-                    elif isinstance(msg, AIMessage):
-                        messages.append({"role": "assistant", "content": msg.content})
-
-                total_tokens += history_tokens
-                logger.debug(
-                    f"[消息构建] 历史对话处理完成, 有效条数={len([m for m in messages if m['role'] in ['user', 'assistant']])}, token数={history_tokens}"
-                )
-
-            else:
-                logger.debug("[消息构建] 无历史对话")
-
-            # ===== 当前问题 =====
-            if question and question.strip():
-                question_tokens = llm_count_tokens(question.strip())
-                total_tokens += question_tokens
-                messages.append({"role": "user", "content": question.strip()})
-                logger.debug(f"[消息构建] 当前问题添加完成, token数={question_tokens}")
-
-            else:
-                logger.warning("[消息构建] 当前问题为空")
-
-            # 记录最终结果
-            logger.debug(
-                f"[消息构建] 完成, 构建消息条数={len(messages)}, 总token数={total_tokens}, 角色分布={dict([(role, len([m for m in messages if m['role'] == role])) for role in ['system', 'user', 'assistant']])}"
-            )
+            logger.info(f"[上下文构建] 上下文构建完成, 总消息数: {len(messages)}, 总 token 数: {total_tokens}")
 
             return messages
 

@@ -60,13 +60,13 @@ class HybridRetriever:
                 f"[混合检索] request_id={request_id}, Milvus 混合检索完成, 耗时: {duration:.3f}s, 召回数量：{len(hybrid_results[0])} "
             )
 
-            # 调试
-            if hybrid_results:
-                logger.info(f"[混合检索] request_id={request_id}, Milvus 混合检索召回内容: ")
-                for result in hybrid_results[0]:
-                    logger.info(f"doc_id: {result['entity']['doc_id']}")
-                    logger.info(f"seg_id: {result['entity']['seg_id']}")
-                    logger.info(f"seg_content: {result['entity']['seg_content']}")
+            # # 调试
+            # if hybrid_results:
+            #     logger.debug(f"[混合检索] request_id={request_id}, Milvus 混合检索召回内容: ")
+            #     for result in hybrid_results[0]:
+            #         logger.debug(f"doc_id: {result['entity']['doc_id']}")
+            #         logger.debug(f"seg_id: {result['entity']['seg_id']}")
+            #         logger.debug(f"seg_content: {result['entity']['seg_content']}")
 
             # 执行 rerank 重排序
             reranked_results = self._custom_rerank(
