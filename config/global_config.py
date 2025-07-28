@@ -66,13 +66,23 @@ class GlobalConfig:
             "retry_delay_base": 2,  # 重试延迟基数
             "retry_delay_max": 60,  # 最大重试延迟
         },
+        "qwen2.5-72b-instruct": {
+            "name": "qwen2.5-72b-instruct",
+            "api_key": os.getenv("DASHSCOPE_API_KEY"),
+            "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
+            "qpm": 1200,  # 每分钟调用次数
+            "tpm": 1000000,  # 每分钟Token数限制
+            "max_tokens_per_request": 4000,  # 单次请求最大Token数
+            "retry_attempts": 5,  # 重试次数
+            "retry_delay_base": 2,  # 重试延迟基数
+            "retry_delay_max": 60,  # 最大重试延迟
+        },
         "qwen2.5-32b-instruct": {
-            # "name": "qwen2.5-72b-instruct",
             "name": "qwen2.5-32b-instruct",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
             "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
-            "qpm": 60,  # 每分钟调用次数
-            "tpm": 5000000,  # 每分钟Token数限制
+            "qpm": 1200,  # 每分钟调用次数
+            "tpm": 1000000,  # 每分钟Token数限制
             "max_tokens_per_request": 4000,  # 单次请求最大Token数
             "retry_attempts": 5,  # 重试次数
             "retry_delay_base": 2,  # 重试延迟基数
