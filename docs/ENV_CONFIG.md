@@ -12,7 +12,7 @@
   - 开发环境：`tk_rag_dev`
   - 生产环境：`tk_rag_prod`
 - `MYSQL_HOST`: MySQL服务器地址
-  - 开发环境：`192.168.5.199`
+  - 开发环境：`192.168.6.202`
   - 生产环境：`localhost`
 - `MYSQL_USER`: MySQL用户名
 - `MYSQL_PASSWORD`: MySQL密码
@@ -20,7 +20,7 @@
 
 #### Milvus配置
 - `MILVUS_HOST`: Milvus服务器地址
-  - 开发环境：`192.168.5.199`
+  - 开发环境：`192.168.6.202`
   - 生产环境：`localhost`
 - `MILVUS_PORT`: Milvus端口号（默认：19530）
 - `MILVUS_URI`: Milvus连接URI
@@ -28,7 +28,7 @@
 
 #### Elasticsearch配置
 - `ES_HOST`: Elasticsearch服务器地址
-  - 开发环境：`http://192.168.5.199:9200`
+  - 开发环境：`http://192.168.6.202:9200`
   - 生产环境：`http://localhost:9200`
 - `ES_USER`: Elasticsearch用户名
 - `ES_PASSWORD`: Elasticsearch密码
@@ -51,11 +51,11 @@
 ```bash
 ENV=dev
 DB_NAME=tk_rag_dev
-MYSQL_HOST=192.168.5.199
+MYSQL_HOST=192.168.6.202
 MYSQL_USER=your_mysql_user
 MYSQL_PASSWORD=your_mysql_password
-MILVUS_HOST=192.168.5.199
-ES_HOST=http://192.168.5.199:9200
+MILVUS_HOST=192.168.6.202
+ES_HOST=http://192.168.6.202:9200
 STATUS_SYNC_ENABLED=true
 #STATUS_SYNC_BASE_URL=http://192.168.6.99:18101
 ```

@@ -153,8 +153,15 @@ class GlobalConfig:
         '<>:"/\\|?*' + "".join(chr(c) for c in range(0x00, 0x20))  # 控制字符
     )
 
-    # 系统相关配置
-    DEVICE = "cuda" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
+    # GPU 配置
+    CUDA_DEVICE_ID = os.getenv("CUDA_DEVICE_ID", "0")  # 默认使用 GPU 0
+    DEVICE = f"cuda:{CUDA_DEVICE_ID}" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
+    # 模型显存占用配置
+    GPU_CONFIG={
+        "device_id": int(CUDA_DEVICE_ID),
+        "rerank_max_memory": "16GiB",     # Rerank模型最大显存
+    }
+    
 
     # 数据库配置 - 根据环境动态配置
     # 数据库名称
@@ -162,7 +169,7 @@ class GlobalConfig:
 
     # MySQL配置
     MYSQL_CONFIG = {
-        "host": os.getenv("MYSQL_HOST", "192.168.5.199" if ENV == "dev" else "localhost"),
+        "host": os.getenv("MYSQL_HOST", "192.168.6.202" if ENV == "dev" else "localhost"),
         "user": os.getenv("MYSQL_USER"),
         "passwd": os.getenv("MYSQL_PASSWORD"),
         "port": int(os.getenv("MYSQL_PORT", "3306")),

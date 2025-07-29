@@ -141,13 +141,17 @@ class RerankManager(ModelManager):
             # 检查模型路径是否存在
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"模型路径不存在: {model_path}")
+            
+            # 获取配置文件中的设备 ID和显存限制
+            device_id = GlobalConfig.GPU_CONFIG.get("device_id",0)
+            max_memory = GlobalConfig.GPU_CONFIG.get("rerank_max_memory","16GiB")
+            
+            # 构建设备映射，指定使用的GPU和显存量
+            device_map = {device_id: max_memory} if torch.cuda.is_available() else "auto"
 
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_path,
-                device_map="auto",  # 自动设备分配， 需要 'accelerate>=0.26.0' 支持
-                max_memory={0: "40GiB"},  # 指定每个 GPU 的最大内存
-                offload_folder="offload",  # 将部分权重卸载到 CPU
-                offload_state_dict=True,  # 自动管理状态字典
+                device_map=device_map,  # 自动设备分配， 需要 'accelerate>=0.26.0' 支持
                 trust_remote_code=True,  # 信任远程代码
                 local_files_only=True,  # 明确为本地模型路径
             )

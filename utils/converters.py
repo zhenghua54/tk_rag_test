@@ -112,12 +112,12 @@ def local_path_to_url(local_path: str) -> str:
     # 转换源文档地址
     if GlobalConfig.PATHS["origin_data"] in local_path:
         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["origin_data"])
-        # return f"http://192.168.5.199:8000/static/raw/{quote(rel_path)}"
+        # return f"http://192.168.6.202:8000/static/raw/{quote(rel_path)}"
         return f"/static/raw/{quote(rel_path)}"
     # 转换输出文档地址
     elif GlobalConfig.PATHS["processed_data"] in local_path:
         rel_path = os.path.relpath(local_path, GlobalConfig.PATHS["processed_data"])
-        # return f"http://192.168.5.199:8000/static/processed/{quote(rel_path)}"
+        # return f"http://192.168.6.202:8000/static/processed/{quote(rel_path)}"
         return f"/static/processed/{quote(rel_path)}"
     else:
         raise ValueError("不支持的路径, 未注册的路径地址")
