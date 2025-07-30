@@ -18,4 +18,4 @@ nohup uvicorn "$APP_NAME" --host 0.0.0.0 --port "$PORT" > "$LOG_FILE" 2>&1 &
 PID=$!
 echo $PID > "$PID_FILE"
 
-echo "Server started on port $PORT (PID $PID) using GPU 1. Logs: $LOG_FILE"
+echo "Server started on port $PORT (PID $PID). Logs: $LOG_FILE"

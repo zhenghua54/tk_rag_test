@@ -156,12 +156,6 @@ class GlobalConfig:
     # GPU 配置
     CUDA_DEVICE_ID = os.getenv("CUDA_DEVICE_ID", "0")  # 默认使用 GPU 0
     DEVICE = f"cuda:{CUDA_DEVICE_ID}" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
-    # 模型显存占用配置
-    GPU_CONFIG={
-        "device_id": CUDA_DEVICE_ID,
-        "rerank_max_memory": "16GiB",     # Rerank模型最大显存
-    }
-    
 
     # 数据库配置 - 根据环境动态配置
     # 数据库名称
