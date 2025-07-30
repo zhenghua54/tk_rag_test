@@ -2,6 +2,7 @@
 
 import asyncio
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -11,8 +12,8 @@ import pymysql
 from config.global_config import GlobalConfig
 from core.doc.chunker import segment_text_content
 from core.doc.parser import process_doc_content
-from databases.db_ops import delete_all_database_data
-from databases.mysql.operations import PermissionOperation, file_op, mysql_transaction, page_op, permission_op
+from databases.milvus.flat_collection import FlatCollectionManager
+from databases.mysql.operations import PermissionOperation, chunk_op, file_op, mysql_transaction, page_op, permission_op
 from services.base import BaseService
 from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
 from utils.file_ops import delete_local_file, download_file_step_by_step, generate_doc_id, split_pdf_to_pages
@@ -94,7 +95,7 @@ class DocumentService(BaseService):
                 records = records[0]
                 if records["process_status"] in GlobalConfig.FILE_STATUS.get("error"):
                     logger.info(f"[文档上传] 记录存在，状态异常，准备删除: {records}")
-                    delete_all_database_data(doc_id=doc_id)
+                    await DocumentService._delete_all_database_data(doc_id=doc_id)
                 elif records["process_status"] in GlobalConfig.FILE_STATUS.get("normal"):
                     raise ValueError(f"[文档上传] 文件已上传, 状态: {records['process_status']}")
 
@@ -255,7 +256,7 @@ class DocumentService(BaseService):
                 file_info = file_info[0]
 
                 # 删除所有数据库记录
-                delete_all_database_data(doc_id)
+                await DocumentService._delete_all_database_data(doc_id=doc_id)
 
                 # 只删除记录时,连带处理后的文件一块删除,保留源文件
                 if is_soft_delete:
@@ -275,7 +276,7 @@ class DocumentService(BaseService):
             else:
                 # 如果 file_info 为空，只删除数据库记录
                 logger.info(f"文件信息为空，仅删除数据库记录, doc_id: {doc_id}")
-                delete_all_database_data(doc_id)
+                await DocumentService._delete_all_database_data(doc_id=doc_id)
 
             # 返回成功响应
             result = {
@@ -550,3 +551,98 @@ class DocumentService(BaseService):
         except Exception as e:
             logger.error(f"[文档元数据更新] 更新失败, doc_id: {doc_id}, error: {str(e)}")
             raise ValueError(f"更新失败, doc_id: {doc_id}, error: {str(e)}") from e
+
+    @staticmethod
+    async def _delete_all_database_data(doc_id: str) -> None:
+        """从 mysql 和 milvus 中删除文档记录"""
+        start_time = time.time()
+        logger.info(f"[数据库删除] 开始, doc_id={doc_id}")
+
+        try:
+            # 先删除 Milvus 数据
+            await DocumentService._delete_milvus_data(doc_id)
+
+            # 删除 MySQL 数据
+            await DocumentService._delete_mysql_data(doc_id)
+
+            total_duration = int((time.time() - start_time) * 1000)
+            logger.info(f"[数据库删除] 全部删除成功, doc_id={doc_id}, 总耗时={total_duration}ms")
+
+        except Exception as e:
+            logger.error(f"[数据库删除] 失败, 错误原因: {str(e)}, doc_id: {doc_id}")
+            raise ValueError(f"数据库记录删除失败: {str(e)}") from e
+
+    @staticmethod
+    async def _delete_milvus_data(doc_id: str) -> None:
+        """删除 Milvus 数据"""
+        try:
+            logger.info(f"[Milvus删除] 开始删除 Milvus 数据, 集合: {GlobalConfig.MILVUS_CONFIG['collection_name']}")
+            vector_op = FlatCollectionManager()
+            milvus_delete_count = vector_op.delete_by_doc_id(doc_id)
+            logger.info(f"[Milvus删除] 成功, 删除记录数: {milvus_delete_count}")
+        except Exception as e:
+            logger.error(f"[Milvus删除] 失败, 错误原因: {str(e)}")
+            raise ValueError(f"Milvus 数据删除失败: {str(e)}") from e
+
+    @staticmethod
+    async def _delete_mysql_data(doc_id: str) -> None:
+        """删除 MySQL 数据"""
+        logger.info("[MySQL删除] 开始删除MySQL数据")
+        db_instances = [file_op, permission_op, chunk_op, page_op]
+        original_connections = {}
+
+        with mysql_transaction() as conn:
+            # 备份并替换连接
+            for db_instance in db_instances:
+                original_connections[db_instance] = db_instance._external_conn
+                db_instance._external_conn = conn
+
+            try:
+                DocumentService._query_before_delete(doc_id, db_instances)
+                DocumentService._execute_delete_operations(doc_id, db_instances)
+                DocumentService._query_after_delete(doc_id, db_instances)
+
+                duration = int((time.time() - time.time()) * 1000)
+                logger.info(f"[MySQL删除] 成功, duration={duration}ms")
+
+            finally:
+                # 恢复原始连接
+                for instance, original_conn in original_connections.items():
+                    instance._external_conn = original_conn
+
+    @staticmethod
+    def _query_before_delete(doc_id: str, db_instances: list) -> None:
+        """删除前查询记录数量"""
+        logger.debug("[删除前] 查询各表记录数量")
+        for table_name, op in zip(
+            ["file_info", "permission_info", "segment_info", "doc_page_info"], db_instances, strict=False
+        ):
+            records = op.select_record(conditions={"doc_id": doc_id})
+            count = len(records) if records else 0
+            logger.debug(f"[删除前] 表 {table_name} 记录数: {count}")
+
+    @staticmethod
+    def _execute_delete_operations(doc_id: str, db_instances: list) -> None:
+        """执行删除操作"""
+        logger.debug("[删除操作] 开始执行删除:")
+        table_configs = [
+            ("file_info", db_instances[0], GlobalConfig.MYSQL_CONFIG["file_info_table"]),
+            ("permission_info", db_instances[1], GlobalConfig.MYSQL_CONFIG["permission_info_table"]),
+            ("segment_info", db_instances[2], GlobalConfig.MYSQL_CONFIG["segment_info_table"]),
+            ("doc_page_info", db_instances[3], GlobalConfig.MYSQL_CONFIG["doc_page_info_table"]),
+        ]
+
+        for _, op, config_table in table_configs:
+            logger.info(f"[MySQL删除] 删除表 {config_table} 记录")
+            op.delete_by_doc_id(doc_id)
+
+    @staticmethod
+    def _query_after_delete(doc_id: str, db_instances: list) -> None:
+        """删除后查询记录数量"""
+        logger.debug("[删除后] 查询各表记录数量")
+        for table_name, op in zip(
+            ["file_info", "permission_info", "segment_info", "doc_page_info"], db_instances, strict=False
+        ):
+            records = op.select_record(conditions={"doc_id": doc_id})
+            count = len(records) if records else 0
+            logger.debug(f"[删除后] 表 {table_name} 记录数: {count}")

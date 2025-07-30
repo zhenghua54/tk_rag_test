@@ -432,51 +432,6 @@ class FlatCollectionManager:
             query_vector = kwargs.get("query_vector")
             limit = kwargs.get("limit")
             output_fields = kwargs.get("output_fields")
-            #
-            # # 构建过滤条件
-            # filter_expr = f"doc_id in {doc_id_list}"
-            #
-            # logger.info(f"混合检索构建的参数: {filter_expr}")
-            #
-            # # 创建向量搜索请求
-            # similar_param = {"metric_type": "IP", "params": {}}
-            # search_vector = {
-            #     "data": [query_vector],
-            #     "anns_field": "seg_dense_vector",
-            #     "param": similar_param,
-            #     "limit": limit,
-            #     "expr": filter_expr,
-            # }
-            # # 执行向量 ANN 检索请求
-            # vector_request = AnnSearchRequest(**search_vector)
-            #
-            # # 创建全文搜索请求
-            # text_param = {"metric_type": "BM25", "params": {"drop_ratio_search": 0.2}}
-            # search_text = {
-            #     "data": [query_text],
-            #     "anns_field": "seg_sparse_vector",
-            #     "param": text_param,
-            #     "limit": limit,
-            #     "expr": filter_expr,
-            # }
-            # # 执行全文 ANN 检索请求
-            # text_request = AnnSearchRequest(**search_text)
-            #
-            # # 执行混合搜索
-            # ranker = WeightedRanker(0.6, 0.4)  # 设置向量检索和全文检索的权重
-            # reqs = [vector_request, text_request]
-            # res = self.client.hybrid_search(
-            #     collection_name=self.collection_name,
-            #     reqs=reqs,
-            #     ranker=ranker,
-            #     limit=limit,
-            #     output_fields=output_fields,
-            # )
-            #
-            # # 调试
-            # if res:
-            #     logger.info(f"[混合检索] 检索到 {len(res)} 条")
-            #     logger.info(f"检索内容: {res}")
 
             # 直接调取向量检索和全文检索
             vecctor_results = self.vector_search(
@@ -708,7 +663,6 @@ class FlatCollectionManager:
             # 确保删除操作被持久化
             self.client.flush(collection_name=self.collection_name)
 
-            logger.info(f"Milvus 数据删除成功, 共 {result['delete_count'] - 1} 条, doc_id={doc_id}")
             return result["delete_count"]
 
         except Exception as e:

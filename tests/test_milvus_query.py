@@ -21,8 +21,8 @@
 """
 
 import time
-from datetime import datetime
 from typing import Any
+from datetime import datetime
 
 from databases.milvus.connection import MilvusDB
 from utils.log_utils import logger

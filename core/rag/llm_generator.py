@@ -697,11 +697,11 @@ class RAGGenerator:
         # 去除回答中的 [段x] 标签(后续可替换为其他信息)
         cleaned_answer = re.sub(r"\[段\d+]", "", answer).strip()
 
-        if "抱歉，知识库中没有找到相关信息" in cleaned_answer:
-            logger.warning(f"检测到矛盾回答：说没有找到信息但引用了段落，清除引用。原回答：{answer}")
-            referenced_indices = set()  # 清空引用
-            # 确保回答只包含"抱歉"信息
-            cleaned_answer = "抱歉，知识库中没有找到相关信息"
+        # if "抱歉，知识库中没有找到相关信息" in cleaned_answer:
+        #     logger.warning(f"检测到矛盾回答：说没有找到信息但引用了段落，清除引用。原回答：{answer}")
+        #     referenced_indices = set()  # 清空引用
+        #     # 确保回答只包含"抱歉"信息
+        #     cleaned_answer = "抱歉，知识库中没有找到相关信息"
 
         return list(referenced_indices), cleaned_answer.strip()
 

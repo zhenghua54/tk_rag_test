@@ -101,7 +101,9 @@ class BaseDBOperation:
 
         with conn.cursor() as cursor:
             cursor.execute(sql, args)
-            conn.commit()
+            # 如果外部连接不为空，则不提交事务
+            if not self._external_conn:
+                conn.commit()
             return cursor.rowcount
 
     def select_by_id(self, doc_id: str) -> list[dict] | None:
