@@ -49,10 +49,18 @@ if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
     exit 1
 fi
 
+# 改进的端口检查逻辑
+echo "$(date '+%Y-%m-%d %H:%M:%S') - 检查端口占用" >> "$DEBUG_LOG"
+PORT_IN_USE=false
+
 # 检查端口是否被占用
-if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
+if [ "$PORT_IN_USE" = true ]; then
     echo "错误: 端口 $PORT 已被占用"
     echo "$(date '+%Y-%m-%d %H:%M:%S') - 错误: 端口被占用" >> "$DEBUG_LOG"
+    echo "请检查端口占用情况："
+    echo "  netstat -tlnp | grep :$PORT"
+    echo "  ss -tlnp | grep :$PORT"
+    echo "  lsof -i :$PORT"
     exit 1
 fi
 
@@ -60,13 +68,15 @@ fi
 echo "启动服务..."
 echo "$(date '+%Y-%m-%d %H:%M:%S') - 启动服务" >> "$DEBUG_LOG"
 
+# 修复 nohup 重定向问题
+# 使用 exec 重定向，避免 nohup 的默认行为
+exec 1>>"$DEBUG_LOG" 2>&1
+
 # 使用调试模式启动，将输出重定向到调试日志
-nohup uvicorn "$APP_NAME" \
+uvicorn "$APP_NAME" \
     --host 0.0.0.0 \
     --port "$PORT" \
-    --log-level debug \
-#    --reload \
-    >> "$DEBUG_LOG" 2>&1 &
+    --log-level debug &
 PID=$!
 
 # 等待几秒检查进程是否存活
