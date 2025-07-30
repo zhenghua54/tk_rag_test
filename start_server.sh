@@ -65,7 +65,7 @@ nohup uvicorn "$APP_NAME" \
     --host 0.0.0.0 \
     --port "$PORT" \
     --log-level debug \
-    --reload \
+#    --reload \
     >> "$DEBUG_LOG" 2>&1 &
 PID=$!
 
