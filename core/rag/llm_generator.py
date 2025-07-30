@@ -412,10 +412,10 @@ class RAGGenerator:
                 rewrite_query=rewrite_query,
             )
 
-            # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
-            if reranked_results and not segment_idx and "抱歉" not in cleaned_answer:
-                logger.warning(f"[RAG修正] 模型回答没有引用任何知识段，进行修正, 模型回答={cleaned_answer[:200]}...")
-                cleaned_answer = "抱歉，知识库中没有找到相关信息"
+            # # 兜底手段: 若模型仍回答超出控制的内容,则强制处理
+            # if reranked_results and not segment_idx and "抱歉" not in cleaned_answer:
+            #     logger.warning(f"[RAG修正] 模型回答没有引用任何知识段，进行修正, 模型回答={cleaned_answer[:200]}...")
+            #     cleaned_answer = "抱歉，知识库中没有找到相关信息"
 
             # 构建返回结果
             result = {

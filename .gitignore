@@ -100,4 +100,4 @@ sdist/
 ##################################
 *.ipynb
 .ipynb_checkpoints/
-server.pid
+.server.pid
