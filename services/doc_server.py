@@ -27,6 +27,7 @@ from utils.validators import (
     validate_doc_id,
     validate_empty_param,
     validate_file_normal,
+    validate_is_visible,
     validate_permission_ids,
 )
 
@@ -37,8 +38,8 @@ class DocumentService(BaseService):
     @staticmethod
     async def upload_file(
         document_http_url: str,
+        is_visible: bool,
         permission_ids: str | list[str] | list[None] = None,
-        is_visible: bool = True,
         request_id: str = None,
         callback_url: str = None,
     ) -> dict:
@@ -55,10 +56,12 @@ class DocumentService(BaseService):
             dict: 上传的文档信息
         """
         validate_empty_param(document_http_url, "文档地址")
-        # 部门格式验证
+        # 部门格式验证和处理
         validate_permission_ids(permission_ids)
-        # 权限 ID 格式转换
         cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
+
+        # 可见性验证和处理
+        is_visible = validate_is_visible(is_visible)
 
         try:
             if document_http_url.startswith("http"):
@@ -109,6 +112,7 @@ class DocumentService(BaseService):
                 "process_status": "uploaded",
                 "created_at": now,
                 "updated_at": now,
+                "is_visible": is_visible,
             }
             # 组装permission_info
             permission_info = []

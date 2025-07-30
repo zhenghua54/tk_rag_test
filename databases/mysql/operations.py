@@ -411,18 +411,26 @@ class ChatMessageOperation(BaseDBOperation):
             logger.error(f"保存消息失败: {str(e)}")
             raise e
 
-    def get_message_by_session_id(self, session_id: str, limit: int = 100) -> list[dict]:
+    def get_message_by_session_id(self, session_id: str, limit: int = 20) -> list[dict]:
         """根据会话ID获取消息列表, 按时间正序排列, 默认获取100条
 
         Args:
             session_id: 会话ID
-            limit: 获取消息数量(默认100)
+            limit: 获取消息数量(默认 20)
 
         Returns:
             list[dict]: 消息列表
         """
         try:
-            sql = f"SELECT * FROM {self.table_name} WHERE session_id = %s ORDER BY created_at ASC LIMIT %s"
+            sql = f"""
+            SELECT * FROM (
+                SELECT * FROM {self.table_name} 
+                WHERE session_id = %s 
+                ORDER BY created_at DESC 
+                LIMIT %s
+            ) AS latest_messages 
+            ORDER BY created_at ASC
+            """
             return self._execute_query(sql, (session_id, limit))
         except Exception as e:
             logger.error(f"[消息查询] 失败, session_id={session_id}, limit={limit}, error={str(e)}")

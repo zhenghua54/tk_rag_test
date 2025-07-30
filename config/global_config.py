@@ -106,8 +106,8 @@ class GlobalConfig:
 
     # 文件处理配置
     SUPPORTED_FILE_TYPES = {
-        "all": [".doc", ".docx", ".ppt", ".pptx", ".pdf", ".txt", ".xls", ".xlsx", ".csv"],
-        "libreoffice": [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".csv"],
+        "all": [".doc", ".docx", ".ppt", ".pptx", ".pdf", ".txt", ".xls", ".xlsx", ".csv", ".wps"],
+        "libreoffice": [".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".csv", ".wps"],
     }
 
     FILE_STATUS = {

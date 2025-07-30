@@ -653,6 +653,10 @@ class RAGGenerator:
         try:
             logger.info(f"[上下文构建] 开始, 历史对话数: {len(history)}, 文档数: {len(docs)}")
 
+            logger.debug(f"[上下文构建] 历史对话: {history}")
+            logger.debug(f"[上下文构建] 文档: {docs}")
+            logger.debug(f"[上下文构建] 用户问题: {query}")
+
             # 1. 构建知识库上下文
             knowledge_content, knowledge_tokens = self._build_knowledge_context(docs)
 
@@ -691,7 +695,13 @@ class RAGGenerator:
         referenced_indices = set(int(x) for x in referenced)
 
         # 去除回答中的 [段x] 标签(后续可替换为其他信息)
-        cleaned_answer = re.sub(r"\[段\d+]", "", answer)
+        cleaned_answer = re.sub(r"\[段\d+]", "", answer).strip()
+
+        if "抱歉，知识库中没有找到相关信息" in cleaned_answer:
+            logger.warning(f"检测到矛盾回答：说没有找到信息但引用了段落，清除引用。原回答：{answer}")
+            referenced_indices = set()  # 清空引用
+            # 确保回答只包含"抱歉"信息
+            cleaned_answer = "抱歉，知识库中没有找到相关信息"
 
         return list(referenced_indices), cleaned_answer.strip()
 

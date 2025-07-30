@@ -96,6 +96,18 @@ def validate_permission_ids(value):
         raise ValueError(f"非法的 permission_id: {value}")
 
 
+def validate_is_visible(value: bool | str) -> bool:
+    """验证可见性"""
+    if not isinstance(value, bool):
+        if value.lower() == "true":
+            value = True
+        elif value.lower() == "false":
+            value = False
+        else:
+            raise ValueError(f"非法的可见性: {value}")
+    return value
+
+
 # === 表格内容校验 ===
 def validate_html(value: str) -> bool:
     """
