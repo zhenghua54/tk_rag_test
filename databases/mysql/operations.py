@@ -424,13 +424,15 @@ class ChatMessageOperation(BaseDBOperation):
         try:
             sql = f"""
             SELECT * FROM (
-                SELECT * FROM {self.table_name} 
+                SELECT id, message_type, content, created_at
+                FROM {self.table_name} 
                 WHERE session_id = %s 
-                ORDER BY created_at DESC 
+                ORDER BY id DESC 
                 LIMIT %s
             ) AS latest_messages 
-            ORDER BY created_at ASC
+            ORDER BY id ASC
             """
+
             return self._execute_query(sql, (session_id, limit))
         except Exception as e:
             logger.error(f"[消息查询] 失败, session_id={session_id}, limit={limit}, error={str(e)}")
