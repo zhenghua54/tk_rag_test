@@ -158,7 +158,7 @@ class GlobalConfig:
     DEVICE = f"cuda:{CUDA_DEVICE_ID}" if torch.cuda.is_available() else ("mps" if torch.mps.is_available() else "cpu")
     # 模型显存占用配置
     GPU_CONFIG={
-        "device_id": int(CUDA_DEVICE_ID),
+        "device_id": CUDA_DEVICE_ID,
         "rerank_max_memory": "16GiB",     # Rerank模型最大显存
     }
     
