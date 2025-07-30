@@ -79,8 +79,20 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.mount("/static/raw", StaticFiles(directory="./datas/raw"), name="static-raw")
 app.mount("/static/processed", StaticFiles(directory="./datas/processed"), name="static-processed")
 
+# # 添加缓存策略中间件
+# class StaticFileMiddleware(BaseHTTPMiddleware):
+#     async def dispatch(self, request: Request, call_next):
+#         response = await call_next(request)
+#         if request.url.path.startswith("/static/"):
+#             response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#             response.headers["Pragma"] = "no-cache"
+#             response.headers["Expires"] = "0"
+#         return response
+
+
 # 添加 request_id 中间件
 app.add_middleware(RequestIDMiddleware)
+# app.add_middleware(StaticFileMiddleware)
 
 # 注册路由 - 为API路由添加前缀
 from api.base import router as base_router
