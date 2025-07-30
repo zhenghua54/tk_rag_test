@@ -4,7 +4,7 @@
 APP_NAME="fastapi_app:app"
 PORT=8000
 LOG_DIR="logs"
-PID_FILE="server.pid"
+PID_FILE=".server.pid"
 CONDA_ENV="rag"
 DEBUG_LOG="logs/startup_debug.log"
 

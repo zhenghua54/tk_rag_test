@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PID_FILE="server.pid"
+PID_FILE=".server.pid"
 
 if [ ! -f "$PID_FILE" ]; then
     echo "No PID file found. Server may not be running."
