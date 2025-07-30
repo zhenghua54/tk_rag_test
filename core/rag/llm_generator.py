@@ -13,8 +13,7 @@ from typing import Any
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, trim_messages
 
 from core.rag.retriever import HybridRetriever
-from databases.db_ops import select_by_id, select_ids_by_permission
-from databases.mysql.operations import ChatMessageOperation, ChatSessionOperation
+from databases.mysql.operations import chat_message_op, chat_session_op, chunk_op, permission_op
 from utils.converters import local_path_to_url, normalize_permission_ids
 from utils.llm_utils import EmbeddingManager, llm_count_tokens, llm_manager, render_prompt
 from utils.log_utils import log_exception, logger
@@ -28,8 +27,8 @@ class RAGGenerator:
     def __init__(self):
         """初始化 RAG 生成器"""
         # 初始化会话操作类
-        self.session_op = ChatSessionOperation()
-        self.message_op = ChatMessageOperation()
+        self.session_op = chat_session_op
+        self.message_op = chat_message_op
         # 会话历史缓存(提高性能)
         self._cache = {}
 
@@ -166,10 +165,8 @@ class RAGGenerator:
             logger.debug(f"[元数据构建] request_id={request_id}, 提取到 {len(doc_seg_pairs)} 个唯一记录")
 
             # 从 mysql 获取完整记录
-            mysql_records = select_by_id(
-                table_name="segment_info",
-                seg_id_list=[seg_id for _, seg_id in doc_seg_pairs],
-                doc_id_list=[doc_id for doc_id, _ in doc_seg_pairs],
+            mysql_records = chunk_op.get_segment_contents(
+                seg_id_list=[seg_id for _, seg_id in doc_seg_pairs], doc_id_list=[doc_id for doc_id, _ in doc_seg_pairs]
             )
 
             # 调试
@@ -300,9 +297,7 @@ class RAGGenerator:
             logger.debug(
                 f"[RAG对话] request_id={request_id}, 开始检索 doc_ids, 权限类型={permission_type}, 部门ID={cleaned_dep_ids}"
             )
-            doc_ids = select_ids_by_permission(
-                table_name="permission_doc_link", permission_type=permission_type, cleaned_dep_ids=cleaned_dep_ids
-            )
+            doc_ids = permission_op.get_ids_by_permission(permission_type="department", subject_ids=cleaned_dep_ids)
 
             # 如果无文档可查，直接结束问答
             if not doc_ids:
@@ -388,7 +383,9 @@ class RAGGenerator:
             segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
 
             # 调试
-            logger.debug(f"[RAG对话] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}")
+            logger.debug(
+                f"[RAG对话] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}"
+            )
 
             # 根据重排序结构构建元数据
             filtered_reranked_results = []

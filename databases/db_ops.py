@@ -1,12 +1,10 @@
 """需要对所有数据库统一操作的代码工具"""
 
 import time
-from contextlib import contextmanager
 from typing import Any
 
 from config.global_config import GlobalConfig
 from databases.milvus.flat_collection import FlatCollectionManager
-from databases.mysql.base import MySQLConnectionPool
 from databases.mysql.operations import (
     ChatMessageOperation,
     ChatSessionOperation,
@@ -29,50 +27,52 @@ TABLE_OPERATION_MAPPING = {
 }
 
 
-def select_record_by_doc_id(table_name: str, doc_id: str) -> dict[str, Any] | list[dict[str, Any]] | None:
-    """根据 doc_id 查询数据库信息
+# def select_record_by_doc_id(table_name: str, doc_id: str) -> dict[str, Any] | list[dict[str, Any]] | None:
+#     """根据 doc_id 查询数据库信息
 
-    Args:
-        table_name: 要查询的表名
-        doc_id: 文档Id
+#     Args:
+#         table_name: 要查询的表名
+#         doc_id: 文档Id
 
-    Returns:
-        dict: 返回查询到的记录信息, 单条为,未查到时为 None
-    """
+#     Returns:
+#         dict: 返回查询到的记录信息, 单条为,未查到时为 None
+#     """
 
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
+#     if table_name not in TABLE_OPERATION_MAPPING:
+#         raise ValueError(f"未知表名: {table_name}")
 
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.select_by_id(doc_id)
-    except Exception as e:
-        raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
+#     try:
+#         operation_cls = TABLE_OPERATION_MAPPING[table_name]
+#         with operation_cls() as op:
+#             return op.select_by_id(doc_id)
+#     except Exception as e:
+#         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
 
-def select_by_id(table_name: str, seg_id_list: list[str], doc_id_list: list[str]) -> list[dict[str, Any]]:
-    """根据 doc_id 和 seg_id 查询数据库信息
+# def select_segment_content_by_id(
+#     table_name: str, seg_id_list: list[str], doc_id_list: list[str]
+# ) -> list[dict[str, Any]]:
+#     """根据 doc_id 和 seg_id 查询数据库信息
 
-    Args:
-        table_name: 要查询的表名
-        seg_id_list: 分块 ID
-        doc_id_list: 文档 ID
+#     Args:
+#         table_name: 要查询的表名
+#         seg_id_list: 分块 ID
+#         doc_id_list: 文档 ID
 
-    Returns:
-        dict: 查询到的记录,未查询到时为 None
-    """
+#     Returns:
+#         dict: 查询到的记录,未查询到时为 None
+#     """
 
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
+#     if table_name not in TABLE_OPERATION_MAPPING:
+#         raise ValueError(f"未知表名: {table_name}")
 
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            results = op.get_segment_contents(seg_id_list=seg_id_list, doc_id_list=doc_id_list)
-            return results if results else []
-    except Exception as e:
-        raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
+#     try:
+#         operation_cls = TABLE_OPERATION_MAPPING[table_name]
+#         with operation_cls() as op:
+#             results = op.get_segment_contents(seg_id_list=seg_id_list, doc_id_list=doc_id_list)
+#             return results if results else []
+#     except Exception as e:
+#         raise ValueError(f"记录查询失败, 失败原因: {str(e)}") from e
 
 
 def delete_all_database_data(doc_id: str) -> None:
@@ -147,114 +147,80 @@ def delete_all_database_data(doc_id: str) -> None:
         # 不中断主流程
 
 
-def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: dict[str, Any]) -> bool:
-    """通用表记录更新方法，根据表名和文档ID更新记录。
+# def update_record_by_doc_id(table_name: str, doc_id: str, kwargs: dict[str, Any]) -> bool:
+#     """通用表记录更新方法，根据表名和文档ID更新记录。
 
-    Args:
-        table_name (str): 要操作的数据库表名
-        doc_id (str): 文档ID
-        kwargs (dict[str, Any]): 更新字段和值
+#     Args:
+#         table_name (str): 要操作的数据库表名
+#         doc_id (str): 文档ID
+#         kwargs (dict[str, Any]): 更新字段和值
 
-    Returns:
-        bool: 是否更新成功
-    """
+#     Returns:
+#         bool: 是否更新成功
+#     """
 
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
+#     if table_name not in TABLE_OPERATION_MAPPING:
+#         raise ValueError(f"未知表名: {table_name}")
 
-    # 清洗输入
-    if not table_name or not doc_id or not kwargs:
-        raise ValueError("table_name, doc_id 和 args 均不能为空")
+#     # 清洗输入
+#     if not table_name or not doc_id or not kwargs:
+#         raise ValueError("table_name, doc_id 和 args 均不能为空")
 
-    # 清除 None 值可能导致的问题
-    kwargs: dict = {k: v for k, v in kwargs.items() if v is not None}
+#     # 清除 None 值可能导致的问题
+#     kwargs: dict = {k: v for k, v in kwargs.items() if v is not None}
 
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.update_by_doc_id(doc_id, kwargs)
-    except Exception as e:
-        raise e
-
-
-def insert_record(table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> int:
-    """插入数据
-
-    Args:
-        table_name (str): 要插入数据的表
-        data (dict[str, Any]): 要插入的数据
-    """
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
-
-    validate_empty_param(data, "插入到 mysql 的数据")
-
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.insert(data=data)
-    except Exception as e:
-        logger.error(f"MySQL 数据插入失败, 失败原因: {str(e)}")
-        raise ValueError(f"MySQL 数据插入失败, 失败原因: {str(e)}") from e
+#     try:
+#         operation_cls = TABLE_OPERATION_MAPPING[table_name]
+#         with operation_cls() as op:
+#             return op.update_by_doc_id(doc_id, kwargs)
+#     except Exception as e:
+#         raise e
 
 
-def select_ids_by_permission(table_name: str, permission_type: str, cleaned_dep_ids: list[str] = None) -> list[str]:
-    """
-    使用清洗后的权限 ID 从权限表中找出对应的所有 doc_id
+# def insert_record(table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> int:
+#     """插入数据
 
-    Args:
-        table_name: 表名
-        permission_type: 权限类型
-        cleaned_dep_ids: 清洗后的权限 ID(目前为部门 ID)
+#     Args:
+#         table_name (str): 要插入数据的表
+#         data (dict[str, Any]): 要插入的数据
+#     """
+#     if table_name not in TABLE_OPERATION_MAPPING:
+#         raise ValueError(f"未知表名: {table_name}")
 
-    Returns:
-        list[str]: doc_id 列表
-    """
+#     validate_empty_param(data, "插入到 mysql 的数据")
 
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
-
-    validate_empty_param(cleaned_dep_ids, "权限 ID 列表")
-
-    permission_type = "department"
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.get_ids_by_permission(permission_type=permission_type, subject_ids=cleaned_dep_ids)
-    except Exception as e:
-        logger.error(f"获取文档 ID 失败, 失败原因: {str(e)}")
-        raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e
+#     try:
+#         operation_cls = TABLE_OPERATION_MAPPING[table_name]
+#         with operation_cls() as op:
+#             return op.insert(data=data)
+#     except Exception as e:
+#         logger.error(f"MySQL 数据插入失败, 失败原因: {str(e)}")
+#         raise ValueError(f"MySQL 数据插入失败, 失败原因: {str(e)}") from e
 
 
-def delete_record_by_doc_id(table_name: str, doc_id: str) -> int | None:
-    """根据 doc_id 删除指定数据库信息
+# def select_ids_by_permission(table_name: str, permission_type: str, cleaned_dep_ids: list[str] = None) -> list[str]:
+#     """
+#     使用清洗后的权限 ID 从权限表中找出对应的所有 doc_id
 
-    Args:
-        table_name: 要删除的表名
-        doc_id: 文档ID
-    """
-    if table_name not in TABLE_OPERATION_MAPPING:
-        raise ValueError(f"未知表名: {table_name}")
+#     Args:
+#         table_name: 表名
+#         permission_type: 权限类型
+#         cleaned_dep_ids: 清洗后的权限 ID(目前为部门 ID)
 
-    validate_doc_id(doc_id)
+#     Returns:
+#         list[str]: doc_id 列表
+#     """
 
-    try:
-        operation_cls = TABLE_OPERATION_MAPPING[table_name]
-        with operation_cls() as op:
-            return op.delete_by_doc_id(doc_id)
-    except Exception as e:
-        raise ValueError(f"删除记录失败, 失败原因: {str(e)}") from e
+#     if table_name not in TABLE_OPERATION_MAPPING:
+#         raise ValueError(f"未知表名: {table_name}")
 
+#     validate_empty_param(cleaned_dep_ids, "权限 ID 列表")
 
-@contextmanager
-def mysql_transaction():
-    """数据库事务管理器"""
-    conn = MySQLConnectionPool().get_connection()
-    try:
-        yield conn
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        raise e from e
-    finally:
-        conn.close()
+#     permission_type = "department"
+#     try:
+#         operation_cls = TABLE_OPERATION_MAPPING[table_name]
+#         with operation_cls() as op:
+#             return op.get_ids_by_permission(permission_type=permission_type, subject_ids=cleaned_dep_ids)
+#     except Exception as e:
+#         logger.error(f"获取文档 ID 失败, 失败原因: {str(e)}")
+#         raise ValueError(f"获取文档 ID 失败, 失败原因: {str(e)}") from e

@@ -11,14 +11,8 @@ import pymysql
 from config.global_config import GlobalConfig
 from core.doc.chunker import segment_text_content
 from core.doc.parser import process_doc_content
-from databases.db_ops import (
-    delete_all_database_data,
-    insert_record,
-    mysql_transaction,
-    select_record_by_doc_id,
-    update_record_by_doc_id,
-)
-from databases.mysql.operations import FileInfoOperation, PermissionOperation
+from databases.db_ops import delete_all_database_data
+from databases.mysql.operations import PermissionOperation, file_op, mysql_transaction, page_op, permission_op
 from services.base import BaseService
 from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
 from utils.file_ops import delete_local_file, download_file_step_by_step, generate_doc_id, split_pdf_to_pages
@@ -44,6 +38,7 @@ class DocumentService(BaseService):
     async def upload_file(
         document_http_url: str,
         permission_ids: str | list[str] | list[None] = None,
+        is_visible: bool = True,
         request_id: str = None,
         callback_url: str = None,
     ) -> dict:
@@ -52,6 +47,7 @@ class DocumentService(BaseService):
         Args:
             document_http_url (str): 文档 url / 服务器path地址
             permission_ids : 部门权限 ID, 可能有多种类型
+            is_visible: 文档在RAG中的可见性，TRUE可见并参与，FALSE不参与
             request_id (str): 请求 ID
             callback_url (str): 回调 URL
 
@@ -88,10 +84,11 @@ class DocumentService(BaseService):
 
             # 查重
             doc_id = generate_doc_id(doc_path=str(path.resolve()))
-            logger.info(f"[文档上传] 查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
-            records = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id)
+            logger.info(f"[文档上传]  mysql 数据查重, doc_id: {doc_id}")
+            records = file_op.select_by_id(doc_id=doc_id)
 
             if records:
+                records = records[0]
                 if records["process_status"] in GlobalConfig.FILE_STATUS.get("error"):
                     logger.info(f"[文档上传] 记录存在，状态异常，准备删除: {records}")
                     delete_all_database_data(doc_id=doc_id)
@@ -122,37 +119,32 @@ class DocumentService(BaseService):
 
             # 插入数据库元信息
             try:
-                with FileInfoOperation() as file_op, PermissionOperation() as permission_op:
-                    logger.info(f"[文档上传] 开始文档入库, request_id={request_id}, doc_id={doc_id}")
-                    file_op.insert_data(doc_info)
-                    # 插入权限信息到数据库
-                    logger.info(
-                        f"[文档上传] 开始权限入库, request_id={request_id}, doc_id={doc_id}, permission_ids={cleaned_dep_ids}"
-                    )
-                    permission_op.insert_datas(permission_info)
+                logger.info(f"[文档上传] 开始文档入库, request_id={request_id}, doc_id={doc_id}")
+                file_op.insert_data(doc_info)
+                # 插入权限信息到数据库
+                logger.info(
+                    f"[文档上传] 开始权限入库, request_id={request_id}, doc_id={doc_id}, permission_ids={cleaned_dep_ids}"
+                )
+                permission_op.insert_datas(permission_info)
 
-                    # 启动后台处理流程
-                    asyncio.create_task(
-                        asyncio.to_thread(process_doc_content, str(path.resolve()), doc_id, request_id, callback_url)
+                # 启动后台处理流程
+                asyncio.create_task(
+                    asyncio.to_thread(process_doc_content, str(path.resolve()), doc_id, request_id, callback_url)
+                )
+                # 启动后台监听文档转换状态，完成后按照顺序: 开始文档切块 -> 页面切分
+                asyncio.create_task(
+                    DocumentService._monitor_doc_process_and_segment(
+                        doc_id=doc_id, document_name=path.stem, request_id=request_id, callback_url=callback_url
                     )
-                    # 启动后台监听文档转换状态，完成后按照顺序: 开始文档切块 -> 页面切分
-                    asyncio.create_task(
-                        DocumentService._monitor_doc_process_and_segment(
-                            doc_id=doc_id,
-                            document_name=path.stem,
-                            file_op=file_op,
-                            request_id=request_id,
-                            callback_url=callback_url,
-                        )
-                    )
+                )
 
-                    return {
-                        "doc_id": doc_id,
-                        "doc_name": path.name,
-                        "doc_size": convert_bytes(path.stat().st_size),
-                        "status": "uploaded",
-                        "permission_ids": cleaned_dep_ids,
-                    }
+                return {
+                    "doc_id": doc_id,
+                    "doc_name": path.name,
+                    "doc_size": convert_bytes(path.stat().st_size),
+                    "status": "uploaded",
+                    "permission_ids": cleaned_dep_ids,
+                }
 
             except pymysql.IntegrityError as e:
                 logger.error(f"[文档上传] 数据库操作失败, error_msg={str(e)}, request_id={request_id}")
@@ -183,18 +175,18 @@ class DocumentService(BaseService):
         cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
 
         # 验证源文档是否存在
-        logger.debug(f"[文档权限更新] 查询文档是否存在, request_id={request_id}, doc_id={doc_id}")
-        source_doc_info = select_record_by_doc_id(
-            table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id
-        )
+        logger.debug(f"[文档权限更新] 文档查重, request_id={request_id}, doc_id={doc_id}")
+        source_doc_info = file_op.select_by_id(doc_id=doc_id)
         logger.debug(
-            f"[文档权限更新] 查询文档是否存在, request_id={request_id}, doc_id={doc_id}, 结果: {source_doc_info}"
+            f"[文档权限更新] 查询结果为 doc_id: {source_doc_info[0]['doc_id']}, doc_name: {source_doc_info[0]['doc_name']}"
         )
+
         if not source_doc_info:
             logger.error(
                 f"[文档权限更新] 文档不存在, request_id={request_id}, doc_id={doc_id}, permission_ids={permission_ids}"
             )
             raise ValueError(f"文档不存在, doc_id={doc_id}")
+        source_doc_info = source_doc_info[0]
 
         # 构造新数据
         now = datetime.now()
@@ -205,16 +197,15 @@ class DocumentService(BaseService):
                 {"permission_type": "department", "subject_id": dep_id, "doc_id": doc_id, "created_at": now}
             )
 
-        with mysql_transaction() as conn:
-            with PermissionOperation(conn=conn) as permission_op:
-                # 删除原有权限
-                permission_op.delete_by_doc_id(doc_id)
+        with mysql_transaction() as conn, PermissionOperation(conn=conn) as permission_op:
+            # 删除原有权限
+            permission_op.delete_by_doc_id(doc_id)
 
-                # 写入新权限
-                result_num = permission_op.insert_datas(permission_data)
-                logger.debug(
-                    f"[文档权限更新] 权限更新成功, request_id={request_id}, doc_id={doc_id}, 更新数量: {result_num}"
-                )
+            # 写入新权限
+            result_num = permission_op.insert_datas(permission_data)
+            logger.debug(
+                f"[文档权限更新] 权限更新成功, request_id={request_id}, doc_id={doc_id}, 更新数量: {result_num}"
+            )
 
         return {"doc_id": doc_id, "updated_permissions": cleaned_dep_ids, "update_count": result_num}
 
@@ -239,31 +230,48 @@ class DocumentService(BaseService):
             # 获取文件信息
             file_info = None
             try:
-                with FileInfoOperation() as file_op:
-                    file_info = file_op.get_file_by_doc_id(doc_id)
-                    if not file_info:
-                        logger.info(f"MySQL中未找到文档记录: {doc_id}")
+                # 查询文件表,只有一个结果
+                file_info = file_op.select_by_id(doc_id)
+                if not file_info:
+                    logger.info(f"MySQL中未找到文档记录: {doc_id}")
+                    # 如果数据库中没有记录，直接返回成功
+                    return {
+                        "doc_id": doc_id,
+                        "status": "deleted",
+                        "delete_type": "记录删除" if is_soft_delete else "记录+文件删除",
+                        "message": "文档记录不存在，无需删除",
+                    }
+
             except ValueError as e:
                 logger.error(f"尝试从 MySQL 中获取文件信息失败, 错误原因: {str(e)}, doc_id: {doc_id}")
                 raise ValueError(f"尝试从 MySQL 中获取文件信息失败, 错误原因: {str(e)}, doc_id: {doc_id}") from e
 
-            # 删除所有数据库记录
-            delete_all_database_data(doc_id)
-            # 只删除记录时,连带处理后的文件一块删除,保留源文件
-            if is_soft_delete:
-                # 删除处理文件
-                logger.info(f"开始删除处理文件, doc_id: {doc_id}")
-                delete_path_list = [file_info.get("doc_output_dir")]
-                delete_local_file(delete_path_list)
-            # 物理删除时, 连带源文件一并删除
-            if file_info and not is_soft_delete:
-                logger.info(f"开始删除源文件+处理文件, doc_id: {doc_id}")
-                delete_path_list = [
-                    file_info.get("doc_output_dir"),
-                    file_info.get("doc_path"),
-                    file_info.get("doc_pdf_path"),
-                ]
-                delete_local_file(delete_path_list)
+            # 确保 file_info 不为空后再进行下标操作
+            if file_info and len(file_info) > 0:
+                file_info = file_info[0]
+
+                # 删除所有数据库记录
+                delete_all_database_data(doc_id)
+
+                # 只删除记录时,连带处理后的文件一块删除,保留源文件
+                if is_soft_delete:
+                    # 删除处理文件
+                    logger.info(f"开始删除处理文件, doc_id: {doc_id}")
+                    delete_path_list = [file_info.get("doc_output_dir")]
+                    delete_local_file(delete_path_list)
+                # 物理删除时, 连带源文件一并删除
+                elif not is_soft_delete:
+                    logger.info(f"开始删除源文件+处理文件, doc_id: {doc_id}")
+                    delete_path_list = [
+                        file_info.get("doc_output_dir"),
+                        file_info.get("doc_path"),
+                        file_info.get("doc_pdf_path"),
+                    ]
+                    delete_local_file(delete_path_list)
+            else:
+                # 如果 file_info 为空，只删除数据库记录
+                logger.info(f"文件信息为空，仅删除数据库记录, doc_id: {doc_id}")
+                delete_all_database_data(doc_id)
 
             # 返回成功响应
             result = {
@@ -297,12 +305,14 @@ class DocumentService(BaseService):
         }
         try:
             # 查询数据表 doc_info 的记录
-            table_name = GlobalConfig.MYSQL_CONFIG["file_info_table"]
-            file_info: dict[str, Any] = select_record_by_doc_id(table_name=table_name, doc_id=doc_id)
+            file_info: list[dict[str, Any]] = file_op.select_by_id(doc_id=doc_id)
+
             # 查无记录
             if not file_info:
                 logger.info("未查询到相关记录")
                 return result
+            file_info = file_info[0]
+
             # 获取状态
             doc_status = file_info.get("process_status")
             # 所有合法状态集合
@@ -323,23 +333,26 @@ class DocumentService(BaseService):
             raise ValueError(f"文件状态查询失败: {str(e)}") from e
 
     @staticmethod
-    async def get_result(doc_id: str) -> dict[str, Any]:
+    async def get_result(doc_id: str, request_id: str | None = None) -> dict[str, Any]:
         """根据doc_id获取相关信息,如切块信息, 解析文档地址等
         - 文档已解析: 解析后的layout文件
-        - 文档
 
         Args:
             doc_id: 文档 ID
+            request_id: 请求 ID
 
         Returns:
             dict: 文档的所有相关信息
         """
-        file_info: dict = select_record_by_doc_id(
-            table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id
-        )
+        file_info: list[dict] = file_op.select_by_id(doc_id=doc_id)
+        logger.debug(f"[文档信息查询] 数据库查询, request_id: {request_id}, 结果: {file_info}")
+
         if not file_info:
             logger.info(f"未查询到文档信息, doc_id: {doc_id}")
             raise ValueError("文档不存在, 未查询到相关记录")
+
+        # 查询文件表,只有一个结果
+        file_info = file_info[0]
 
         file_status = file_info.get("process_status")
         pdf_path = local_path_to_url(file_info.get("doc_pdf_path")) if file_info.get("doc_pdf_path") else None
@@ -363,9 +376,7 @@ class DocumentService(BaseService):
 
         # 文档已切页, 增加分页信息
         if file_status == "splited":
-            doc_page_info: list[dict] = select_record_by_doc_id(
-                table_name=GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], doc_id=doc_id
-            )
+            doc_page_info: list[dict] = page_op.select_by_id(doc_id=doc_id)
             page_info_list = []
 
             for page_info in doc_page_info:
@@ -381,11 +392,7 @@ class DocumentService(BaseService):
 
     @staticmethod
     async def _monitor_doc_process_and_segment(
-        doc_id: str,
-        document_name: str,
-        file_op: FileInfoOperation,
-        request_id: str = None,
-        callback_url: str | None = None,
+        doc_id: str, document_name: str, request_id: str = None, callback_url: str | None = None
     ) -> None:
         """监控文档处理状态，完成后启动文档切块
 
@@ -404,14 +411,13 @@ class DocumentService(BaseService):
                 await asyncio.sleep(attempt_interval)  # 每次等待 60 秒
 
                 # 检查文档处理状态
-                file_info = (
-                    file_op.get_file_by_doc_id(doc_id) if file_op else FileInfoOperation().get_file_by_doc_id(doc_id)
-                )
+                file_info = file_op.select_by_id(doc_id)
 
                 # 文档不存在或处理失败, 停止监控
                 if not file_info:
                     logger.error("文档状态监控失败, 文档不存在")
                     return
+                file_info = file_info[0]
 
                 process_status = file_info.get("process_status")
 
@@ -445,9 +451,7 @@ class DocumentService(BaseService):
                             sync_status_safely(doc_id, "chunked", request_id, callback_url)
 
                         # 更新数据库状态为已切块
-                        update_record_by_doc_id(
-                            GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
-                        )
+                        file_op.update_by_doc_id(doc_id, {"process_status": doc_status})
 
                     except Exception as e:
                         logger.error(f"request_id={request_id}, 文档切块失败, error={e}")
@@ -458,9 +462,7 @@ class DocumentService(BaseService):
                             # 同步状态到外部系统
                             sync_status_safely(doc_id, "chunk_failed", request_id, callback_url)
 
-                        update_record_by_doc_id(
-                            GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
-                        )
+                        file_op.update_by_doc_id(doc_id, {"process_status": doc_status})
                         return
                     try:
                         logger.info(f"request_id={request_id}, 开始文档切页")
@@ -483,9 +485,7 @@ class DocumentService(BaseService):
                             # 同步状态到外部系统
                             sync_status_safely(doc_id, "splited", request_id, callback_url)
 
-                        update_record_by_doc_id(
-                            GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
-                        )
+                        file_op.update_by_doc_id(doc_id, {"process_status": doc_status})
 
                         # 组装数据
                         values = [
@@ -493,7 +493,7 @@ class DocumentService(BaseService):
                         ]
                         # 批量更新
                         logger.info(f"request_id={request_id}, 分页入库, doc_id={doc_id}, 入库数量: {len(values)}")
-                        insert_record(GlobalConfig.MYSQL_CONFIG["doc_page_info_table"], values)
+                        page_op.insert(values)
                     except Exception as e:
                         logger.error(f"request_id={request_id}, 文档切页失败, error={e}")
                         doc_status = "split_failed"
@@ -503,9 +503,7 @@ class DocumentService(BaseService):
                             # 同步状态到外部系统
                             sync_status_safely(doc_id, "split_failed", request_id, callback_url)
 
-                        update_record_by_doc_id(
-                            GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"process_status": doc_status}
-                        )
+                        file_op.update_by_doc_id(doc_id, {"process_status": doc_status})
 
                     logger.info(f"request_id={request_id}, 文档已处理, status: {doc_status}")
 
@@ -534,14 +532,14 @@ class DocumentService(BaseService):
             validate_empty_param(is_visible, "is_visible")
 
             # 查重
-            logger.info(f"[文档元数据更新] 查询 MySQL 中是否已存在记录, doc_id: {doc_id}")
-            records = select_record_by_doc_id(table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id)
+            logger.info(f"[文档元数据更新] mysql 数据查重, doc_id: {doc_id}")
+            records = file_op.select_by_id(doc_id=doc_id)
             if not records:
                 logger.info(f"[文档元数据更新] 未查询到相关记录, doc_id: {doc_id}")
                 raise ValueError(f"未查询到相关记录, doc_id: {doc_id}")
 
             # 更新数据库
-            update_record_by_doc_id(GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id, {"is_visible": is_visible})
+            file_op.update_by_doc_id(doc_id, {"is_visible": is_visible})
 
             # 返回成功响应
             return {"doc_id": doc_id, "is_visible": is_visible}

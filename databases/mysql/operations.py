@@ -1,11 +1,12 @@
 """数据库操作"""
 
+from contextlib import contextmanager
 import json
 from datetime import datetime
 from typing import Any
 
 from config.global_config import GlobalConfig
-from databases.mysql.base import BaseDBOperation
+from databases.mysql.base import BaseDBOperation, MySQLConnectionPool
 from utils.log_utils import logger
 from utils.table_linearized import unescape_html_table
 
@@ -43,21 +44,6 @@ class FileInfoOperation(BaseDBOperation):
 
     def __init__(self):
         super().__init__(GlobalConfig.MYSQL_CONFIG["file_info_table"])
-
-    def get_file_by_doc_id(self, doc_id: str) -> dict | None:
-        """根据文档ID获取文件信息
-
-        Args:
-            doc_id (str): 文档ID
-
-        Returns:
-            dict | None: 查询到的文件信息字典，如果未找到则返回 None
-        """
-        try:
-            return self.select_by_id(doc_id)
-        except Exception as e:
-            logger.error(f"[MySQL查询失败] table={self.table_name}, error_msg={str(e)}")
-            raise e
 
     def get_non_pdf_files(self) -> list[dict] | None:
         """获取所有非PDF文件
@@ -323,7 +309,7 @@ class PermissionOperation(BaseDBOperation):
 
         # 构建 IN 子句的占位符
         placeholders = ", ".join(["%s"] * len(subject_ids))
-        
+
         sql = f"""
         select distinct p.doc_id from {self.table_name} p 
         left join doc_info d on p.doc_id = d.doc_id
@@ -456,16 +442,28 @@ class ChatMessageOperation(BaseDBOperation):
             raise e
 
 
+@contextmanager
+def mysql_transaction():
+    """数据库事务管理器"""
+    conn = MySQLConnectionPool().get_connection()
+    try:
+        yield conn
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e from e
+    finally:
+        conn.close()
+
+
+# 初始化数据库操作实例
+file_op = FileInfoOperation()
+chunk_op = ChunkOperation()
+permission_op = PermissionOperation()
+page_op = PageOperation()
+chat_session_op = ChatSessionOperation()
+chat_message_op = ChatMessageOperation()
+
+
 if __name__ == "__main__":
-    # 使用上下文管理器
-    with FileInfoOperation() as file_op:
-        # 查询文件
-        file_info = file_op.get_file_by_doc_id("215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83")
-
-        # 更新文件
-        file_op.update_by_doc_id(
-            "215f2f8cfce518061941a70ff6c9ec0a3bb92ae6230e84f3d5777b7f9a1fac83", {"source_document_type": ".p"}
-        )
-
-        # 删除文件
-        file_op.delete_by_doc_id("f10e704816fda7c6cbf1d7f4aebc98a6ac1bfbe0602e0951af81277876adbcbc")
+    pass

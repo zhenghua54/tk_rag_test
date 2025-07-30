@@ -8,8 +8,7 @@ import time
 import uuid
 from pathlib import Path
 
-from config.global_config import GlobalConfig
-from databases.db_ops import update_record_by_doc_id
+from databases.mysql.operations import file_op
 from utils.file_ops import get_doc_output_path, libreoffice_convert_toolkit, mineru_toolkit
 from utils.log_utils import log_exception, logger
 from utils.status_sync import sync_status_safely
@@ -104,7 +103,7 @@ def process_doc_by_page(json_doc_path: str):
                             caption = last_caption.strip()
                         else:
                             caption = None
-                        
+
                     elif last_item and last_item["type"] == "text" and len(last_item["text"]) < max_title_len:
                         caption = last_item.get("text").strip()
                     else:
@@ -293,9 +292,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
             logger.info(
                 f"[数据库更新] request_id={request_id}, doc_id={doc_id}, process_status={values.get('process_status')}"
             )
-            update_record_by_doc_id(
-                table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"], doc_id=doc_id, kwargs=values
-            )
+            file_op.update_by_doc_id(doc_id, values)
 
         # === 页面合并 ===
         json_path = results["json_path"]
@@ -313,11 +310,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
                 # 同步状态到外部系统
                 sync_status_safely(doc_id, "merge_failed", request_id, callback_url)
 
-            update_record_by_doc_id(
-                table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
-                doc_id=doc_id,
-                kwargs={"process_status": "merge_failed"},
-            )
+            file_op.update_by_doc_id(doc_id=doc_id, data={"process_status": "merge_failed"})
             raise ValueError(f"合并元素失败, 失败原因: {str(e)}") from e
 
         # 更新最终状态
@@ -327,11 +320,7 @@ def process_doc_content(doc_path: str, doc_id: str, request_id: str = None, call
             # 同步状态到外部系统
             sync_status_safely(doc_id, "merged", request_id, callback_url)
 
-        update_record_by_doc_id(
-            table_name=GlobalConfig.MYSQL_CONFIG["file_info_table"],
-            doc_id=doc_id,
-            kwargs={"doc_process_path": save_path, "process_status": "merged"},
-        )
+        file_op.update_by_doc_id(doc_id=doc_id, data={"doc_process_path": save_path, "process_status": "merged"})
 
         duration = int((time.time() - start_time) * 1000)
         logger.info(f"[文档处理] 处理完成, request_id={request_id}, duration={duration}ms, 等待文档切块")

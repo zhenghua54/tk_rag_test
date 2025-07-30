@@ -64,9 +64,8 @@ class MySQLUtils:
         try:
             # 使用连接池获取连接进行测试
             pool = MySQLConnectionPool()
-            with pool.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute("SELECT 1")
+            with pool.get_connection() as conn, conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
             logger.info("[MySQL连接测试] 数据库连接测试成功")
             return True
         except Exception as e:
@@ -105,19 +104,19 @@ class BaseDBOperation:
             conn.commit()
             return cursor.rowcount
 
-    def select_by_id(self, doc_id: str) -> dict | None:
+    def select_by_id(self, doc_id: str) -> list[dict] | None:
         """根据ID查询单条记录
 
         Args:
             doc_id (str): 文档ID
 
         Returns:
-            dict | None: 查询结果，如果未找到则返回 None
+            list[dict] | None: 查询结果，如果未找到则返回 None
         """
         try:
             sql = f"SELECT * FROM {self.table_name} WHERE doc_id = %s"
             data = self._execute_query(sql, (doc_id,))
-            return data[0] if data else None
+            return data if data else None
         except Exception as e:
             logger.error(f"查询记录失败: {str(e)}")
             raise e
@@ -190,11 +189,10 @@ class BaseDBOperation:
                 values = [tuple(record[field] for field in fields) for record in data]
 
                 # 执行批量插入
-                with self._pool.get_connection() as conn:
-                    with conn.cursor() as cursor:
-                        cursor.executemany(sql, values)
-                        conn.commit()
-                        affected_rows = cursor.rowcount
+                with self._pool.get_connection() as conn, conn.cursor() as cursor:
+                    cursor.executemany(sql, values)
+                    conn.commit()
+                    affected_rows = cursor.rowcount
 
                 logger.debug(f"Mysql 数据插入成功, 共 {affected_rows} 条")
             except Exception as e:
@@ -212,6 +210,12 @@ class BaseDBOperation:
         Returns:
             bool: 是否更新成功
         """
+        # 清洗输入
+        if not doc_id or not data:
+            raise ValueError("doc_id 和 data 均不能为空")
+
+        # 清除 None 值可能导致的问题
+        data: dict = {k: v for k, v in data.items() if v is not None}
 
         try:
             set_clause = ", ".join([f"{k} = %s" for k in data])

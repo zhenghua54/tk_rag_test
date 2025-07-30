@@ -201,9 +201,6 @@ async def check_document_status(request: DocumentStatusRequest, fastapi_request:
     try:
         validate_doc_id(request.doc_id)
 
-        # 记录业务信息
-        logger.info(f"[文档状态查询请求] request_id={request_id}, doc_id={request.doc_id}")
-
         result = await doc_service.check_status(doc_id=request.doc_id)
 
         # 记录操作成功
@@ -248,10 +245,7 @@ async def get_doc_result(doc_id: str, fastapi_request: Request) -> dict[str, Any
     try:
         validate_doc_id(doc_id)
 
-        # 记录业务信息
-        logger.info(f"[文档信息查询请求] request_id={request_id}, doc_id={doc_id}")
-
-        result = await doc_service.get_result(doc_id=doc_id)
+        result = await doc_service.get_result(doc_id=doc_id, request_id=request_id)
 
         # 记录操作成功
         duration = int((time.time() - start_time) * 1000)
@@ -263,9 +257,7 @@ async def get_doc_result(doc_id: str, fastapi_request: Request) -> dict[str, Any
         return ResponseBuilder.success(data=result, request_id=request_id).model_dump()
 
     except Exception as e:
-        logger.error(
-            f"[文档信息查询失败] request_id={request_id}, doc_id={doc_id}, error_code=FILE_STATUS_CHECK_FAIL, error_msg={str(e)}"
-        )
+        logger.error(f"[文档信息查询] 查询失败: {str(e)}, request_id={request_id}, doc_id={doc_id}")
         log_exception("文档信息查询异常", exc=e)
         return ResponseBuilder.error(
             error_code=ErrorCode.FILE_STATUS_CHECK_FAIL.value, error_message=str(e), request_id=request_id

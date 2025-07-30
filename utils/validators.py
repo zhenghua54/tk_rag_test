@@ -31,7 +31,7 @@ def validate_file_normal(doc_path: str):
                     raise ValueError("空文档")
 
     except Exception as e:
-        raise ValueError(f"文件无法正常打开: {str(e)}")
+        raise ValueError(f"文件无法正常打开: {str(e)}") from e
 
 
 # === 基础参数类型校验 ===
@@ -129,8 +129,8 @@ def check_http_doc_accessible(url: str):
         res = requests.head(url, timeout=3)
         if res.status_code != 200:
             raise ValueError(f"远程文档无法访问: {url}")
-    except Exception:
-        raise ValueError(f"远程文档访问异常: {url}")
+    except Exception as e:
+        raise ValueError(f"远程文档访问异常: {url}") from e
 
 
 def check_doc_path_length(doc_path: str):
@@ -175,8 +175,8 @@ def check_json_list_format(json_str: str):
             raise ValueError("JSON 不是列表格式")
         if not isinstance(lst[0], dict):
             raise ValueError("JSON 元素错误，应为字典格式")
-    except Exception:
-        raise ValueError("非法 JSON 格式")
+    except Exception as e:
+        raise ValueError("非法 JSON 格式") from e
 
 
 # === 磁盘空间校验 ===

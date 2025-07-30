@@ -125,12 +125,12 @@ def delete_local_file(file_path_list: list[str]) -> bool | None:
     """
     total_num: int = len(file_path_list)
 
-    if total_num == 0:
+    if not file_path_list or total_num == 0:
         logger.error("没有需要删除的文件/目录")
         return True
 
     try:
-        logger.info(f"[文件删除] 开始, 文件数量={len(file_path_list)}")
+        logger.info(f"[文件删除] 开始, 文件数量={total_num}")
         logger.debug(f"[文件删除] 文件清单: {file_path_list}")
         for file_path in file_path_list:
             logger.info(f"开始删除文件: {file_path}")

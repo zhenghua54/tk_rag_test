@@ -41,6 +41,7 @@ class DocumentUploadRequest(BaseModel):
     permission_ids: str | list[str] | None = Field(
         None, description="部门ID列表, 单个 ID 接收字符串格式, 多个 ID 接收列表格式, 公开文档使用空数组"
     )
+    is_visible: bool = Field(..., description="文档在RAG中的可见性，TRUE可见并参与，FALSE不参与")
     callback_url: str = Field(..., description="回调 URL", min_length=1, max_length=1000)
 
 
