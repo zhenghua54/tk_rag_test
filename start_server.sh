@@ -21,9 +21,13 @@ if [ -f "$PID_FILE" ]; then
     fi
 fi
 
-# 激活conda环境并启动服务
+# 获取conda环境路径
+CONDA_PATH=$(conda info --base)
+ENV_PATH="$CONDA_PATH/envs/$CONDA_ENV"
+
+# 启动服务（直接使用环境中的python）
 echo "启动服务..."
-nohup conda run -n "$CONDA_ENV" uvicorn "$APP_NAME" \
+nohup "$ENV_PATH/bin/python" -m uvicorn "$APP_NAME" \
     --host 0.0.0.0 \
     --port "$PORT" \
     --log-level debug \
