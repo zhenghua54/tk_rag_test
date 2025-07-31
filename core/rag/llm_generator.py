@@ -14,7 +14,7 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, trim_m
 
 from core.rag.retriever import HybridRetriever
 from databases.mysql.operations import chat_message_op, chat_session_op, chunk_op, permission_op
-from utils.converters import local_path_to_url, normalize_permission_ids
+from utils.converters import local_path_to_url, normalize_permission_ids_for_query
 from utils.llm_utils import EmbeddingManager, llm_count_tokens, llm_manager, render_prompt
 from utils.log_utils import log_exception, logger
 from utils.validators import validate_permission_ids
@@ -290,7 +290,7 @@ class RAGGenerator:
 
             # 部门格式验证和转换
             validate_permission_ids(permission_ids)
-            cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
+            cleaned_dep_ids: list[str] = normalize_permission_ids_for_query(permission_ids)
 
             # 获取对应权限的文档 ID
             permission_type = "department"

@@ -123,63 +123,130 @@ def local_path_to_url(local_path: str) -> str:
         raise ValueError("不支持的路径, 未注册的路径地址")
 
 
-def normalize_permission_ids(permission_ids) -> list[str]:
+# === 权限 ID 规范化处理 ===
+def _handle_string_permission(permission_ids: str, use_case: str) -> list[str]:
+    """处理字符串类型的权限 ID"""
+    cleaned = permission_ids.strip()
+    if cleaned:
+        if use_case == "upload":
+            return [cleaned]
+        else:  # use_case == "query"
+            return [cleaned, ""]
+    return [""]
+
+
+def _handle_list_permission(permission_ids: list, use_case: str) -> list[str]:
+    """处理列表类型的权限 ID"""
+    cleaned_list = []
+
+    # 清理和验证列表中的每个权限 ID
+    for pid in permission_ids:
+        if pid is None:
+            pid = ""
+        if not isinstance(pid, str):
+            raise ValueError(f"权限 ID 应为字符串, 但收到: {pid}({type(pid)})")
+
+        cleaned_pid = pid.strip()
+        if cleaned_pid:  # 只添加非空权限
+            cleaned_list.append(cleaned_pid)
+
+    # 查询场景：添加空字符串权限（支持公开文档查询）
+    if use_case == "query":
+        cleaned_list.append("")
+
+    # 去重并保持顺序
+    seen = set()
+    unique_list = []
+    for pid in cleaned_list:
+        if pid not in seen:
+            seen.add(pid)
+            unique_list.append(pid)
+
+    return unique_list if unique_list else [""]
+
+
+def normalize_permission_ids(permission_ids, use_case: str = "query") -> list[str]:
     """
     规范化权限 ID 输入，支持 None、空字符串、空列表、字符串列表等情况。
 
     Args:
         permission_ids: 接口接收到的权限 ID 字段
+        use_case: 使用场景，支持 "upload"（上传文档）和 "query"（查询文档）
 
     Returns:
         - None / 空字符串 → [""]（无权限）
         - 字符串 → ["deptA"]
         - 列表 → None 转换为 ""，保留 ""，去除多余空白，返回原始顺序
     """
+    # 验证使用场景参数
+    if use_case not in ["upload", "query"]:
+        raise ValueError(f"不支持的 use_case: {use_case}，仅支持 'upload' 或 'query'")
 
     # None -> 空字符串
     if permission_ids is None:
         return [""]
 
-    # 空字符串或空白字符
+    # 处理字符串类型
     if isinstance(permission_ids, str):
-        cleaned = permission_ids.strip()
-        return [cleaned, ""] if cleaned else [""]
+        return _handle_string_permission(permission_ids, use_case)
 
-    # 空列表或 [''] 视为公开权限
+    # 处理列表类型
     if isinstance(permission_ids, list):
-        cleaned_list = list()
-        for pid in permission_ids:
-            if pid is None:
-                pid = ""
-            if not isinstance(pid, str):
-                raise ValueError(f"权限 ID 应为字符串, 但收到: {pid}({type(pid)})")
-            cleaned_list.append(pid.strip())
-
-        # 添加空权限(支持公开文档查询)
-        cleaned_list.append("")
-
-        # 去重
-        cleaned_list = list(set(cleaned_list))
-
-        return cleaned_list if cleaned_list else [""]
+        return _handle_list_permission(permission_ids, use_case)
 
     raise ValueError(f"不支持的权限 ID 类型: {type(permission_ids)}")
 
 
-# # 用法示例：
-# normalized_permission_ids = normalize_permission_ids(permission_ids)
+def normalize_permission_ids_for_upload(permission_ids) -> list[str]:
+    """
+    上传文档时的权限 ID 规范化处理。
+
+    Args:
+        permission_ids: 接口接收到的权限 ID 字段
+
+    Returns:
+        规范化后的权限 ID 列表，不包含空字符串权限
+    """
+    return normalize_permission_ids(permission_ids, use_case="upload")
+
+
+def normalize_permission_ids_for_query(permission_ids) -> list[str]:
+    """
+    查询文档时的权限 ID 规范化处理。
+
+    Args:
+        permission_ids: 接口接收到的权限 ID 字段
+
+    Returns:
+        规范化后的权限 ID 列表，包含空字符串权限（支持公开文档查询）
+    """
+    return normalize_permission_ids(permission_ids, use_case="query")
 
 
 if __name__ == "__main__":
     # 测试权限转换
-    print(normalize_permission_ids(None))  # [""]
+    print(normalize_permission_ids_for_upload(None))  # [""]
 
-    print(normalize_permission_ids("deptA"))  # ["deptA"]
-    print(normalize_permission_ids("   "))  # [""]
+    print(normalize_permission_ids_for_upload("deptA"))  # ["deptA"]
+    print(normalize_permission_ids_for_upload("   "))  # [""]
 
-    print(normalize_permission_ids(["deptA", "  ", "deptB"]))  # ["deptA", "", "deptB"]
-    print(normalize_permission_ids(["  "]))  # [""]
-    print(normalize_permission_ids([]))  # [""]
-    print(normalize_permission_ids(["deptA", None, "deptB"]))  # ["deptA", "deptB"]
+    print(normalize_permission_ids_for_query(["deptA", "  ", "deptB"]))  # ["deptA", "", "deptB"]
+    print(normalize_permission_ids_for_query(["  "]))  # [""]
+    print(normalize_permission_ids_for_query([]))  # [""]
+    print(normalize_permission_ids_for_query(["deptA", None, "deptB"]))  # ["deptA", "deptB"]
 
-    print(normalize_permission_ids(["deptA", None, "deptB", "deptB", "", "       ", "deptA"]))  # ["deptA", "deptB"]
+    print(
+        normalize_permission_ids_for_query(["deptA", None, "deptB", "deptB", "", "       ", "deptA"])
+    )  # ["deptA", "deptB"]
+
+    # 上传文档时使用
+    upload_permissions = normalize_permission_ids_for_upload(["deptA", "deptB"])
+    # 结果: ["deptA", "deptB"]
+
+    # 查询文档时使用
+    query_permissions = normalize_permission_ids_for_query(["deptA", "deptB"])
+    # 结果: ["deptA", "deptB", ""]
+
+    # 或者直接使用通用方法
+    upload_permissions = normalize_permission_ids(["deptA", "deptB"], use_case="upload")
+    query_permissions = normalize_permission_ids(["deptA", "deptB"], use_case="query")

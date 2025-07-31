@@ -15,7 +15,7 @@ from core.doc.parser import process_doc_content
 from databases.milvus.flat_collection import FlatCollectionManager
 from databases.mysql.operations import PermissionOperation, chunk_op, file_op, mysql_transaction, page_op, permission_op
 from services.base import BaseService
-from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids
+from utils.converters import convert_bytes, local_path_to_url, normalize_permission_ids_for_upload
 from utils.file_ops import delete_local_file, download_file_step_by_step, generate_doc_id, split_pdf_to_pages
 from utils.log_utils import logger
 from utils.status_sync import sync_status_safely
@@ -59,7 +59,7 @@ class DocumentService(BaseService):
         validate_empty_param(document_http_url, "文档地址")
         # 部门格式验证和处理
         validate_permission_ids(permission_ids)
-        cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
+        cleaned_dep_ids: list[str] = normalize_permission_ids_for_upload(permission_ids)
 
         # 可见性验证和处理
         is_visible = validate_is_visible(is_visible)
@@ -177,7 +177,7 @@ class DocumentService(BaseService):
         validate_doc_id(doc_id)
 
         # 权限格式转换
-        cleaned_dep_ids: list[str] = normalize_permission_ids(permission_ids)
+        cleaned_dep_ids: list[str] = normalize_permission_ids_for_upload(permission_ids)
 
         # 验证源文档是否存在
         logger.debug(f"[文档权限更新] 文档查重, request_id={request_id}, doc_id={doc_id}")
