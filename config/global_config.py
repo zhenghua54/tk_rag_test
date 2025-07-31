@@ -125,7 +125,7 @@ class GlobalConfig:
             "split_failed": "切页失败",
         },
     }
-    FILE_MAX_SIZE = 50  # Mb
+    FILE_MAX_SIZE = 300  # Mb
 
     # 状态同步关键状态点定义
     STATUS_SYNC_MILESTONES = {
