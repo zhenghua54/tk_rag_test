@@ -26,12 +26,12 @@ class MySQLConnectionPool:
         if self._pool is None:
             self._pool = PooledDB(
                 creator=pymysql,
-                maxconnections=6,  # 连接池最大连接数
-                mincached=2,  # 初始化时创建的连接数
-                maxcached=5,  # 连接池最大空闲连接数
-                maxshared=3,  # 共享连接的最大数量
-                blocking=True,  # 连接池中如果没有可用连接后是否阻塞等待
-                maxusage=None,  # 一个连接最多被重复使用的次数
+                maxconnections=20,  # 最大连接数：100的20%，留80%给其他应用
+                mincached=5,  # 最小缓存连接：保证基本响应速度
+                maxcached=15,  # 最大缓存连接：适应并发峰值
+                maxshared=10,  # 最大共享连接：减少连接创建开销
+                blocking=True,  # 阻塞等待：确保连接可用
+                maxusage=1000,  # 连接复用次数：避免连接老化
                 setsession=['SET time_zone = "+08:00"'],  # 设置时区为东八区(北京时间)
                 ping=0,  # ping MySQL服务端确保连接有效
                 host=GlobalConfig.MYSQL_CONFIG["host"],

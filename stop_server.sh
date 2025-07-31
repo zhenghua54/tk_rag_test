@@ -2,18 +2,17 @@
 
 PID_FILE=".server.pid"
 
-if [ ! -f "$PID_FILE" ]; then
-    echo "No PID file found. Server may not be running."
-    exit 1
-fi
-
-PID=$(cat "$PID_FILE")
-
-if kill -0 "$PID" 2>/dev/null; then
-    kill "$PID"
-    echo "Server with PID $PID stopped."
+if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if ps -p "$PID" > /dev/null 2>&1; then
+        echo "停止服务，PID: $PID"
+        kill "$PID"
+        rm -f "$PID_FILE"
+        echo "服务已停止"
+    else
+        echo "服务未运行"
+        rm -f "$PID_FILE"
+    fi
 else
-    echo "Process $PID not running."
+    echo "未找到PID文件，服务可能未运行"
 fi
-
-rm -f "$PID_FILE"

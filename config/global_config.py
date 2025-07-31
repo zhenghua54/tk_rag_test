@@ -222,7 +222,7 @@ class GlobalConfig:
             "stop": ["[END]"],
         },
         # "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt.j2", "temperature": 0.1, "top_p": 0.9},
-        "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt_v2.j2", "temperature": 0.1, "top_p": 0.9},
+        "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt.j2", "temperature": 0.1, "top_p": 0.9},
         "query_rewrite": {"prompt_file": "prompts/query_rewrite_prompt.j2", "temperature": 0.3, "max_tokens": 200},
     }
 
