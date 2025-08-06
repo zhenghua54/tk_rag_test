@@ -1,0 +1,12 @@
+{
+  "dataset_name": "covidqa",
+  "sample_size": 50,
+  "documents_count": 4944,
+  "timestamp": "2025-08-05T18:30:15.719166",
+  "ragas_metrics": {},
+  "summary": {
+    "average_score": 0,
+    "best_metric": null,
+    "worst_metric": null
+  }
+}

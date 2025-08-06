@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS {{DB_NAME}};
 USE {{DB_NAME}};
 
 -- 创建文件信息表
-CREATE TABLE IF NOT EXISTS doc_info
+CREATE TABLE IF NOT EXISTS test_doc_info
 (
     fid              INT AUTO_INCREMENT PRIMARY KEY COMMENT '文档记录ID',
     doc_id           VARCHAR(64)   NOT NULL COMMENT '文档ID',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS doc_info
 
 
 -- 创建文件分块表
-CREATE TABLE IF NOT EXISTS segment_info
+CREATE TABLE IF NOT EXISTS test_segment_info
 (
     cid            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '分块记录的唯一ID',
     seg_id         VARCHAR(64) NOT NULL COMMENT '分块的唯一ID',
@@ -52,20 +52,20 @@ CREATE TABLE IF NOT EXISTS segment_info
     INDEX idx_seg_id (seg_id),
     INDEX idx_doc_id (doc_id),
     INDEX idx_seg_type (seg_type),
-    FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE
+    FOREIGN KEY (doc_id) REFERENCES test_doc_info (doc_id) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='文档分块表';
 
 
 -- 创建权限表_v2: 支持接收不同类型
-CREATE TABLE IF NOT EXISTS permission_doc_link (
+CREATE TABLE IF NOT EXISTS test_permission_doc_link (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     permission_type VARCHAR(32) NOT NULL COMMENT '权限类型：department、role、user等',
     subject_id VARCHAR(64) NOT NULL COMMENT '如部门ID、角色ID等',
     doc_id VARCHAR(64) NOT NULL COMMENT '单个文档ID',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    FOREIGN KEY (doc_id) REFERENCES doc_info(doc_id) ON DELETE CASCADE,
+    FOREIGN KEY (doc_id) REFERENCES test_doc_info(doc_id) ON DELETE CASCADE,
     UNIQUE KEY uniq_permission (permission_type, subject_id, doc_id),
     INDEX idx_permission_type (permission_type),
     INDEX idx_subject_id (subject_id),
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS permission_doc_link (
 
 
 -- 创建文档分页内容表
-CREATE TABLE IF NOT EXISTS doc_page_info
+CREATE TABLE IF NOT EXISTS test_doc_page_info
 (
     pid           INT AUTO_INCREMENT PRIMARY KEY COMMENT '记录ID',
     doc_id        VARCHAR(64) NOT NULL COMMENT '文档ID',
@@ -82,14 +82,14 @@ CREATE TABLE IF NOT EXISTS doc_page_info
     page_png_path VARCHAR(1024) COMMENT '分页图片存储路径',
     UNIQUE KEY uniq_doc_page (doc_id, page_idx), -- 防止重复页
     INDEX idx_doc_id (doc_id),
-    FOREIGN KEY (doc_id) REFERENCES doc_info (doc_id) ON DELETE CASCADE
+    FOREIGN KEY (doc_id) REFERENCES test_doc_info (doc_id) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='文档分页信息表';
 
 
 -- 创建聊天会话表
-CREATE TABLE IF NOT EXISTS chat_sessions
+CREATE TABLE IF NOT EXISTS test_chat_sessions
 (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '会话记录ID',
     session_id VARCHAR(64) NOT NULL UNIQUE COMMENT '会话ID',
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS chat_sessions
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='聊天会话表';
 
 -- 创建聊天消息表
-CREATE TABLE IF NOT EXISTS chat_messages
+CREATE TABLE IF NOT EXISTS test_chat_messages
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '消息记录ID',
     session_id   VARCHAR(64)          NOT NULL COMMENT '会话ID',
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS chat_messages
     INDEX idx_session_id (session_id),
     INDEX idx_message_type (message_type),
     INDEX idx_created_at (created_at),
-    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id) ON DELETE CASCADE
+    FOREIGN KEY (session_id) REFERENCES test_chat_sessions (session_id) ON DELETE CASCADE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='聊天消息表';

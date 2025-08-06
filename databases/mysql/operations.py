@@ -183,9 +183,9 @@ class ChunkOperation(BaseDBOperation):
                          f.doc_name,
                          f.doc_http_url,
                          d.page_png_path
-                  FROM segment_info s
-                           LEFT JOIN doc_info f ON s.doc_id = f.doc_id
-                           LEFT JOIN doc_page_info d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
+                  FROM {GlobalConfig.MYSQL_CONFIG["segment_info_table"]} s
+                           LEFT JOIN {GlobalConfig.MYSQL_CONFIG["file_info_table"]} f ON s.doc_id = f.doc_id
+                           LEFT JOIN {GlobalConfig.MYSQL_CONFIG["doc_page_info_table"]} d ON s.doc_id = d.doc_id AND s.seg_page_idx = d.page_idx
                   WHERE 1 = 1 """
 
             # 添加查询条件
@@ -312,7 +312,7 @@ class PermissionOperation(BaseDBOperation):
 
         sql = f"""
         select distinct p.doc_id from {self.table_name} p 
-        left join doc_info d on p.doc_id = d.doc_id
+        left join {GlobalConfig.MYSQL_CONFIG["file_info_table"]} d on p.doc_id = d.doc_id
         where p.permission_type = %s 
         and (
             p.subject_id IN ({placeholders})

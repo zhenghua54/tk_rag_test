@@ -110,7 +110,8 @@ class FlatCollectionManager:
                 token=GlobalConfig.MILVUS_CONFIG.get("token"),
             )
 
-            self.db_name = GlobalConfig.MILVUS_CONFIG["db_name"]
+            # 使用配置中的db_name，如果没有则使用default
+            self.db_name = GlobalConfig.MILVUS_CONFIG.get("db_name", "default")
             self._current_db = "default"  # 初始化为 default 数据库
 
             logger.info(f"[FLAT Milvus] Collection 管理器初始化成功，数据库： {self._current_db}")
@@ -341,7 +342,7 @@ class FlatCollectionManager:
             filter_expr = f"doc_id in {doc_ids}"
 
             # 调试
-            logger.info(f"向量检索的过滤条件: {filter_expr}")
+            # logger.info(f"向量检索的过滤条件: {filter_expr}")
 
             # 构建搜索参数
             search_params = {"metric_type": "IP", "params": {}}
@@ -357,8 +358,25 @@ class FlatCollectionManager:
                 filter=filter_expr,  # 过滤条件
             )
 
-            logger.info("[FLAT Milvus] 向量检索迭代器创建成功")
-            return results_iterator
+            # 将SearchResult转换为字典格式
+            results = []
+            for hits in results_iterator:
+                for hit in hits:
+                    result = {
+                        "entity": {
+                            "doc_id": hit.entity.get("doc_id", ""),
+                            "seg_id": hit.entity.get("seg_id", ""),
+                            "seg_content": hit.entity.get("seg_content", ""),
+                            "seg_type": hit.entity.get("seg_type", ""),
+                            "seg_page_idx": hit.entity.get("seg_page_idx", 0),
+                            "metadata": hit.entity.get("metadata", {})
+                        },
+                        "distance": hit.score,
+                        "id": hit.id
+                    }
+                    results.append(result)
+
+            return [results]
 
         except Exception as e:
             logger.error(f"[FLAT Milvus] 向量搜索检索失败: {str(e)}")
@@ -386,14 +404,14 @@ class FlatCollectionManager:
             # 设置默认输出字段
             output_fields = output_fields if output_fields else ["*"]
 
-            # 构建搜索参数
-            search_params = {"metric_type": "BM25", "params": {}}
+            # 构建搜索参数 - BM25搜索使用文本，不需要metric_type
+            search_params = {"params": {}}
 
             # 构建过滤条件
             filter_expr = f"doc_id in {doc_ids}"
 
             # 调试
-            logger.info(f"全文检索的过滤条件: {filter_expr}")
+            # logger.info(f"全文检索的过滤条件: {filter_expr}")
 
             iterator = self.client.search(
                 collection_name=self.collection_name,
@@ -405,7 +423,7 @@ class FlatCollectionManager:
                 output_fields=output_fields,
             )
 
-            logger.info("[FLAT Milvus] 全文检索迭代器创建成功")
+            # logger.info("[FLAT Milvus] 全文检索迭代器创建成功")
             return iterator
         except Exception as e:
             logger.error(f"[FLAT Milvus] 全文搜索检索失败: {str(e)}")
@@ -434,15 +452,19 @@ class FlatCollectionManager:
             output_fields = kwargs.get("output_fields")
 
             # 直接调取向量检索和全文检索
-            vecctor_results = self.vector_search(
+            vector_results = self.vector_search(
                 query_vector=query_vector, doc_ids=doc_id_list, limit=limit, output_fields=output_fields
             )
 
-            full_text_results = self.full_text_search(
-                query_text=query_text, doc_ids=doc_id_list, limit=limit, output_fields=output_fields
-            )
-
-            res = vecctor_results + full_text_results
+            # 暂时禁用BM25搜索，因为稀疏向量字段类型不匹配
+            # full_text_results = self.full_text_search(
+            #     query_text=query_text, doc_ids=doc_id_list, limit=limit, output_fields=output_fields
+            # )
+            # logger.info(f"vector_results: {vector_results}")
+            # logger.info(f"full_text_results: {full_text_results}")
+            
+            # 只使用向量搜索结果
+            res = vector_results
 
             return res
 
@@ -476,9 +498,12 @@ class FlatCollectionManager:
                 )
                 all_results += batch_res[0]
 
-            all_results.sort(key=lambda x: x["distance"], reverse=True)
-
-            return [all_results[: kwargs.get("limit")]]
+            # 只有当有结果时才排序
+            if all_results:
+                all_results.sort(key=lambda x: x.get("distance", 0), reverse=True)
+                return [all_results[: kwargs.get("limit")]]
+            else:
+                return [[]]
         except Exception as e:
             logger.error(f"[FLAT Milvus] 批次混合检索失败: {str(e)}")
             return [[]]
@@ -558,6 +583,8 @@ class FlatCollectionManager:
             else:
                 res = self._less_hybrid_search(**params)
 
+            logger.info(f"混合检索结果: {res}")
+            logger.info(f"query_text: {query_text}")
             return self._merge_and_deduplicate(res)
 
         except Exception as e:

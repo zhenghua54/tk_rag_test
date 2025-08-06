@@ -35,6 +35,7 @@ class GlobalConfig:
     USE_MOCK = False  # 是否使用 Mock 数据
 
     # 项目目录配置
+    # BASE_DIR = Path(__file__).parent.absolute().parent
     BASE_DIR = Path(__file__).parent.absolute().parent
     MODEL_BASE = BASE_DIR / "models"  # 模型根目录
     PATHS = {
@@ -49,12 +50,34 @@ class GlobalConfig:
 
     # 模型相关配置
     MODEL_PATHS = {
-        "embedding": str(MODEL_BASE / "embedding" / "bge-m3"),
-        "rerank": str(MODEL_BASE / "rerank" / "bge-reranker-v2-m3"),
+        "embedding": "/home/zh/models/bge-m3",
+        "rerank": "/home/zh/models/bge-reranker-v2-m3",
     }
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
 
     LLM_CONFIG = {
+        "qwen-turbo-2025-07-15": {
+            "name": "qwen-turbo-2025-07-15",
+            "api_key": os.getenv("DASHSCOPE_API_KEY"),
+            "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
+            "qpm": 60,  # 每分钟调用次数
+            "tpm": 5000000,  # 每分钟Token数限制
+            "max_tokens_per_request": 4000,  # 单次请求最大Token数
+            "retry_attempts": 5,  # 重试次数
+            "retry_delay_base": 2,  # 重试延迟基数
+            "retry_delay_max": 60,  # 最大重试延迟
+        },
+        "qwen-turbo-2025-02-11": {
+            "name": "qwen-turbo-2025-02-11",
+            "api_key": os.getenv("DASHSCOPE_API_KEY"),
+            "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
+            "qpm": 60,  # 每分钟调用次数
+            "tpm": 5000000,  # 每分钟Token数限制
+            "max_tokens_per_request": 4000,  # 单次请求最大Token数
+            "retry_attempts": 5,  # 重试次数
+            "retry_delay_base": 2,  # 重试延迟基数
+            "retry_delay_max": 60,  # 最大重试延迟
+        },
         "qwen-turbo-1101": {
             "name": "qwen-turbo-1101",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
@@ -159,7 +182,8 @@ class GlobalConfig:
 
     # 数据库配置 - 根据环境动态配置
     # 数据库名称
-    DB_NAME = os.getenv("DB_NAME", "tk_rag_dev" if ENV == "dev" else "tk_rag")
+    # DB_NAME = os.getenv("DB_NAME", "tk_rag_dev" if ENV == "dev" else "tk_rag")
+    DB_NAME = os.getenv("DB_NAME")
 
     # MySQL配置
     MYSQL_CONFIG = {
@@ -169,12 +193,12 @@ class GlobalConfig:
         "port": int(os.getenv("MYSQL_PORT", "3306")),
         "charset": "utf8mb4",
         "database": DB_NAME,
-        "file_info_table": "doc_info",  # 文件信息表
-        "segment_info_table": "segment_info",  # 段落信息表
-        "permission_info_table": "permission_doc_link",  # 权限信息表
-        "doc_page_info_table": "doc_page_info",  # 文档切页信息表
-        "chat_sessions_table": "chat_sessions",  # 聊天会话表
-        "chat_messages_table": "chat_messages",  # 聊天消息表
+        "file_info_table": "test_doc_info",  # 文件信息表
+        "segment_info_table": "test_segment_info",  # 段落信息表
+        "permission_info_table": "test_permission_doc_link",  # 权限信息表
+        "doc_page_info_table": "test_doc_page_info",  # 文档切页信息表
+        "chat_sessions_table": "test_chat_sessions",  # 聊天会话表
+        "chat_messages_table": "test_chat_messages",  # 聊天消息表
     }
 
     # Milvus配置FLAT 集合
@@ -183,8 +207,7 @@ class GlobalConfig:
         "host": os.getenv("MILVUS_HOST"),
         "port": int(os.getenv("MILVUS_PORT")),
         "token": os.getenv("MILVUS_TOKEN"),
-        "db_name": DB_NAME,
-        "collection_name": "rag_flat",  # 更新为新的 FLAT collection
+        "collection_name": "test_rag_flat",  # 更新为新的 FLAT collection
         "vector_field": "seg_dense_vector",  # 新字段名
         "vector_dim": 1024,
         "output_fields": ["doc_id", "seg_id", "seg_content", "seg_type", "seg_page_idx", "created_at"],

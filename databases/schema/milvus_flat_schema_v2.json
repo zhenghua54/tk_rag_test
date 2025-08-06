@@ -1,5 +1,5 @@
 {
-  "collection_name": "rag_flat",
+  "collection_name": "test_rag_flat",
   "description": "RAG混合检索集合, 支持向量检索 + 全文检索 + BM25检索, 不做权限过滤",
   "enable_dynamic_field": "True",
   "fields": [

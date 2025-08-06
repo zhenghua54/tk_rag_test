@@ -294,7 +294,7 @@ class RAGGenerator:
 
             # 获取对应权限的文档 ID
             permission_type = "department"
-            logger.debug(
+            logger.info(
                 f"[RAG对话] request_id={request_id}, 开始检索 doc_ids, 权限类型={permission_type}, 部门ID={cleaned_dep_ids}"
             )
             doc_ids = permission_op.get_ids_by_permission(permission_type="department", subject_ids=cleaned_dep_ids)
@@ -369,7 +369,7 @@ class RAGGenerator:
                 ]
 
                 # 调试
-                logger.info(f"增加了索引的上下文: \n{docs[0] if docs else None}")
+                # logger.info(f"增加了索引的上下文: \n{docs[0] if docs else None}")
 
             # 构造上下文
             messages = self._get_messages_for_rag(history=raw_history, docs=docs, query=query)
@@ -432,6 +432,142 @@ class RAGGenerator:
             log_exception("RAG生成异常", exc=e)
             raise ValueError(f"生成回答失败: {str(e)}") from e
 
+    def generate_response_without_permission(
+        self, query: str, session_id: str, request_id: str | None = None
+    ) -> dict:
+        """生成回答（绕过权限检查，用于测试和评估）
+
+        Args:
+            query: 用户问题
+            session_id: 会话ID
+            request_id: 请求ID
+
+        Returns:
+            dict: 包含回答、元数据等的字典
+        """
+        try:
+            # 检查输入合法性
+            if not query or not query.strip():
+                raise ValueError("问题不能为空")
+
+            # logger.info(f"[RAG对话-无权限] request_id={request_id}, 开始处理查询: {query[:100]}...")
+
+            # 获取当前 session 的历史对话
+            raw_history: list[BaseMessage] = self._get_history(session_id)
+
+            # 查询重写(根据历史对话)
+            rewrite_query = self._rewrite_query_with_history(history=raw_history, question=query, session_id=session_id)
+            logger.info(f"[RAG对话-无权限] request_id={request_id}, 重写后的查询: {rewrite_query}")
+            
+            # 生成查询向量
+            rewrite_query_vector = self._embedding_manager.embed_text(rewrite_query)
+
+            # 执行混合检索（不使用doc_id过滤）
+            reranked_results = self._hybrid_search.retrieve(
+                query_text=rewrite_query,
+                query_vector=rewrite_query_vector,
+                doc_id_list=None,  # 不过滤doc_id，检索所有文档
+                top_k=5,
+                limit=50,
+                request_id=request_id,
+            )
+
+            # 如果检索结果为空，直接返回
+            if not reranked_results:
+                logger.warning(f"[RAG对话-无权限] request_id={request_id}, 检索结果为空, 直接返回")
+
+                answer = "抱歉，知识库中没有找到相关信息"
+
+                # 保存历史对话到数据库
+                self._save_to_history(
+                    session_id=session_id, query=query, answer=answer, metadata=[], rewrite_query=rewrite_query
+                )
+                return {
+                    "query": query,
+                    "rewrite_query": rewrite_query,
+                    "answer": answer,
+                    "session_id": session_id,
+                    "metadata": [],
+                    "sources": []  # 添加sources字段供RAGAS使用
+                }
+
+            docs = []
+            sources = []  # 用于RAGAS的sources信息
+            if reranked_results:
+                # 为片段增加索引信息
+                reranked_results = self._add_seg_idx(reranked_results)
+                # 构建 RAG 上下文(转换为 Document 格式)
+                docs = [
+                    Document(
+                        page_content=result.get("entity", {}).get("seg_content", ""),
+                        metadata={**result.get("entity", {})},
+                    )
+                    for result in reranked_results
+                ]
+
+                # 构建sources信息（为RAGAS提供上下文）
+                sources = [
+                    {
+                        "content": result.get("entity", {}).get("seg_content", ""),
+                        "doc_id": result.get("entity", {}).get("doc_id", ""),
+                        "score": result.get("distance", 0.0)
+                    }
+                    for result in reranked_results
+                ]
+
+                # 调试
+                # logger.info(f"增加了索引的上下文: \n{docs[0] if docs else None}")
+
+            # 构造上下文
+            messages = self._get_messages_for_rag(history=raw_history, docs=docs, query=query)
+
+            logger.info(f"[RAG对话-无权限] request_id={request_id}, 构建好的上下文:\n {messages}")
+
+            # 模型调用生成回答
+            response_text = llm_manager.invoke(messages=messages, temperature=0.1, invoke_type="RAG生成")
+
+            # 提取引用编号, 清洗回答
+            segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
+
+            # 调试
+            logger.debug(
+                f"[RAG对话-无权限] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}"
+            )
+
+            # 根据重排序结构构建元数据
+            filtered_reranked_results = []
+            if segment_idx:
+                filtered_reranked_results = [m for m in reranked_results if int(m.get("seg_idx")) in segment_idx]
+
+            metadata_info = self._build_metadata_from_reranked_results(
+                reranked_results=filtered_reranked_results, request_id=request_id
+            )
+
+            # 保存历史对话到数据库
+            self._save_to_history(
+                session_id=session_id,
+                query=query,
+                answer=cleaned_answer,
+                metadata=metadata_info["metadata_storage"],
+                rewrite_query=rewrite_query,
+            )
+
+            # 构建返回结果
+            result = {
+                "query": query,
+                "rewrite_query": rewrite_query,
+                "answer": cleaned_answer,
+                "session_id": session_id,
+                "metadata": metadata_info["metadata"],
+                "sources": sources  # 添加sources字段供RAGAS使用
+            }
+            return result
+
+        except Exception as e:
+            logger.error(f"[RAG生成失败-无权限] request_id={request_id}, session_id={session_id}, error_msg={str(e)}")
+            log_exception("RAG生成异常", exc=e)
+            raise ValueError(f"生成回答失败: {str(e)}") from e
+
     @staticmethod
     def _rewrite_query_with_history(history: list[BaseMessage], question: str, session_id: str) -> str:
         """使用LLM根据历史上下文重写用户 query，  生成检索用 query
@@ -457,7 +593,7 @@ class RAGGenerator:
             for msg in recent_history:
                 # 空内容
                 if not msg.content or not msg.content.strip():
-                    logger.warning(f"历史消息为空, 跳过: {msg}")
+                    logger.info(f"历史消息为空, 跳过: {msg}")
                     continue
 
                 if isinstance(msg, HumanMessage):

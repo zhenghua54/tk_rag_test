@@ -45,6 +45,12 @@ class HybridRetriever:
 
         # 执行混合检索
         try:
+            # 处理doc_id_list为None的情况（不过滤文档ID，检索所有文档）
+            if doc_id_list is None:
+                # 获取所有文档ID（为了兼容现有的混合检索逻辑）
+                doc_id_list = self._get_all_doc_ids()
+                logger.info(f"[混合检索] request_id={request_id}, 未指定文档过滤，将检索所有 {len(doc_id_list)} 个文档")
+            
             # 获取 Milvus 的混合检索结果, (milvus自带混合检索)类型: <class 'pymilvus.client.search_result.SearchResult'>
             # 获取 Milvus 的混合检索结果, (自定义实现混合检索)类型: list[list[dict]]
             hybrid_results: list[list[dict]] = self._flat_manager.optimized_hybrid_search(
@@ -210,9 +216,34 @@ class HybridRetriever:
                     logger.debug(result)
 
             return final_results
-
-        except Exception as error:
-            logger.error(f"[重排序] 失败: {str(error)}")
+            
+        except Exception as e:
+            logger.error(f"[重排序] request_id={request_id}, 重排序失败: {str(e)}")
+            return []
+    
+    def _get_all_doc_ids(self) -> list[str]:
+        """
+        获取所有文档ID（用于无权限检索）
+        
+        Returns:
+            list[str]: 所有文档ID列表
+        """
+        try:
+            # 从MySQL中获取所有可见的文档ID，并转换为Milvus中的格式
+            from databases.mysql.operations import file_op
+            
+            # 查询所有可见的文档ID
+            sql = f"SELECT DISTINCT doc_id FROM {file_op.table_name} WHERE is_visible = true"
+            results = file_op._execute_query(sql, ())
+            
+            # 转换为Milvus中存储的格式（添加_seg_0后缀）
+            doc_ids = [f"{row['doc_id']}_seg_0" for row in results if row.get("doc_id")]
+            logger.debug(f"[混合检索] 从MySQL获取到 {len(doc_ids)} 个文档ID，已转换为Milvus格式")
+            
+            return doc_ids
+            
+        except Exception as e:
+            logger.error(f"[混合检索] 获取所有文档ID失败: {e}")
             return []
 
 
