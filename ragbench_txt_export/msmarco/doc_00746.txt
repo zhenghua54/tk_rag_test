@@ -1,0 +1,1 @@
+Description. The Glide ratio of an aircraft is the distance of forward travel divided by the altitude lost in that distance. The glide ratio is affected by all of the four fundamental forces that act on an aircraft in flight-lift, drag, weight and thrust.

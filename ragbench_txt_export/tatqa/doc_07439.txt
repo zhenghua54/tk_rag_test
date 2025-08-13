@@ -1,0 +1,1 @@
+12 Earnings per share [["", "2019", "", "", "2018", "", "2018"], ["", "Loss \u00a3m", "Shares million", "Loss per share pence", "Loss \u00a3m", "Shares million", "Loss per Share pence"], ["Basic1", "(1950.9)", "1,344.5", "(145.1)p", "(1,132.2)", "1,343.7", "(84.3)p"], ["Diluted2", "(1950.9)", "1,344.5", "(145.1)p", "(1,132.2)", "1,343.7", "(84.3)p"]]

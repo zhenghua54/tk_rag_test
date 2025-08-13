@@ -1,0 +1,1 @@
+1 The number of electrons in an atom is the same as the number of protons in the atom. 2  That is because atoms are charge neutral, and protons have a charge of +1 while electrons have a charge of -1 so there must be the same number of each in order for the whole atom to be charge neutral.

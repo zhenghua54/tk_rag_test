@@ -1,0 +1,1 @@
+Stock-based compensation expense is included in general and administrative expense for each period as follows: [["", "Year Ended", "Year Ended"], ["Stock-Based Compensation by Type of Award", "December 31, 2019", "December 31, 2018"], ["Stock options", "$2,756", "$2,926"], ["RSUs", "955", "1,129"], ["Total stock-based compensation expense", "$3,711", "$4,055"]]

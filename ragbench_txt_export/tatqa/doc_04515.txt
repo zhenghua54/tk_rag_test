@@ -1,0 +1,1 @@
+(5) We calculate average daily vessel operating costs by dividing vessel operating costs by the number of calendar days. Calendar days exclude those from vessels chartered in where the vessel operating costs are borne by the legal owner, and those of vessels undergoing conversion.

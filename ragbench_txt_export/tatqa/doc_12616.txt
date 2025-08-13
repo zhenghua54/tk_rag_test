@@ -1,0 +1,1 @@
+Selling, General and Administrative [["", "Year Ended December 31,", "", "% Change"], ["", "2019", "2018", "2019"], ["", "", "(dollars in thousands)", ""], ["Selling, general and administrative", "$88,762", "$101,789", "(13)%"], ["% of net revenue", "28%", "26%", ""]]

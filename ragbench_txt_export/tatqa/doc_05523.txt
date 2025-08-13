@@ -1,0 +1,1 @@
+Prepaid inventory represents inventory in-transit that has been paid for but not received.

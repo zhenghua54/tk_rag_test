@@ -1,0 +1,1 @@
+Horizontal aerofoil mounted on front fuselage for pitch control. In a tail-first or canard configuration it replaces the function of the tailplane; in a delta wing design it may assist slow-speed behaviour.

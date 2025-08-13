@@ -1,0 +1,1 @@
+It uses the following formula to calculate how many calories per minute you will burn during the activity and then multiply that number by your total exercise minutes. Energy expenditure (calories/minute) = .0175 x MET (from table) x weight (in kilograms).

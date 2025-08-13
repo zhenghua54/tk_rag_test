@@ -1,0 +1,1 @@
+To Accelerate For Passing While the Cruise Control is set, press the accelerator to pass as you would normally.  When the pedal is released, the vehicle will return to the set speed.

@@ -1,0 +1,1 @@
+Services provided by the Company’s auditors [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Fees payable for the audit of the Company and consolidated financial statements", "0.1", "0.1"], ["Fees payable for other services:", "", ""], ["\u2013 the audit of the subsidiary undertakings pursuant to legislation", "0.2", "0.1"], ["Total", "0.3", "0.2"]]

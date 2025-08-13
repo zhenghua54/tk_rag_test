@@ -1,0 +1,1 @@
+Concentration of Credit Risk and Significant Customers [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Customer A (a distribution channel partner)", "*", "14%", "*"], ["Customer B (a distribution channel partner)", "12%", "10%", "*"], ["Customer C (a distribution channel partner)", "14%", "*", "*"]]

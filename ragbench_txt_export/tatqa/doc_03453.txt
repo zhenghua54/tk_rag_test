@@ -1,0 +1,1 @@
+ACCOUNTING POLICY [["", "As at December 31", "As at December 31", "As at December 31"], ["(In millions of dollars)", "Note", "2019", "2018"], ["Customer accounts receivable", "", "1,579", "1,529"], ["Other accounts receivable", "", "785", "762"], ["Allowance for doubtful accounts", "15", "(60)", "(55)"], ["Total accounts receivable", "", "2,304", "2,236"]]

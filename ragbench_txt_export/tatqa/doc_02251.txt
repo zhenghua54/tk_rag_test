@@ -1,0 +1,1 @@
+8. Stock option and award plan: (Continued) [["Non-vested awards", "Shares", "Weighted-Average Grant Date Fair Value"], ["Non-vested at December 31, 2018", "1,187,586", "$41.12"], ["Granted", "473,550", "$53.53"], ["Vested", "(365,223)", "$41.83"], ["Forfeited", "(12,632)", "$50.49"], ["Non-vested at December 31, 2019", "1,283,281", "$45.40"]]

@@ -1,0 +1,1 @@
+Global Financing Receivables and Allowances [["($ in millions)", "", ""], ["At December 31:", "2019", "2018"], ["Recorded investment (1)", "$22,446", "$31,182"], ["Specific allowance for credit losses", "177", "220"], ["Unallocated allowance for credit losses", "45", "72"], ["Total allowance for credit losses", "221", "292"], ["Net financing receivables", "$22,224", "$30,890"]]

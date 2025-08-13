@@ -1,0 +1,1 @@
+Electron Groups. In determining the geometry of molecules, the valence shell electron pair repulsion model, or VSEPR, assumes that repulsions between electron pairs causes them to remain as far apart as possible. The geometry that the molecule ultimately adopts minimizes the repulsion between electron pairs.

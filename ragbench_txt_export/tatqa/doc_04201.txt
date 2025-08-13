@@ -1,0 +1,1 @@
+3 Represents US share awards and option scheme awards.

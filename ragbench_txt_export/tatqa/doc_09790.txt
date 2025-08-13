@@ -1,0 +1,1 @@
+16. Net Loss Per Share [["", "", "Year Ended", ""], ["", "June 30,\n2019", "June 30,\n2018", "June 30,\n2017"], ["Net loss", "$(25,853)", "$(46,792)", "$(1,744)"], ["Weighted-average shares used in per share calculation - basic and diluted", "117,954", "114,221", "108,273"], ["Net loss per share - basic and diluted", "$(0.22)", "$(0.40)", "$(0.02)"]]

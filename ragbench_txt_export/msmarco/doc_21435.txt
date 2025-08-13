@@ -1,0 +1,1 @@
+This is how you insert a PDF file into a Joomla article with JCE : 1. Create a new article and a text. Select the text and click the Insert / edit File button. 2. You will see the File Manager window. Select the folder you want to upload your file to (or create it using the New Folder button). Then, click the Upload file button. 3. You will see the upload window.

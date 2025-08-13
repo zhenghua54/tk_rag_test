@@ -1,0 +1,1 @@
+15. Income Taxes [["", "Year Ended December 31,", "", ""], ["(IN MILLIONS)", "2019", "2018", "2017"], ["UK", "$(30)", "$3", "$27"], ["Non-UK", "(633)", "(885)", "801"], ["Income/(loss) before income taxes and equity in net income/(loss) of affiliates", "$(663)", "$(882)", "$828"]]

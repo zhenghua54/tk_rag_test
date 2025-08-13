@@ -1,0 +1,1 @@
+glide ratio. The ratio of the forward distance traveled to the vertical distance an aircraft descends when gliding without any power. Also called a gliding ratio.

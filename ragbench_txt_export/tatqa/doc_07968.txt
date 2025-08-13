@@ -1,0 +1,2 @@
+In order to finalize a Purchase price allocation all relevant information needs to be in place. Examples of such information are final consideration and final opening balances, they may remain preliminary for a period of time due
+to for example adjustments of working capital, tax items or decisions from local authorities.

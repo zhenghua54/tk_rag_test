@@ -1,0 +1,1 @@
+Brightness (white light output) measures the total amount of light projected in lumens. The color brightness specification Color Light Output measures red, green, and blue each on a nine-point grid, using the same approach as that used to measure brightness.

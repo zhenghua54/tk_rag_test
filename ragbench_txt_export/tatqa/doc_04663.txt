@@ -1,0 +1,1 @@
+• The contract involves the use of an identified asset – this may be specified explicitly or implicitly, and should be physically distinct or represent substantially all of the capacity of a physically distinct asset. If the supplier has a substantive substitution right, then the asset is not identified.

@@ -1,0 +1,1 @@
+Segment Product Revenue, Operating Income and Operating Income as a Percentage of Revenue [["Fiscal Year", "", ""], ["(In thousands, except percentages)", "2019", "2018"], ["Revenue", "$892,665", "$788,495"], ["Operating income", "$267,304", "$235,719"], ["Operating income as a % of revenue", "29.9%", "29.9%"]]

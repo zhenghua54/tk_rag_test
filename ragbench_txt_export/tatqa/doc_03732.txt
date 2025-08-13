@@ -1,0 +1,5 @@
+Operating income increased $2.4 billion or 21%.
+
+• Gross margin increased $4.8 billion or 22%, driven by growth in server products and cloud services revenue and cloud services scale and efficiencies. Gross margin percentage increased slightly, due to gross margin percentage improvement in Azure, offset in part by an increased mix of cloud offerings.
+
+• Operating expenses increased $2.4 billion or 22%, driven by investments in cloud and AI engineering, GitHub, and commercial sales capacity.

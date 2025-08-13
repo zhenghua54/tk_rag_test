@@ -1,0 +1,1 @@
+A square unit is a unit when squared equals a perfect square number. 5 is a square number, five times five is 25. Divid or square root 25 and you get 5. now technicaly every number is a square number but it is generally considered only whole numbers.

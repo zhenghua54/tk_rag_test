@@ -1,0 +1,4 @@
+(4) Represents accelerated vesting of 10,630 unvested performance restricted stock units. Pursuant to Mr. Dooley's performance restricted
+stock unit agreement (dated January 17, 2019), if Mr. Dooley’s employment is terminated without cause or for good reason within six
+months following a “change in control” or if Mr. Dooley's employment is terminated due to death or total disability, all non-vested units
+shall accelerate and be vested as of the date of termination.

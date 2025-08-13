@@ -1,0 +1,1 @@
+Changes in actuarial gains and losses in the projected benefit obligation are generally driven by discount rate movement. We use the corridor approach to amortize actuarial gains and losses. Under this approach, net actuarial gains or losses in excess of 10% of the larger of the projected benefit obligation or the fair value of plan assets are amortized on a straight-line basis.

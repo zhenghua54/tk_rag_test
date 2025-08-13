@@ -1,0 +1,1 @@
+Geographic Information [["", "December 31,", "December 31,"], ["", "2019", "2018"], ["United States", "$35,964", "$5,525"], ["Japan", "2,689", "1,108"], ["Other", "2,017", "629"], ["Total", "$40,670", "$7,262"]]

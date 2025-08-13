@@ -1,0 +1,1 @@
+Customer Receivables and Contract Balances [["", "December 31, 2019", "December 31, 2018"], ["", "(Dollars in millions)", ""], ["Customer receivables(1)", "$2,194", "2,346"], ["Contract liabilities", "1,028", "860"], ["Contract assets", "130", "140"]]

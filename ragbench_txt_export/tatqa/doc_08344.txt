@@ -1,0 +1,1 @@
+Debt [["($ in millions)", "", ""], ["At December 31:", "2019", "2018"], ["Total company debt", "$62,899", "$45,812"], ["Total Global Financing segment debt", "$24,727", "$31,227"], ["Debt to support external clients", "21,487", "27,536"], ["Debt to support internal clients", "3,239", "3,690"], ["Non-Global Financing debt", "38,173", "14,585"]]

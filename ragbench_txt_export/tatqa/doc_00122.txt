@@ -1,0 +1,1 @@
+ACCOUNTING POLICY [["", "As at December 31", "As at December 31"], ["(In millions of dollars)", "2019", "2018"], ["Wireless devices and accessories", "380", "399"], ["Other finished goods and merchandise", "80", "67"], ["Total inventories", "460", "466"]]

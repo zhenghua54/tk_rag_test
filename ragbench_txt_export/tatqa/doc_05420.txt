@@ -1,0 +1,1 @@
+Customer Contract - Related Balance Sheet Amounts [["", "Beginning balance as of\nAugust 1, 2018 as adjusted", "Ending balance as of July 31, 2019 as reported"], ["Unbilled accounts receivable, net", "$ 28,762", "46,103"], ["Contract costs, net(1)", "12,932", "30,390"], ["Deferred revenue, net", "(141,685)", "(131,831)"]]

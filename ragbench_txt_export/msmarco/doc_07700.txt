@@ -1,0 +1,1 @@
+For example, the total cost of producing one pen is $5 and the total cost of producing two pens is $9, then the marginal cost of expanding output by one unit is $4 only (9 - 5 = 4).

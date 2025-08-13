@@ -1,0 +1,1 @@
+IFRS 9 was applied for the first time on 1 April 2018 and introduces new classifications for financial instruments. Cash and cash equivalents were classified as loans and receivables under IAS 39, and are now classified as financial assets held at amortised cost under IFRS 9. This has not had an impact on the accounting for these instruments, or on their carrying amounts.

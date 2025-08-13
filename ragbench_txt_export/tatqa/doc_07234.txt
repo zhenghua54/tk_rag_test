@@ -1,0 +1,1 @@
+NOTE 3 - SHORT TERM INVESTMENTS [["", "December 31", ""], ["", "2019", "2018"], ["", "(in thousands)", ""], ["Government", "$1,012", "$\u2014"], ["Asset Backed", "4,854", "1,786"], ["Industrial", "5,034", "2,381"], ["Financial", "6,879", "7,136"], ["", "$17,779", "$11,303"]]

@@ -1,0 +1,1 @@
+Ligand Definition. A ligand is an atom, ion, or molecule that donates or shares one or more of its electrons through a covalent bond with a central atom or ion. It is a complexing group in coordination chemistry that stabilizes the central atom and determines it reactivity.

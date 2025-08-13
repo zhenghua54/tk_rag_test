@@ -1,0 +1,1 @@
+Re: Internet Explorer for Android. JB58, you can tether a Windows computer to the phone (USB, Bluetooth or wifi) and use IE on the computer.

@@ -1,0 +1,1 @@
+The fair value of stock option and stock-settled appreciation right awards is estimated on the grant date using the Black-Scholes-Merton option pricing model, which includes assumptions regarding the risk-free interest rate, dividend yield, life of the award, and the volatility of our common shares.

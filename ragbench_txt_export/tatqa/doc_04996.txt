@@ -1,0 +1,1 @@
+Provision for Income Taxes [["", "", "", "(dollars in millions) Increase/ (Decrease)", ""], ["Years Ended December 31,", "2019", "2018", "2019 vs. 2018", ""], ["Provision for income taxes", "$2,945", "$ 3,584", "$ (639)", "(17.8)%"], ["Effective income tax rate", "13.0%", "18.3%", "", ""]]

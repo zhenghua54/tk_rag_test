@@ -1,0 +1,1 @@
+RESULTS FROM VESSEL OPERATIONS [["", "Years Ended December 31,", ""], ["", "2019", "2018"], ["Time charter equivalent revenues", "$335,133", "$326,707"], ["Add: Voyage expenses", "20,414", "39,456"], ["Shipping revenues", "$355,547", "$366,163"]]

@@ -1,0 +1,1 @@
+19. ACCRUED EXPENSES [["(in thousands of $)", "2019", "2018"], ["Vessel operating and drydocking expenses", "(24,457)", "(24,041)"], ["Administrative expenses", "(11,713)", "(11,042)"], ["Interest expense", "(44,150)", "(97,688)"], ["Current tax payable", "(720)", "(463)"], ["", "(81,040)", "(133,234)"]]

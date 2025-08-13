@@ -1,0 +1,1 @@
+30. EMPLOYEE BENEFIT PLANS (cont.) [["As at December 31,", "2019", "2018"], ["Equity securities", "", ""], ["Canada", "22.3%", "20.8%"], ["United States", "19.8%", "12.7%"], ["International (other than United States)", "14.1%", "18.1%"], ["Fixed income instruments", "", ""], ["Canada", "41.2%", "45.7%"], ["Cash and cash equivalents", "", ""], ["Canada", "2.6%", "2.7%"]]

@@ -1,0 +1,1 @@
+Publisher's description. LPILE is a special-purpose program based on rational procedures for analyzing a pile under lateral loading using the p-y method. LPILE solves the differential equation for a beam-column using nonlinear lateral load-transfer (p-y) curves. The program computes deflection, bending moment, shear force and soil response over the length of the pile.

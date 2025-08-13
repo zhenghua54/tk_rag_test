@@ -1,0 +1,1 @@
+Cash Flows [["", "Fiscal years ended July 31,", ""], ["", "2019", "2018"], ["Net cash provided by operating activities", "$116,126", "$140,459"], ["Net cash used in investing activities", "$(301,433)", "$(537,584)"], ["Net cash provided by financing activities", "$3,954", "$573,000"]]

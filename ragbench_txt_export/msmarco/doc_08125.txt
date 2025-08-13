@@ -1,0 +1,1 @@
+More broadly, a vertical datum is the entire system of the zero elevation surface and methods of determining heights relative to that surface. Over the years, many different types of vertical datums have been used. The most predominant types today are tidal datums and geodetic datums.

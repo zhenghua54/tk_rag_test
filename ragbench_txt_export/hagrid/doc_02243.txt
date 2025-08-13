@@ -1,0 +1,1 @@
+A force meter is an instrument to measure the magnitude of a force. This is often just a spring contained within a cylinder that has a scale to mark the extension of the spring produced by the force. In the International System of Units, the unit of force is the newton (symbol N). A force meter that measures force in newtons may be referred to as a newtonmeter.

@@ -1,0 +1,1 @@
+(1) In software, a module is a part of a program. Programs are composed of one or more independently developed modules that are not combined until the program is linked. A single module can contain one or several routines. (2) In hardware, a module is a self-contained component.

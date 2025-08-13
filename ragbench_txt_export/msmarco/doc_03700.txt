@@ -1,0 +1,1 @@
+Voice logging is used by call centers for a variety of reasons. The most common include: 1  Agent training: One of the most efficient ways to train agents is by allowing them to listen to previously recorded conversations. Many business VoIP providers offer voice logging of some sort as a free feature with their call center solution, although storage space or time may be limited.

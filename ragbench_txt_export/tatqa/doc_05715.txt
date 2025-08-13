@@ -1,0 +1,1 @@
+Debt securities that are held for collection of contractual cash flows where those cash flows represent solely payments of principal and interest are measured at amortised cost using the effective interest method, less any impairment. Debt securities that do not meet the criteria for amortised cost are measured at fair value through profit and loss.

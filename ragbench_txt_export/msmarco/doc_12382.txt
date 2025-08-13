@@ -1,0 +1,1 @@
+Countless of times I've heard and read that RAM-memory can have different speeds-denoted as MHz (e.g. 1066 MHz). However, what this frequency really is has never been explained to me and I'm having trouble finding an answer.

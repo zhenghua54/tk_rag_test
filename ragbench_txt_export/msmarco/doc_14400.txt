@@ -1,0 +1,1 @@
+1 A single motor neuron, however, can innervate many muscle fibers. 2  The combination of an individual motor neuron and all of the muscle fibers that it innervates is called a motor unit. 3  The number of fibers innervated by a motor unit is called its innervation ratio.

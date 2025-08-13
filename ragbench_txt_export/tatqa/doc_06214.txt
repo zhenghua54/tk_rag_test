@@ -1,0 +1,1 @@
+Shares Reserved for Issuance [["", "June 30,\n2019", "June 30,\n2018"], ["2013 Equity Incentive Plan shares available for grant", "8,462", "9,957"], ["Employee stock options and awards outstanding", "10,455", "12,060"], ["2014 Employee Stock Purchase Plan", "10,085", "5,365"], ["Total shares reserved for issuance", "29,002", "27,382"]]

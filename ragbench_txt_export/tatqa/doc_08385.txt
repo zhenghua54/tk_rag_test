@@ -1,0 +1,1 @@
+Our EFT Arcus product is hosted by third-party cloud services providers. We rely upon those third parties, such as Microsoft Azure, for the continued development and enhancement of their cloud services infrastructures on which our products are hosted. We do not perform significant research and development of cloud services infrastructures using our own personnel.

@@ -1,0 +1,1 @@
+In astronomy, declination (abbreviated dec; symbol δ) is one of the two angles that locate a point on the celestial sphere in the equatorial coordinate system, the other being hour angle. Neglecting atmospheric refraction, declination is always 0° at east and west points of the horizon. At the north point, it is 90° − | φ |, and at the south point, −90° + | φ |.

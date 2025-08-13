@@ -1,0 +1,1 @@
+(c) Additional Segment Information [["", "July 27, 2019", "July 28, 2018", "July 29, 2017"], ["Property and equipment, net:", "", "", ""], ["United States", "$2,266", "$2,487", "$2,711"], ["International", "523", "519", "611"], ["Total", "$2,789", "$3,006", "$3,322"]]

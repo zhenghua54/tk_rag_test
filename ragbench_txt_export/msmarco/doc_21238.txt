@@ -1,0 +1,1 @@
+You can convert images (jpeg, png, gif, bmp, jpg) to PDF files by using a PDF converter. Simply open the image with a viewer, click on Print and select the PDF printer to convert the image to PDF.

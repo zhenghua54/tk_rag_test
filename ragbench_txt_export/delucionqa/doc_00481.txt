@@ -1,0 +1,1 @@
+Drivetrain The Drivetrain page displays information concerning the vehicle’s drivetrain.  The following information is displayed: steering angle in degrees status of transfer case status of front axles — if equipped status of the rear axles — if equipped.

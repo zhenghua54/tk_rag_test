@@ -1,0 +1,1 @@
+Depreciation and Amortization [["", "", "Year ended December 31,", ""], ["", "2019", "2018", "2017"], ["Computer software", "$97.3", "$94.5", "$84.0"], ["Other intangible assets", "59.3", "57.2", "67.8"], ["Deferred contract costs", "42.9", "32.9", "25.7"], ["Property and equipment", "36.7", "32.4", "29.0"], ["Total", "$236.2", "$217.0", "$206.5"]]

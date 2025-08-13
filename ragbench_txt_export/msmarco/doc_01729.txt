@@ -1,0 +1,1 @@
+Securing Your D-Link Router. Enter 192.168.0.1 into your address bar. Log in to your router using admin as the user ID and leave the password field blank. Click the Tools tab located at the top of the page. A page titled Admin will pop up.

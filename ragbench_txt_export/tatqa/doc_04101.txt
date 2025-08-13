@@ -1,0 +1,1 @@
+Return on Invested Capital (RoIC): TORM defines RoIC as earnings before interest and tax (EBIT) less tax, divided by the average invested capital for the period. Invested capital is defined below.

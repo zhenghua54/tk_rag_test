@@ -1,0 +1,1 @@
+Expected Volatility—The Company uses its historical volatility for a period commensurate with the expected term of the option.

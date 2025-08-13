@@ -1,0 +1,1 @@
+Remote Radio Unit (RRU). A remote radio unit (RRU) in a radio base station system can include a cyclic prefix (CP) module with a CP adder for downlink channel processing and a CP remover for uplink channel processing.

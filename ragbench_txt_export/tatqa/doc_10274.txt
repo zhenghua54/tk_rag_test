@@ -1,0 +1,1 @@
+NOTE 7. INVENTORIES [["", "December 31", ""], ["", "2019", "2018"], ["Finished goods", "$698", "$853"], ["Raw materials", "90", "3"], ["Packaging", "110", "102"], ["Inventories", "$ 898", "$ 958"]]

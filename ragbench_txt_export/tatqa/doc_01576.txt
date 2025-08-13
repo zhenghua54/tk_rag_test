@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "As of December 31,", ""], ["", "2019", "2018"], ["Non-current deferred tax assets", "$19,795", "$22,201"], ["Non-current deferred tax liabilities", "$(5,637)", "$(3,990)"], ["Total net deferred tax assets", "$14,158", "$18,211"]]

@@ -1,0 +1,1 @@
+(8) Computer Software [["", "December 31,", ""], ["", "2019", "2018"], ["Internally developed software", "$808.2", "$746.0"], ["Purchased software", "78.9", "60.7"], ["Computer software", "887.1", "806.7"], ["Accumulated amortization", "(481.1)", "(401.1)"], ["Computer software, net", "$406.0", "$405.6"]]

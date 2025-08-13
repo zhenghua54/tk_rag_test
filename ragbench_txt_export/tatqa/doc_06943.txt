@@ -1,0 +1,1 @@
+20. Trade and other payables [["", "2019", "(Restated) 2018"], ["", "\u00a3m", "\u00a3m"], ["Trade payables", "4.3", "3.7"], ["Accruals", "10.5", "9.8"], ["Other taxes and social security", "13.0", "11.8"], ["Deferred income", "13.2", "1.8"], ["Other payables", "0.3", "0.9"], ["Accrued interest payable", "0.5", "0.5"], ["Total", "41.8", "28.5"]]

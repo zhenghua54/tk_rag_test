@@ -1,0 +1,1 @@
+A.3.8 Financial Services [["", "", "Fiscal year"], ["(in millions of \u20ac)", "2019", "2018"], ["Earnings before taxes (EBT)", "632", "633"], ["ROE (after taxes)", "19.1 %", "19.7 %"], ["", "", "Sep 30,"], ["(in millions of \u20ac)", "2019", "2018"], ["Total assets", "29,901", "27,628"]]

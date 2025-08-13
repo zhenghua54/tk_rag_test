@@ -1,0 +1,1 @@
+2016 Collective Bargaining Negotiations [["", "", "(dollars in millions)"], ["At December 31,", "2019", "2018"], ["Projected benefit obligation", "$ 21,190", "$ 19,510"], ["Accumulated benefit obligation", "21,134", "19,461"], ["Fair value of plan assets", "19,388", "17,757"]]

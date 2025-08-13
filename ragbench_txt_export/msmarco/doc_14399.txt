@@ -1,0 +1,1 @@
+1 Thus, there is a one-to-one relationship between a muscle and a motor neuron pool. 2  Each individual muscle fiber in a muscle is innervated by one, and only one, motor neuron (make sure you understand the difference between a muscle and a muscle fiber). 3  A single motor neuron, however, can innervate many muscle fibers.

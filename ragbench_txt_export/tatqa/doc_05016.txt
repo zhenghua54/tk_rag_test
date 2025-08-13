@@ -1,0 +1,1 @@
+Acquisition-Related Expenses [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(Dollars in millions)", ""], ["Transaction-related expenses", "$\u2014", "2", "174"], ["Integration and transformation-related expenses", "234", "391", "97"], ["Total acquisition-related expenses", "$234", "393", "271"]]

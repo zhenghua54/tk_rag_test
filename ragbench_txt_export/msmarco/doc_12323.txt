@@ -1,0 +1,1 @@
+CD. Hi, Internet Explorer cannot be installed on Android tablet. You may use the browser pre-installed with the tablet to access internet. You may check the Android market website for available browsers. https://market.android.com/ There are some learning sites which are written to only work with Internet Explorer, which people are trying to learn from on non-Windows devices.

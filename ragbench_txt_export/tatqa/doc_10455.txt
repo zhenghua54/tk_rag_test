@@ -1,0 +1,1 @@
+Performance [["", "FY19 \u00a3m", "FY18 \u00a3m", "Change (As reported)"], ["Free Cash Flow", "54.9", "92.4", "-\u00a337.5m"], ["Net Debt", "288.5", "501.1", ""], ["Net Debt:EBITDA as per financing agreements", "1.8x", "2.3x", ""], ["ROIC", "14.4%", "15.6%", "-120bps"]]

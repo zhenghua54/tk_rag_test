@@ -1,0 +1,1 @@
+Income (loss) before expense (benefit) for income taxes for the years ended December 31, 2019, 2018 and 2017 is as follows: [["(In thousands)", "2019", "2018", "2017"], ["U.S. entities", "$(29,829)", "$(74,131)", "$26,552"], ["International entities", "5,052", "40,760", "18,135"], ["Total", "$(24,777)", "$(33,371)", "$44,687"]]

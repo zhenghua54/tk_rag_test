@@ -1,0 +1,1 @@
+• Derivatives Forward exchange contracts are marked to market by discounting the future contracted cash flows using readily available market data

@@ -1,0 +1,1 @@
+Current other investments comprise the following: [["", "2019", "2018"], ["", "\u20acm", "\u20acm"], ["Included within current assets:", "", ""], ["Short-term investments:", "", ""], ["Bonds and debt securities3", "4,690", "4,690"], ["Managed investment funds4", "6,405", "3,891"], ["", "11,095", "6,870"], ["Other investments5", "1,917", "1,925"], ["", "13,012", "8,795"]]

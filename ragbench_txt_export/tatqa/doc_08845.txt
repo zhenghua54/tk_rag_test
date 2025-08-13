@@ -1,0 +1,1 @@
+16. INCOME TAXES [["(in thousands)", "2019", "2018", "2017"], ["Domestic", "$(51,396)", "(27,494)", "57,493"], ["Foreign", "(83,450)", "15,951", "28,742"], ["(Loss) income before (benefit from) income taxes", "$(134,846)", "$(11,543)", "$86,235"]]

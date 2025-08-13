@@ -1,0 +1,1 @@
+(b) Purchase Commitments with Contract Manufacturers and Suppliers [["Commitments by Period", "July 27, 2019", "July 28, 2018"], ["Less than 1 year", "$4,239", "$5,407"], ["1 to 3 years", "728", "710"], ["3 to 5 years", "\u2014", "360"], ["Total", "$4,967", "$6,477"]]

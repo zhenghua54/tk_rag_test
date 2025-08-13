@@ -1,0 +1,1 @@
+dropdown menu. An lpp_source is a directory similar to AIX install CDs. It contains AIX Licensed Program Products (LLPs) in Backup File Format (BFF) format and RPM Package Manager (RPM) filesets that you can install. root@aixnim1: / # lsnim-l 5300-TL_00_to_08_works.

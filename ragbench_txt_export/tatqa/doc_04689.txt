@@ -1,0 +1,1 @@
+Products, Support and Professional Services [["", "", "Year ended March 31,", ""], ["(In thousands)", "2019", "2018", "2017"], ["Products", "$39,003", "$33,699", "$38,339"], ["Support, maintenance and subscription services", "75,496", "69,068", "63,308"], ["Professional services", "26,343", "24,593", "26,031"], ["Total", "$140,842", "$127,360", "$127,678"]]

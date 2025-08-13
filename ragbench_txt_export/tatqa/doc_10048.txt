@@ -1,0 +1,1 @@
+Consolidated Financial Results [["", "Year ended December 31,", "", "Variance", ""], ["", "2019", "2018", "$", "%"], ["Software Solutions", "$412.7", "$394.8", "$17.9", "5%"], ["Data and Analytics", "123.4", "115.0", "8.4", "7%"], ["Corporate and Other", "109.9", "115.6", "(5.7)", "(5)%"], ["Total", "$646.0", "$625.4", "$20.6", "3%"]]

@@ -1,0 +1,1 @@
+NOTE 7 - continued [["USDm", "2019", "2018", "2017"], ["Interest expenses:", "-", "-", "-"], ["Financial expenses arising from lease liabilities regarding right-of-use assets", "2.4", "2.3", "1.8"], ["Other financial expenses", "39.5", "37.0", "38.8"], ["Total", "41.9", "39.3", "40.6"]]

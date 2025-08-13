@@ -1,0 +1,1 @@
+Key Business Metrics [["", "", "For the Year Ended or As of December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(in thousands)", ""], ["Devices sold", "15,988", "13,939", "15,343"], ["Active users", "29,566", "27,627", "25,367"], ["Adjusted EBITDA", "$(128,333)", "$(31,361)", "$(52,158)"], ["Free cash flow", "$(193,363)", "$60,327", "$(24,919)"]]

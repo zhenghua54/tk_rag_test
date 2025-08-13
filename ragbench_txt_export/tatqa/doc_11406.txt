@@ -1,0 +1,1 @@
+Note 7 – Inventory [["(In thousands)", "2019", "2018"], ["Raw materials", "$36,987", "$45,333"], ["Work in process", "1,085", "1,638"], ["Finished goods", "60,233", "52,877"], ["Total Inventory, net", "$98,305", "$99,848"]]

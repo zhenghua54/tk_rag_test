@@ -1,0 +1,1 @@
+Contract Balances [["", "September 30, 2019", "October 1, 2018"], ["Contract assets, current", "$2,350", "$169"], ["Contract assets, non-current", "581", "507"], ["Contract liabilities, current", "5,612", "4,281"], ["Contract liabilities, non-current", "736", "485"]]

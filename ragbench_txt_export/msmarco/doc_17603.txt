@@ -1,0 +1,1 @@
+Earned Value Management (EVM) is a technique that allows you to determine more precisely where your project stands in terms of your baseline schedule and budget. The general idea behind earned value is to compare where you actually are against where you planned to be.

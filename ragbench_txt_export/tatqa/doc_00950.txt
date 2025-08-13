@@ -1,0 +1,1 @@
+Basic earnings per share (“EPS”) are computed by dividing net income (loss) by the weighted-average number of common shares outstanding for the period. Diluted EPS is computed by dividing net income by the weighted-average number of common shares and dilutive common stock equivalents outstanding during the period.

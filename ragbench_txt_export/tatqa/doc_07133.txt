@@ -1,0 +1,1 @@
+Sufficiency of Cash Resources The following table sets forth selected information regarding our financial condition: [["", "", "December 31,"], ["(In thousands, except for ratio)", "2019", "2018"], ["Cash and cash equivalents", "$ 12,395", "$ 9,599"], ["Working capital (deficit)", "(67,429)", "(85,471)"], ["Current ratio", "0.72", "0.70"]]

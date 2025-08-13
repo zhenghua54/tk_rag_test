@@ -1,0 +1,1 @@
+The interest rate risk is managed using a liability matching approach, which reduces the exposure of the DB plans to a mismatch between investment growth and obligation growth.

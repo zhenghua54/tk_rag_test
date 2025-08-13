@@ -1,0 +1,1 @@
+The .htaccess file is a small and powerful text file that controls many aspects of how your webpages display. Things like redirects, enabling compression, rewriting urls, leveraging browser caching and more can be accomplished by adding some code to this little file.

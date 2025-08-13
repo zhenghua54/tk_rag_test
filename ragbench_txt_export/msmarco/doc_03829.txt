@@ -1,0 +1,1 @@
+Voltage. Voltage is electric potential energy per unit charge, measured in joules per coulomb (= volts). It is often referred to as electric potential, which then must be distinguished from electric potential energy by noting that the potential is a per-unit-charge quantity

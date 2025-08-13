@@ -1,0 +1,1 @@
+Industry Overview [["Year Ended December 31,", "Worldwide Semiconductor Industry Sales (1)", "Percentage Change"], ["", "(in billions)", ""], ["2019", "$412.1", "(12.1)%"], ["2018", "$468.8", "13.7%"], ["2017", "$412.2", "21.6%"], ["2016", "$338.9", "1.1%"], ["2015", "$335.2", "(0.2)%"]]

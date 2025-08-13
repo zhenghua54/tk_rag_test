@@ -1,0 +1,1 @@
+Net debt including IFRS 16 lease liabilities [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Net debt", "295.2", "235.8"], ["IFRS 16 lease liabilities", "38.9", "\u2013"], ["Net debt and IFRS 16 lease liabilities", "334.1", "235.8"]]

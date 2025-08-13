@@ -1,0 +1,1 @@
+5. Goodwill and Purchased Intangible Assets [["", "Balance at July 28, 2018", "Acquisitions & Divestitures", "Other", "Balance at July 27, 2019"], ["Americas", "$19,998", "$1,240", "$(118)", "$21,120"], ["EMEA", "7,529", "486", "(38)", "7,977"], ["APJC", "4,179", "274", "(21)", "4,432"], ["Total", "$31,706", "$2,000", "$(177)", "$33,529"]]

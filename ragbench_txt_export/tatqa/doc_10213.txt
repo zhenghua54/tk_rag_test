@@ -1,0 +1,1 @@
+(2) Average price paid per share is a weighted average calculation using the aggregate price, excluding commissions and fees.

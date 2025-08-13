@@ -1,0 +1,1 @@
+GitHub was developed by Chris Wanstrath, PJ Hyett, Tom Preston-Werner and Scott Chacon using Ruby on Rails, and started in February 2008. The company, GitHub, Inc., has existed since 2007 and is located in San Francisco.

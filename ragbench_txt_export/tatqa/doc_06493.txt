@@ -1,0 +1,1 @@
+4. Prepaid expenses [["October 31,", "", ""], ["", "2019", "2018"], ["(In thousands)", "", ""], ["Parts and supplies", "$33,617", "$28,287"], ["Prepaid insurance", "8,859", "8,232"], ["Other prepaid expenses", "14,455", "6,721"], ["Total prepaid expenses", "$56,931", "$43,240"]]

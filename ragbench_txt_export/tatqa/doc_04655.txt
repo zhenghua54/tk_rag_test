@@ -1,0 +1,1 @@
+Total ACV, as of a given date, is the sum of the following two components:

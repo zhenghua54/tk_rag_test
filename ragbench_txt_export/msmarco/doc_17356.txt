@@ -1,0 +1,1 @@
+Overview: Run cmd.exe or command.exe. To open a Microsoft MS-DOS command prompt shell window, first click the Windows Start menu (located at the very. corner of your computer's desktop) and select Run.... Then if you are using Windows XP or Vista or Windows 7, type cmd into the Run box and click OK. You could also type cmd.exe.

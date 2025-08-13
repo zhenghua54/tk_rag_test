@@ -1,0 +1,1 @@
+Revenue [["", "Balance at Beginning of", "", ""], ["", "Period (1/1/19)", "Increase / (Decrease)", "Balance at End of Period"], ["Year Ended December 31, 2019", "", "", ""], ["Accounts receivable", "$90,831", "$7,117", "$97,948"], ["Deferred revenue (current)", "$5,101", "$(618)", "$4,483"], ["Deferred revenue (non-current)", "$3,707", "$(263)", "$3,444"]]

@@ -1,0 +1,1 @@
+The figure is an edge view of three charged metal electrodes: 1. Draw a graph of versus over the region. Hint: Assume that at. [along the y-axis, it's V(kV). along the x-axis it's x(cm). --The answer given on the Knight section book in here is wrong, so please don't copy that.

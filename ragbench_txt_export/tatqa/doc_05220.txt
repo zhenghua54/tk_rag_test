@@ -1,0 +1,1 @@
+Assumptions used [["", "2019", "2018"], ["", "%", "%"], ["Discount rate for scheme liabilities", "2.45", "2.60"], ["CPI inflation", "2.35", "2.25"], ["RPI inflation", "3.45", "3.35"], ["Pension increases", "", ""], ["Pre 1988 GMP", "\u2013", "\u2013"], ["Post 1988 GMP", "2.10", "2.10"], ["Pre 2004 non GMP", "5.00", "5.00"], ["Post 2004", "3.35", "3.25"]]

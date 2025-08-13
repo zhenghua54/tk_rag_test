@@ -1,0 +1,1 @@
+An alternator that uses a permanent magnet for its magnetic field is called a magneto. Alternators in power stations driven by steam turbines are called turbo-alternators. Large 50 or 60 Hz three phase alternators in power plants generate most of the world's electric power, which is distributed by electric power grids.

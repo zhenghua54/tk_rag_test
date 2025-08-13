@@ -1,0 +1,1 @@
+Note 6 — Accounts Receivable, net [["", "December 31,", ""], ["", "(in thousands)", ""], ["", "2019", "2018"], ["Government segment:", "", ""], ["Billed", "$11,608", "$9,100"], ["Advanced billings", "(608)", "(563)"], ["", "11,000", "8,537"], ["Restaurant/Retail segment:", "", ""], ["Accounts receivable - net", "30,774", "17,682"], ["", "$41,774", "$26,219"]]

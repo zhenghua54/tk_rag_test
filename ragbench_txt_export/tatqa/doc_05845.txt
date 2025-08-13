@@ -1,0 +1,1 @@
+Free Cash Flow [["", "", "(dollars in millions)"], ["Years Ended December 31,", "2019", "2018"], ["Net cash provided by operating activities", "$ 35,746", "$ 34,339"], ["Less Capital expenditures (including capitalized software)", "17,939", "16,658"], ["Free cash flow", "$ 17,807", "$ 17,681"]]

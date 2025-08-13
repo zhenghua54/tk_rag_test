@@ -1,0 +1,1 @@
+Note 3: Balance Sheet Components [["December 31,", "", ""], ["", "2019", "2018"], ["Prepaid expenses", "$2,303", "$1,780"], ["Other current assets", "193", "167"], ["Total prepaid expenses and other", "$2,496", "$1,947"]]

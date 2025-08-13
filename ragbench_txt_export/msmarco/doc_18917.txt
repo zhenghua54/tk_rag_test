@@ -1,0 +1,1 @@
+Remember that a Cubic Yard is Volume and a Ton is Weight. One ton of feathers makes more cubic feet than say for instance one ton of silver. So to make this conversion you must know two constants, the weight per CF or CY for that matter and how many cubic feet you have. In this case it is 27 cubic feet or a yard. Awenow.

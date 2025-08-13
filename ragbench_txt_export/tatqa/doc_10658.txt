@@ -1,0 +1,1 @@
+Accrued Liabilities [["", "December 31, 2019", "December 31, 2018"], ["Accrued compensation and benefits", "$12,227", "$15,283"], ["Accrued tax liabilities", "4,354", "4,455"], ["Lease liabilities", "5,109", "\u2014"], ["Other", "6,066", "5,553"], ["Total accrued liabilities", "$27,756", "$25,291"]]

@@ -1,0 +1,1 @@
+Compensation of Key Management Personnel (Including Directors) [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018"], ["", "$M", "$M"], ["Short-term employee benefits", "6.6", "9.1"], ["Post-employment benefits", "0.1", "0.1"], ["Share-based payments - equity-settled", "10.4", "17.7"], ["Total", "17.1", "26.9"]]

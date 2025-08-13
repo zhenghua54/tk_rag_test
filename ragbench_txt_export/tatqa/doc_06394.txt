@@ -1,0 +1,3 @@
+GreenSky, Inc.
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS — (Continued)
+(United States Dollars in thousands, except per share data, unless otherwise stated) [["", "", "Year Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Beginning balance", "$3,016", "$2,071", "$\u2014"], ["Initial obligation from transfer of Charged-Off Receivables(1)", "2,705", "2,461", "2,379"], ["Fair value changes recognized in other gains (losses), net(2)", "(1,925)", "(1,516)", "(308)"], ["Ending balance", "$3,796", "$3,016", "$2,071"]]

@@ -1,0 +1,1 @@
+Level 2 assets are valued based on other significant observable inputs including quoted prices for similar securities, yield curves, indices, etc. Level 2 assets consist primarily of individual fixed income securities where values are based on quoted prices of similar securities and observable market data.

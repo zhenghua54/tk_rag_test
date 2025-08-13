@@ -1,0 +1,1 @@
+Contract assets and deferred revenue [["(in thousands)", "December 31, 2019", "December 31, 2018"], ["Contract assets (1)", "$5,558", "$3,711"], ["Long-term contract assets (2)", "5,420", "2,543"], ["", "$10,978", "$6,254"], ["Deferred revenue", "$190,080", "$185,145"], ["Long-term deferred revenue (3)", "5,407", "5,344"], ["", "$195,487", "$190,489"]]

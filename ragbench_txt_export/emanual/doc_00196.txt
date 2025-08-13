@@ -1,0 +1,1 @@
+Connecting a USB keyboard or mouse. Plug the keyboard or mouse cable into the USB port. If you connect a mouse, it is available only in the Internet app.

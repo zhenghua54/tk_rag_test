@@ -1,0 +1,1 @@
+in How-To. Apple’s latest mobile operating system, iOS 8, has a new feature called Predictive text. It puts a menu above the keyboard that tries to predict the next word you’re going to type. Then instead of having to type the entire word, you can just tap the box with the word above the keyboard.

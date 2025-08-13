@@ -1,0 +1,1 @@
+Depreciation and Amortization [["", "Year ended December 31,", "", "Variance", ""], ["", "2019", "2018", "$", "%"], ["Software Solutions", "$123.9", "$112.9", "$11.0", "10%"], ["Data and Analytics", "15.9", "14.1", "1.8", "13%"], ["Corporate and Other(1)", "96.4", "90.0", "6.4", "7%"], ["Total", "$236.2", "$217.0", "19.2", "9%"]]

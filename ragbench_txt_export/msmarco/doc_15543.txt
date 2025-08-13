@@ -1,0 +1,1 @@
+The Scaled Agile Framework (“SAFe”) is a proven knowledge base for implementing agile practices at enterprise scale. Its primary user interface is a “Big Picture” graphic which highlights the individual roles, teams, activities and artifacts necessary to scale agile from the team, to teams of teams, to the enterprise level. The Big Picture describes three levels of scale:

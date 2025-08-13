@@ -1,0 +1,1 @@
+Curb Weight The curb weight of a vehicle is defined as the total weight of the vehicle with all fluids, including vehicle fuel, at full capacity conditions, and with no occupants or cargo loaded into the vehicle.  The front and rear curb weight values are determined by weighing your vehicle on a commercial scale before any occupants or cargo are added.

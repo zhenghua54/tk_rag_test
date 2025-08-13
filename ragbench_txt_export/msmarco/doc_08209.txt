@@ -1,0 +1,1 @@
+Short for kilobits per second, a measure of data transfer speed. Modems, for example, are measured in Kbps. Note that one Kbps is 1,000 bits per second, whereas a KB (kilobyte) is 1,024 bytes. Data transfer rates are measured using the decimal meaning of K whereas data storage is measured using the powers-of-2 meaning of K.

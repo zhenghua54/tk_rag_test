@@ -1,0 +1,1 @@
+These codes are known as swift codes due to the organization that first introduced them (SWIFT-Society for Worldwide Interbank Financial Telecommunication) but were later standardized as BIC (Business Identifier Codes). A swift code can be formed with either 8 or 11 characters.

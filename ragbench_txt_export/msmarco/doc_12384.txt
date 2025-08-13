@@ -1,0 +1,1 @@
+Report Abuse. Mhz is the frequency of the ram, the higher the mhz the faster the ram will process data. Since you have 333Mhz now most likely your motherboard supports 400Mhz frequency, as long as its the same RAM which most likely you have DDR Ram. In turn, your computer will be slightly faster when upgrading.

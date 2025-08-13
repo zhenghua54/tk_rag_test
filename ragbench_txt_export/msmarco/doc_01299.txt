@@ -1,0 +1,1 @@
+Save As, and then choose Photoshop PDF from the Format menu. You can select a Color option if you want to embed a color profile or use the profile specified with the Proof Setup command. You can also include layers, notes, spot color, or alpha channels. Click Save.

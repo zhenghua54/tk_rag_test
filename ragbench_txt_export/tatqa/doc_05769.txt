@@ -1,0 +1,1 @@
+The Company estimates the fair value of its ESPP share options on the date of grant using the Black-Scholes option-pricing model, which requires the use of highly subjective estimates and assumptions. The Company estimates the expected term of ESPP share options based on the length of each offering period, which is six months.

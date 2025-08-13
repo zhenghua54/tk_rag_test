@@ -1,0 +1,1 @@
+Cubic Global Defense [["", "Fiscal 2018", "Fiscal 2017", "% Change"], ["", "", "(in millions)", ""], ["Sales", "$  325.2", "$  360.2", "(10)%"], ["Operating income", "16.6", "28.1", "(41)"], ["Adjusted EBITDA", "26.3", "39.4", "(33)"]]

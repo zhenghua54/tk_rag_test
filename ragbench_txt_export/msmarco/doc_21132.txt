@@ -1,0 +1,1 @@
+The IMRC actuator and manifold are composite/plastic with a single intake air passage for each cylinder. The passage has a butterfly valve plate that blocks 60% of the opening when actuated, leaving the top of the passage open to generate turbulence.

@@ -1,0 +1,1 @@
+2 Investments in subsidiaries [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Cost:", "", ""], ["At 1st January", "445.8", "269.4"], ["Share options issued to subsidiary company employees", "2.2", "2.6"], ["Additions", "214.0", "173.8"], ["At 31st December", "662.0", "445.8"]]

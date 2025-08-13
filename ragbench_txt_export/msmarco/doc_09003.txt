@@ -1,0 +1,1 @@
+Data Type. A data type is a type of data. Of course, that is rather circular definition, and also not very helpful. Therefore, a better definition of a data type is a data storage format that can contain a specific type or range of values. When computer programs store data in variables, each variable must be assigned a specific data type.

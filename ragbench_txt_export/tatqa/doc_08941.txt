@@ -1,0 +1,1 @@
+Capital Expenditures [["", "", "(dollars in millions)"], ["Years Ended December 31,", "2019", "2018"], ["Cash flows provided by (used in)", "", ""], ["Operating activities", "$ 35,746", "$ 34,339"], ["Investing activities", "(17,581)", "(17,934)"], ["Financing activities", "(18,164)", "(15,377)"], ["Increase in cash, cash equivalents and restricted cash", "$1", "$ 1,028"]]

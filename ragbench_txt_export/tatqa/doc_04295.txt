@@ -1,0 +1,1 @@
+(1) “Value realized on exercise” is the excess of the market price, at date of exercise, of the shares underlying the options over the exercise price of the options.

@@ -1,0 +1,1 @@
+One of the most common electrical motor used in most applications which is known as induction motor. This motor is also called as asynchronous motor because it runs at a speed less than synchronous speed. In this, we need to define what is synchronous speed. Under Induction Motor.

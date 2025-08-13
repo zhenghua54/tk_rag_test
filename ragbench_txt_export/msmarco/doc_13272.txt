@@ -1,0 +1,1 @@
+SWIFT-BIC, BIC code, SWIFT ID or SWIFT code (ISO 9362) is a standard format of Business Identifier Codes approved by the International Organization for Standardization (ISO). It is a unique identification code for both financial and non-financial institutions.

@@ -1,0 +1,1 @@
+Historical Cash Flows [["", "", "Year Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Cash flows from operating activities", "$47,112", "$60,710", "$57,187"], ["Cash flows used in investing activities", "(73,414)", "(13,377)", "(168,795)"], ["Cash flows (used in) / from financing activities", "(130)", "2,399", "67,303"]]

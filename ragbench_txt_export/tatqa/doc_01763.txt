@@ -1,0 +1,7 @@
+In December 2019, we granted 375,000 PSUs with certain market performance-based targets to be achieved
+between December 2019 and December 2023. One-third of each tranche of these PSUs will become eligible to vest
+on each of the three anniversaries of the date the performance-based target is achieved, subject to continued service
+vesting requirements. The grant date fair values of each tranche of these PSUs were estimated to be $4.59, $4.06 and
+$3.59 and determined using the Monte Carlo simulation model with the following assumptions: expected term of
+4.0 years, expected volatility of 38.45%, risk-free interest rate of 1.7% and expected dividend yield of 0.0%. None
+of these PSUs were vested as of December 31, 2019

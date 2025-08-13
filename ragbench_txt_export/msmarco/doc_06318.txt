@@ -1,0 +1,1 @@
+The power of a number says how many times to use the number in a multiplication. It is written as a small number to the right and above the base number. In this example: 82 = 8 × 8 = 64 (Another name for power is index or exponent). Exponents.

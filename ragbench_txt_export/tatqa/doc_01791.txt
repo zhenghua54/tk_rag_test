@@ -1,0 +1,1 @@
+Consumer Cyber Safety segment [["", "Fiscal Year", "", "Variance in", ""], ["(In millions, except for percentages)", "2018", "2017", "Dollar", "Percent"], ["Net revenues", "$2,280", "$1,664", "$616", "37%"], ["Percentage of total net revenues", "47%", "41%", "", ""], ["Operating income", "$1,111", "$839", "$272", "32%"], ["Operating margin", "49%", "50%", "", ""]]

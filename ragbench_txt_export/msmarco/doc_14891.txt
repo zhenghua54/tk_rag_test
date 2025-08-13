@@ -1,0 +1,1 @@
+1,000,000,000.00. 1 Billion. To convert a Rupee amount (given in Crores), into its corresponding Euro amount in Millions, divide the Rupee amount by 5. Thus, Rs 5 Cr = Rs 5,0,00,000/- = € 1 million. Similarly, Rs 20 Cr = € 4 million Please note we are dividing Rs 5.00 Crores (in Words), by 5 to arrive at € 1 million (in words).

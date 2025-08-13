@@ -1,0 +1,1 @@
+Interest and Other Income (Expense) [["", "Year Ended December 31,", "", "% Change"], ["", "2019", "2018", "2019"], ["", "", "(dollars in thousands)", ""], ["Interest and other income (expense), net", "$(10,427)", "$(13,755)", "(24)%"], ["% of net revenue", "(3)%", "(4)%", ""]]

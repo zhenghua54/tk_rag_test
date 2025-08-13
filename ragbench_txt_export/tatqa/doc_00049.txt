@@ -1,0 +1,1 @@
+12. ACCRUED LIABILITIES [["All figures in USD \u2018000 ", "2019", "2018"], ["Accrued Interest  ", "163", "1,598"], ["Accrued Expenses  ", "11,569", "7,362"], ["Settlement Deferred Compensation Liabilities  ", "3,830", "-"], ["Total as of December 31,  ", "15,562", "8,960"]]

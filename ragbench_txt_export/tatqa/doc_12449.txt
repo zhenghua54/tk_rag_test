@@ -1,0 +1,1 @@
+Note 15. Employee Benefit Plans [["", "", "Year Ended March 31,", ""], ["", "2019", "2018", "2017"], ["Service costs", "$1.5", "$2.2", "$1.4"], ["Interest costs", "1.1", "1.0", "1.0"], ["Amortization of actuarial loss", "0.4", "0.8", "\u2014"], ["Settlements", "\u2014", "\u2014", "0.5"], ["Net pension period cost", "$3.0", "$4.0", "$2.9"]]

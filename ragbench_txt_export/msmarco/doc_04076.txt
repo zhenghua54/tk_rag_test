@@ -1,0 +1,1 @@
+PQWL refers to Pooled Quota Waiting List and is a type of Waiting list against pooled quota. You will get a PQWL Ticket status if while booking tickets to a station the tickets are issued from the Pooled Quota or if all the tickets available in the Pooled Quota have been booked already.

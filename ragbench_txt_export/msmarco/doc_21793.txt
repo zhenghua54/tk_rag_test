@@ -1,0 +1,1 @@
+The way in which traits are passed from one generation to the next-and sometimes skip generations-was first explained by Gregor Mendel. By experimenting with pea plant breeding, Mendel developed three principles of inheritance that described the transmission of genetic traits, before anyone knew genes existed.

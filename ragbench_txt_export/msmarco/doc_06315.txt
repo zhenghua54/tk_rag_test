@@ -1,0 +1,1 @@
+Visualisation of powers of 10 from one to 1 trillion. In mathematics, a power of 10 is any of the integer powers of the number ten; in other words, ten multiplied by itself a certain number of times (when the power is a positive integer). By definition, the number one is a power (the zeroth power) of ten.

@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["", "2019", "2018"], ["Net cash provided by (used in) operating activities", "$(1,660,796)", "$792,555"], ["Net cash used in investing activities", "(10,582,086)", "(5,686,833)"], ["Net cash provided by financing activities", "22,181,528", "8,685,739"], ["Net increase in cash and cash equivalents", "$9,938,646", "$3,791,461"]]

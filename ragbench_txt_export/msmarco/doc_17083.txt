@@ -1,0 +1,1 @@
+French currency conversion. The French Franc is no longer used as money in France, it is now the Euro. The value of the French Franc was fixed at 1 Euro = 6.55957 French Francs, or 1 French Franc = 0.1524490172374104 Euro.

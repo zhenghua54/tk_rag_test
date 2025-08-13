@@ -1,0 +1,1 @@
+NOTE 14—INCOME TAXES [["", "", "Year Ended June 30,", ""], ["", "2019", "2018", "2017"], ["Domestic income (loss)", "$269,331", "$238,405", "$110,562"], ["Foreign income", "171,243", "147,721", "138,989"], ["Income before income taxes", "$440,574", "$386,126", "$249,551"]]

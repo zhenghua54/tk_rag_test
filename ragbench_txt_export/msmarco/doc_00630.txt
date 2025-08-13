@@ -1,0 +1,1 @@
+We take a closer look at Amazon Web Services (AWS), one of the most popular cloud services today, in order to examine how it can be leveraged to benefit small businesses.

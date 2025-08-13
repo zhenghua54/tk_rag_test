@@ -1,0 +1,1 @@
+Highlight an object in the pane to select it in the slide. Hold down the Shift key to select multiple items. It's the same principle, but the selection pane eliminates the need to click or surround the actual objects. This route is easier when you have lots of objects, layered objects, or small objects. 1  Comments 0.

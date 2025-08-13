@@ -1,0 +1,1 @@
+Net Sales [["", "", "Fiscal", "", ""], ["", "2019", "", "2018", ""], ["", "", "($ in millions)", "", ""], ["Transportation Solutions", "$  7,821", "58 %", "$ 8,290", "59 %"], ["Industrial Solutions", "3,954", "30", "3,856", "28"], ["Communications Solutions", "1,673", "12", "1,842", "13"], ["Total", "$ 13,448", "100 %", "$ 13,988", "100 %"]]

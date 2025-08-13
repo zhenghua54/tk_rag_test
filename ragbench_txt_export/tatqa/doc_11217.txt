@@ -1,0 +1,1 @@
+16. SHARE-BASED PAYMENTS [["", "2019", "2018"], ["", "No. of Shares", "No. of Shares"], ["Number of shares at beginning of year", "114,758", "137,227"], ["Number of shares distributed to employees", "45,560", "42,480"], ["Number of shares transferred to main share registry and/or disposed of", "(44,526)", "(64,949)"], ["Number of shares at year end", "115,792", "114,758"]]

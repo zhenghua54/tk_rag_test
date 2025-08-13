@@ -1,0 +1,1 @@
+When the Reset/Restore Default Settings button is pressed on the touchscreen, the system displays the options related to resetting the Uconnect system back to its default settings.  These settings can clear personal data and reset selected settings from other menus.  Note: depending on the vehicle’s options, feature settings may vary.

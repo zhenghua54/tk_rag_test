@@ -1,0 +1,1 @@
+Interest Expense: [["Year Ended May 31,", "", "", "", ""], ["", "", "", "Percent Change", ""], ["(Dollars in millions)", "2019", "Actual", "Constant", "2018"], ["Interest expense", "$2,082", "3%", "3%", "$2,025"]]

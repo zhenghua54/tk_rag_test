@@ -1,0 +1,1 @@
+Operating Expenses [["", "", "Year Ended December 31,", "", "", ""], ["", "2019", "2018", "2017", "2018 to 2019 % change", "2017 to 2018 % change"], ["", "", "", "(In thousands, except percentages)", "", ""], ["Research and Development", "$ 207,548", "$ 160,260", "$ 115,291", "30%", "39%"]]

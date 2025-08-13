@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "Target Allocations", "Percentage of Plan Assets at December 31,", ""], ["Asset Category", "2020", "2019", "2018"], ["Equity securities", "13%", "13%", "12%"], ["Debt securities", "83%", "83%", "84%"], ["Other", "4%", "4%", "4%"], ["Total", "100%", "100%", "100%"]]

@@ -1,0 +1,1 @@
+(4) Represent total amount of lease payments on an undiscounted basis.

@@ -1,0 +1,1 @@
+Risk-free interest rate As is the case for volatility, the risk-free interest rate is assumed to change during the option’s contractual term. The riskfree interest rate, which is based on U.S. Treasury yield curves, reflects the expected movement in the interest rate from one time period to the next (“forward rate”).

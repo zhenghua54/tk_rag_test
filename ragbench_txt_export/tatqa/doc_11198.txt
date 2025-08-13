@@ -1,0 +1,1 @@
+Capital management [["", "2019", "2018"], ["", "\u20acm", "\u20acm"], ["Net debt", "27,033", "29,631"], ["Financial liabilities under put option arrangements1", "1,844", "1,838"], ["Equity", "63,445", "68,607"], ["Capital", "92,322", "100,076"]]

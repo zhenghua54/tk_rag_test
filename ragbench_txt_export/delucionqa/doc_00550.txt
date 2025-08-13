@@ -1,0 +1,1 @@
+Vehicle info push and release the up or down arrow button until the vehicle info menu icon is displayed in the instrument cluster display.  Push and release the left or right arrow button to scroll through the information submenus and push and release the ok button to select or reset the resettable submenus.

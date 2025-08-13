@@ -1,0 +1,1 @@
+3. Introduction This exercise will investigate the result of catechol oxidase activity. In the presence of oxygen, catechol oxidase catalyzes the removal of electrons and hydrogens from catechol, a phenolic compound found in plant cells. Catechol is converted to benzoquinone, a pigment product.

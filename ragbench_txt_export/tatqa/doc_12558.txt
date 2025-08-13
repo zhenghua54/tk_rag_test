@@ -1,0 +1,1 @@
+Inventory [["", "December 31,", "December 31,"], ["", "2019", "2018"], ["Raw materials", "$396", "$246"], ["Work-in-process", "186", "220"], ["Finished goods", "448", "753"], ["Ending inventory", "$1,030", "$1,219"]]

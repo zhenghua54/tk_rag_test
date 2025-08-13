@@ -1,0 +1,1 @@
+Geographic information [["", "2019", "2018"], ["Revenue", "\u00a3m", "\u00a3m"], ["UK", "349.9", "324.9"], ["Ireland", "5.2", "5.2"], ["Total revenue", "355.1", "330.1"]]

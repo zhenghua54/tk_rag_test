@@ -1,0 +1,1 @@
+Property and Equipment [["", "December 31", ""], ["", "2019", "2018"], ["Office equipment", "$ 38,373", "$ 39,633"], ["Furniture and fixtures", "5,017", "4,610"], ["Leasehold improvement", "23,534", "19,430"], ["Property and equipment, gross", "66,924", "63,673"], ["Less accumulated depreciation", "(44,199 )", "(49,355 )"], ["Property and equipment, net", "$ 22,725", "$ 14,318"]]

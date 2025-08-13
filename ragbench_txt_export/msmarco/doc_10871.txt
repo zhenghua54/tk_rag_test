@@ -1,0 +1,1 @@
+Another difference between ad hoc and infrastructure networks is in the area of expandability. The access point used with infrastructure mode can support multiple clients on both wireless and wired networks. Although infrastructure mode is usually more useful than ad hoc mode, wireless access points lead to increased costs and more time for initially setting up the network.

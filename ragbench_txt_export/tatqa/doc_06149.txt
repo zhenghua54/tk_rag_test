@@ -1,0 +1,1 @@
+MEDIA FINANCIAL RESULTS [["", "", "Years ended December 31", ""], ["(In millions of dollars, except margins)", "2019", "2018", "%Chg"], ["Revenue", "2,072", "2,168", "(4)"], ["Operating expenses", "1,932", "1,972", "(2)"], ["Adjusted EBITDA", "140", "196", "(29)"], ["Adjusted EBITDA margin", "6.8%", "9.0%", "(2.2pts)"], ["Capital expenditures", "102", "90", "13"]]

@@ -1,0 +1,1 @@
+2019 vs 2018 [["", "", "", "Year Ended December 31", "", ""], ["", "2019", "% Change", "2018", "% Change", "2017"], ["", "", "", "(In thousands, except percentage data)", "", ""], ["Cost of revenue", "$704,535", "(1.8)%", "$717,118", "(2.0)%", "$731,453"], ["Gross margin percentage", "29.5%", "", "32.3%", "", "29.6%"]]

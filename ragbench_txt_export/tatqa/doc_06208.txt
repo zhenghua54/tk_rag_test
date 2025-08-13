@@ -1,0 +1,6 @@
+(1) In accordance with the SEC’s definitions and rules, “audit fees” are fees that were billed to Systemax by Ernst & Young LLP for
+the audit of our annual financial statements, to be included in the Form 10-K, and review of financial statements included in the
+Form 10-Qs; for the audit of our internal control over financial reporting with the objective of obtaining reasonable assurance about
+whether effective internal control over financial reporting was maintained in all material respects; for the attestation of management’s
+report on the effectiveness of internal control over financial reporting; and for services that are normally provided by the auditor
+in connection with statutory and regulatory filings or engagements.

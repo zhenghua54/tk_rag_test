@@ -1,0 +1,1 @@
+Select Manything as your If and the Belkin WeMo Switch as your Then to create the following recipe: If my iPod Touch/iPad/iPhone detects motion, then turn my WeMo Switch on then off.. Colin West McDonald/CNET. 7.

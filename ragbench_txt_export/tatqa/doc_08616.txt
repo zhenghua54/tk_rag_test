@@ -1,0 +1,1 @@
+NOTE 4 - PREPAID EXPENSES AND OTHER CURRENT ASSETS & PATENTS AND INTANGIBLE ASSETS [["", "As of December 31,", ""], ["", "2019", "2018"], ["", "(in thousands)", ""], ["Prepaid income taxes", "$\u2014", "$5,429"], ["Other prepaid expenses and other current assets", "288", "1,151"], ["", "$288", "$6,580"]]

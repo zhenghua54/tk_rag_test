@@ -1,0 +1,1 @@
+Income Taxes [["", "Year ended March 31,", "", "(Unfavorable) favorable", ""], ["(Dollars in thousands)", "2018", "2017", "$", "%"], ["Income tax (benefit) expense", "$ (3,251)", "$ 236", "$ 3,487", "nm"], ["Effective tax rate", "(28.0)%", "(2.1)%", "", ""]]

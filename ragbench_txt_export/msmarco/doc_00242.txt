@@ -1,0 +1,1 @@
+WDL Descriptive Metadata Element Set. A standard set of metadata elements must be used to describe all WDL digital objects. “Digital object” refers to any primary source or other item selected for inclusion as an artifact on the WDL.

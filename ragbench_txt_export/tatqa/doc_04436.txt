@@ -1,0 +1,1 @@
+Note 10 – Income taxes [["", "For the Years Ended December 31,", ""], ["", "2019", "2018"], ["Current:", "", ""], ["Federal", "$ (27)", "$ (13 )"], ["State and local", "276", "249"], ["Total current", "249", "236"], ["Deferred", "533", "(461)"], ["Provision (benefit) for income taxes", "$ 782", "$ (225)"]]

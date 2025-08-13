@@ -1,0 +1,1 @@
+4. Inventories [["", "June 1, 2019", "June 2, 2018"], ["Flocks, net of accumulated amortization", "$105,536", "$96,594"], ["Eggs", "14,318", "17,313"], ["Feed and supplies", "52,383", "54,737"], ["", "$172,237", "$168,644"]]

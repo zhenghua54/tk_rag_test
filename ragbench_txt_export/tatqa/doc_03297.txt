@@ -1,0 +1,1 @@
+Note: The expected volatility, measured as the standard deviation of expected share price returns, is determined based on the average daily trading price volatility of the shares of the Company.

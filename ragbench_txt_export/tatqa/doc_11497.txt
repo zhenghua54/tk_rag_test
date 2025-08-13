@@ -1,0 +1,1 @@
+Balance Sheet and Cash Flows [["", "July 27, 2019", "July 28, 2018", "Increase (Decrease)"], ["Cash and cash equivalents .", "$11,750", "$8,934", "$2,816"], ["Available-for-sale debt investments", "21,660", "37,009", "(15,349)"], ["Marketable equity securities", "3", "605", "(602)"], ["Total", "$33,413", "$46,548", "$(13,135)"]]

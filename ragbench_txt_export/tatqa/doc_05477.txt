@@ -1,0 +1,1 @@
+ALTERNATIVE PERFORMANCE MEASURES [["USDm", "2019", "2018", "2017"], ["Borrowings", "863.4", "754.7", "753.9"], ["Loans receivables", "-4.6", "-", "-"], ["Cash and cash equivalents, including restricted cash", "-72.5", "-127.4", "-134.2"], ["Net interest-bearing debt", "786.3", "627.3", "619.7"]]

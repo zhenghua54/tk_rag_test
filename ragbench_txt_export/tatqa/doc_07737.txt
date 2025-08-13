@@ -1,0 +1,1 @@
+NOTE 14. PROVISION FOR WARRANTY [["", "December 31,", ""], ["", "2018", "2019"], ["Balance January 1", "6,562", "7,955"], ["Charged to cost of sales", "18,408", "26,301"], ["Deductions", "(8,985)", "(12,232)"], ["Releases of expired warranty", "(8,214)", "(5,684)"], ["Foreign currency translation effect", "184", "84"], ["Balance December 31", "7,955", "16,424"]]

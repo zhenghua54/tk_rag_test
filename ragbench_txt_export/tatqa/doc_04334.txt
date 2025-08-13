@@ -1,0 +1,1 @@
+2017 ESPP [["", "Year Ended", "", ""], ["", "December 27, 2019", "December 28, 2018", "December 29, 2017"], ["Weighted average expected term", "0.5 years", "0.5 years", "0.4 years"], ["Risk-free interest rate", "2.3%", "1.9%", "1.1%"], ["Dividend yield", "0.0%", "0.0%", "0.0%"], ["Volatility", "56.0%", "52.7%", "47.8%"]]

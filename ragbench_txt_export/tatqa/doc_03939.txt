@@ -1,0 +1,1 @@
+17 Inventories [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Raw materials, consumables and components", "72.2", "53.0"], ["Work in progress", "25.5", "25.7"], ["Finished goods and goods for resale", "88.2", "81.9"], ["Total inventories", "185.9", "160.6"]]

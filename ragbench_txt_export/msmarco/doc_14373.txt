@@ -1,0 +1,1 @@
+Dominant allele: an allele that has the same effect on the phenotype whether it is present in the homozygous or heterozygous state. Recessive allele: an allele that only has an effect on the phenotype when present in the homozygous state.

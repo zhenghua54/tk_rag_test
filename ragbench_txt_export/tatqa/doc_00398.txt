@@ -1,0 +1,1 @@
+4. PREPAID EXPENSES [["", "2019", "2018"], ["Prepaid services", "$221", "$252"], ["Prepaid bonds for German statutory costs", "188", "199"], ["Prepaid insurance", "62", "19"], ["Prepaid licenses, software tools and support", "17", "51"], ["Other prepaid expenses", "17", "17"], ["", "$505", "$538"]]

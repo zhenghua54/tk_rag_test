@@ -1,0 +1,1 @@
+Other Current Liabilities [["", "December 31,", ""], ["", "2019", "2018"], ["Operating lease liabilities", "$15,049", "$ \u2014"], ["Vendor financed licenses", "9,667", "3,551"], ["Royalties payable", "6,107", "11,318"], ["Accrued interest", "9,212", "8,407"], ["Other", "36,936", "38,412"], ["Total other current liabilities", "$76,971", "$61,688"]]

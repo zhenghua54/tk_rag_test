@@ -1,0 +1,1 @@
+0. I can't find how to unlink from OneDrive-I need to link with a different account. When I read instructions for a regular PC, it describes how to do this via the system tools area and right clicking on the onedrive icon to disconnect. This is not availableon the surface pro2.

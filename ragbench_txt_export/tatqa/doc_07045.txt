@@ -1,0 +1,2 @@
+Restricted Stock Awards
+We present below a summary of changes in unvested units of restricted stock during 2019: [["", "Number of Units", "Grant Date Fair Value"], ["Outstanding at January 1, 2019   ", "997,173", "$52.22"], ["Granted   ", "945,159", "49.48"], ["Vested   ", "(386,060)", "51.79"], ["Forfeited   ", "(59,579)", "50.56"], ["Outstanding at December 31, 2019   ", "1,496,693", "$50.67"]]

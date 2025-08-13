@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["", "", "As of December 31,", ""], ["", "2019", "2018", "2017"], ["Cash and cash equivalents", "$119,629", "$146,061", "$96,329"], ["Accounts receivable, net", "76,373", "49,510", "40,634"], ["Working capital", "167,879", "152,793", "119,433"]]

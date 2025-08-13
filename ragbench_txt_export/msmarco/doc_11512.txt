@@ -1,0 +1,1 @@
+Chandas-Devanagari Unicode Open Type font (ttf) with the largest ligature set. The font contains 4347 glyphs: 325 half-forms, 960 half-forms context-variations, 2743 ligature-signs. It is designed especially for Vedic and Classical Sanskrit but can also be used for Hindi, Nepali and other modern Indian languages.

@@ -1,0 +1,1 @@
+Deferred Revenue and Customer Liabilities [["", "December 31,", ""], ["", "2019", "2018"], ["Deferred revenue", "$3,012", "$3,655"], ["Customer arrangements with termination rights", "15,024", "16,404"], ["Estimated refund liabilities", "8,585", "10,117"], ["", "$26,621", "$30,176"]]

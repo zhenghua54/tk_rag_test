@@ -1,0 +1,1 @@
+To pay employees, follow these steps: Choose Employees→Pay Employees→Scheduled Payroll. QuickBooks displays the Employee Center window. Start the scheduled payroll you want to run. To start the scheduled payroll run you want to run, select it in the list box at the top of the Employee Center window. Click the Start Scheduled Payroll button.

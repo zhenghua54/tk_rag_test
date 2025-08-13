@@ -1,0 +1,1 @@
+How To Create Subfolder. 1  Right-click on your Inbox and select New Folder. 2  In the Name field, type the name you want to call it. 3  In the Folder Contains field, make sure it says Mail & Post Items. 4  In the Select where to place Folder, select Inbox. 5  Click OK.

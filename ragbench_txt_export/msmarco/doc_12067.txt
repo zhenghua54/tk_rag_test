@@ -1,0 +1,1 @@
+Network. In addition, there are additional link types used to link work items to other objects in the team project or other elements, such as a web page or network location. For example, the Storyboard link type links work items to storyboards or any file located on a network share.

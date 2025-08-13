@@ -1,0 +1,1 @@
+How To Transfer Mail to Subfolder. 1  In your Inbox, select the message you want to transfer. 2  Click, hold, and drag that message to the folder in your Folder List. 3  If the folder is not displayed, click the + symbol beside the Inbox to expand the list of subfolders.

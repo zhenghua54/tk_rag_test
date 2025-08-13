@@ -1,0 +1,1 @@
+Restricted Stock and Restricted Stock Units ("Restricted Stock Awards") [["", "Number of Shares", "Weighted-Average Grant Date Fair Value Per Share"], ["Outstanding as of August 30, 2018", "15", "$25.18"], ["Granted", "9", "41.11"], ["Restrictions lapsed", "(6)", "24.22"], ["Canceled", "(2)", "24.79"], ["Outstanding as of August 29, 2019", "16", "34.72"]]

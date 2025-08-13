@@ -1,0 +1,2 @@
+An IP address serves two principal functions. It identifies the host, or more specifically its network interface, and it provides the location of the host in the network, and thus the capability of establishing a path to that host. Its role has been characterized as follows: "A name indicates what we seek. An address indicates where it is. A route indicates how to get there."
+The header of each IP packet contains the IP address of the sending host, and that of the destination host.

@@ -1,0 +1,1 @@
+1 Selection of a meta-regression statistical model: e.g. simple regression, fixed-effect meta-regression or random-effect meta-regression. 2  Meta-regression is a tool used in meta-analysis to examine the impact of moderator variables on study effect size using regression-based techniques.

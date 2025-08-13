@@ -1,0 +1,1 @@
+Blank page in the middle of a document. If your blank page occurs in the middle of a document (and is not caused by an Odd/Even Page section break), there is a remote chance that it is caused by a plethora of empty paragraphs, but more often it is the result of a manual page break.

@@ -1,0 +1,1 @@
+Segment Financial Results [["", "Year ended December 31", "", "Variance", ""], ["", "2019", "2018", "$", "%"], ["Software Solutions", "$1,012.3", "$962.0", "$50.3", "5%"], ["Data and Analytics", "165.4", "154.5", "10.9", "7%"], ["Corporate and Other (1)", "(0.5)", "(2.5)", "2.0", "NM"], ["Total", "$1,177.2", "$1,114.0", "$63.2", "6%"]]

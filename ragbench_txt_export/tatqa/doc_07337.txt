@@ -1,0 +1,1 @@
+NOTE 5 – PROPERTY AND EQUIPMENT [["", "2019", "2018"], ["Computer equipment", "$137,763", "$94,384"], ["Furniture and fixtures", "187,167", "159,648"], ["Subtotal", "324,930", "254,032"], ["Less accumulated depreciation", "148,916", "104,702"], ["Property and equipment, net", "$176,014", "$149,330"]]

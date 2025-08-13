@@ -1,0 +1,1 @@
+If not, multiply the input BTUs by the furnace's efficiency. For example, an older furnace rated for 100,000 input BTUs at 75-percent efficiency has 75,000 output BTUs. A newer, higher-efficiency furnace might have a lower rating for input BTUs, but still put out the 75,000 output BTUs you need.

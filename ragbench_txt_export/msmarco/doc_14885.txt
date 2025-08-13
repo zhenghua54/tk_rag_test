@@ -1,0 +1,1 @@
+USD Amt in: Million. To convert a Rupee amount (given in Crores), into its corresponding Dollar amount in Millions, divide the rupee Amount by Spot Rate, the Current Dollar Rupee rate multiplied by 10. Thus, Rs 4 Cr = Rs 4,00,00,000/- = 4,00,00,000 / 40 = USD 1 million (assuming the Dollar Rupee Spot rate to be Rs.

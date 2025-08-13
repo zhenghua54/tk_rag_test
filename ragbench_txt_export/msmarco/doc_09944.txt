@@ -1,0 +1,1 @@
+Concrete construction unit cost for installation of concrete footings for a foundation or retaining wall. This cost covers the cost per foot of any size of footing. Use it in combination with the footing cost per yard. NOTE -- This is half of a two-part unit cost that covers any footing size.

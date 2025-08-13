@@ -1,0 +1,1 @@
+Overview of the Markets We Serve [["", "2019", "2018", "2017"], ["Mortgage loan originations(1):", "", "", ""], ["Purchase", "$1,272.0", "$1,185.0", "$1,143.0"], ["Refinance", "796.0", "458.0", "616.0"], ["Total", "$2,068.0", "$1,643.0", "$1,760.0"]]

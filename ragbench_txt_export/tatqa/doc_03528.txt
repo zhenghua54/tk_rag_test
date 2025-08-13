@@ -1,0 +1,1 @@
+1. Goodwill and Other Intangible Assets [["", "Year Ended December 31,", ""], ["(In thousands)", "2019", "2018"], ["Opening balance", "$ 13,783", "$ 8,469"], ["Additions", "157,121", "6,215"], ["Acquisition adjustments", "\u2014", "(901 )"], ["Effect of currency translation adjustment", "305", "\u2014"], ["Goodwill", "$ 171,209", "$ 13,783"]]

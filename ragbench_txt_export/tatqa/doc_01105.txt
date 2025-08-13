@@ -1,0 +1,1 @@
+Note 6 Interest expense [["FOR THE YEAR ENDED DECEMBER 31", "2019", "2018"], ["Interest expense on long-term debt", "(1,024)", "(918)"], ["Interest expense on other debt", "(153)", "(133)"], ["Capitalized interest", "45", "51"], ["Total interest expense", "(1,132)", "(1,000)"]]

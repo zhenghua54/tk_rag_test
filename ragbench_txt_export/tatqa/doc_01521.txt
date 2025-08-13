@@ -1,0 +1,1 @@
+Contract Costs [["(dollars in millions)", "At December 31, 2019", "At December 31, 2018"], ["Assets", "", ""], ["Prepaid expenses and other", "$2,578", "$ 2,083"], ["Other assets", "1,911", "1,812"], ["Total", "$ 4,489", "$ 3,895"]]

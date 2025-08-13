@@ -1,0 +1,1 @@
+Stock Option Award Amendment [["", "Options with two year vesting", "Options with three year vesting"], ["Volatility", "57.5%", "52.5%"], ["Dividend yield", "10.0 %", "10.0%"], ["Risk-free interest rate", "1.64%", "1.65%"], ["Weighted-average grant date fair value", "$0.59", "$0.58"]]

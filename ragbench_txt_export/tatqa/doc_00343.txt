@@ -1,0 +1,1 @@
+(2) The discount rate is used to state expected cash flows relating to future benefits at a present value on the measurement date. This rate represents the market rate for high-quality fixed income investments whose timing would match the cash outflow of retirement benefits. Other assumptions include demographic factors such as retirement, mortality and turnover.

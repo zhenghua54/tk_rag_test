@@ -1,0 +1,1 @@
+To apply the payment to the individual jobs/invoices use the following steps: 1  Choose Customers | Receive Payments. 2  In the Received From field, select one of the jobs (do not select the customer). 3  Fill in the amount of the check that is earmarked for this job’s invoice. 4  Enter the check number. 5  Select the invoice.

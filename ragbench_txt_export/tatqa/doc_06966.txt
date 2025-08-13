@@ -1,0 +1,1 @@
+INTEREST EXPENSE [["", "Years Ended December 31,", ""], ["", "2019", "2018"], ["Interest before impact of interest rate caps", "$25,633", "$30,709"], ["Impact of interest rate caps", "\u2014", "181"], ["Interest expense", "$25,633", "$30,890"]]

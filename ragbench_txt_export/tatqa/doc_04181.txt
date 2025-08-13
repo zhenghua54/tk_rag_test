@@ -1,0 +1,1 @@
+A10 NETWORKS, INC. [["", "Years Ended December 31,", "", ""], ["", "2019", "2018", "2017"], ["Net loss", "$(17,819)", "$(27,617)", "$(10,751)"], ["Other comprehensive loss, net of tax:", "", "", ""], ["Unrealized gain (loss) on marketable securities", "395", "(21)", "(78)"], ["Comprehensive loss", "$(17,424)", "$(27,638)", "$(10,829)"]]

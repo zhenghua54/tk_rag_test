@@ -1,0 +1,1 @@
+The Manifold Absolute Pressure MAP sensor is a sensor that is attached to the intake manifold on a car's engine. The MAP sensor responds to changes in the intake manifold pressure (vacuum) and provides a reading of engine load.

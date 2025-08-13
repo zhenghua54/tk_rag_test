@@ -1,0 +1,1 @@
+(3) Represents amounts due under multi-year, non-cancelable contracts with third-party vendors, as well as other commitments.

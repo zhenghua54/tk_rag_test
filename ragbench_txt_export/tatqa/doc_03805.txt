@@ -1,0 +1,1 @@
+The below tables represents the key components of Teradyne’s convertible senior notes: [["", "December 31, 2019", "December 31, 2018"], ["", "(in thousands)", ""], ["Debt principal", "$460,000", "$460,000"], ["Unamortized discount", "65,313", "80,019"], ["Net carrying amount of convertible debt", "$394,687", "$379,981"]]

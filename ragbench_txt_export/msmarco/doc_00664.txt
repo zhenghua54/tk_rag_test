@@ -1,0 +1,1 @@
+Given Teradata now offers its Extreme Data Platform 1700 on premise for $2,000 per terabyte, Amazon's claim to be a tenth of the cost is less certain. Yet the perception among IT users and investors remains that cloud should be cheaper than in-house systems.

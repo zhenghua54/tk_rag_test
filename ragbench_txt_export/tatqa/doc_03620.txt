@@ -1,0 +1,1 @@
+Common Stock Reserved for Issuance [["", "July 31, 2019 ", "July 31, 2018"], ["Exercise of stock options to purchase common stock", "216,727", "537,064"], ["Vesting of restricted stock awards", "2,384,673", "2,932,155"], ["Shares available for grant under stock plans", "24,776,361", "21,592,494"], ["Total common stock reserved for issuance", "27,377,761", "25,061,713"]]

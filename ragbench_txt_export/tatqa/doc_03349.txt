@@ -1,0 +1,1 @@
+Note 6: Equity Method Investments [["", "March 31,", ""], ["", "2019", "2018"], ["Nippon Yttrium Co., Ltd (\"NYC\")", "$8,215", "$8,148"], ["NT Sales Co., Ltd (\"NTS\")", "1,218", "998"], ["Novasentis", "977", "2,870"], ["KEMET Jianghai Electronics Components Co., Ltd (\u201cKEMET Jianghai\u201d)", "2,515", "\u2014"], ["", "$12,925", "$12,016"]]

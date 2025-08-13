@@ -1,0 +1,1 @@
+Computer Hardware Definition. Hardware is a comprehensive term for all of the physical parts of a computer, as distinguished from the data it contains or operates on, and the software that provides instructions for the hardware to acoomplish tasks.

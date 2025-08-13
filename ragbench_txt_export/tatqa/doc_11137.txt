@@ -1,0 +1,1 @@
+(4) Represents the guarantee deposits and financial liability for the repurchase of other investors’ investment. The amounts of payments due under these agreements are determined based on fixed contract amounts.

@@ -1,0 +1,1 @@
+Liquidity [["", "", "Fiscal Year Ended", ""], ["", "December 27, 2019 ", "December 28, 2018 ", "December 29, 2017"], ["Cash and cash equivalents", "$140,233", "$42,410", "$41,504"], ["Working capital,(1) excluding cash and cash equivalents", "$162,772", "$160,783", "$147,063"], ["Availability under asset-based loan facility", "$133,359", "$90,015", "$64,805"]]

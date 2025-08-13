@@ -1,0 +1,1 @@
+Cost of Revenues [["", "Years ended December 31,", "", "", ""], ["", "2019", "2018", "$ Difference ", "% Difference"], ["Products and licensing costs", "$16,684,172", "$8,078,870", "$8,605,302", "106.5%"], ["Technology development costs", "18,649,161", "15,400,475", "3,248,686", "21.1%"], ["Total costs of revenues", "$35,333,333", "$23,479,345", "$11,853,988", "50.5%"]]

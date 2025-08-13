@@ -1,0 +1,1 @@
+Answer: A wireless key is an encryption setting commonly used on wireless computer networks to increase their security. The two standard types of wireless keys support WEP and WPA encryption.

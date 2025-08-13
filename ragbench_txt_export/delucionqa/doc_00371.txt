@@ -1,0 +1,1 @@
+Lock press this button to lock your vehicle.  Vehicle start press this button to start your vehicle.  Horn & lights press this button to sound the horn and activate your lights.  Unlock press this button to unlock your vehicle.  Cancel vehicle start press this button to cancel remote start.

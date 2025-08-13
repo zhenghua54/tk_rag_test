@@ -1,0 +1,1 @@
+A typical silicon PV cell is composed of a thin wafer consisting of an ultra-thin layer of phosphorus-doped (N-type) silicon on top of a thicker layer of boron-doped (P-type) silicon. An electrical field is created near the top surface of the cell where these two materials are in contact, called the P-N junction.

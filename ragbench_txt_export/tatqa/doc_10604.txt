@@ -1,0 +1,1 @@
+The breakout of product and service revenues was as follows: [["", "2019", "2018", "2018-2019 Dollar Change"], ["", "", "(in millions)", ""], ["Products revenues", "$1,887.7", "$1,729.6", "$158.1"], ["Services revenues", "407.3", "371.2", "36.1"], ["", "$2,295.0", "$2,100.8", "$194.2"]]

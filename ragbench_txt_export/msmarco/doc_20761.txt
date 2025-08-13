@@ -1,0 +1,1 @@
+Combine Images. This is a tool to combine multiple images into one. Up to four images can be added. Up to four texts can be added. Enter texts in the blank text fields. Drag the mouse to change the text positions. Changing the display magnification to 50% or 25% makes dragging easier. The image can be shrunk.

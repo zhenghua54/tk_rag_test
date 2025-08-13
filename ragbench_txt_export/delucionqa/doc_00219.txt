@@ -1,0 +1,1 @@
+Oil Temperature Warning Light This warning light will illuminate to indicate the engine oil temperature is high.  If the light turns on while driving, stop the vehicle and shut off the engine as soon as possible.  Wait for oil temperature to return to normal levels.

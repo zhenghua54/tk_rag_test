@@ -1,0 +1,1 @@
+Expected dividend growth is commensurate with BCE’s dividend growth strategy. Expected volatility is based on the historical volatility of BCE’s share price. The risk-free rate used is equal to the yield available on Government of Canada bonds at the date of grant with a term equal to the expected life of the options

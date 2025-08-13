@@ -1,0 +1,1 @@
+ST. ST. I want to create a hyperlink in a cell that contains several lines of text. I want to create the hyperlink on a single word. For example, if the cell contents were to read, Please click here to go to the graphic, I want ONLY the word here to contain my hyperlink.

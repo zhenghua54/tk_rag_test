@@ -1,0 +1,1 @@
+12 Leases [["", "30 June 2019", "30 June 2018"], ["", "$'000", "$'000"], ["Right-of-use assets*", "", ""], ["Properties", "68,569", "5,070"], ["Motor Vehicles", "259", "-"], ["Connectivity Links", "9,696", "-"], ["", "78,524", "5,070"]]

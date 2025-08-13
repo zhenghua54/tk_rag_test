@@ -1,0 +1,1 @@
+Income Tax Provision (Benefit) [["", "Year Ended December 31,", "", "% Change"], ["", "2019", "2018", "2019"], ["", "", "(dollars in thousands)", ""], ["Income tax benefit", "$(12,586)", "$(6,653)", "89%"], ["% of pre-tax loss", "39%", "20%", ""]]

@@ -1,0 +1,1 @@
+The fair value of each ESPP option grant was estimated using the Black-Scholes option-pricing model that used the following weighted-average assumptions:

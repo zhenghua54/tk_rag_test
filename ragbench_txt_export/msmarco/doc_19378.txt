@@ -1,0 +1,1 @@
+After you backup iPhone with iTunes, your iPhone data are stored in backup location. Here is the quick list of what is exactly stored in iPhone backup: 1  Various settings from the Settings app data, including Mail and Calendar account saeetings.

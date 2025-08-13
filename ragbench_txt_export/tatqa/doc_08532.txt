@@ -1,0 +1,1 @@
+Note 24. Stock-Based Compensation [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Stock-based compensation (expense) (1)", "$(7,396)", "$(7,543)", "$(7,621)"], ["Income tax benefit (2)", "1,775", "1,810", "2,858"]]

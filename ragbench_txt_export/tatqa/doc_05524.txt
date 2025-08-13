@@ -1,0 +1,1 @@
+H. Net Income Per Share [["", "For the Year Ended", "", ""], ["", "January 31, 2020", "February 1, 2019", "February 2, 2018"], ["Anti-dilutive securities:", "", "", ""], ["Employee stock options", "34", "50", "51"], ["Restricted stock units", "315", "255", "140"], ["Total", "349", "305", "191"]]

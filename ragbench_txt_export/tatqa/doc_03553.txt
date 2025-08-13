@@ -1,0 +1,1 @@
+NOTE 8—INVENTORIES [["", "", "September 30,"], ["", "2019", "2018"], ["Finished products", "$10,905", "$7,099"], ["Work in process and inventoried costs under long-term contracts", "46,951", "63,169"], ["Materials and purchased parts", "48,938", "23,710"], ["Customer advances", "\u2014", "(9,779)"], ["Net inventories", "$  106,794", "$  84,199"]]

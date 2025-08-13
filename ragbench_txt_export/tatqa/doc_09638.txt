@@ -1,0 +1,1 @@
+Accounts Receivable and Allowance for Doubtful Accounts [["", "", "Fiscal Year Ended", ""], ["", "December 28, 2019", "December 29, 2018", "December 30, 2017"], ["Balance at beginning of year", "$185", "$200", "$299"], ["Charges (reversals) to costs and expenses", "37", "(15)", "(99)"], ["Balance at end of year", "$222", "$185", "$200"]]

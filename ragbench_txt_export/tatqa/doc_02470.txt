@@ -1,0 +1,2 @@
+Level 2—Observable inputs other than Level 1 prices such as quoted prices for similar assets or liabilities, quoted prices in markets with insufficient volume or infrequent transactions (less active markets), or model-derived valuations in which all significant inputs are observable or can be derived principally from or
+corroborated by observable market data for substantially the full term of the assets or liabilities.

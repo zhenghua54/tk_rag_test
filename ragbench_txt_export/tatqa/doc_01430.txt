@@ -1,0 +1,1 @@
+18 Investment in associates [["\u00a3m", "2019", "2018"], ["At 1 January", "65.6", "64.8"], ["Share of post-tax (loss)/profit of associates", "(0.3)", "2.3"], ["Impairment", "(7.4)", "\u2013"], ["Foreign exchange movements", "(4.2)", "(1.5)"], ["At 31 December", "53.7", "65.6"]]

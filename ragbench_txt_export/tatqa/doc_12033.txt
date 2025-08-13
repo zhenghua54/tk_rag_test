@@ -1,0 +1,1 @@
+The expected volatility reflects the assumption that the historical share price volatility is indicative of future trends, which may not necessarily be the actual outcome. An increase in the expected volatility will increase the estimated fair value.

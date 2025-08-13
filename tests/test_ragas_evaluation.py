@@ -18,6 +18,14 @@ import asyncio
 from datetime import datetime
 import hashlib
 from collections import defaultdict
+import logging
+
+# 抑制第三方库的日志输出
+logging.getLogger("openai").setLevel(logging.ERROR)
+logging.getLogger("httpx").setLevel(logging.ERROR)
+logging.getLogger("openai._base_client").setLevel(logging.ERROR)
+
+from pydantic_core import Url
 
 # RAGAS相关导入
 try:
@@ -275,86 +283,6 @@ class RagBenchEvaluator:
         logger.info(f"准备了 {len(queries)} 个评估queries")
         return queries[:sample_size]
     
-    async def evaluate_with_tk_rag(self, queries: List[Dict]) -> Dict[str, List]:
-        """
-        使用TK-RAG系统API进行评估
-        
-        Args:
-            queries: 查询列表
-            
-        Returns:
-            RAGAS格式的评估数据
-        """
-        evaluation_data = {
-            "question": [],
-            "contexts": [],
-            "answer": [],
-            "ground_truth": []
-        }
-        
-        # 使用异步HTTP客户端
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            for i, query_data in enumerate(queries):
-                try:
-                    logger.info(f"处理查询 {i+1}/{len(queries)}: {query_data['question'][:100]}...")
-                    
-                    # 准备API请求数据
-                    request_data = {
-                        "query": query_data['question'],
-                        "session_id": f"ragbench_eval_{i}",
-                        "permission_ids": [],  # 不使用权限管理
-                        "timeout": 30
-                    }
-                    
-                    # 调用RAG对话API
-                    api_url = f"{self.api_base_url}/chat/rag_chat"
-                    response = await client.post(api_url, json=request_data)
-                    
-                    if response.status_code == 200:
-                        result = response.json()
-                        
-                        # 检查API响应格式
-                        if result.get("success") and "data" in result:
-                            data = result["data"]
-                            
-                            # 提取TK-RAG的检索上下文
-                            retrieved_contexts = []
-                            if 'sources' in data and data['sources']:
-                                retrieved_contexts = [source.get('content', '') for source in data['sources']]
-                            
-                            # 如果没有检索到内容，使用空列表
-                            if not retrieved_contexts:
-                                retrieved_contexts = [""]
-                            
-                            evaluation_data["question"].append(query_data['question'])
-                            evaluation_data["contexts"].append(retrieved_contexts)
-                            evaluation_data["answer"].append(data.get("answer", ""))
-                            evaluation_data["ground_truth"].append(query_data.get('ground_truth', query_data.get('response', '')))
-                            
-                        else:
-                            logger.error(f"API返回错误: {result}")
-                            # 添加失败的占位数据
-                            evaluation_data["question"].append(query_data['question'])
-                            evaluation_data["contexts"].append([""])
-                            evaluation_data["answer"].append("")
-                            evaluation_data["ground_truth"].append(query_data.get('ground_truth', ''))
-                    else:
-                        logger.error(f"API调用失败: HTTP {response.status_code}, {response.text}")
-                        # 添加失败的占位数据
-                        evaluation_data["question"].append(query_data['question'])
-                        evaluation_data["contexts"].append([""])
-                        evaluation_data["answer"].append("")
-                        evaluation_data["ground_truth"].append(query_data.get('ground_truth', ''))
-                        
-                except Exception as e:
-                    logger.error(f"API调用异常: {e}")
-                    # 添加失败的占位数据
-                    evaluation_data["question"].append(query_data['question'])
-                    evaluation_data["contexts"].append([""])
-                    evaluation_data["answer"].append("")
-                    evaluation_data["ground_truth"].append(query_data.get('ground_truth', ''))
-        
-        return evaluation_data
     
     async def evaluate_with_tk_rag_direct(self, queries: List[Dict]) -> Dict[str, List]:
         """
@@ -396,10 +324,19 @@ class RagBenchEvaluator:
                 if not retrieved_contexts:
                     retrieved_contexts = [""]
                 
+                # 处理ground_truth格式 - RAGAS期望是列表的列表
+                ground_truth = query_data.get('ground_truth', query_data.get('response', ''))
+                if isinstance(ground_truth, str):
+                    ground_truth = [ground_truth]  # 转换为列表
+                elif isinstance(ground_truth, list):
+                    ground_truth = ground_truth  # 已经是列表
+                else:
+                    ground_truth = [str(ground_truth)]  # 转换为字符串列表
+                
                 evaluation_data["question"].append(query_data['question'])
                 evaluation_data["contexts"].append(retrieved_contexts)
                 evaluation_data["answer"].append(result.get("answer", ""))
-                evaluation_data["ground_truth"].append(query_data.get('ground_truth', query_data.get('response', '')))
+                evaluation_data["ground_truth"].append(ground_truth)
                     
             except Exception as e:
                 logger.error(f"TK-RAG评估失败: {e}")
@@ -407,7 +344,7 @@ class RagBenchEvaluator:
                 evaluation_data["question"].append(query_data['question'])
                 evaluation_data["contexts"].append([""])
                 evaluation_data["answer"].append("")
-                evaluation_data["ground_truth"].append(query_data.get('ground_truth', ''))
+                evaluation_data["ground_truth"].append([query_data.get('ground_truth', '')])
         
         return evaluation_data
     
@@ -529,6 +466,19 @@ class RagBenchEvaluator:
                 # 过滤条件：问题不为空，答案不为空，上下文不为空
                 if (question and answer and contexts and 
                     any(ctx.strip() for ctx in contexts if ctx)):
+                    
+                    # 处理ground_truth格式 - 确保是列表的列表
+                    if isinstance(ground_truth, str):
+                        ground_truth = [ground_truth]
+                    elif isinstance(ground_truth, list):
+                        # 如果已经是列表，检查是否需要嵌套
+                        if ground_truth and isinstance(ground_truth[0], list):
+                            ground_truth = ground_truth  # 已经是列表的列表
+                        else:
+                            ground_truth = [ground_truth]  # 转换为列表的列表
+                    else:
+                        ground_truth = [str(ground_truth)]
+                    
                     filtered_data["question"].append(question)
                     filtered_data["contexts"].append(contexts)
                     filtered_data["answer"].append(answer)
@@ -551,17 +501,27 @@ class RagBenchEvaluator:
             
             # 使用本地LLM或配置OpenAI
             try:
-                # 尝试使用本地LLM（如果有的话）
+                # 尝试使用官方openai库
+                from openai import OpenAI
+                
+                # 临时抑制OpenAI库的日志
+                logging.getLogger("openai").setLevel(logging.ERROR)
+                logging.getLogger("httpx").setLevel(logging.ERROR)
+                
+                api_key = os.getenv("OPENAI_API_KEY", "sk-qMm27ouwcmuadceBPLufcntEaB5fgtxJWc6Wn7LHkfxjfGu2")
+                base_url = os.getenv("OPENAI_BASE_URL", "https://api.fe8.cn/v1")
+                
+                # 包装为LangChain兼容的格式
                 llm = LangchainLLMWrapper(ChatOpenAI(
-                    model=os.getenv("LLM_NAME"),
-                    base_url=os.getenv("DASHSCOPE_API_BASE_URL"),
-                    api_key=os.getenv("DASHSCOPE_API_KEY"),
+                    model="gpt-4o-mini",
+                    api_key=api_key,
+                    base_url=base_url,
                     temperature=0,
                     max_tokens=1000,
                     request_timeout=120,  # 增加超时时间
                     max_retries=3  # 添加重试机制
                 ))
-                logger.info("使用DashScope LLM进行RAGAS评估")
+                logger.info("使用OpenAI库进行RAGAS评估")
             except Exception as e:
                 logger.warning(f"无法配置LLM，使用默认设置: {e}")
                 llm = None
@@ -580,23 +540,13 @@ class RagBenchEvaluator:
             start_time = time.time()
             
             # 执行RAGAS评估
-            try:
-                results = evaluate(dataset, metrics=metrics)
-                evaluation_time = time.time() - start_time
-                logger.info(f"评估完成，耗时: {evaluation_time:.2f}秒")
-            except Exception as e:
-                logger.error(f"RAGAS评估失败，尝试简化评估: {e}")
-                # 如果LLM评估失败，使用基于规则的简单评估
-                evaluation_results = self._simple_evaluation(filtered_data)
-                return evaluation_results
+            logger.info("使用标准RAGAS评估...")
+            results = evaluate(dataset, metrics=metrics)
+            evaluation_time = time.time() - start_time
+            logger.info(f"标准RAGAS评估完成，耗时: {evaluation_time:.2f}秒")
             
-            # 转换结果格式（处理不同的返回格式）
+            # 转换结果格式
             evaluation_results = {}
-            
-            # 检查results的类型和结构
-            logger.info(f"RAGAS返回结果类型: {type(results)}")
-            logger.info(f"RAGAS返回结果内容: {results}")
-            
             if hasattr(results, 'items'):
                 # 如果是字典格式
                 for metric_name, score in results.items():
@@ -621,83 +571,399 @@ class RagBenchEvaluator:
             traceback.print_exc()
             return {}
     
-    def _simple_evaluation(self, data: Dict[str, List]) -> Dict[str, float]:
+    def _test_api_connection(self, api_key: str, base_url: str) -> bool:
         """
-        简化的评估方法，当LLM评估失败时使用
+        测试API连接是否正常
+        
+        Args:
+            api_key: API密钥
+            base_url: API基础URL
+            
+        Returns:
+            连接是否成功
+        """
+        try:
+            import requests
+            
+            # 简单的API测试请求
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            test_data = {
+                "model": "gpt-4o-mini",
+                "messages": [{"role": "user", "content": "Hello"}],
+                "max_tokens": 10
+            }
+            
+            response = requests.post(
+                f"{base_url}/chat/completions",
+                headers=headers,
+                json=test_data,
+                timeout=10
+            )
+            
+            if response.status_code == 200:
+                return True
+            else:
+                logger.error(f"API连接测试失败: HTTP {response.status_code}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"API连接测试异常: {e}")
+            return False
+
+    def _check_evaluation_config(self) -> bool:
+        """
+        检查评估配置是否完整
+        
+        Returns:
+            配置是否有效
+        """
+        logger.info("检查评估配置...")
+        
+        # 检查必要的文件
+        required_files = [
+            "config/prompts/ragas_judge_prompt.j2",
+            "config/global_config.py"
+        ]
+        
+        for file_path in required_files:
+            if not os.path.exists(file_path):
+                logger.error(f"缺少必要文件: {file_path}")
+                return False
+        
+        # 检查环境变量
+        api_key = os.getenv("OPENAI_API_KEY")
+        base_url = os.getenv("OPENAI_BASE_URL")
+        
+        logger.info("评估配置检查完成")
+        return True
+    
+    def _custom_ragas_evaluation(self, data: Dict[str, List]) -> Dict[str, float]:
+        """
+        使用自定义系统提示词的RAGAS评估方法
         
         Args:
             data: 评估数据
             
         Returns:
-            简化的评估结果
+            评估结果
+        """
+        logger.info("使用自定义RAGAS评估方法...")
+        
+        from langchain_openai import ChatOpenAI
+        from utils.llm_utils import render_prompt
+        import re
+        
+        # 从环境变量获取API配置，如果没有则使用默认值
+        api_key = "sk-qMm27ouwcmuadceBPLufcntEaB5fgtxJWc6Wn7LHkfxjfGu2"
+        base_url = "https://api.fe8.cn/v1"
+        
+        # 使用官方openai库
+        from openai import OpenAI
+        
+        # 临时抑制OpenAI库的日志
+        logging.getLogger("openai").setLevel(logging.ERROR)
+        logging.getLogger("httpx").setLevel(logging.ERROR)
+        
+        client = OpenAI(
+            api_key=api_key,
+            base_url=base_url
+        )
+        
+        total_questions = len(data["question"])
+        logger.info(f"开始评估，总问题数: {total_questions}")
+        if total_questions == 0:
+            logger.warning("没有找到问题数据，返回空结果")
+            return {}
+        
+        # 存储LLM评估的分数
+        llm_scores = {
+            "faithfulness": [],
+            "answer_relevancy": []
+        }
+        
+        # 存储基于检索的分数
+        retrieval_scores = {
+            "context_precision": [],
+            "context_recall": []
+        }
+        
+        logger.info("评估分数存储结构初始化完成")
+        
+        for i in range(total_questions):
+            logger.info(f"开始处理第 {i+1}/{total_questions} 个问题...")
+            question = data["question"][i]
+            answer = data["answer"][i]
+            contexts = data["contexts"][i]
+            ground_truth = data["ground_truth"][i]
+            
+            logger.debug(f"问题: {question[:100]}...")
+            logger.debug(f"答案: {answer[:100]}...")
+            logger.debug(f"上下文数量: {len(contexts) if contexts else 0}")
+            
+            # 准备上下文文本
+            context_text = "\n".join(contexts) if contexts else ""
+            logger.debug(f"上下文文本长度: {len(context_text)}")
+            
+            # 构建评估提示词
+            prompt = self._build_evaluation_prompt(question, answer, context_text)
+            
+            try:
+                # 使用官方openai库调用
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt,
+                        }
+                    ],
+                    model="gpt-4o-mini",
+                    max_tokens=1000,
+                    temperature=0
+                )
+                
+                evaluation_text = chat_completion.choices[0].message.content
+                logger.info(f"LLM原始响应: {evaluation_text}")
+                
+                scores = self._parse_evaluation_response(evaluation_text)
+                logger.info(f"解析完成，分数: {scores}")
+                
+                # 添加到LLM评估分数中
+                for metric, score in scores.items():
+                    if metric in llm_scores:
+                        llm_scores[metric].append(score)
+                
+                # 计算基于检索的指标
+                # 从ground_truth中提取文档信息
+                # 注意：这里我们暂时使用ground_truth作为文档信息
+                # 在实际应用中，应该保存原始文档信息
+                ground_truth_docs = self._extract_documents_from_ground_truth(ground_truth)
+                context_precision = self._calculate_context_precision(question, contexts, ground_truth_docs)
+                context_recall = self._calculate_context_recall(question, contexts, ground_truth_docs)
+                
+                retrieval_scores["context_precision"].append(context_precision)
+                retrieval_scores["context_recall"].append(context_recall)
+                
+                logger.debug(f"问题 {i+1} 评估完成: LLM={scores}, 检索=[precision:{context_precision:.3f}, recall:{context_recall:.3f}]")
+                    
+            except Exception as e:
+                logger.warning(f"问题 {i+1} 评估失败: {e}")
+                # 使用默认分数
+                for metric in llm_scores:
+                    llm_scores[metric].append(0.5)
+                retrieval_scores["context_precision"].append(0.5)
+                retrieval_scores["context_recall"].append(0.5)
+        
+        # 计算平均分数
+        results = {}
+        for metric, scores in llm_scores.items():
+            if scores:
+                results[metric] = sum(scores) / len(scores)
+            else:
+                results[metric] = 0.0
+        
+        for metric, scores in retrieval_scores.items():
+            if scores:
+                results[metric] = sum(scores) / len(scores)
+            else:
+                results[metric] = 0.0
+        
+        logger.info("自定义RAGAS评估完成")
+        return results
+    
+    def _build_evaluation_prompt(self, question: str, answer: str, context: str) -> str:
+        """构建评估提示词"""
+        prompt = f"""You are an expert language model evaluator for RAG (Retrieval-Augmented Generation) systems.
+
+Your task is to evaluate the quality of RAG system responses based on the following criteria:
+
+## Evaluation Criteria:
+
+### 1. Faithfulness (忠实性)
+Determine whether the answer is **faithful to the provided context**, i.e., whether it is directly supported by any statement(s) in the context.
+
+**Scoring:**
+- **1.0 (Excellent)**: Answer is completely faithful to the context, all claims are directly supported
+- **0.7 (Good)**: Answer is mostly faithful, with minor unsupported claims
+- **0.4 (Fair)**: Answer is partially faithful, some claims lack support
+- **0.0 (Poor)**: Answer contains significant unsupported claims or contradicts context
+
+### 2. Answer Relevancy (答案相关性)
+Assess whether the answer is relevant to the user's question.
+
+**Scoring:**
+- **1.0 (Excellent)**: Answer directly addresses the question completely
+- **0.7 (Good)**: Answer addresses most aspects of the question
+- **0.4 (Fair)**: Answer partially addresses the question
+- **0.0 (Poor)**: Answer is irrelevant or doesn't address the question
+
+## Input Format:
+- **Question**: {question}
+- **Answer**: {answer}
+- **Context**: {context}
+
+## Output Format:
+You must respond with ONLY the classification scores in the exact format below. Do not include any other text, explanations, or formatting:
+
+Faithfulness: [score]
+Answer Relevancy: [score]
+
+Where [score] is a number between 0.0 and 1.0 (e.g., 0.8, 0.5, 1.0).
+
+## Important Guidelines:
+1. Only consider information from the provided context
+2. Do not make assumptions or use external knowledge
+3. Be objective and consistent in scoring
+4. If context is empty or answer is empty, score appropriately (usually 0.0)
+5. Respond with ONLY the classification scores, no other text"""
+        
+        return prompt
+
+    def _calculate_context_precision(self, question: str, contexts: List[str], ground_truth_docs: List[str]) -> float:
+        """
+        计算上下文精确性
+        Precision = 正确检索的文档数 / 实际检索的文档数
+        """
+        if not contexts:
+            return 0.0
+        
+        # 获取实际检索到的文档（去重）
+        retrieved_docs = set()
+        for ctx in contexts:
+            if ctx.strip():
+                # 这里需要根据实际的文档ID或内容来识别文档
+                # 暂时使用简单的文本匹配
+                retrieved_docs.add(ctx.strip())
+        
+        # 获取正确的文档（ground truth中的文档）
+        correct_docs = set()
+        for doc in ground_truth_docs:
+            if doc.strip():
+                correct_docs.add(doc.strip())
+        
+        # 计算交集（正确检索的文档）
+        correct_retrieved = retrieved_docs.intersection(correct_docs)
+        
+        # 精确性 = 正确检索的文档数 / 实际检索的文档数
+        if len(retrieved_docs) == 0:
+            return 0.0
+        else:
+            return len(correct_retrieved) / len(retrieved_docs)
+
+    def _calculate_context_recall(self, question: str, contexts: List[str], ground_truth_docs: List[str]) -> float:
+        """
+        计算上下文召回性
+        Recall = 正确检索的文档数 / 应该检索的文档总数
+        """
+        if not contexts:
+            return 0.0
+        
+        # 获取实际检索到的文档（去重）
+        retrieved_docs = set()
+        for ctx in contexts:
+            if ctx.strip():
+                retrieved_docs.add(ctx.strip())
+        
+        # 获取正确的文档（ground truth中的文档）
+        correct_docs = set()
+        for doc in ground_truth_docs:
+            if doc.strip():
+                correct_docs.add(doc.strip())
+        
+        # 计算交集（正确检索的文档）
+        correct_retrieved = retrieved_docs.intersection(correct_docs)
+        
+        # 召回性 = 正确检索的文档数 / 应该检索的文档总数
+        if len(correct_docs) == 0:
+            return 0.0
+        else:
+            return len(correct_retrieved) / len(correct_docs)
+
+    def _extract_documents_from_ground_truth(self, ground_truth: str, original_documents: List[str] = None) -> List[str]:
+        """
+        从ground truth中提取文档信息
+        
+        Args:
+            ground_truth: ground truth字符串
+            original_documents: 原始文档列表
+            
+        Returns:
+            文档列表
+        """
+        # 如果有原始文档信息，使用它
+        if original_documents:
+            return [str(doc).strip() for doc in original_documents if doc and str(doc).strip()]
+        
+        # 否则从ground_truth中提取
+        if ground_truth and ground_truth.strip():
+            return [ground_truth.strip()]
+        else:
+            return []
+    def _parse_evaluation_response(self, response_text: str) -> Dict[str, float]:
+        """
+        解析LLM的评估响应
+        
+        Args:
+            response_text: LLM的响应文本
+            
+        Returns:
+            解析后的分数
         """
         try:
-            logger.info("使用简化评估方法...")
+            import re
+            scores = {}
             
-            total_questions = len(data["question"])
-            if total_questions == 0:
-                return {}
-            
-            # 简单的基于规则的评估
-            faithfulness_scores = []
-            answer_relevancy_scores = []
-            context_precision_scores = []
-            context_recall_scores = []
-            
-            for i in range(total_questions):
-                question = data["question"][i]
-                answer = data["answer"][i]
-                contexts = data["contexts"][i]
-                ground_truth = data["ground_truth"][i]
-                
-                # 简单的评分规则
-                # 1. Faithfulness: 检查答案是否包含在上下文中
-                faithfulness = 0.5  # 默认中等分数
-                if answer and contexts:
-                    context_text = " ".join(contexts)
-                    # 简单的关键词匹配
-                    answer_words = set(answer.lower().split())
-                    context_words = set(context_text.lower().split())
-                    overlap = len(answer_words.intersection(context_words))
-                    if len(answer_words) > 0:
-                        faithfulness = min(1.0, overlap / len(answer_words))
-                
-                # 2. Answer Relevancy: 检查答案长度和内容
-                relevancy = 0.5
-                if answer and len(answer.strip()) > 10:
-                    relevancy = 0.8
-                elif answer and len(answer.strip()) > 5:
-                    relevancy = 0.6
-                
-                # 3. Context Precision: 检查上下文是否相关
-                precision = 0.5
-                if contexts and any(len(ctx.strip()) > 20 for ctx in contexts):
-                    precision = 0.7
-                
-                # 4. Context Recall: 检查是否有上下文
-                recall = 0.5
-                if contexts and any(len(ctx.strip()) > 10 for ctx in contexts):
-                    recall = 0.8
-                
-                faithfulness_scores.append(faithfulness)
-                answer_relevancy_scores.append(relevancy)
-                context_precision_scores.append(precision)
-                context_recall_scores.append(recall)
-            
-            # 计算平均分数
-            results = {
-                "faithfulness": sum(faithfulness_scores) / len(faithfulness_scores),
-                "answer_relevancy": sum(answer_relevancy_scores) / len(answer_relevancy_scores),
-                "context_precision": sum(context_precision_scores) / len(context_precision_scores),
-                "context_recall": sum(context_recall_scores) / len(context_recall_scores)
+            # 使用正则表达式提取分数 - 匹配简化的classification格式
+            patterns = {
+                "faithfulness": r"[Ff]aithfulness[:\s]*([0-9]*\.?[0-9]+)",
+                "answer_relevancy": r"[Aa]nswer\s*[Rr]elevancy[:\s]*([0-9]*\.?[0-9]+)"
             }
             
-            logger.info("简化评估完成")
-            return results
+            for metric, pattern in patterns.items():
+                match = re.search(pattern, response_text, re.IGNORECASE)
+                if match:
+                    try:
+                        score = float(match.group(1))
+                        # 确保分数在0-1范围内
+                        score = max(0.0, min(1.0, score))
+                        scores[metric] = score
+                        logger.debug(f"成功匹配 {metric}: {score}")
+                    except ValueError:
+                        scores[metric] = 0.5
+                        logger.debug(f"数值转换失败 {metric}: {match.group(1)}")
+                else:
+                    scores[metric] = 0.5
+                    logger.debug(f"未匹配到 {metric}")
+            
+            # 如果没有找到任何分数，尝试更宽松的匹配
+            if not scores:
+                logger.warning("未找到标准格式的分数，尝试宽松匹配...")
+                # 查找任何数字（0-1范围内的）
+                number_pattern = r"([0-9]*\.?[0-9]+)"
+                numbers = re.findall(number_pattern, response_text)
+                if len(numbers) >= 2:
+                    try:
+                        scores["faithfulness"] = max(0.0, min(1.0, float(numbers[0])))
+                        scores["answer_relevancy"] = max(0.0, min(1.0, float(numbers[1])))
+                        logger.debug(f"宽松匹配成功: faithfulness={scores['faithfulness']}, answer_relevancy={scores['answer_relevancy']}")
+                    except (ValueError, IndexError):
+                        scores = {"faithfulness": 0.5, "answer_relevancy": 0.5}
+                else:
+                    scores = {"faithfulness": 0.5, "answer_relevancy": 0.5}
+            
+            return scores
             
         except Exception as e:
-            logger.error(f"简化评估失败: {e}")
-            return {}
+            logger.error(f"解析评估响应失败: {e}")
+            return {
+                "faithfulness": 0.5,
+                "answer_relevancy": 0.5,
+                "context_precision": 0.5,
+                "context_recall": 0.5
+            }
     
     async def run_complete_evaluation(self, dataset_name: str, sample_size: int = 50):
         """
@@ -714,13 +980,13 @@ class RagBenchEvaluator:
             print("步骤1: 提取documents并去重...")
             documents_data = self.extract_documents_from_dataset(dataset_name)
             
-            # 2. 构建MySQL语料库
+            # 2. 构建MySQL语料库RAG对话-无权限
             print("步骤2: 构建MySQL语料库...")
             # self.build_corpus_in_database(documents_data)
             
             # # 2.5. 将documents进行embedding并插入Milvus
-            # print("步骤2.5: 将documents进行embedding并插入Milvus...")
-            # self.build_milvus_corpus(documents_data)
+            print("步骤2.5: 将documents进行embedding并插入Milvus...")
+            self.build_milvus_corpus(documents_data)
             
             # 3. 准备评估queries
             print("步骤3: 准备评估queries...")
@@ -728,12 +994,9 @@ class RagBenchEvaluator:
             
             # 4. 使用TK-RAG系统评估
             print("步骤4: 使用TK-RAG系统生成回答...")
-            try:
-                # 优先尝试直接调用（避免API依赖）
-                evaluation_data = await self.evaluate_with_tk_rag_direct(queries)
-            except Exception as e:
-                logger.warning(f"直接调用失败，尝试API调用: {e}")
-                evaluation_data = await self.evaluate_with_tk_rag(queries)
+
+            evaluation_data = await self.evaluate_with_tk_rag_direct(queries)
+
             
             # 5. 运行RAGAS评估
             print("步骤5: 运行RAGAS评估...")

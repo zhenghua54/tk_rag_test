@@ -1,0 +1,1 @@
+We recorded non-cash compensation expense related to stock-based awards as follows (in thousands): [["", "", "Years Ended September 30,", ""], ["", "2019", "2018", "2017"], ["Cost of sales", "$  1,766", "$  1,096", "$  338"], ["Selling, general and administrative", "13,722", "6,419", "4,674"], ["", "$15,488", "$7,515", "$5,012"]]

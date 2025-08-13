@@ -1,0 +1,1 @@
+Phoenix, a web framework written in Elixir, uses CRDTs to support real time multi-node information sharing in version 1.2.

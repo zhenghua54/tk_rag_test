@@ -1,0 +1,1 @@
+The Nest Learning Thermostat (or Nest Thermostat) is a smart thermostat developed by Nest Labs and designed by Tony Fadell, Ben Filson, and Fred Bould. It is an electronic, programmable, and self-learning Wi-Fi-enabled thermostat that optimizes heating and cooling of homes and businesses to conserve energy.

@@ -1,0 +1,1 @@
+10. Accrued Liabilities [["", "2019", "2018"], ["Vacation and other compensation", "$1,659", "$1,433"], ["Incentive compensation", "346", "411"], ["Payroll taxes", "155", "113"], ["Deferred revenue", "-", "68"], ["Warranty reserve", "529", "520"], ["Commissions", "378", "307"], ["Other", "504", "564"], ["", "$3,571", "$3,416"]]

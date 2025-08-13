@@ -1,0 +1,1 @@
+Definition of point of presence (POP) in The Network Encyclopedia. point of presence (POP) The local access point for an Internet service provider (ISP). A point of presence (POP) consists of the high-speed telecommunications equipment and technologies that enable users to connect to the Internet via their ISP.

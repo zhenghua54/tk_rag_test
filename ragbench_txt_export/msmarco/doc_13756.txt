@@ -1,0 +1,1 @@
+If the contacts you add to your Android phone are not showing up in Outlook after syncing, it could be that your default contact type is set to Phone or Gmail. To change the default Contact Type setting, follow the steps below. Start Contacts and make sure the Contacts tab is selected. 1  Always ask. 2  Phone. 3  SIM.

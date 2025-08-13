@@ -1,0 +1,1 @@
+Plan Summaries [["", "", "Year Ended", ""], ["", "January 3, 2020", "December 28, 2018", "December 29, 2017"], ["", "", "(in millions)", ""], ["Total stock-based compensation expense", "$52", "$44", "$43"], ["Tax benefits recognized from stock-based compensation", "13", "11", "17"]]

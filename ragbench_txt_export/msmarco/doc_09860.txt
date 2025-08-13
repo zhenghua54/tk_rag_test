@@ -1,0 +1,1 @@
+1 Silent Mutation: Although a change in the DNA sequence occurs, this type of mutation does not change the protein that is to be produced. 2  This is because multiple genetic codons can encode for the same amino acid. 3  Amino acids are coded for by three nucleotide sets called codons.

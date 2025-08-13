@@ -1,0 +1,1 @@
+Adding channels to a favorites list. Select channels to add, and then select the icon. The selected channels are added to the favorites list.

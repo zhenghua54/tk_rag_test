@@ -1,0 +1,1 @@
+Stock Compensation Expense [["", "", "Fiscal", ""], ["", "2019", "2018", "2017"], ["Cost of sales", "$4,880", "$4,403", "$3,541"], ["Research and development", "2,990", "3,247", "2,973"], ["Selling, general and administrative", "28,596", "25,088", "23,911"], ["Income tax benefit", "(4,946)", "(5,073)", "(7,073)"], ["", "$31,520", "$27,665", "$23,352"]]

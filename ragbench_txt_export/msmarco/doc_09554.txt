@@ -1,0 +1,1 @@
+The temperature T in degrees Fahrenheit (F) is equal to the temperature T in Kelvin (K) times 9/5, minus 459.67: How to convert Kelvin to Fahrenheit. The temperature T in degrees Fahrenheit (F) is equal to the temperature T in Kelvin (K) times 9/5, minus 459.67: T (F) = T (K) × 9/5 - 459.67.

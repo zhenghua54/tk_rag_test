@@ -1,0 +1,1 @@
+a) Vessels Under Construction and Upgrades [["", "Total", "2020", "2021", "2022"], ["", "$", "$", "$", "$"], ["Consolidated LNG carriers (i)", "49,652", "11,979", "22,382", "15,291"], ["Bahrain LNG Joint Venture (ii)", "11,351", "11,351", "\u2014", "\u2014"], ["", "61,003", "23,330", "22,382", "15,291"]]

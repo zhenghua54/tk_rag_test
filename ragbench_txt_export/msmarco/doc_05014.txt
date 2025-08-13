@@ -1,0 +1,1 @@
+If you change the oil (and filter) yourself, here's how to reset the light so it will stay off until the next change is interval has expired: 1) With the power on, switch to the odometer/trip-meter to display ODO. 2) Power OFF (push the Power button). 3) Power ON, while holding the button for ODO.

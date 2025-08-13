@@ -1,0 +1,1 @@
+4.2 Equity (continued) [["", "CONSOLIDATED", ""], ["", "2019 $\u2019000", "2018 $\u2019000"], ["Reserves", "", ""], ["Share-based payment reserve", "3,960", "3,198"], ["Business combination reserve", "5,571", "5,571"], ["Foreign currency translation reserve", "(12)", "(24)"], ["", "9,519", "8,745"]]

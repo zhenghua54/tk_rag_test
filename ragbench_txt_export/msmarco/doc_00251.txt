@@ -1,0 +1,1 @@
+Roundcube. The free webmail client RoundCube allows you to set up a signature for outgoing messages. 1  Click on Settings at the top right side of the page. 2  On the Settings page, click on the Identities Tab. 3  Double click on the email address that you want to create a signature for.

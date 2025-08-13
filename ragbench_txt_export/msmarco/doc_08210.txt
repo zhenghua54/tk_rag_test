@@ -1,0 +1,1 @@
+Mbps. Stands for Megabits Per Second.. One megabit is equal to one million bits or 1,000 kilobits. While megabit sounds similar to megabyte, a megabit is roughly one eighth the size of a megabyte (since there are eight bits in a byte). Mbps is used to measure data transfer speeds of high bandwidth connections, such as Ethernet and cable modems. Cite this definition:

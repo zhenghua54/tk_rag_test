@@ -1,0 +1,1 @@
+6-INTANGIBLE ASSETS [["December 29, 2019", "", "", ""], ["", "Gross Carrying Amount", "Accumulated Amortization", "Net Carrying Amount"], ["Developed technology", "$959", "$(96)", "$863"], ["Customer relationships", "81", "(40)", "41"], ["Trade names and trade marks", "116", "(12)", "104"], ["Total acquired identifiable intangible assets", "$1,156", "$(148)", "$1,008"]]

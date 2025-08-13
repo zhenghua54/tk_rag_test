@@ -1,0 +1,1 @@
+Step 4: Plug your answers to steps 2 and 3 into the cost formula by replacing the slope with the variable cost per unit and the Y-intercept with total fixed costs: Y = 44.25x + 2,900. The cost equation indicates that the total cost of cleaning homes is $44.25 per home plus a monthly cost of $2,900.

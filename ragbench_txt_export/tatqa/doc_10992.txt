@@ -1,0 +1,1 @@
+11. Stockholders’ Equity [["", "", "Fiscal Year Ended August 31,", ""], ["", "2019", "2018", "2017"], ["Restricted stock units", "$53,766", "$84,082", "$42,122"], ["Employee stock purchase plan (1)", "7,580", "6,891", "6,334"], ["Other", "\u2014", "7,538", "88"], ["Total", "$61,346", "$98,511", "$48,544"]]

@@ -1,0 +1,1 @@
+Accounts Receivable Allowances [["", "", "Fiscal", ""], ["", "2019", "2018", "2017"], ["Beginning balance", "$4,568", "$6,890", "$2,420"], ["Additions charged to expenses", "5,210", "1,980", "4,190"], ["Accruals related to acquisitions", "\u2014", "37", "4,390"], ["Deductions from reserves", "(1,088)", "(4,339)", "(4,110)"], ["Ending balance", "$8,690", "$4,568", "$6,890"]]

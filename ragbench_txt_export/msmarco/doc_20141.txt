@@ -1,0 +1,1 @@
+Web proxy. Tools. MikroTik RouterOS is the operating system of MikroTik RouterBOARD hardware. It can also be installed on a PC and will turn it into a router with all the necessary features-routing, firewall, bandwidth management, wireless access point, backhaul link, hotspot gateway, VPN server and more.

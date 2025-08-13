@@ -1,0 +1,1 @@
+iTunes saves backups to your user folder. The location of this folder varies depending on your operating system, and the location can't be changed. If you want to have extra copies of your iTunes backups, you can copy the backup folders to another location, external drive, or network storage location.

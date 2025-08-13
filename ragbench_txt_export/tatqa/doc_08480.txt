@@ -1,0 +1,1 @@
+7. Balance Sheet Details [["", "December 31, 2019", "December 31, 2018"], ["(in thousands)", "", ""], ["Cash and cash equivalents", "$92,708", "$73,142"], ["Short-term restricted cash", "349", "645"], ["Long-term restricted cash", "60", "404"], ["Total cash, cash equivalents and restricted cash", "$93,117", "$74,191"]]

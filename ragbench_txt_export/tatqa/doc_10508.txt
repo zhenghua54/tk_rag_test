@@ -1,0 +1,2 @@
+On June 17, 2019, the Company granted 25,000 options with an exercise price of $1.75 and a ten year term. These options vest immediately and have a Black-Scholes
+value of $36,374

@@ -1,0 +1,1 @@
+NOTE 13 - TAXES ON INCOME [["", "December 31", ""], ["", "2019", "2 0 1 8"], ["", "U.S. $ in thousands", ""], ["Operating loss carryforward", "73,260", "57,768"], ["Net deferred tax asset before valuation allowance", "19,911", "15,916"], ["Valuation allowance", "(19,911)", "(15,916)"], ["Net deferred tax asset", "795", "772"]]

@@ -1,0 +1,1 @@
+Services [["", "2019", "2018"], ["", "(in thousands)", ""], ["Maintenance, service and training", "$63,815", "$58,362"], ["Extended warranty", "30,677", "27,422"], ["Customer advances, undelivered elements and other", "56,358", "24,677"], ["Total deferred revenue and customer advances", "$150,850", "$110,461"]]

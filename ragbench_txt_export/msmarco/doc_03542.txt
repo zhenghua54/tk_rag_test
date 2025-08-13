@@ -1,0 +1,1 @@
+A Sample Corporate Risk Register. This item allows the user to enter their risks and impacts and manage them. The second part of the spreadsheet allows the user to set up relevant departments where the risks reside (some sample departments have been input but they can be amended).

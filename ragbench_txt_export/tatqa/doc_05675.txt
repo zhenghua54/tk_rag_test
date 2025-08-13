@@ -1,0 +1,1 @@
+3. Restructuring and Other Charges, Net [["", "", "", "Fiscal"], ["", "2019", "2018", "2017"], ["", "", "(in millions)", ""], ["Restructuring charges, net", "$ 255", "$ 140", "$ 146"], ["Gain on divestiture", "\u2014", "(2)", "\u2014"], ["Other charges (credits), net", "\u2014", "(12)", "1"], ["Restructuring and other charges, net", "$ 255", "$ 126", "$ 147"]]

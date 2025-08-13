@@ -1,0 +1,1 @@
+We account for stock-based compensation options based on the fair value of the award as of the grant date. We recognize stock-based compensation expense using the accelerated attribution method, net of actual forfeitures, in which compensation cost for each vesting tranche in an award is recognized ratably from the service inception date to the vesting date for that tranche.

@@ -1,0 +1,1 @@
+Provision for Income Taxes [["", "Fiscal years ended July 31,", "", "", ""], ["", "2019", "2018", "Change", ""], ["", "Amount", "Amount", "($)", "(%)"], ["", "", "(In thousands, except percentages)", "", ""], ["Provision for (benefit from) income taxes", "$(8,280)", "$18,467", "(26,747)", "(145)"], ["Effective tax rate", "(66)%", "(223)%", "", ""]]

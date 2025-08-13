@@ -1,0 +1,1 @@
+Note 3 − Property and Equipment [["", "December 31", "December 31"], ["", "2019", "2018"], ["Office furniture", "$79", "$79"], ["Computer equipment", "81", "67"], ["Total", "160", "146"], ["Less accumulated depreciation", "(144)", "(137)"], ["Total property and equipment, net", "$16", "$9"]]

@@ -1,0 +1,1 @@
+Forums are the only place that I would need to make my text bold, so yes. In an Incognito window, the add-on is disabled so I'm not able to use the keyboard shortcut to make my text bold. For example, after I've made my text bold (by having to click the B in the forums interface), the BBcode will appear around it. (E.g. [B]This text would be bold due to the code around it.[/B]).

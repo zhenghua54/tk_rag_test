@@ -1,0 +1,1 @@
+3. REVENUE FROM CONTRACTS WITH CUSTOMERS [["", "Balance at December 31, 2017", "Adjustments Due to ASC 606", "Balance at January 1, 2018"], ["Contract assets", "$3,790", "$(584)", "$3,206"], ["Contract liabilities", "7,288", "821", "8,109"], ["Accumulated deficit", "(56,365)", "(1,405)", "(57,770)"]]

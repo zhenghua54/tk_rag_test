@@ -1,0 +1,1 @@
+The following is a summary of stock option activity during fiscal 2019: [["", "Number of Shares", "Weighted Average Exercise Price"], ["Outstanding at September 2018", "33,800", "$  77.85"], ["Granted", "5,450", "84.00"], ["Exercised", "(2,800)", "79.22"], ["Forfeited/Expired", "\u2014", "\u2014"], ["Outstanding at September 2019", "36,450", "$  78.67"]]

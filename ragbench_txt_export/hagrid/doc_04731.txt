@@ -1,0 +1,1 @@
+The Hilbert space of physical states is a unitary module of the Virasoro algebra corresponding to a fixed value of "c". Stability requires that the energy spectrum of the Hamiltonian be nonnegative. The modules of interest are the highest weight modules of the Virasoro algebra.

@@ -1,0 +1,1 @@
+Simple Squamous Epithelium: 1  Description: A single layer of flat cells. 2  Looks like a platter of fried eggs sunny-side up. 3  Location: Air sacs (alveoli) of lungs, lines the inside of heart and blood vessels. 4  Function: Filtration, diffusion, osmosis.

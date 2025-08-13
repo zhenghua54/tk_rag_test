@@ -1,0 +1,1 @@
+1 Allele: a different version of a gene. 2  Dominant: a trait that is visible and can cover up other traits when there is more than one present. 3  Genotype: the genetic makeup of an organism, or the versions of a gene that an organism has. 4  Heterozygous: having two different versions

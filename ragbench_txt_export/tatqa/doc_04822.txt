@@ -1,0 +1,1 @@
+Stock Ownership Requirements [["Executive Officer", "Ownership Requirement (1) (# of shares)", "Holdings as of October 25, 2019(# of shares)"], ["Samir Kapuria", "39,665", "186,735"], ["Vincent Pilette", "85,941", "785,906"], ["Scott C. Taylor", "52,887", "408,724"]]

@@ -1,0 +1,1 @@
+Its icon is a black pilcrow 1  (¶). Paragraph marks will show you the invisible marks you've made in your word processing document by pressing the space bar, the enter button, etc. 2  Hitting the paragraph marks button will allow you to see the last pilcrow (¶) on the blank page.

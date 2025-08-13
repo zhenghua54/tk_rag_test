@@ -1,0 +1,1 @@
+Our net sales by offering category for EMEA for 2019 and 2018, were as follows (dollars in thousands): [["", "EMEA", "", ""], ["Sales Mix", "2019", "2018", "%Change"], ["Hardware", "$622,949", "$653,499", "(5%)"], ["Software", "753,729", "736,509", "2%"], ["Services", "149,966", "140,233", "7%"], ["", "$1,526,644", "$1,530,241", "\u2014"]]

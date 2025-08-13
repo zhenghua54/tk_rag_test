@@ -1,0 +1,1 @@
+The list is sorted alphabetically, unfortunately, and not by cellular data consumption. But you can see how much data each app has used over your iPhone's cellular connection, and use the green slider to disable certain apps from using cellular data at all.

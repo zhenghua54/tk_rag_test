@@ -1,0 +1,1 @@
+4. SEGMENT INFORMATION [["", "2019", "2018"], ["", "$'000", "$'000"], ["Revenue from external customers", "", ""], ["Australia", "144,621", "129,431"], ["New Zealand", "13,036", "8,912"], ["Total", "157,657", "138,343"]]

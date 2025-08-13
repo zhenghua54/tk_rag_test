@@ -1,0 +1,1 @@
+1 Meta-regression is a tool used in meta-analysis to examine the impact of moderator variables on study effect size using regression-based techniques. 2  Meta-regression is more effective at this task than are standard regression

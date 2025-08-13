@@ -1,0 +1,1 @@
+• added Revenue as metric to our STI plan to encourage and reward top-line performance • changed the metric and performance period for our LTI plan to three-year cumulative Adjusted EBITDA target • added three-year Relative TSR Modifier, as a positive or negative adjustment +/- 20%, for our LTI plan.

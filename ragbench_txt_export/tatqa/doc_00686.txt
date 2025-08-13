@@ -1,0 +1,1 @@
+Average revenue per user (ARPU). We calculate ARPU as total revenue during the preceding 12 month period divided by the average of the number of total customers at the beginning and end of the period. ARPU provides insight into our ability to sell additional products to customers, though the impact to date has been muted due to our continued growth in total customers.

@@ -1,0 +1,1 @@
+Interest expense and investment income fluctuates based on average cash, marketable securities and debt balances, average maturities and interest rates.

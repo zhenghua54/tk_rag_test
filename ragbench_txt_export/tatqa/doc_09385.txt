@@ -1,0 +1,1 @@
+7. ACCRUED LIABILITIES [["", "2019", "2018"], ["Advances", "500", "-"], ["Board compensation", "413", "413"], ["Other accrued expenses", "168", "150"], ["", "$1,081", "$563"]]

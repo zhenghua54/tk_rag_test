@@ -1,0 +1,1 @@
+Inventories [["", "Fiscal year-end", ""], ["", "2019", "2018"], ["Purchased parts and assemblies", "$134,298", "$137,566"], ["Work-in-process", "174,550", "186,240"], ["Finished goods", "133,682", "162,935"], ["Total inventories", "$442,530", "$486,741"]]

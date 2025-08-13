@@ -1,0 +1,1 @@
+DNA polymerase III holoenzyme is the primary enzyme involved in DNA replication in E. coli and belongs to Family C polymerases. It consists of three assemblies: the pol III core, the beta sliding clamp processivity factor and the clamp-loading complex.

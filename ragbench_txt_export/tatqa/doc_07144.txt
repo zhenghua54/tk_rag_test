@@ -1,0 +1,1 @@
+NOTE 22. INCOME TAXES [["", "Year ended December 31,", ""], ["", "2018", "2019"], ["Current:", "", ""], ["The Netherlands", "(4,128)", "(28,409)"], ["Other countries", "(6,374)", "(9,011)"], ["", "(10,502)", "(37,420)"], ["Deferred:", "", ""], ["The Netherlands", "1,944", "(6,860)"], ["Other countries", "(6,878)", "(9,370)"], ["Income tax expense", "(15,436)", "(53,650)"]]

@@ -1,0 +1,1 @@
+Description. The Risk Register holds a list of key risks that need to be monitored and managed. The alternative is to close your eyes and hope that problems will not occur. Definition: a risk is an undesirable future event. The Risk Register analyzes risks and drives action to: 1  Reduce the likelihood of the risk occurring. 2  Increase the visibility of the risk.

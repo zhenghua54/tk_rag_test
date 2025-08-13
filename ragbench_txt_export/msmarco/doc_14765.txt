@@ -1,0 +1,1 @@
+A: Select the chart, then click the dialog box launcher in the Chart Tools / Format / Size group to display the Size And Properties dialog box. Use the controls in the Properties tab to change the move and size properties.

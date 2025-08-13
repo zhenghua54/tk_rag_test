@@ -1,0 +1,1 @@
+Note 12. Liabilities [["", "December 31, 2019", "December 31, 2018"], ["Accounts payable", "$32,878", "$20,214"], ["Accrued expenses", "10,092", "34,557"], ["Subsidiary unit awards", "141", "200"], ["Other current liabilities", "5,616", "3,459"], ["Accounts payable, accrued expenses and other current liabilities", "$48,727", "$58,430"]]

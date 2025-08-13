@@ -1,0 +1,1 @@
+14. INCOME TAXES [["", "Year Ended May 31", "", ""], ["(in millions)", "2019", "2018", "2017"], ["Domestic", "$3,774", "$3,366", "$3,674"], ["Foreign", "8,494", "9,058", "8,006"], ["Income before provision for income taxes", "$12,268", "$12,424", "$11,680"], ["", "", "", ""]]

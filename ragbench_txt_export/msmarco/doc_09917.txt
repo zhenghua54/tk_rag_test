@@ -1,0 +1,1 @@
+For the blank page in the middle of the document, you should look for ===== Page Break ===== This indicates a forced page break. If you delete it the page before and after will combine. For the blank pages at the end of the document: just delete any spare paragraph markers.

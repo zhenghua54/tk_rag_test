@@ -1,0 +1,1 @@
+Selected Current Liabilities [["", "As of December 31,", ""], ["", "2019", "2018"], ["", "(Dollars in millions)", ""], ["Accounts payable", "$1,724", "1,933"], ["Other current liabilities:", "", ""], ["Accrued rent", "$75", "45"], ["Legal contingencies", "88", "30"], ["Other", "223", "282"], ["Total other current liabilities", "$386", "357"]]

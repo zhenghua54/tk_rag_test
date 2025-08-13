@@ -1,0 +1,1 @@
+A BTU is a British Thermal Unit, or a measure of thermal or heat energy. BTUs are used to determine thermal energy output in a variety of devices, including furnaces. The heating degree-day calculation for a furnace is 50 x heating therms x furnace efficiency = load in BTUs/hour. Your furnace must produce a certain load, measured in BTUs per hour, to heat your home.

@@ -1,0 +1,1 @@
+Some protein precursors are secreted from the cell. Many of these are synthesized with an N-terminal signal peptide that targets them for secretion. Like other proteins that contain a signal peptide, their name is prefixed by pre. They are thus called pre-pro-proteins or pre-pro-peptides. The signal peptide is cleaved off in the endoplasmic reticulum. An example is preproinsulin.

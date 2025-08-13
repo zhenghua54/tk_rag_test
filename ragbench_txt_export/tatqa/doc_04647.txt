@@ -1,0 +1,1 @@
+7 Revenue [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018 Restated See note 2"], ["Revenue by Product:", "$M", "$M"], ["Network", "328.5", "316.5"], ["Enduser", "348.4", "291.8"], ["Other", "33.7", "30.7"], ["Total", "710.6", "639.0"]]

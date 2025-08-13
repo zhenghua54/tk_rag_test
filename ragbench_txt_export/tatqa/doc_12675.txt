@@ -1,0 +1,1 @@
+23 Borrowings (continued) [["\u00a3m", "2019", "2018"], ["Repayable within one year", "65.8", "46.7"], ["Repayable in more than one year but not more than two years", "901.8", "30.5"], ["Repayable in more than two years but not more than five years", "2,114.2", "2,722.0"], ["Repayable in more than five years", "1,569.6", "2,155.9"], ["", "4,651.4", "4,955.1"]]

@@ -1,0 +1,1 @@
+1 Dominant: a trait that is visible and can cover up other traits when there is more than one present. 2  Genotype: the genetic makeup of an organism, or the versions of a gene that an organism has. 3  Heterozygous: having two different versions of a gene. 4  Homozygous: having two identical

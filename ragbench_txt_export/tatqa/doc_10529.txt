@@ -1,0 +1,1 @@
+Restricted Stock Units [["", "Number of Shares", "Weighted-Average Grant-Date"], ["", "(in thousands)", "Fair Value per Share"], ["Outstanding at December 31, 2018", "3,263", "$20.23"], ["Granted", "1,580", "23.23"], ["Vested", "(1,541)", "20.16"], ["Canceled", "(378)", "21.52"], ["Outstanding at December 31, 2019", "2,924", "21.72"]]

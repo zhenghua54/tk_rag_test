@@ -1,0 +1,1 @@
+P. Income Taxes [["", "", "For the Year Ended", ""], ["", "January 31, 2020", "February 1, 2019", "February 2, 2018"], ["Domestic", "$895", "$680", "$462"], ["Foreign", "543", "1,149", "1,115"], ["Total income before income tax", "$1,438", "$1,829", "$1,577"]]

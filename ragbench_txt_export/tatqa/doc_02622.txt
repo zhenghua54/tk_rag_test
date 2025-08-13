@@ -1,0 +1,1 @@
+Basic earnings per share is calculated by dividing the profit after tax attributable to equity shareholders by the weighted average number of shares in issue after deducting the own shares held by employee share ownership trusts and treasury shares.

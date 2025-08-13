@@ -1,0 +1,1 @@
+Key Balance Sheet Information [["", "December 31, 2019", "December 31, 2018"], ["", "(in thousands)", ""], ["Cash, cash equivalents and marketable securities", "$2,455,194", "$1,969,670"], ["Total assets", "3,489,479", "2,254,785"], ["Total liabilities", "473,745", "164,017"], ["Total non-current liabilities", "157,363", "25,329"]]

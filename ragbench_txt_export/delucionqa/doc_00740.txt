@@ -1,0 +1,1 @@
+Feature description controls — if equipped press the controls button to access vehicle-specific features like heated seats and steering wheel.  Apps press the apps button to access a list of the available mobile apps.  Climate press the climate button to enter climate mode and access the climate control functions "⇨climate controls" .

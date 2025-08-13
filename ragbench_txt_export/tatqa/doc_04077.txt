@@ -1,0 +1,1 @@
+NOTE 21. REVENUE [["", "Year ended December 31,", ""], ["", "2018", "2019"], ["(EUR thousand)", "Revenue", "Revenue"], ["United States", "175,855", "339,463"], ["Europe", "165,602", "126,203"], ["Asia", "476,624", "818,194"], ["Total", "818,081", "1,283,860"]]

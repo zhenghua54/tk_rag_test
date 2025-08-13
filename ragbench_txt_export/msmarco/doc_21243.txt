@@ -1,0 +1,1 @@
+3. Click File and then select Export. In the Export dialog box, select JPEG from the Format dropdown menu. You can then adjust the output quality and resolution if you desire. You can also change the name of the file if you want to differentiate it.

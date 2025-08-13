@@ -1,0 +1,1 @@
+SHARE-BASED PAYMENTS (continued) [["", "2019", "2018"], ["Weighted average share price at the grant date", "HKD373.33", "HKD405.00"], ["Risk free rate", "1.08%~2.07%", "1.77%~2.27%"], ["Dividend yield", "0.23%", "0.24%~0.25%"], ["Expected volatility (Note)", "30.00%", "30.00%"]]

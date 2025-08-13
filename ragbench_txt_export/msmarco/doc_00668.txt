@@ -1,0 +1,1 @@
+In the mid-tier, the VA is targeting a cost of $20 per GB for 50 TB of storage that meets 250 IOPS on SPC-1 and 25 MBPS on SPC-2. For its premium tier, the VA intends to keep the costs under $125 per GB per month for 50 TB of storage that offers 50

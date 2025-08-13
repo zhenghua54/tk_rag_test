@@ -1,0 +1,1 @@
+6. Financial Instruments [["", "December 31, 2019", "December 31, 2018"], ["(in thousands)", "", ""], ["Assets", "", ""], ["Interest rate swap", "$\u2014", "$1,623"], ["Liabilities", "", ""], ["Interest rate swap", "$37", "$\u2014"]]

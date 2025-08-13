@@ -1,0 +1,1 @@
+Seasonality [["Most recent three-year average seasonality", "", "", "", ""], ["", "First quarter", "Second quarter", "Third quarter", "Fourth quarter"], ["Sequential change, sales", "-25%", "11%", "4%", "17%"], ["Share of annual sales", "22%", "24%", "25%", "29%"]]

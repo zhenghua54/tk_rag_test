@@ -1,0 +1,1 @@
+HSS has an Energy Expenditure Calculator for estimating how many calories are burned during exercise. You'll need to know your weight, the activity, and duration of activity.

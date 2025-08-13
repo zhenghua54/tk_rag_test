@@ -1,0 +1,1 @@
+3 Investments [["", "31 March 2019", "31 March 2018"], ["", "$M", "$M"], ["Investment in Sophos Holdings Limited", "1,035.8", "1,035.8"], ["Investment in Sophos Limited", "94.8", "63.3"], ["At 31 March", "1,130.6", "1,099.1"]]

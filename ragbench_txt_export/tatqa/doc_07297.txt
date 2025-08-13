@@ -1,0 +1,1 @@
+1.25% Notes Embedded Cash Conversion Option [["", "", "Year Ended December 31,", ""], ["(In thousands)", "2019", "2018", "2017"], ["1.25% Call Option", "$ (9,020)", "$ (37,474)", "$ 29,498"], ["1.25% Embedded cash conversion option", "9,789", "37,803", "(30,118)"], ["Net (loss) income included in other income, net", "$ 769", "$ 329", "$ (620)"]]

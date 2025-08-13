@@ -1,0 +1,1 @@
+Using a Risk Register in Feasibility Studies. The risk register collects information about: 1  Risks and their causes. 2  Consequences of risk. 3  Likelihood of the risk occurring. 4  Confidence of the risk consequences and likelihood of its occurring.

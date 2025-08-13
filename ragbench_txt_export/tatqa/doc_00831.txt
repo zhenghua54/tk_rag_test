@@ -1,0 +1,1 @@
+IFRS cash flow [["m", "2019", "2018"], ["Cash flows from:", "", ""], ["operating activities", "11.1", "102.6"], ["investing activities", "75.5", "(0.4)"], ["financing activities", "(122.4)", "(90.8)"], ["Net change in cash and cash equivalents", "(35.8)", "11.4"]]

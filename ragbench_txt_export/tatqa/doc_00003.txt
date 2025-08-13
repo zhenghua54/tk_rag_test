@@ -1,0 +1,1 @@
+Contract Balances [["(In millions)", "", "", ""], ["Year Ended June 30,", "2019", "2018", "2017"], ["Balance, beginning of period", "$   397", "$  361", "$  409"], ["Charged to costs and other", "153", "134", "58"], ["Write-offs", "(116)", "(98)", "(106)"], ["Balance, end of period", "$ 434", "$  397", "$  361"]]

@@ -1,0 +1,1 @@
+Lockheed Martin Transaction [["", "", "Year Ended", ""], ["", "January 3, 2020", "December 28, 2018", "December 29, 2017"], ["", "", "(in millions)", ""], ["Acquisition costs", "$\u2014", "$\u2014", "$25"], ["Integration costs", "3", "29", "77"], ["Total acquisition and integration costs", "$3", "$29", "$102"]]

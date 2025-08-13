@@ -1,0 +1,1 @@
+CREDIT RISK [["", "NOTE", "2019", "2018"], ["Balance, January 1", "", "(51)", "(54)"], ["Adoption of IFRS 9", "", "\u2013", "(4)"], ["Additions", "", "(114)", "(84)"], ["Usage", "", "103", "91"], ["Balance, December 31", "10", "(62)", "(51)"]]

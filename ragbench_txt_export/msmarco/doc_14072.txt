@@ -1,0 +1,1 @@
+You can either select text within a text box or select all shapes on a. slide. You cannot select all the text in the shapes. So process each text. object and copy/paste to Word and then move to the next shape. --. Regards, Shyam Pillai. Animation Carbon: Copy/Paste/Share animation libraries.

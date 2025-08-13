@@ -1,0 +1,1 @@
+Backlog [["", "2019", "2018"], ["", "(in millions)", ""], ["Semiconductor Test", "$543.2", "$367.5"], ["System Test", "206.0", "149.5"], ["Wireless Test", "42.9", "32.0"], ["Industrial Automation", "17.9", "19.7"], ["", "$810.0", "$568.7"]]

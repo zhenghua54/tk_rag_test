@@ -1,0 +1,1 @@
+Other units of frequency are the kHz, equal to 1,000 Hz or 0.001 MHz, and the gigahertz, equal to 1,000,000,000 Hz or 1,000 MHz. The bandwidth of a digital signal, in megahertz, is related to the data speed in bits per second.

@@ -1,0 +1,1 @@
+Interest Expense [["($ in millions)", "", "", ""], ["For the year ended December 31:", "2019", "2018", "Yr.-to-Yr. Percent Change"], ["Interest expense", "$1,344", "$723", "85.9%"], ["Non-operating adjustment", "", "", ""], ["Acquisition-related charges", "(228)", "\u2014", "NM"], ["Operating (non-GAAP) interest expense", "$1,116", "$723", "54.4"]]

@@ -1,0 +1,1 @@
+12. Information about Segments of Geographic Areas [["Long-lived Assets ", "June 30,\n2019", "June 30,\n2018"], ["Americas ", "$136,035", "$178,251"], ["EMEA  ", "28,744", "15,106"], ["APAC  ", "11,529", "9,896"], ["Total long-lived assets", "$176,308", "$203,253"]]

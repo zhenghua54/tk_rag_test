@@ -1,0 +1,1 @@
+Area is always measured in squares and the unit of area square units (sq. cm., sq. m. or cm^2, m^2). Measuring Regions: We measure a given region by a unit region and find how many such unit regions are contained in the given region. The measure of a region is called its area.

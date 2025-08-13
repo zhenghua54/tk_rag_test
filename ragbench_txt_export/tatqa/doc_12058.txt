@@ -1,0 +1,1 @@
+Note 12. Liabilities [["", "December 31, 2019", "December 31, 2018"], ["Deferred rent", "$ \u2014", "$11,656"], ["Contingent consideration liability from acquisitions", "2,595", "\u2014"], ["Holdback liability from acquisitions", "1,650", "\u2014"], ["Other liabilities", "3,244", "1,650"], ["Other liabilities", "$7,489", "$13,306"]]

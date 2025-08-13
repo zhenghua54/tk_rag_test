@@ -1,0 +1,1 @@
+Debt [["", "", "December 31, 2019", ""], ["", "Gross Carrying Amount", "Unamortized Discount and Deferred Financing Costs", "Net Carrying Amount"], ["2021 Notes", "$650", "$(2)", "$648"], ["2022 Notes", "400", "(2)", "398"], ["2026 Notes", "850", "(7)", "843"], ["2027 Notes", "400", "(5)", "395"], ["2047 Notes", "400", "(9)", "391"], ["Total debt", "$2,700", "$(25)", "$2,675"]]

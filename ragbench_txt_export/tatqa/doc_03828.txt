@@ -1,0 +1,1 @@
+Contractual Obligations [["", "Less than 1 year", "1-3 years", "3-5 years", "More than 5 years", "Total"], ["Operating lease obligations", "$1,699", "$3,950", "$2,707", "$36", "$8,392"], ["Other borrowings", "131", "145", "219", "61", "556"], ["Total", "$1,830", "$4,095", "$2,926", "$97", "$8,948"]]

@@ -56,6 +56,17 @@ class GlobalConfig:
     LLM_NAME = os.getenv("LLM_NAME", "qwen")
 
     LLM_CONFIG = {
+        "qwen-turbo-2025-04-28": {
+            "name": "qwen-turbo-2025-04-28",
+            "api_key": os.getenv("DASHSCOPE_API_KEY"),
+            "base_url": os.getenv("DASHSCOPE_API_BASE_URL"),
+            "qpm": 60,  # 每分钟调用次数
+            "tpm": 5000000,  # 每分钟Token数限制
+            "max_tokens_per_request": 4000,  # 单次请求最大Token数
+            "retry_attempts": 5,  # 重试次数
+            "retry_delay_base": 2,  # 重试延迟基数
+            "retry_delay_max": 60,  # 最大重试延迟
+        },
         "qwen-turbo-2025-07-15": {
             "name": "qwen-turbo-2025-07-15",
             "api_key": os.getenv("DASHSCOPE_API_KEY"),
@@ -205,7 +216,7 @@ class GlobalConfig:
     MILVUS_CONFIG = {
         "uri": os.getenv("MILVUS_URI"),
         "host": os.getenv("MILVUS_HOST"),
-        "port": int(os.getenv("MILVUS_PORT")),
+        "port": int(os.getenv("MILVUS_PORT", "19530")),  # 添加默认值
         "token": os.getenv("MILVUS_TOKEN"),
         "collection_name": "test_rag_flat",  # 更新为新的 FLAT collection
         "vector_field": "seg_dense_vector",  # 新字段名
@@ -234,6 +245,14 @@ class GlobalConfig:
         "vector_batch_size": 10,  # 向量生成的批处理大小
     }
 
+    # 重排序配置
+    RERANK_CONFIG = {
+        "batch_size": 10,  # 重排序批次大小，可根据显存大小调整
+        "fallback_batch_size": 5,  # 显存不足时的降级批次大小
+        "max_length": 512,  # tokenizer的最大长度
+        "use_fp16": True,  # 是否使用半精度浮点以节省显存
+    }
+
     # 提示词模板
     PROMPT_TEMPLATE = {
         "table_summary_v2": {
@@ -247,6 +266,7 @@ class GlobalConfig:
         # "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt.j2", "temperature": 0.1, "top_p": 0.9},
         "rag_system_prompt": {"prompt_file": "prompts/rag_system_prompt.j2", "temperature": 0.1, "top_p": 0.9},
         "query_rewrite": {"prompt_file": "prompts/query_rewrite_prompt.j2", "temperature": 0.3, "max_tokens": 200},
+        "ragas_judge_prompt": {"prompt_file": "prompts/ragas_judge_prompt.j2", "temperature": 0, "top_p": 0.9, "max_tokens": 1000},
     }
 
     # 状态同步配置

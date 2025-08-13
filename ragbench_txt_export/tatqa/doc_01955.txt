@@ -1,0 +1,1 @@
+External auditor [["", "2019", "2018", "2017"], ["", "\u00a3000", "\u00a3000", "\u00a3000"], ["Audit fees", "1,092", "823", "789"], ["Non-audit fees", "598", "281", "49"], ["Total fees paid to auditor", "1,690", "1,104", "838"], ["Ratio of non-audit fees to audit fees", "55%", "34%", "6%"]]

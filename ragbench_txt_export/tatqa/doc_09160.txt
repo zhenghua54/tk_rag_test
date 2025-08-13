@@ -1,0 +1,1 @@
+The expected volatility was based on historical volatility observed from historical company-specific data during the two years prior to the grant date.

@@ -1,0 +1,1 @@
+NOTE 9 – CONTINGENT PURCHASE PRICE [["", "Current", "Long-Term  ", "Total "], ["CareSpeak Communications, Inc. ", "$1,500,000", "$1,500,000", "$3,000,000"], ["RMDY Health, Inc.  ", "-", "3,720,000", "3,720,000"], ["Total ", "$1,500,000", "$5,220,000", "$6,720,000"]]

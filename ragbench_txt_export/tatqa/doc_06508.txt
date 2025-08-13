@@ -1,0 +1,1 @@
+Comparison of Years Ended December 31, 2019 to December 31, 2018 [["", "", "Year Ended December 31,", ""], ["Revenue:", "", "", "% Change"], ["", "2019", "2018", "2019 vs. 2018"], ["SaaS and license revenue", "$337,375", "$291,072", "16%"], ["Hardware and other revenue", "164,988", "129,422", "27%"], ["Total revenue", "$502,363", "$420,494", "19%"]]

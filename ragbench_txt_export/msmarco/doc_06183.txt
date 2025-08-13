@@ -1,0 +1,1 @@
+So, once you have these values, simply take market cap/ earnings to calculate P/E ratio. For Ford, using today’s stock price of $13.36, we get a market capitalization of $53.6 Billion. Divide this by the earnings, $5.6 Billion, and the P/E is 9.46.

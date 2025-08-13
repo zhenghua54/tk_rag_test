@@ -1,0 +1,1 @@
+(1) Includes construction costs capitalized related to build-to-suit facilities: [["", "As of March 31,", ""], ["", "2019", "2018"], ["U.S. build-to-suit facility", "$47,001", "$43,925"], ["U.K. build-to-suit facility", "\u2014", "31,240"], ["Less: Accumulated depreciation", "(5,164)", "(753)"], ["", "$41,837", "$74,412"]]

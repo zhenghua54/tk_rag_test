@@ -1,0 +1,1 @@
+Both DNA and RNA are composed of repeating units of nucleotides. Each nucleotide consists of a sugar, a phosphate and a nucleic acid base. The sugar in DNA is deoxyribose. The sugar in RNA is ribose, the same as deoxyribose but with one more OH (oxygen-hydrogen atom combination called a hydroxyl).

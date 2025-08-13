@@ -1,0 +1,1 @@
+Our net sales to significant customers as a percentage of total net sales were as follows: [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Cummins Inc.", "16.1%", "15.2%", "13.4%"], ["Honda Motor Co.", "11.6%", "10.5%", "11.2%"], ["Toyota Motor Corporation", "9.6%", "10.5%", "10.2%"]]

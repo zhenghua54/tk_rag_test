@@ -1,0 +1,1 @@
+Non-Recurring Fair Value [["", "", "Years Ended December31,", ""], ["", "2019", "2018", "2017"], ["Americas:", "", "", ""], ["Property and equipment, net", "$(343)", "$(9,401)", "$(5,410)"], ["Operating lease right-of-use assets", "(1,368)", "\u2014", "\u2014"], ["", "$(1,711)", "$(9,401)", "$(5,410)"]]

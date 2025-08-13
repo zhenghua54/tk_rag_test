@@ -1,0 +1,1 @@
+(6) Intangible Assets [["", "December 31,", ""], ["", "2019", "2018"], ["Customer relationships", "$336,455", "$159,566"], ["Other", "15,621", "5,555"], ["", "352,076", "165,121"], ["Accumulated amortization", "(73,492)", "(52,942)"], ["Intangible assets, net", "278,584", "112,179"]]

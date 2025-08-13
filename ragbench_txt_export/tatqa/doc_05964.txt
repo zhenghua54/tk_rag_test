@@ -1,0 +1,1 @@
+Note 4. Accounts Receivable, Net [["December 31,", "", ""], ["", "2019", "2018"], ["Accounts receivable", "$80,032", "$52,850"], ["Allowance for doubtful accounts", "(2,584)", "(1,425)"], ["Allowance for product returns", "(1,075)", "(1,915)"], ["Accounts receivable, net", "$76,373", "$49,510"]]

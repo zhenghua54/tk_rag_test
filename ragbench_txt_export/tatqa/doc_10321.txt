@@ -1,0 +1,1 @@
+Due To/From Related Parties, Net [["", "January 31, 2020", "February 1, 2019"], ["Due from related parties, current", "$1,618", "$1,248"], ["Due to related parties, current(1)", "161", "158"], ["Due from related parties, net, current", "$1,457", "$1,090"]]

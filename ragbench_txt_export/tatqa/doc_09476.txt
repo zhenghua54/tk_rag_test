@@ -1,0 +1,1 @@
+(1) The aggregate intrinsic values represent the total pre-tax intrinsic values based on VMware's closing stock price of $148.06 as of January 31, 2020, which would have been received by the option holders had all in-the-money options been exercised as of that date.

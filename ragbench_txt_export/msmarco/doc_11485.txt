@@ -1,0 +1,1 @@
+vigor is for the strength of physical attacks. stamina is related to how much damage you take from physical attacks. however, it also determines how much damage you take from poison and regen. the higher the stamina, the higher the damage from poison or the boost from regen.

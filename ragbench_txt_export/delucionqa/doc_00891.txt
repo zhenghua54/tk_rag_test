@@ -1,0 +1,1 @@
+Speedometer push and release the up or down arrow button until the speedometer menu icon is displayed in the instrument cluster display.  Push and release the ok button to toggle between mph and km/h.

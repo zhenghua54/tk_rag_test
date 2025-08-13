@@ -1,0 +1,1 @@
+(2) The expected volatility is based on the historical implied volatility calculated based on the weighted average remaining life of the performance rights adjusted for any expected changes to future volatility due to publicly available information.

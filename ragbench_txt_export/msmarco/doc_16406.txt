@@ -1,0 +1,1 @@
+5. Where circuit conductors are spliced within a box, or terminated on equipment within or supported by a box, any equipment grounding conductors associated with those circuit conductors must be spliced or joined in the box or to the box with the devices suitable for the use.

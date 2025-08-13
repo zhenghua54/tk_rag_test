@@ -1,0 +1,1 @@
+Liability Insurance [["", "2019", "2018"], ["Beginning balance", "$1.6", "$1.5"], ["Charged to expense", "5.4", "5.8"], ["Payments", "(5.5)", "(5.7)"], ["Ending balance", "$ 1.5", "$ 1.6"]]

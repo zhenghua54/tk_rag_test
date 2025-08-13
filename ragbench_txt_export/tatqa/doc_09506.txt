@@ -1,0 +1,1 @@
+Interest rate risk comprises both cash flow and fair value risks. Cash flow interest rate risk is the risk that the future cash flows of a financial instrument will fluctuate due to changes in market interest rates. Fair value interest rate risk is the risk that the fair value of financial instruments will fluctuate as a result of changes in market interest rates

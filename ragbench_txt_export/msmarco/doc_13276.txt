@@ -1,0 +1,1 @@
+LOYDGB21063 Swift / BIC code for LLOYDS TSB BANK PLC. bank located in SALISBURY-UNITED KINGDOM (GB). Swift Code also known as BIC Code is a unique bank identifier used to verify financial transactions such as a Bank Wire Transfer. The Bank Swift Code provides information about the bank and branch where the money should be transferred.

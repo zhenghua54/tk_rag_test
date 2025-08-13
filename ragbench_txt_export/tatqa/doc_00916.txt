@@ -1,0 +1,1 @@
+Interest income is calculated by applying the effective interest rate to the gross carrying amount of a financial asset, except for financial assets that subsequently become credit-impaired. For credit-impaired financial assets, the effective interest rate is applied to the net carrying amount of the financial asset (after deduction of the loss allowance).

@@ -1,0 +1,1 @@
+polyphase. adj. 1. (Electrical Engineering) Also: multiphase (of an electrical system, circuit, or device) having, generating, or using two or more alternating voltages of the same frequency, the phases of which are cyclically displaced by fractions of a period. See also single-phase, two-phase, three-phase

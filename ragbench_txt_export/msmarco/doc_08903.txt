@@ -1,0 +1,1 @@
+The ampere per meter squared is a small unit of current density. Suppose a wire has a cross-sectional area of one millimeter squared (1 mm 2). This is 0.000001 meter squared (10 -6 m 2). If the current density in this wire is 1 A/m 2, then the wire carries 10 -6 A, or one microampere (1 µA), a tiny current.

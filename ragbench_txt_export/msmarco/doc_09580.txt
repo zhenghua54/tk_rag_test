@@ -1,0 +1,1 @@
+GraphPad Prism is a highly efficient tool capable of doing all mathematical calculations as well as graphical plotting such as curve fitting.

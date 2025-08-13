@@ -1,0 +1,1 @@
+18. Trade and other receivables [["", "2019", "(Restated) 2018"], ["", "\u00a3m", "\u00a3m"], ["Trade receivables", "27.0", "28.8"], ["Less: provision for impairment of trade receivables", "(2.1)", "(3.4)"], ["Net trade receivables", "24.9", "25.4"], ["Accrued income", "28.0", "26.7"], ["Prepayments", "2.9", "2.7"], ["Other receivables", "0.3", "0.1"], ["Total", "56.1", "54.9"]]

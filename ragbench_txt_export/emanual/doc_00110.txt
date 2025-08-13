@@ -1,0 +1,1 @@
+Enabling audio for the video description function. Settings General Accessibility Video Description Try Now You can activate an audio guide that provides an audio description of video scenes for the visually impaired. This function is only available with broadcasts that provide this service.

@@ -1,0 +1,1 @@
+Many other hybrid units are used such as mmHg/cm or grams-force/cm (sometimes as kg/cm without properly identifying the force units). Using the names kilogram, gram, kilogram-force, or gram-force (or their symbols) as a unit of force is prohibited in SI; the unit of force in SI is the newton (N).

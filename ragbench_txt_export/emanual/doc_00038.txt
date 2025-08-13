@@ -1,0 +1,1 @@
+Managing Mobile Devices. Settings General External Device Manager Device Connect Manager Try Now Access Notification Set whether to display a notification when a mobile device attempts to connect to the TV. Device List View, edit, or remove a list of mobile devices registered to the TV.

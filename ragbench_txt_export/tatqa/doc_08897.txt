@@ -1,0 +1,1 @@
+16. PRODUCT WARRANTIES [["", "", "Fiscal Years  ", ""], ["", "2019", "2018", "2017"], ["Balance \u2014 beginning of year", "$5,756", "$3,672", "$1,039"], ["(Divested)/acquired", "\u2014", "(49)", "952"], ["Provisions/(expense)", "(3,053)", "1,865", "1,737"], ["Direct charges/(payments)", "570", "268", "(56)"], ["Balance \u2014 end of year", "$3,273", "$5,756", "$3,672"]]

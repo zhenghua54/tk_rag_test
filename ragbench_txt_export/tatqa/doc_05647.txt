@@ -1,0 +1,1 @@
+Other Intangible Assets, Net [["", "2019", "2018"], ["Developed technologies, at cost", "$670.2", "$578.5"], ["Customer relationships, trade names, patents, and user lists, at cost (1)", "533.1", "372.5"], ["Other intangible assets, at cost (2)", "1,203.3", "951.0"], ["Less: accumulated amortization", "(922.5)", "(895.8)"], ["Other intangible assets, net", "$280.8", "$55.2"]]

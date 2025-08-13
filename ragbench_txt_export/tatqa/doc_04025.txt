@@ -1,0 +1,1 @@
+Revenue stream [["", "Year ended December 31,", ""], ["(EUR thousand)", "2018", "2019"], ["Equipment revenue", "631,504", "1,068,645"], ["Spares & service revenue", "186,577", "215,215"], ["Total", "818,081", "1,283,860"]]

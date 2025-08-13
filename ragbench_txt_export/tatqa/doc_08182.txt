@@ -1,0 +1,1 @@
+B. Liquidity and Capital Resources [["", "", "Year ended March 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(in thousands)", ""], ["Current assets(*)", "$351,597", "$339,562", "$362,477"], ["Current liabilities", "318,672", "239,327", "316,101"], ["Working capital", "$32,925", "$100,235", "$46,376"]]

@@ -1,0 +1,1 @@
+Other Non-current Liabilities [["", "2019", "2018"], ["Lease liabilities", "$28,046", "$\u2014"], ["Other", "708", "534"], ["Total other non-current liabilities", "$28,754", "$534"]]

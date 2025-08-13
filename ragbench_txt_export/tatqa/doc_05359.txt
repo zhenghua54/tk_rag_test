@@ -1,0 +1,1 @@
+Administrative expenses [["", "2019", "2018", ""], ["Costs", "\u00a3m", "\u00a3m", "Change"], ["People costs", "56.4", "54.8", "3%"], ["Marketing", "17.6", "16.3", "8%"], ["Other costs", "29.4", "28.7", "2%"], ["Depreciation and amortisation", "8.9", "9.0", "(1%)"], ["Total administrative expenses", "112.3", "108.8", "3%"]]

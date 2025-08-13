@@ -1,0 +1,1 @@
+Cubic Mission Solutions [["", "Fiscal 2019", "Fiscal 2018", "% Change"], ["", "", "(in millions)", ""], ["Sales", "$ 328.8", "$  207.0", "59 %"], ["Operating income (loss)", "7.8", "(0.1)", "n/a"], ["Adjusted EBITDA", "34.4", "26.2", "31"]]

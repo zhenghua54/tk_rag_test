@@ -1,0 +1,1 @@
+ACI On Demand serves the needs of banks, merchants, and billers who use payments to facilitate their core business. These ondemand solutions are maintained and delivered through the cloud via our global data centers and are available in either a singletenant environment for SaaS offerings, or in a multi-tenant environment for PaaS offerings.

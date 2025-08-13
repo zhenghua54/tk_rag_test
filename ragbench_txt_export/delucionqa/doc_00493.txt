@@ -1,0 +1,1 @@
+Remote Start Windshield Wiper De-Icer Activation — If Equipped When Remote Start is active and the outside ambient temperature is less than 33°F (0.6°C), the Windshield Wiper De-Icer will activate.  Exiting Remote Start will resume previous operation.  If the Windshield Wiper De-Icer was active, the Windshield Wiper De-Icer timer and operation will continue.

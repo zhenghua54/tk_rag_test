@@ -1,0 +1,1 @@
+5.2 Employee share plans (continued) [["", "2019 NUMBER", "2018 NUMBER"], ["Outstanding at the beginning of the period", "547,949", "-"], ["Granted during the period", "-", "772,303"], ["Forfeited during the period", "(140,687)", "(224,354)"], ["Exercised during the period", "-", "-"], ["Outstanding at the end of the period", "407,262", "547,949"]]

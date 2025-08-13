@@ -1,0 +1,1 @@
+FINANCIAL CONDITION, LIQUIDITY AND CAPITAL RESOURCES [["", "2019", "2018", "2017"], ["Cash provided by/(used in):", "", "", ""], ["Operating activities", "$ 1,461.8", "$ 1,430.1", "$ 1,234.5"], ["Investing activities", "(1,296.0)", "(1,335.1)", "(209.6)"], ["Financing activities", "177.0", "(388.1)", "(1,170.0)"]]

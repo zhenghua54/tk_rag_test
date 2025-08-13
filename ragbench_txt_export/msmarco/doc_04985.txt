@@ -1,0 +1,1 @@
+Normal body temperature for a dog (in celsius) is about 38 to 40 depending on breed etc. The equivalent to 98.6 degrees Fahrenheit is 37 degrees Celsius. This is the average normal human body temperature, which is slightly lower in adults. The range is 36.8 degr … ees plus or minus 0.7 degrees

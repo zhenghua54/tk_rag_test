@@ -1,0 +1,1 @@
+Description of Business [["", "", "2019", "", "2018"], ["", "Amount", "% of Revenues", "Amount", "% of Revenues"], ["Comcast", "$ 229", "23%", "$221", "25%"], ["Charter", "195", "20%", "179", "20%"]]

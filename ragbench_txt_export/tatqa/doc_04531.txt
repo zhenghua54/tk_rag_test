@@ -1,0 +1,1 @@
+DERIVATIVE LIABILITIES [["", "Upon 2018 Expiration", "December 31, 2017"], ["Assumptions:", "", ""], ["Risk-free interest rate", "2.3% - 2.5%", "1.5% - 2.0%"], ["Expected life", "1.8 - 2.2 Years", "2.5 - 3 Years"], ["Expected volatility", "65% - 70%", "50% - 60%"], ["Dividends", "0%", "0%"]]

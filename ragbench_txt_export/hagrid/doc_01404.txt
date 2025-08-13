@@ -1,0 +1,1 @@
+Mars has an orbit with a semimajor axis of 1.524 astronomical units (228 million kilometers), and an eccentricity of 0.0934. The planet orbits the Sun in 687 days and travels 9.55 AU in doing so, making the average orbital speed 24 km/s.

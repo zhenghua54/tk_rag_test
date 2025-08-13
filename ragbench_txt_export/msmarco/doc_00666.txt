@@ -1,0 +1,1 @@
+Pricing out an R720XD on the Dell website, I found a server with 128GB of memory and twelve 1.2TB disks comes in at $15,276. That’s $1060 per terabyte. Cool. However, Hadoop needs two replicas of all data to provide basic high availability.

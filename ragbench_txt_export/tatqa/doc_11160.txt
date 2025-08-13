@@ -1,0 +1,1 @@
+Dividends [["(In millions, except per share amounts)", "Total Cash Dividends Paid", "Total Cash Dividends Paid Per Common Share"], ["2017", "$119.7", "$0.64"], ["2018", "102.9", "0.64"], ["2019", "99.1", "0.64"], ["Total", "$321.7", ""]]

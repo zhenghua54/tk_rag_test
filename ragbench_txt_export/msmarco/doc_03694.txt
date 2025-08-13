@@ -1,0 +1,1 @@
+Voice logging and call logging is actually the same thing. It involves recording phone lines, radio lines, or VoIP lines. Then using a system or software to help monitor and mark these calls and recordings for reference or internal training. Most of the time, the phrases voice logging and call logging are used in a business environment.

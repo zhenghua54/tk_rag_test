@@ -1,0 +1,1 @@
+• Coriolis force is zero at the equator and maximum at the pole.• Coriolis force increases with an object’s speed.• Coriolis force changes only the direction of the moving object. ATMO 1300 Coriolis Force –F c = Coriolis Force– ω= Earth rotation– v = Wind Speed– φ= LatitudeF c =2ω v sinφ.

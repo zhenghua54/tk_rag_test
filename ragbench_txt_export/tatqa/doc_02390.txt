@@ -1,0 +1,1 @@
+In October 2016, the FASB issued an ASU which eliminates the deferred tax effects of intra-entity asset transfers other than inventory. As a result, tax expense from the sale of an asset in the seller’s tax jurisdiction is recognized when the transfer occurs, even though the pre-tax effects of that transaction are eliminated in consolidation.

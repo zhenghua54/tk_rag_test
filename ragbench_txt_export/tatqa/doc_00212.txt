@@ -1,0 +1,1 @@
+(2) Represents options to purchase Common Shares excluded from the calculation of diluted earnings per share because the exercise price of the stock options was greater than or equal to the average price of the Common Shares during the period.

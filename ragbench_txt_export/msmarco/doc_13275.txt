@@ -1,0 +1,1 @@
+3 letters or digits: branch code, optional ('XXX' for primary office). Where an 8-digit code is given, it may be assumed that it refers to the primary office. SWIFT Standards, a division of The Society for Worldwide Interbank Financial Telecommunication (SWIFT), handles the registration of these codes.

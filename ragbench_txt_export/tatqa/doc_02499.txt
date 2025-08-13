@@ -1,0 +1,1 @@
+UK SIP [["", "2019", "2018"], ["", "Number", "Number"], ["Outstanding at 1 April", "690,791", "776,045"], ["Dividend shares awarded", "4,518", "9,778"], ["Forfeited", "(9,275)", "(75,986)"], ["Released", "(365,162)", "(19,046)"], ["Outstanding at 31 March", "320,872", "690,791"], ["Vested and outstanding at 31 March", "320,872", "\u2013"]]

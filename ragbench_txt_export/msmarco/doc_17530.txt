@@ -1,0 +1,1 @@
+For strain energy of structures, see Energy principles in structural mechanics. For strain energy of solids, see Strain energy density function. In physics, strain energy is the energy stored by a system undergoing deformation. When the load is removed, strain energy as : where σ is stress, ε is strain, V is volume, and E is Young's modulus :

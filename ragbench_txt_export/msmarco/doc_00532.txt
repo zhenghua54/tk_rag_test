@@ -1,0 +1,1 @@
+Here we will show you how to create a hyperlink to another document. With your Excel document open click on the cell where you want to create the hyperlink and under the Insert tab click on the Hyperlink button. The Insert Hyperlink dialog box will pop up and here is where you want to add the text to display and browse to the location of the file you want to link to.

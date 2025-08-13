@@ -1,0 +1,1 @@
+Director Compensation [["Name", "Fees earned or paid in cash ($) (1)", "Stock Awards ($) (2) (3)", "All other compensation ($) (4)", "Total ($)"], ["Emanuel Pearlman", "$ 50,000", "$ 39,000", "$ 750", "$  89,750"], ["Niv Harizman", "$ 46,250", "$ 39,000", "$ 750", "$  86,000"], ["Alison Hoffman", "$ 48,890", "$ 39,000", "$ 750", "$ 88,640"]]

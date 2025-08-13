@@ -1,0 +1,1 @@
+22. Cash and cash equivalents [["", "2019", "2018"], ["", "$ million", "$ million"], ["Cash at bank", "103.9", "57.7"], ["Short-term bank deposits", "79.3", "63.9"], ["", "183.2", "121.6"]]

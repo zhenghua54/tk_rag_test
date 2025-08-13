@@ -1,0 +1,1 @@
+Restricted Shares [["", "Number of Shares", "Weighted-Average Grant-Date Fair Value"], ["", "", "(per share)"], ["Outstanding at April 1, 2018", "243,354", "$10.78"], ["Granted", "265,452", "14.66"], ["Vested", "(197,917)", "12.74"], ["Forfeited", "(73,743)", "11.3"], ["Outstanding at March 31, 2019", "237,146", "$13.46"]]

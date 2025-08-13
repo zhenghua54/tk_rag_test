@@ -1,0 +1,1 @@
+Project Plan 365 - Create, modify, share Microsoft Project MPP files. The Housatonic Project Plan 365 is a simple to use project planning and collaboration solution that works with or in place of Microsoft Project. 1  Maintain Work Breakdown Structure(WBS) and project schedule.

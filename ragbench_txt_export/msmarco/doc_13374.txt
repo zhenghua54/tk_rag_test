@@ -1,0 +1,1 @@
+Diameter is a protocol within the family of AAA Protocols. Diameter uses the URI scheme; AAA stands for Authentication, Authorization and Accounting, AAAS stands for Authentication, Authorization and Accounting with Secure Transport, which is a Diameter based Protocol.

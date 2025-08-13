@@ -1,0 +1,1 @@
+For each CGU (excluding International), 5 years of cash flows have been included in the cash flow models. These are based on the long-term plan and growth rates of 3%.

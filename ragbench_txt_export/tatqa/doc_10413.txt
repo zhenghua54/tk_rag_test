@@ -1,0 +1,1 @@
+Sources and uses of cash [["", "", "Year Ended March 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(in thousands)", ""], ["Net cash from operating activities", "$74,966", "$83,243", "$98,993"], ["Net cash used in investing activities", "$(157,733)", "$(185,420)", "$(175,191)"], ["Net cash from financing activities", "$84,117", "$77,415", "$5,929"]]

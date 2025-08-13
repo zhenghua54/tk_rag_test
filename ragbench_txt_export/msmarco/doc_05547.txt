@@ -1,0 +1,1 @@
+1 Average maximum cost of a 6-foot privacy fence (materials): $15 per linear foot. 2  Average minimum cost of a 6-foot privacy fence (installation): $3 per linear foot. 3  Average maximum cost of a 6-foot privacy fence (installation): $13 per linear foot. 1 Average minimum cost of a 6-foot privacy fence (installation): $3 per linear foot. 2

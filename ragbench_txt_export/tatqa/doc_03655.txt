@@ -1,0 +1,1 @@
+Net debt is now defined as the excess of total financial liabilities, excluding trade payables and other current liabilities, over cash, cash equivalents and other current financial assets, excluding trade and other current receivables, and non-current financial asset derivatives that relate to financial liabilities.

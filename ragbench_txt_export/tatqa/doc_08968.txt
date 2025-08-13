@@ -1,0 +1,1 @@
+19. Cash and cash equivalents [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Sterling", "5.8", "4.1"], ["Euro", "0.1", "0.2"], ["Cash at bank and in hand", "5.9", "4.3"]]

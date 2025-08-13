@@ -1,0 +1,1 @@
+2. Employees [["", "2019", "2018"], ["", "Number", "Number"], ["Manufacturing", "40", "37"], ["Product development", "54", "50"], ["Selling and marketing", "52", "45"], ["Administration", "32", "30"], ["", "178", "162"]]

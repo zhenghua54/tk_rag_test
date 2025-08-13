@@ -1,0 +1,1 @@
+Step 3. Click Properties in the left pane to view the properties of the chart in the right pane. Step 4. Click the Don't move or size with cells radio button to lock the position of the chart, and then click Close to close the Format Chart Area window. Step 5. Press Ctrl-S to save the latest version of the spreadsheet.

@@ -1,0 +1,1 @@
+The RB951Ui-2HnD is a wireless SOHO AP with a new generation Atheros CPU and more processing power. It has five Ethernet ports, one USB 2.0 port and a high power 2.4GHz 1000mW 802.11b/g/n wireless AP with antennas built in. The Sixpack is a set of six devices-one 90 degree Access Point and five clients.

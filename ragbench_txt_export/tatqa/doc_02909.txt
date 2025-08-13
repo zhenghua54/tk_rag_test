@@ -1,0 +1,1 @@
+4.6 Adjusted EBITDA [["", "2019", "2018", "$ CHANGE", "% CHANGE"], ["Bell Wireless", "3,842", "3,521", "321", "9.1%"], ["Bell Wireline", "5,414", "5,321", "93", "1.7%"], ["Bell Media", "850", "693", "157", "22.7%"], ["Total BCE adjusted EBITDA", "10,106", "9,535", "571", "6.0%"]]

@@ -1,0 +1,1 @@
+Network Protocols. Protocols are specifications for standardized packets of data that make it possible for networks to share information. Windows 2000 supports many different protocols. The packets of information are moved up and down the protocol stack, and across the transmission media. Network protocols include:

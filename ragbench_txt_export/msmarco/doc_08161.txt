@@ -1,0 +1,1 @@
+4. Click Disable Key. This button is located in the Keyboard Controls section. This will turn off the selected key, which will keep Caps Lock from activating when you press it. 1. Physically remove the key. Pry the Caps Lock key from the keyboard. This will leave a hole where the key used to be, but you don't need administrator privileges to do this.

@@ -1,0 +1,1 @@
+Step 2 -- Record Macro option. Now go to the View tab. Over there, open up the Macros drop down menu and click on the Record Macro option in order to create a excel keyboard shortcut. Step 3 -- Configure the Macro. With that done, the Record Macro window will open up.

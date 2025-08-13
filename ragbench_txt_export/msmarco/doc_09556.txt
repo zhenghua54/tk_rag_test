@@ -1,0 +1,1 @@
+The Celsius and Kelvin scales have the same size degree, but have different 'zero' or starting points. The freezing point for water is 0oC and 273.15 in the Kelvin scale. Conversions between the Kelvin and Celsius require the addition or subtraction of 273.15.

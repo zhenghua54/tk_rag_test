@@ -1,0 +1,1 @@
+The precise strength of Earth's gravity varies depending on location. The nominal "average" value at Earth's surface, known as is, by definition, 9.80665 m/s. This quantity is denoted variously as , (though this sometimes means the normal equatorial value on Earth, 9.78033 m/s), , gee, or simply (which is also used for the variable local value).

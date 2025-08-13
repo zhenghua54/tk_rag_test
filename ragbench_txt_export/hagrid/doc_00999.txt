@@ -1,0 +1,1 @@
+The project was started at the end of 2009 in Pittsburgh by Carnegie Mellon University professor Luis von Ahn (creator of reCAPTCHA) and his graduate student Severin Hacker, and then developed along with Antonio Navas, Vicki Cheung, Marcel Uekermann, Brendan Meeder, Hector Villafuerte, and Jose Fuentes.

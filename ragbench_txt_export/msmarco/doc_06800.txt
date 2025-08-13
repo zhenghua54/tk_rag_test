@@ -1,0 +1,1 @@
+More trip calculations. 1  driving distance from Barcelona, Spain to Madrid, Spain. 2  cost to drive from Barcelona, Spain to Madrid, Spain. 3  reverse driving time from Madrid, Spain to Barcelona, Spain. 4  halfway between Barcelona, Spain and Madrid, Spain. 5  places to stop

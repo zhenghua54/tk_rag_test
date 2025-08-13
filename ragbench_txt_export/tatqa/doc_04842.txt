@@ -1,0 +1,1 @@
+3. EARNINGS PER SHARE: [["", "For Fiscal Years", ""], ["", "2019 Basic", "2018 Basic"], ["Weighted average common shares outstanding", "597,961", "660,925"], ["Net income available to common shareholders", "$3,202,943", "$3,614,610"], ["Net earnings per share available to common shareholders", "$5.36", "$5.47"]]

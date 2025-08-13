@@ -1,0 +1,1 @@
+Basic earnings per share is computed in accordance with ASC 260, Earnings per Share, based on weighted average outstanding common shares. Diluted earnings per share is computed based on basic weighted average outstanding common shares adjusted for the dilutive effect of stock options, RSUs, and certain contingently issuable shares for which performance targets have been achieved.

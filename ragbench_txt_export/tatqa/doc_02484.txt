@@ -1,0 +1,1 @@
+4. Restructuring Activity [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(in thousands)", ""], ["Employee separation expenses", "$1,150", "$2,094", "$8,353"], ["Lease related expenses", "1,301", "1,608", "1,025"], ["Other", "185", "136", "146"], ["", "$2,636", "$3,838", "$9,524"]]

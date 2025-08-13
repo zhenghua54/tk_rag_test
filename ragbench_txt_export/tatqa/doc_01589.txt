@@ -1,0 +1,1 @@
+Impairment of Goodwill [["", "Years Ended December 31,", "", "Change", ""], ["", "2019", "2018", "$", "%"], ["", "", "(dollars in thousands)", "", ""], ["Impairment of goodwill", "$1,910", "$14,740", "$(12,830)", "(87%)"], ["Percent of revenues, net", "4%", "26%", "", ""]]

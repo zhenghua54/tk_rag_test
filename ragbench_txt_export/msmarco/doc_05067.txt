@@ -1,0 +1,1 @@
+The temperature of the Earth's atmosphere varies with altitude; the  relationship between temperature and altitude varies between the  different atmospheric layers:    - troposphere - 0 - 7/17 km, temperature decreasing with height.    - stratosphere - 7/17 - 50 km, temperature increasing with height.

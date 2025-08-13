@@ -1,0 +1,1 @@
+Enable or Disable Data Roaming. Find out how to enable or disable data roaming on your device. 1  From the home screen, tap Apps. 2  Tap Settings. 3  Scroll to and tap More networks. 4  Tap Mobile networks. 5  Tap Data roaming. 6  Tap OK if prompted.

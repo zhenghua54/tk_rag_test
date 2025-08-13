@@ -1,0 +1,1 @@
+Research and development [["", "", "Year Ended", "", "", "Change", "", ""], ["(Dollars in thousands)", "2019", "2018", "2017", "2019 over 2018", "", "2018 over 2017", ""], ["Research and development", "$96,611", "$84,472", "$88,573", "$12,139", "14%", "$(4,101)", "(5)%"], ["% of net sales .", "3.2%", "3.8%", "3.0%", "", "", "", ""]]

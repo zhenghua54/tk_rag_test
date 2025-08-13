@@ -1,0 +1,1 @@
+Share-Based Compensation [["", "", "Fiscal Years", ""], ["", "2019", "2018", "2017"], ["Cost of revenue", "$2,936", "$3,869", "$3,189"], ["Research and development", "8,551", "13,448", "10,565"], ["Selling, general and administrative", "12,305", "14,620", "22,581"], ["Total", "$23,792", "$31,937", "$36,335"]]

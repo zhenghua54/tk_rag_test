@@ -1,0 +1,1 @@
+Because headgroup structure is an important modulator of lipid packing, headgroup as well as acyl chain structure may be important in raft formation. For instance, phosphatidylethanolamines (PE), with their small headgroup, have much higher Tm than the corresponding phosphatidylcholines (PC).

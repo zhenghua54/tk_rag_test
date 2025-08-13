@@ -1,0 +1,1 @@
+14. Share-based Compensation [["", "", "Year ended March 31,", ""], ["(In thousands)", "2019", "2018", "2017"], ["Product development", "$1,478", "$1,306", "$1,545"], ["Sales and marketing", "469", "371", "360"], ["General and administrative", "2,429", "3,011", "522"], ["Total share-based compensation expense", "$4,376", "$4,688", "$2,427"]]

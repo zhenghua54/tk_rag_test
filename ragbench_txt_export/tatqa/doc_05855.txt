@@ -1,0 +1,1 @@
+Section 5: Our people [["", "CONSOLIDATED", ""], ["", "2019 $", "2018 $"], ["Short-term employee benefits", "3,728,367", "2,780,820"], ["Post-employment benefits", "151,851", "184,614"], ["Share-based payments", "651,748", "320,560"], ["Termination benefits", "367,015", "841,940"], ["", "4,898,981", "4,127,934"]]

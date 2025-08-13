@@ -1,0 +1,1 @@
+26 Operating leases [["\u00a3m", "2019", "2018"], ["Not later than one year", "322.6", "374.6"], ["Later than one year and not later than five years", "788.3", "987.2"], ["Later than five years", "657.3", "973.5"], ["", "1,768.2", "2,335.3"]]

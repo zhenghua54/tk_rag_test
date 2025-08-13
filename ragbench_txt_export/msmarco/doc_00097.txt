@@ -1,0 +1,1 @@
+Let’s see how we can use an average teacher’s salary to create a doable budget. I’m using the local county’s pay scale for a teacher with a Bachelor’s Degree, certification, and 5 years of experience. That gives us an annual salary of $41,404.20.

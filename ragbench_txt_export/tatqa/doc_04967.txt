@@ -1,0 +1,1 @@
+Cost of Revenue, Gross Profit, and Gross Margin [["", "", "Year Ended December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(dollars in thousands)", ""], ["Cost of revenue", "$149,215", "$144,349", "$142,867"], ["Gross profit", "$427,308", "$393,542", "$339,118"], ["Gross margin", "74.1%", "73.2%", "70.4%"]]

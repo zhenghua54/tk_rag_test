@@ -1,0 +1,1 @@
+• Expected Volatility. The Company determines the price volatility factor based on the Company's historical volatility over the expected life of the stock options.

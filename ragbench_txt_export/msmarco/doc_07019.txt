@@ -1,0 +1,1 @@
+1 On the Select Operating System Type page, click Unix/Linux and then click Next. 2  On the Unix/Linux Operating System list page, select the type of UNIX/Linux operating systems for the installation package and then click Next. After verifying the selected download path in the Download Location box, click Next. 1

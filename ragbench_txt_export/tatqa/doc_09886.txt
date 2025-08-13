@@ -1,0 +1,1 @@
+Benefit for Income Taxes [["", "Year Ended December 31,", "", ""], ["", "2019", "2018", "2017"], ["U.S.", "$176.4", "$138.9", "$180.6"], ["Foreign", "(50.0)", "(65.9)", "(73.8)"], ["Incomefromcontinuingoperationsbeforeincometaxes", "$126.4", "$73.0", "$106.8"]]

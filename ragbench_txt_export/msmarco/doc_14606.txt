@@ -1,0 +1,1 @@
+A gene (def) is a segment of DNA that codes for a functional product (mRNA, tRNA, or rRNA). Since the vast majority of genes are transcribed into mRNA and mRNA is subsequently translated into polypeptides or proteins, most genes code for protein synthesis.

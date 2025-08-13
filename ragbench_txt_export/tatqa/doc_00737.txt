@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["(IN MILLIONS)", "2019", "2018", "2017"], ["Net cash from operating activities", "$1,066", "$1,058", "$1,310"], ["Cash and short-term marketable securities", "$454", "$524", "$656"], ["Revolving credit facility", "$850", "$850", "$575"]]

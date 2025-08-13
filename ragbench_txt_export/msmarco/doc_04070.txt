@@ -1,0 +1,1 @@
+Wednesday, November 05, 2008 7 Definition of LPP Linear programming deals with the optimization (Maximization or minimization) of a function of variables known as objective function, subject to a set of linear equations and/or inequalities known as constraint.

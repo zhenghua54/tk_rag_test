@@ -1,0 +1,1 @@
+Climate Control OFF Button Press and release this button to turn the Climate Control ON/OFF.

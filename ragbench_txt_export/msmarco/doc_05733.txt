@@ -1,0 +1,1 @@
+A point of presence was a location where a long-distance carrier (IXC) could terminate services and provide connections into a local telephone network (LATA). An Internet point of presence is an access point to the Internet. It is a physical location that houses servers, routers, ATM switches and digital/analog call aggregators.

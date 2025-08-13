@@ -1,0 +1,1 @@
+Messages: 1,296. Java has a compiler which compiles source into byte code. This can be run on a virtual machine(which can be seen as an interpreter) or a machine whose machine language is bytecode, eg. picojava chips. The third option is a just in time(JIT) compiler which compiles java to native code. Voodoo Child, Jun 18, 2004. #6.

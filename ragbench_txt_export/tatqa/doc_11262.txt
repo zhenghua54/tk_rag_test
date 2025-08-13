@@ -1,0 +1,1 @@
+18. Geographic Information [["", "Year Ended December31,", ""], ["", "2019", "2018"], ["U.S.", "200.4", "231.0"], ["International", "58.2", "68.0"], ["", "$258.6", "$299.0"]]

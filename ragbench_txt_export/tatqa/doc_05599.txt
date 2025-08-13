@@ -1,0 +1,1 @@
+We use forward contracts to mitigate currency risk related to a portion of our forecasted foreign currency revenues and costs. The currency forward contracts are designed as cash flow hedges and are recorded in the Consolidated Balance Sheets at fair value.

@@ -1,0 +1,2 @@
+Ductility can be quantified by the fracture strain formula_1, which is the engineering strain at which a test specimen fractures during a uniaxial tensile test. Another commonly used measure is the reduction of area at fracture formula_2. The ductility of steel varies depending on the alloying constituents. Increasing the levels of carbon decreases ductility. Many plastics and amorphous solids, such as Play-Doh, are also malleable.
+The most ductile metal is platinum and the most malleable metal is gold.

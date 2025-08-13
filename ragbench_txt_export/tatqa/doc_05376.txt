@@ -1,0 +1,1 @@
+Note 6 – Accrued Expenses [["", "", "December 31,"], ["", "2019", "2018"], ["Payroll and incentive compensation", "$ 3,009", "$ 1,937"], ["Current portion of operating lease liabilities     \u2013", "285", "-"], ["Real estate taxes", "398", "398"], ["Other", "395", "442"], ["Total accrued expenses", "$ 4,087", "$ 2,777"]]

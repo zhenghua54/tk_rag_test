@@ -1,0 +1,1 @@
+When a molecule with a permanent dipole, such as HCN, collides with a molecule without a molecular dipole, the collision itself causes a dipole to appear by changes in electron density within the molecule. The nitrogen atom in HCN is electron rich and the molecular dipole points in the direction of this atom.

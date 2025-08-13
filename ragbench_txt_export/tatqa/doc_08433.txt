@@ -1,0 +1,4 @@
+Segment Results of Operations
+In the Company's Consolidated Financial Statements, other operating (income) expense includes (i) (gain) loss on sale or disposal of assets, (ii) lease termination costs, (iii)
+asset impairment expense, (iv) accretion of asset retirement obligations, and (v) FCC reimbursements. Each table summarizes the results of operations of our operating
+segments and compares the amount of the change between the periods presented (in millions).                                Marine Services Segment [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "Increase / (Decrease)"], ["Net revenue", "$172.5", "$194.3", "$(21.8)"], ["Cost of revenue", "127.1", "163.0", "(35.9)"], ["Selling, general and administrative", "25.8", "20.2", "5.6"], ["Depreciation and amortization", "25.7", "27.2", "(1.5)"], ["Other operating income", "\u2014", "(0.7)", "0.7"], ["Income (loss) from operations", "$(6.1)", "$(15.4)", "$9.3"]]

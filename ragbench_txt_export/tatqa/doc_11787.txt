@@ -1,0 +1,1 @@
+Basic earnings per common share ("EPS") is based upon the weighted-average number of common shares outstanding during the period.  Diluted EPS reflects the potential dilution that would occur upon issuance of common shares for awards under stock-based compensation plans, or conversion of preferred stock, but only to the extent that they are considered dilutive.

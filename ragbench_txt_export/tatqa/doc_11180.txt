@@ -1,0 +1,3 @@
+Discount rates 
+
+Discount rates used are WACC and include a premium for market risks appropriate to each country in which the CGU operates. WACCs averaged 8.9% (Board & Systems - Americas 9.1%, Board & Systems - EMEA 8.6% and Parts Analytics and Search 9.1%).

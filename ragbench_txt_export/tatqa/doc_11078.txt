@@ -1,0 +1,1 @@
+The expected volatility was determined by calculating the historical volatility of the Company’s share price over the previous two years which management considers to be the period which is likely to be most representative of future volatility. The risk free rate is calculated by reference to UK government bonds.

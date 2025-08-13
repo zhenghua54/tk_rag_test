@@ -1,0 +1,1 @@
+A POS system for a restaurant, for example, is likely to have all menu items stored in a database that can be queried for information in a number of ways. POS terminals are used in most industries that have a point of sale such as a service desk, including restaurants, lodging, entertainment, and museums.

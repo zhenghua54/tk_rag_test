@@ -1,0 +1,1 @@
+Color Light Output (CLO), also known as Color Brightness, is a specification that provides information on a projector’s ability to reproduce color. Color Light Output is specified in the lumen unit and measures a color projection system's ability to correctly reproduce color brightness.

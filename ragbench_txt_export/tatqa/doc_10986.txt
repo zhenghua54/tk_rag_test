@@ -1,0 +1,1 @@
+Level 1: Quoted prices (unadjusted) in active markets that are accessible at the measurement date for assets or liabilities. Level 2: Observable prices that are based on inputs not quoted on active markets, but corroborated by market data. Level 3: Unobservable inputs are used when little or no market data is available.

@@ -1,0 +1,1 @@
+Where most agile development organizations focus at the team level, on sprints or iteration, SAFe focuses on the program, which could be five to 15 teams. The program-level sprint in SAFe is the Program Increment (PI), formerly known as the Potentially Shippable Increment (PSI).

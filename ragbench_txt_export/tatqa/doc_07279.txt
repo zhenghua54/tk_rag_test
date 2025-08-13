@@ -1,0 +1,1 @@
+(2) Convertible notes hedge warrant shares were calculated using the difference between the average Teradyne stock price for the period and the warrant price of $39.68, multiplied by 14.5 million shares. The result of this calculation, representing the total intrinsic value of the warrant, was divided by the average Teradyne stock price for the period.

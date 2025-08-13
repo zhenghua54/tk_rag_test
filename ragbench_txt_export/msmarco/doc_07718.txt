@@ -1,0 +1,1 @@
+Figure out how many knots you are traveling, or plan on traveling. The equation to convert knots to miles per hour is: 1 Knot = 1.15077945 mph (1.85200000 km/h). Take your number of knots and multiply it by 1.15. This will give you how fast you are moving in miles per hour.

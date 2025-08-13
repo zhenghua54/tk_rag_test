@@ -1,0 +1,1 @@
+Magnetic declination, sometimes called magnetic variation, is the angle between magnetic north and true north. Declination is positive east of true north and negative when west. Magnetic declination changes over time and with location. As the compass points with local magnetic fields, declination value is needed to obtain true north.. more.

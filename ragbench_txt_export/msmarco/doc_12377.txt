@@ -1,0 +1,1 @@
+Best Answer: iCloud backups are typically not very painful because they happen on the fly, as you bring data on your iDevice, so you end up only uploading reasonable amount of data in reasonable increments. However if you have a fairly full device, say 8GB of stuff, then the first backup will be very long.

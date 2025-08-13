@@ -1,0 +1,1 @@
+While we do not yet have a description of the CAV file format and what it is normally used for, we do know which programs are known to open these files. See the list of programs recommended by our users below.

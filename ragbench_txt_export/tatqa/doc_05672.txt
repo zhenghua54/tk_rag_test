@@ -1,0 +1,1 @@
+Exchange gains and losses, net represent the portion of exchange rate changes on transactions denominated in currencies other than an entity’s functional currency and the changes in fair value of trading derivative instruments which are not designated as hedge and which have a cash flow effect related to operating transactions, as described in Note 27.

@@ -1,0 +1,1 @@
+How to create an e-mail signature in RoundCube. Under step 4 where it mentions placing a check mark on the HTML Signature option, you'd want to do that and then follow these steps. Now when you go to compose a new e-mail, you should see your image automatically appended to your signature at the bottom.

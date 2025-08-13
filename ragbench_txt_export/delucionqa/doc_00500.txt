@@ -1,0 +1,1 @@
+Identifying Whether You Have A Rolling Code Or Non-Rolling Code Device Before programming a device to one of your HomeLink® buttons, you must determine whether the device has a rolling code or non-rolling code.

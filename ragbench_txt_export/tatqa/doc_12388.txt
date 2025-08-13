@@ -1,0 +1,1 @@
+Note 3. Revenue from Contracts with Customers [["", "Year Ended December 31,", ""], ["", "2019", "2018"], ["Beginning of period balance", "$2,881", "$\u2014"], ["Commission costs and upfront payments to a customer capitalized in period", "4,141", "4,864"], ["Amortization of contract assets", "(2,444)", "(1,983)"], ["End of period balance", "$4,578", "$2,881"]]

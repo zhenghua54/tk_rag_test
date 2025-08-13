@@ -1,0 +1,1 @@
+Future minimum operating lease payments were as follows: [["Payable in the year ending 31 March:", "2019 \u00a3m", "2018 \u00a3m"], ["2019", "-", "600"], ["2020", "755", "550"], ["2021", "641", "513"], ["2022", "599", "486"], ["2023", "555", "463"], ["2024", "512", "449"], ["Thereafter", "3,557", "3,536"], ["Total future minimum operating lease payments", "6,619", "6,597"]]

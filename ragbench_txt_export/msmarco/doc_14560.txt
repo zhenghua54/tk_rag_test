@@ -1,0 +1,1 @@
+The frequency density is a the frequency of values divided by the class width of values. The area of each block/bar represents the total of frequencies for a particular class width. The width of the block/bar(along the x-axis) relates to the size of the

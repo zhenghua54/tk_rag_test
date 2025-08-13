@@ -1,0 +1,1 @@
+Inventories and Inventory Valuation [["March 31,", "", ""], ["(in thousands)", "2019", "2018"], ["Raw materials", "$3,445", "$2,969"], ["Finished goods", "6,356", "6,253"], ["Total inventories", "$9,801", "$9,222"]]

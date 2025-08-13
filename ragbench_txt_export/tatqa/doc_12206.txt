@@ -1,0 +1,1 @@
+2019 vs 2018 [["", "Year Ended December 31,", "", "", "", ""], ["", "2019", "% Change", "2018", "% Change", "2017"], ["(In thousands, except percentage data)", "", "", "", "", ""], ["Provision (benefit) for income tax", "$3,780", "(85.4)%", "$25,878", "(54.9)%", "$57,357"], ["Effective tax rate", "12.8%", "", "59.9%", "", "124.1%"]]

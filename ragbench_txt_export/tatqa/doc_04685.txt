@@ -1,0 +1,1 @@
+b) Transactions with Golar Power and affiliates: [["(in thousands of $)", "2019", "2018", "2017"], ["Management and administrative services revenue", "5,904", "6,167", "5,711"], ["Ship management fees income", "1,210", "1,400", "824"], ["Debt guarantee compensation (i)", "693", "861", "775"], ["Other (ii)", "(2)", "(247)", "135"], ["Total", "7,805", "8,181", "7,445"]]

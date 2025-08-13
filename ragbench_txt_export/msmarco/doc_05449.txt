@@ -1,0 +1,1 @@
+For example, if 1000 units are in work-in-process at the end of the period and are considered 80% complete, the equivalent production is 800 units. The equivalent unit cost of an item equals the total cost divided by the equivalent units. If the total cost of the item was $2400, the unit cost would be $3 ($2400/800).

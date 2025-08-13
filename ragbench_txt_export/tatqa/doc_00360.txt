@@ -1,0 +1,1 @@
+7. LOANS PAYABLE [["", "2019", "2018"], ["Business loan agreement dated March 14, 2014", "-", "7"], ["Business loan agreement dated April 9, 2014", "-", "19"], ["Equipment notes payable", "88", "241"], ["Subtotal", "88", "267"], ["Less: Current position", "(88)", "(179)"], ["Long-term position", "-", "$88"]]

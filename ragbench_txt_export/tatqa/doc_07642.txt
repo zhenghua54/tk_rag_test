@@ -1,0 +1,1 @@
+Auditor Service Fees [["", "Fiscal 2019", "Fiscal 2018"], ["", "$", "$"], ["", "(in thousands)", ""], ["Audit Fees", "1,133", "764"], ["Audit-Related Fees", "\u2014", "\u2014"], ["Tax Fees", "\u2014", "\u2014"], ["All Other Fees", "3", "2"], ["Total", "1,136", "766"]]

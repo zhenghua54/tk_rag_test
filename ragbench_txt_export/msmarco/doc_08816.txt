@@ -1,0 +1,1 @@
+Useful energy transfer: The purpose of the object is fufilled by this transfer. Non-useful energy transfer: The purpose of the object is not fufilled by this transfer, and in effect, this transfer is a side effect of the useful energy transfer. These transfers waste energy.

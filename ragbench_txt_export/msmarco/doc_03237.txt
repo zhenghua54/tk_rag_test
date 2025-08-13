@@ -1,0 +1,1 @@
+You will see a list of your current friends with a few quick details about them. Click on either the Friend Finder tab or the Search Your Address Book link to import your contacts. Both will take your to a short form asking for your external email address and password. Enter your email address and password in the proper form fields.

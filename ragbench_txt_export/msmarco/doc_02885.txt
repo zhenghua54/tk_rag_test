@@ -1,0 +1,1 @@
+Speed and velocity are related in much the same way that distance and displacement are related. Speed is a scalar and velocity is a vector. Speed gets the symbol v (italic) and velocity gets the symbol v (boldface).

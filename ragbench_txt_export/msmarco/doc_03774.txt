@@ -1,0 +1,1 @@
+Network Time Protocol (NTP) is a protocol that is used to synchronize computer clock times in a network of computers. Download this Pocket Guide to Network Management and Monitoring.

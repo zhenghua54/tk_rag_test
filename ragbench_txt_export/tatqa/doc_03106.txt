@@ -1,0 +1,1 @@
+VMware Stock Repurchases [["", "", "For the Year Ended", ""], ["", "January 31, 2020", "February 1, 2019", "February 2, 2018"], ["Aggregate purchase price (1)", "$1,334", "$42", "$1,449"], ["Class A common stock repurchased", "7,664", "286", "13,977"], ["Weighted-average price per share", "$174.02", "$148.07", "$103.66"]]

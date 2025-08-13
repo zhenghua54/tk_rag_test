@@ -1,0 +1,1 @@
+Employee Stock Purchase Plan [["", "Fiscal Years", "", ""], ["", "2019", "2018", "2017"], ["Expected life (months)", "6.0", "6.0", "6.1"], ["Risk-free interest rate", "2.37%", "2.26%", "1.22%"], ["Volatility", "54%", "50%", "53%"]]

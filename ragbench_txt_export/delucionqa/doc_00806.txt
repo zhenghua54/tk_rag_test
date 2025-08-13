@@ -1,0 +1,1 @@
+Tire Size The tire size on the Vehicle Certification Label represents the actual tire size on your vehicle.  Replacement tires must be equal to the load capacity of this tire size.

@@ -1,0 +1,1 @@
+Hello beachgeek, From the Apple support document provided below: The folder where your backup data is stored changes depending on the computer's operating system. Since iTunes only keeps one backup per device, you should ensure the backup folder is included in your periodic data backup routine.

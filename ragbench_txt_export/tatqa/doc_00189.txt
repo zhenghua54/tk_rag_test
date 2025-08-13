@@ -1,0 +1,1 @@
+Market and Market Prices of Common Stock [["Period", "", "Sales Prices"], ["", "High", "Low"], ["2019 Fiscal Year", "", ""], ["First Quarter", "$0.29", "$0.11"], ["Second Quarter", "0.28", "0.13"], ["Third Quarter", "0.45", "0.14"], ["Fourth Quarter", "0.63", "0.20"], ["2020 Fiscal Year", "", ""], ["First Quarter thru March 27, 2020", "0.47", "$0.12"]]

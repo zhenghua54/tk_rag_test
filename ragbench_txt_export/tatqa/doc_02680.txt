@@ -1,0 +1,1 @@
+NOTE 17. FINANCIAL INSTRUMENTS AND FINANCIAL RISK MANAGEMENT [["", "December 31,", ""], ["", "2018", "2019"], ["Financial assets:", "", ""], ["Cash and cash equivalents", "285,907", "497,874"], ["Accounts receivable", "173,450", "199,535"], ["Financial liabilities:", "", ""], ["Accounts payable", "80,640", "119,712"]]

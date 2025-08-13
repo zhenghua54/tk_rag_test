@@ -1,0 +1,1 @@
+Accumulated Benefit Obligation [["", "August 31,", ""], ["", "2019", "2018"], ["Projected benefit obligation", "$174,690", "$161,104"], ["Accumulated benefit obligation", "$161,729", "$152,380"], ["Fair value of plan assets", "$158,101", "$151,715"]]

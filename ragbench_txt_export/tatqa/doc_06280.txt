@@ -1,0 +1,1 @@
+Geographical information [["", "", "Year Ended", ""], ["(In millions)", "March 29, 2019", "March 30, 2018", "March 31, 2017"], ["Americas", "$3,028", "$3,031", "$2,329"], ["EMEA", "1,002", "1,048", "955"], ["APJ", "701", "755", "735"], ["Total net revenues", "$4,731", "$4,834", "$4,019"]]

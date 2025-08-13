@@ -1,0 +1,1 @@
+(15) CONTRACT BALANCES [["Balance Sheet Account", "2019", "2018", "Change"], ["Unbilled receivables", "$  183.5", "$  169.4", "$    14.1"], ["Contract liabilities - current(1)", "(840.8)", "(714.1)", "(126.7)"], ["Deferred revenue - non-current", "(33.2)", "(29.8)", "(3.4)"], ["Net contract assets/(liabilities)", "$ (690.5)", "$ (574.5)", "$ (116.0)"]]

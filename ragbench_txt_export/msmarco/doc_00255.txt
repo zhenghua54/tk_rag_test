@@ -1,0 +1,1 @@
+A signature can look like this for example: This is how you set it up on Roundcube: 1  Select Roundcube application. 2  Click on the Personal Settings on the Right Top Panel. 3  Select Identities Tab. 4  Double Click on the Email you want to create the signature to. 5  Write/create your signature.

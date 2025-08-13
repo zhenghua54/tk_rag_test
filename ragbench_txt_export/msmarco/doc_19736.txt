@@ -1,0 +1,1 @@
+The Castle is a Structure that allows for Monsters to be placed on an Island-each castle provides a certain number of beds for monsters.

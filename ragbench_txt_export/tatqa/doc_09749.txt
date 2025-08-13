@@ -1,0 +1,1 @@
+C) DIVIDENDS [["Years ended August 31,", "2019", "2018"], ["(In thousands of Canadian dollars)", "$", "$"], ["Dividends on multiple voting shares", "32,951", "29,813"], ["Dividends on subordinate voting shares", "70,757", "63,886"], ["", "103,708", "93,699"]]

@@ -1,0 +1,1 @@
+A power is the product of multiplying a number by itself. Usually, a power is represented with a base number and an exponent. The base number tells what number is being multiplied. The exponent, a small number written above and to the right of the base number, tells how many times the base

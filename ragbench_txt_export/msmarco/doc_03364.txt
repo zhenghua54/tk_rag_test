@@ -1,0 +1,1 @@
+Cholera toxin consists of an A subunit coupled to a B subunit: the A subunit consists of an A1 domain containing the enzymatic active site, and an A2 domain that has an a-helical tail, while the B subunit contains five identical peptides that assemble into a pentameric ring surrounding a central pore.

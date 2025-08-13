@@ -1,0 +1,1 @@
+To change the default column width for a worksheet, click its sheet tab. To change the default column width for the entire workbook, right-click a sheet tab, and then click Select All Sheets on the shortcut menu. On the Home tab, in the Cells group, click Format. Under Cell Size, click Default Width. In the Default column width box, type a new measurement.

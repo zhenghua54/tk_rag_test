@@ -1,0 +1,1 @@
+Engine Warm-Up Avoid full throttle operation when the engine is cold.  When starting a cold engine, bring the engine up to operating speed slowly to allow the oil pressure to stabilize as the engine warms up.  If temperatures are below 32°F (0°C), operate the engine at moderate speeds for five minutes before full loads are applied.

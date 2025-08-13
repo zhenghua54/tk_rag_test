@@ -1,0 +1,1 @@
+(*) Percentage is less than 1%

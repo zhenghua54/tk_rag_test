@@ -1,0 +1,1 @@
+Restricted Stock Awards and Restricted Stock Unit Awards [["", "Number of shares", "Weighed-Average Grant Date Fair Value"], ["", "(In thousands)", ""], ["Non-vested at December 31, 2018", "17,059", "$19.65"], ["Granted(1)", "9,780", "12.41"], ["Vested", "(9,038)", "19.54"], ["Forfeited", "(1,757)", "18.62"], ["Non-vested at December 31, 2019", "16,044", "15.42"]]

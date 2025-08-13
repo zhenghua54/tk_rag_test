@@ -1,0 +1,1 @@
+iTunes places the backup files in the following places: Mac: ~/Library/Application Support/MobileSync/Backup/ Windows XP: \Documents and Settings\(username)\Application Data\Apple Computer\MobileSync\Backup\ Note: To quickly access the Application Data folder, click Start, and choose Run. Type %appdata% and click OK.

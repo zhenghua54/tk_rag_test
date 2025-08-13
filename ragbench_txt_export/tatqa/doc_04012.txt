@@ -1,0 +1,1 @@
+Deferred tax assets and liabilities are recognized for the future tax consequences of differences between the carrying amounts of assets and liabilities and their respective tax basis using enacted tax rates in effect for the year in which the differences are expected to be reversed.

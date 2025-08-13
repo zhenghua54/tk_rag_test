@@ -1,0 +1,1 @@
+The area is always expressed in square units. The standard units that are generally used for measuring area are square centimeter and square meter. The area of a square with side 1 cm each is 1 cm × 1 cm = 1 square centimeter. In short, it is expressed as cm^2 or sq. cm.

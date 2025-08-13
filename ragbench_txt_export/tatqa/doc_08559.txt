@@ -1,0 +1,1 @@
+Other income, net [["", "Year ended December 31 (in thousands)", ""], ["", "2019", "2018"], ["Foreign currency loss", "$(83)", "$(258)"], ["Rental loss-net", "(996)", "(865)"], ["Gain on sale of real estate", "\u2014", "649"], ["Fair value adjustment contingent consideration", "\u2014", "450"], ["Other", "(424)", "330"], ["Other income, net", "$(1,503)", "$306"]]

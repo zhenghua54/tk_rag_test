@@ -1,0 +1,1 @@
+Cash at bank earns interest at floating rates based on daily bank deposit rates. Short-term deposits are made for varying periods of between one day and three months, depending on the immediate cash requirements of the Group, and earn interest at the respective short-term deposit rates.

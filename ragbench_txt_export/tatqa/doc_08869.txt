@@ -1,0 +1,1 @@
+4. Acquisitions and Divestitures [["Fiscal 2019", "Purchase Consideration", "Net Tangible Assets Acquired (Liabilities Assumed)", "Purchased Intangible Assets", "Goodwill"], ["Duo", "$2,025", "$(57)", "$342", "$1,740"], ["Luxtera", "596", "(19)", "319", "296"], ["Others (three in total)", "65", "2", "11", "52"], ["Total", "$2,686", "$(74)", "$672", "$2,088"]]

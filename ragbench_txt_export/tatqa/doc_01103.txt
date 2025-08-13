@@ -1,0 +1,1 @@
+Prepayments [["", "2019", "2018"], ["", "(in thousands)", ""], ["Contract manufacturer and supplier prepayments", "$143,392", "$131,642"], ["Prepaid taxes", "8,046", "9,646"], ["Prepaid maintenance and other services", "8,503", "8,487"], ["Other prepayments", "16,753", "12,744"], ["Total prepayments", "$176,694", "$162,519"]]

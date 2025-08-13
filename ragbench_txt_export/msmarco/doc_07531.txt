@@ -1,0 +1,1 @@
+Open Software link. LPILE is a special-purpose program based on rational procedures for analyzing a pile under lateral loading using the p-y method. Five types of pile-head boundary conditions may be selected, and the structural properties of the pile can vary as a function of depth.

@@ -1,0 +1,1 @@
+This new Adobe Acrobat feature follows a very similar export process. To convert a PDF back to PowerPoint: 1  Open Adobe Acrobat XI Pro. 2  The main window appears. 3  Open the presentation PDF that you want to export to PowerPoint. . 4  Click Tools. 5  The Tools menu opens in the sidebar. 6  Click Content Editing. 7  The Content Editing sub-menu appears (Figure A)

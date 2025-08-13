@@ -1,0 +1,1 @@
+Other Income (Expense) [["", "", "Year Ended December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(in thousands)", ""], ["Interest income", "$8,178", "$7,796", "$2,951"], ["Interest expense", "(21,559)", "(28,176)", "(14,762)"], ["Other, net", "84", "(3,098)", "1,478"], ["Other expense, net", "$(13,297)", "$(23,478)", "$(10,333)"]]

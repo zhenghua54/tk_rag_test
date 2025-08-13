@@ -1,0 +1,1 @@
+The Monte Carlo simulation assumptions used for the periods presented were as follows: [["", "", "Year Ended", ""], ["", "January 3, 2020", "December 28, 2018", "December 29, 2017"], ["Expected volatility", "22.02%", "25.37%", "27.19%"], ["Risk free rate of return", "2.39%", "2.35%", "1.53%"], ["Weighted average grant date stock price", "$62.66", "$65.00", "$53.73"]]

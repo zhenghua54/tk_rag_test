@@ -1,0 +1,1 @@
+Viakal is a limescale and watermark remover for house surfaces e.g. baths, taps, sinks and toilets. Limescale is the build up of mineral deposits which occur in everyone's water supply. Householders in hard water areas (about 47% of the UK population) are particularly prone to limescale build-up, although it does occur with soft water aswell.

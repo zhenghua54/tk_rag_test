@@ -1,0 +1,1 @@
+The Company’s estimated future benefit payments as of December 31, 2019 are as follows: [["Years", "Pension Benefits", "Other Long Term Benefits"], ["2020", "32", "7"], ["2021", "29", "7"], ["2022", "32", "5"], ["2023", "41", "6"], ["2024", "51", "9"], ["From 2025 to 2029", "272", "35"]]

@@ -1,0 +1,1 @@
+AutoPark will engage when all of these conditions are met: AutoPark will be disabled when operating the vehicle in 4WD LOW.  Autopark will engage only when vehicle speed is 1.2 mph (1.9 km/h) or less.

@@ -1,0 +1,1 @@
+Key estimates – value-in-use calculation

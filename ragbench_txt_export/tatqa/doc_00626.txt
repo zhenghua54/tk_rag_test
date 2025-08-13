@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "As of December 31,", ""], ["", "2019", "2018"], ["Balance at beginning of the year", "32,750,727", "32,938,466"], ["Repurchases", "(420,770)", "(342,100)"], ["Restricted stock unit issuances", "142,449", "154,361"], ["Balance at end of period", "32,472,406", "32,750,727"]]

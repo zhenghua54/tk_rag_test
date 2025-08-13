@@ -1,0 +1,1 @@
+Billings represent the value of products and services invoiced to customers after receiving a purchase order from the customer and delivering products and services to them, or for which there is no right to a refund. Billings do not equate to statutory revenue.

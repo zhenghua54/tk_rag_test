@@ -1,0 +1,1 @@
+Deferred Revenues [["", "Years ended December 31,", ""], ["", "2019", "2018"], ["Deferred license fees revenues", "$28", "$-"], ["Deferred NRE revenues", "20", "-"], ["Deferred AirBar revenues", "6", "59"], ["Deferred sensor modules revenues", "13", "16"], ["", "$67", "$75"]]

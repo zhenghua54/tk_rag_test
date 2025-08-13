@@ -1,0 +1,1 @@
+Confidence votes 16. Strictly speaking, it's not. The symbol 's' is so often used for displacement because the symbol 'd' is often chosen for distance. This is an important distinction in physics, where differences between scalar (distance) and vector (displacement) types are used to measure and describe different things. ============.

@@ -1,0 +1,1 @@
+Dividends and Share Repurchases [["", "Dividends Paid(1)", "Share Repurchases(2)", "Total"], ["Fiscal year 2016", "$62,436", "$148,185", "$210,621"], ["Fiscal year 2017", "$59,959", "$306,397", "$366,356"], ["Fiscal year 2018", "$57,833", "$450,000", "$507,833"], ["Fiscal year 2019", "$52,004", "$350,000", "$402,004"], ["Total", "$232,232", "$1,254,582", "$1,486,814"]]

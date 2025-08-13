@@ -1,0 +1,1 @@
+NOTE 9. GOODWILL AND INTANGIBLES [["Year Ended December 31", "", ""], ["", "2019", "2018"], ["Goodwill, beginning of period", "$       3,178", "$           -"], ["Golden Ridge acquisition", "-", "3,178"], ["MGI acquistion", "737", "-"], ["Goodwill, end of period", "$3,915", "$3,178"]]

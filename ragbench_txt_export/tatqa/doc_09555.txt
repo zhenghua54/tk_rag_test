@@ -1,0 +1,1 @@
+d) Transaction with other related parties: [["(in thousands of $)", "2019", "2018", "2017"], ["The Cool Pool (i)", "39,666", "151,152", "59,838"], ["Magni Partners (ii)", "(858)", "(375)", "(260)"], ["Borr Drilling (iii)", "542", "\u2014", "\u2014"], ["2020 Bulkers (iv)", "265", "\u2014", "\u2014"], ["Total", "39,615", "150,777", "59,578"]]

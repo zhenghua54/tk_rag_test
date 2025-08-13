@@ -1,0 +1,1 @@
+Goodwill [["", "January 31, 2020", "February 1, 2019"], ["Balance, beginning of the year", "$7,418", "$6,660"], ["Increase in goodwill related to business combinations", "1,911", "784"], ["Other adjustment", "\u2014", "(26)"], ["Balance, end of the year", "$9,329", "$7,418"]]

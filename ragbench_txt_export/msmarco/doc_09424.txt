@@ -1,0 +1,1 @@
+With a typical engine efficiency of 40%, a belt efficiency of 98% and an alternator efficiency of 55%, this leads to an overall energy conversion efficiency of only 21%. Assuming a fuel cost of $4.00/gal, this leads to an on-board electrical power cost of $0.51/kWh, or roughly 4 times a typical household utility rate.

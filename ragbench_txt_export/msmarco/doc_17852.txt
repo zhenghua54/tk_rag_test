@@ -1,0 +1,1 @@
+Common Log Book Tickets Common log book tickets. 1. Not showing 15 min for a pre trip inspection. 2. Going over 14 hours combined (driving and on duty) on duty status. 3. Driving for more than 11 hours without a consecutive 10 off duty. 4.

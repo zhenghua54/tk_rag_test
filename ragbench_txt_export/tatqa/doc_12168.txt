@@ -1,0 +1,4 @@
+GasLog Ltd. and its Subsidiaries
+Notes to the consolidated financial statements (Continued)
+For the years ended December 31, 2017, 2018 and 2019
+(All amounts expressed in thousands of U.S. Dollars, except share and per share data) [["", "As of December 31,", ""], ["", "2018", "2019"], ["Derivative assets carried at fair value through profit or loss (FVTPL)", "", ""], ["Interest rate swaps", "15,188", "18"], ["Forward foreign exchange contracts", "\u2014", "389"], ["Derivative assets designated and effective as hedging instruments carried at fair value", "", ""], ["Cross currency swaps", "\u2014", "3,594"], ["Total", "15,188", "4,001"], ["Derivative financial instruments, current assets", "6,222", "429"], ["Derivative financial instruments, non-current assets", "8,966", "3,572"], ["Total", "15,188", "4,001"]]

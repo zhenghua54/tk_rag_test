@@ -1,0 +1,1 @@
+These NQs with market-based vesting criteria were valued using a Monte Carlo simulation model. The weighted average Monte Carlo input assumptions used for calculating the fair value of these market-based stock options are as follows:

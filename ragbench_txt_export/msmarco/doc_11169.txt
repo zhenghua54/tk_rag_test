@@ -1,0 +1,1 @@
+ NUMERATOR: Number of transitions of care and referrals in the denominator where a summary of care record was provided.  EXCLUSION: If an EP does not transfer a patient to another setting or refer a patient to another provider during the EHR reporting period then they would be excluded from this requirement.

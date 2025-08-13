@@ -1,0 +1,1 @@
+Inputs other than quoted prices included within level 1 that are observable for the asset or liability, either directly (that is, as prices) or indirectly (that is, derived from prices) (level 2); and

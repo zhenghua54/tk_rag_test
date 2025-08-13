@@ -1,0 +1,1 @@
+EBITDA and EBITDA Margin [["", "Year ended December 31,", "", "Variance", ""], ["", "2018", "2017", "$", "%"], ["Software Solutions", "$567.2", "$516.5", "$50.7", "10%"], ["Data and Analytics", "39.5", "38.4", "1.1", "3%"]]

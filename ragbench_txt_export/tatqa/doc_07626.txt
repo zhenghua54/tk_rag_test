@@ -1,0 +1,1 @@
+(1) The calculation of the assumed exercise of stock options includes the effect of the average unrecognized future compensation cost of dilutive options. It excludes options for which the exercise price is higher than the average market value of a BCE common share. The number of excluded options was 61,170 in 2019 and 12,252,594 in 2018.

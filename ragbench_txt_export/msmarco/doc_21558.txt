@@ -1,0 +1,1 @@
+Both hair textures (i.e. straight hair and curly hair) do then act as parent terms for the actual men hair types. In the case of straight hair as a texture, its hair type is the same (i.e. straight hair). However, in the case of curly hair as a texture, its hair types are wavy hair, coiled hair and kinky hair.

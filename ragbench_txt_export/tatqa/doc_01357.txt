@@ -1,0 +1,1 @@
+Trade Accounts Receivable Sale Programs [["", "", "Fiscal Year Ended August 31,", ""], ["", "2019", "2018", "2017"], ["Trade accounts receivable sold", "$6,751", "$5,480", "$2,968"], ["Cash proceeds received", "$6,723", "$5,463", "$2,962"], ["Pre-tax losses on sale of receivables (1)", "$28", "$17", "$6"]]

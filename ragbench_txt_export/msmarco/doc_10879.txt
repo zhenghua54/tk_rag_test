@@ -1,0 +1,1 @@
+– Infrastructure mode. – Ad hoc Mode. Infrastructure mode: Infrastructure mode is one of the two methods for connecting to wireless networks with Wi-Fi enabled devices such as laptops, Pda’s I-phone etc. These devices are connected to wireless network with the help of Access point (AP).

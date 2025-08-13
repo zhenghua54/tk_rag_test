@@ -1,0 +1,1 @@
+NOTE 11 - STOCK CAPITAL (Cont.) [["", "December 31", ""], ["", "2019", "2 0 1 8"], ["U.S. $ in thousands", "", ""], ["Research and development", "123", "175"], ["General and administrative", "666", "844"], ["Total stock-based compensation expense", "789", "1,019"]]

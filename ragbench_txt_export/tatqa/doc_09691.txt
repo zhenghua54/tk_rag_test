@@ -1,0 +1,4 @@
+GasLog Ltd. and its Subsidiaries
+Notes to the consolidated financial statements (Continued)
+For the years ended December 31, 2017, 2018 and 2019
+(All amounts expressed in thousands of U.S. Dollars, except share and per share data) [["", "", "For the year ended December 31,", ""], ["", "2017", "2018", "2019"], ["Revenues from fixed rate time charters", "485,961", "515,324", "558,266"], ["Revenues from variable rate time charters", "\u2014", "\u2014", "64,334"], ["Revenues from The Cool Pool Limited (GasLog vessels)", "38,046", "102,253", "45,253"], ["Revenues from vessel management services", "1,222", "767", "784"], ["Total", "525,229", "618,344", "668,637"]]

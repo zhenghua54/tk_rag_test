@@ -1,0 +1,1 @@
+Lux and lumens are commonly used to measure light levels, but they are photometric units which measure the intensity of light as perceived by the human eye.

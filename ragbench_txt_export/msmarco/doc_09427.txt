@@ -1,0 +1,1 @@
+The variable cost per unit is plugged into the cost formula as the variable cost (VC). The fixed costs are totaled separately to calculate the Y-intercept (TFC) component of the equation. This results in a cost equation that can be used to estimate costs for future periods.

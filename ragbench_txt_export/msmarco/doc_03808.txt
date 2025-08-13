@@ -1,0 +1,1 @@
+A folder contained within another folder: if you don’t already have a Programs subfolder in this directory, create one. More example sentences. 1  Each time you have a new listing or buyer, create a subfolder within the appropriate folder. 2  You only really need to place the main index sitemap in the root, the rest you can just place in a subfolder.

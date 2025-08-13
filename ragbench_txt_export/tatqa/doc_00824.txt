@@ -1,0 +1,1 @@
+Amortization of Intangibles and Acquisition-Related Costs [["", "", "Years Ended March 31,", ""], ["", "2019", "2018", "2017"], ["Amortization of intangible assets", "$12,594", "$7,518", "$4,352"], ["Acquisition-related costs", "1,696", "1,412", "1,462"], ["Total", "$14,290", "$8,930", "$5,814"]]

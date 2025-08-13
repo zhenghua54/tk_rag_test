@@ -1,0 +1,1 @@
+24. Post employment benefits [["Income statement expense", "", "", ""], ["", "2019 \u20acm", "2018 \u20acm", "2017 \u20acm"], ["Defined contribution schemes", "166", "178", "192"], ["Defined benefit schemes", "57", "44", "20"], ["Total amount charged to income statement (note 23)", "223", "222", "212"]]

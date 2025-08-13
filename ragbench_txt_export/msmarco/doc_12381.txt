@@ -1,0 +1,1 @@
+Best Answer: MHz = MegaHertz a wave that cycles 1,000,000 time per second. GHz (GigaHertz) is 1,000 times faster. processor speed is given in the clock cycle frequency that has somewhat to do with the overall computer performance, but ultimately depends on the total package.

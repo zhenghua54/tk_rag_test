@@ -1,0 +1,1 @@
+It is difficult to say how far back records will be searched if records can be missed because of incomplete or incorrect identifiers. Also, if records are filed and indexed by date and the database is large, how far back the background check goes will depend on the time and money invested in searching the records.

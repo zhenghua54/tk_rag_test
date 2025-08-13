@@ -1,0 +1,1 @@
+Liquidity [["", "December 31,", "December 31,"], ["", "2019", "2018"], ["Americas (principally the U.S.)", "$125,309", "$110,385"], ["Europe, Middle East and Africa", "50,477", "45,884"], ["Asia Pacific", "6,871", "6,611"], ["Total cash, cash equivalents and short-term investments", "$182,657", "$162,880"]]

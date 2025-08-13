@@ -1,0 +1,1 @@
+11 Intangible assets [["", "30 June 2019", "30 June 2018"], ["", "$'000", "$'000"], ["Rights and licences", "13", "13"], ["Internally generated software", "7,381", "6,385"], ["Software under development", "16,284", "6,509"], ["Total intangible assets", "23,678", "12,907"]]

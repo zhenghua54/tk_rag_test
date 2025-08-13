@@ -1,0 +1,6 @@
+Fluid is any substance that flows; e.g. oil, water, gas, and ice are all examples of fluids. Under extreme pressure and temperature almost anything will become fluid.
+Fluid exerts pressure and this pressure is as a result of the density and the height of the fluid column. Most oil companies usually represent density measurement in pounds per gallon (ppg) or kilograms per cubic meter (kg/m) and pressure measurement in pounds per square inch (psi) or bar or pascal (Pa). Pressure increases as the density of the fluid increases.
+To find out the amount of pressure a fluid of a known density exerts for each unit of length, the pressure gradient is used.
+A pressure gradient is defined as the pressure increase per unit of the depth due to its density and it is usually measured in pounds per square inch per foot or bars per meter.It is expressed mathematically as;
+"pressure gradient = fluid density × conversion factor".
+The conversion factor used to convert density to pressure is 0.052 in English system and 0.0981 in Metric system.

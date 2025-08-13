@@ -1,0 +1,1 @@
+Capital stock 2019 [["Capital stock", "", ""], ["Parent Company", "Number of shares", "Capital stock (SEK million)"], ["Class A shares", "261,755,983", "1,309"], ["Class B shares", "3,072,395,752", "15,363"], ["Total", "3,334,151,735", "16,672"]]

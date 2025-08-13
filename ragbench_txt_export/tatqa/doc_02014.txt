@@ -1,0 +1,1 @@
+Risk-Free Interest Rate—The Company uses the zero coupon US Treasury rate during the quarter having a term that most closely resembles the expected term of the option.

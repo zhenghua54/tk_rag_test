@@ -1,0 +1,1 @@
+3. VOYAGE REVENUES [["All amounts in USD \u2018000 ", "2019", "2018", "2017"], ["Spot charter revenues*", "283,007", "259,978", "257,495"], ["Time charter revenues  ", "34,213", "29,038", "39,646"], ["Total Voyage Revenues  ", "317,220", "289,016", "297,141"]]

@@ -1,0 +1,1 @@
+6 Excludes the impact of deferred tax adjustments related to valuation.

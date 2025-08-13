@@ -1,0 +1,1 @@
+General and Administrative [["", "Years ended December 31,", "", "", "2019 vs 2018", "2018 vs 2017"], ["", "2019", "2018", "2017", "% Change", "% Change"], ["", "(in thousands, except percentages)", "", "", "", ""], ["General and administrative", "$ 178,934", "$ 107,444", "$ 67,719", "66.5 %", "58.7 %"], ["Percentage of total revenues", "11.3 %", "10.0 %", "10.1 %", "", ""]]

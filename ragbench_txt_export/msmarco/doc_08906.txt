@@ -1,0 +1,1 @@
+When converting between square meters and non-SI units of area such as square inches (sq in) or square miles (sq mi), the linear-unit conversion factor must be squared. For example, one meter is approximately 39.37 inches (39.37 in); therefore 1 m 2 = 39.37 2 = 1550 sq in (approximately).

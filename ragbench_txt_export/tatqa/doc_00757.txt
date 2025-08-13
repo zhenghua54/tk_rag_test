@@ -1,0 +1,1 @@
+NOTE 5. INVESTMENTS AND LOANS TO SUBSIDIARIES [["", "December 31,", ""], ["", "2018", "2019"], ["Loans due from subsidiaries - non-current portion", "46,698", "45,377"], ["Loans due from subsidiaries - current portion", "2,064", "2,123"], ["Total", "48,762", "47,500"]]

@@ -1,0 +1,1 @@
+Likewise, you can convert an improper fraction into a mixed number by following another 3 rules: 1  Divide the numerator by the denominator. 2  The quotient (without the remainder) becomes the whole number part of the mixed number. 3  The new denominator is the same as the denominator of the improper fraction.

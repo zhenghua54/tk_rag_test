@@ -1,0 +1,1 @@
+At December 31, 2019, the Company’s net operating losses and credit carryforwards are: [["(in thousands)", "Federal", "State"], ["Net operating losses (1)", "$120,722", "$3,337"], ["Net operating losses due to acquisitions (1)", "$76,827", "$778"], ["Credit carryforwards (2)", "$8,202", "$1,958"], ["Credit carryforwards due to acquisitions", "$640", "$227"]]

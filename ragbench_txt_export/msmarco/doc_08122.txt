@@ -1,0 +1,1 @@
+Horizontal datums are used for describing a point on the earth 's surface, in latitude and longitude or another coordinate system. Vertical datums measure elevations or depths. In engineering and drafting, a datum is a reference point, surface, or axis on an object against which measurements are made.

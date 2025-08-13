@@ -1,0 +1,1 @@
+This review applies to version 5.0. The latest version of this software will soon be reviewed by our informers. LPILE Plus is a special purpose program based on rational procedures for analyzing a pile under lateral loading. The program computes deflection, shear, bending moment, and soil response with respect to depth in nonlinear soils.

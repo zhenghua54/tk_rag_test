@@ -1,0 +1,1 @@
+Slide Sorter view is in all versions of PowerPoint. However, the Outline / Slides pane is specific to PowerPoint 2003. PowerPoint 2000 has a similar view, but it is strictly an Outline view. Select ALL slides. 1  Slide Sorter view-Hold the Shift key and click on the first slide. 2  Outline / Slides pane-Click the first slide, press the Shift key and then click on the last slide.

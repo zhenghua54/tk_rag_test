@@ -1,0 +1,1 @@
+Knots is how the speed of aircraft and boats is measured. Both miles per hour and knots is a speed which is the number of units of distance that is covered for a certain amount of time. 1 knot = 1 nautical mile per hour = 6076 feet per hour. 1 mph =1 mile per hour = 5280

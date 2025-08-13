@@ -1,0 +1,1 @@
+* Shareholding is consolidated based on Permanent Account Number (PAN) of the shareholder.

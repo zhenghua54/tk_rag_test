@@ -1,0 +1,3 @@
+Transaction Volume. We define transaction volume as the dollar value of loans facilitated on our platform
+during a given period. Transaction volume is an indicator of revenue and overall platform profitability and has
+grown substantially in the past several years.

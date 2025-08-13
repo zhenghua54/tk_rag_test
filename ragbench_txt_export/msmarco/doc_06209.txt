@@ -1,0 +1,1 @@
+1 In meta-analysis, effect sizes should also be reported with: 2  the number of studies and the number of effects used to create the estimate. 3  confidence intervals to help readers determine the consistency and reliability of the mean estimated effect size.

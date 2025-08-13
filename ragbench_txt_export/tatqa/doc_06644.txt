@@ -1,0 +1,1 @@
+7 Trade and other payables [["", "30 June 2019", "30 June 2018"], ["", "$'000", "$'000"], ["Trade payables", "44,840", "27,640"], ["Accrued capital expenditure", "5,841", "1,767"], ["Accrued expenses", "2,848", "2,114"], ["Other creditors", "3,117", "2,888"], ["Total trade and other payables", "56,646", "34,409"]]

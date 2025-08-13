@@ -1,0 +1,1 @@
+6 Other assets (continued) [["NON-CURRENT", "Note", "30 June 2019 $'000", "30 June 2018 $'000"], ["Customer incentives", "6(b)", "1,091", "1,145"], ["Capitalised transaction costs", "", "3,359", "5,490"], ["Contract costs", "6(c)", "448", "-"], ["Total other assets - non-current", "", "4,898", "6,635"]]

@@ -1,0 +1,1 @@
+In 50% when i turn on PC (Win8) mouse is invisible, i can click, but only in 'middle', it's seems like mouse pointer is turned off somehow, and if i move it around and again click, still it clicks in middle, can't see pointer, just click.

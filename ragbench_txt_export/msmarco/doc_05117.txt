@@ -1,0 +1,1 @@
+Covered Call Calculator. The covered call involves writing a call option contract while holding an equivalent number of shares of the underlying stock. It is also commonly referred to as a buy-write if the stock and options are purchased at the same time.

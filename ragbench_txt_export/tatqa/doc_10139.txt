@@ -1,0 +1,1 @@
+Note 9. Intangible Assets, net [["December 31, 2019", "", "", "", ""], ["", "Customer Relationships", "Developed Technologies", "Trade Name", "Total"], ["Gross carrying amount", "$52,000", "32,000", "3,000", "87,000"], ["Accumulated amortization", "(13,866)", "(18,286)", "(3,000)", "(35,152)"], ["Intangible assets, net", "$38,134", "$13,714", "$\u2014", "$51,848"]]

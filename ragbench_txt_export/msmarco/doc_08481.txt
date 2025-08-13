@@ -1,0 +1,1 @@
+Allele frequency. Allele frequency is a measure of the relative frequency of an allele on a genetic locus in a population. Usually it is express ed as a proportion or a percentage.

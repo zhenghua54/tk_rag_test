@@ -1,0 +1,1 @@
+Navigate to the file in Windows Explorer (or you can navigate to it from File Open in Excel). Right click the file and a dialog box will open. Hover the cursor over Send to and another box will open. Move cursor across and down to Desktop (Create shortcut) and left click it. Find the shortcut on the desktop. You can rename the desktop icon by rightclicking it and select Rename.

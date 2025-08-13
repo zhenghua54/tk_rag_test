@@ -1,0 +1,1 @@
+Long-term Incentive Program Performance Share Awards [["", "Number of Shares at Expected Attainment", "Weighted Average Grant Date Fair Value"], ["Nonvested at December 31, 2018", "540,697", "$19.83"], ["Forfeited", "-56,567", "18.80"], ["Change in expected attainment", "185,339", "20.09"], ["Nonvested at December 31, 2019", "669,469", "$20.12"]]

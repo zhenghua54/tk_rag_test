@@ -1,0 +1,1 @@
+9.4. Trade and other payables [["", "2019", "2018"], ["", "$'000", "$'000"], ["Current", "", ""], ["Trade payables", "3,486", "4,184"], ["Accrued expenses", "6,706", "2,717"], ["GST and employment taxes payable", "2,644", "1,256"], ["Other payables", "6,157", "4,161"], ["Total", "18,993", "12,318"]]

@@ -1,0 +1,1 @@
+13. Stock-Based Compensation: [["", "March 31, 2019", ""], ["", "Number of shares", "Weighted-Average Grant Date Fair Value per Share"], ["Non-vested at March 31, 2018", "358", "$16.27"], ["Granted", "315", "15.28"], ["Vested", "(172)", "16.27"], ["Cancelled and forfeited", "(68)", "16.27"], ["Non-vested at March 31, 2019", "433", "$15.55"]]

@@ -1,0 +1,1 @@
+Objects that contain data have an associated data type that defines the kind of data; for example, character, integer, or binary, the object can contain. The following objects have data types: Columns in tables and views. Parameters in stored procedures. Variables.

@@ -1,0 +1,1 @@
+Personnel expenses for employees were as follows: [["", "December 31,", ""], ["", "2018", "2019"], ["Wages and salaries", "158,371", "191,459"], ["Social security", "14,802", "17,214"], ["Pension expenses", "6,937", "8,408"], ["Share-based payment expenses", "8,215", "10,538"], ["Restructuring expenses", "178", "108"], ["Total", "188,503", "227,727"]]

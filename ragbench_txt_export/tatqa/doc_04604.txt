@@ -1,0 +1,1 @@
+Market for Registrant’s Common Equity, Related Stockholder Matters and Issuer Purchases of Equity Securities [["COMMON STOCK PRICES", "", "", "", ""], ["2019", "First Quarter", "Second Quarter", "Third Quarter", "Fourth Quarter"], ["High", "$15.40", "$17.81", "$16.40", "$11.59"], ["Low", "$10.49", "$13.76", "$ 9.92", "$ 8.09"]]

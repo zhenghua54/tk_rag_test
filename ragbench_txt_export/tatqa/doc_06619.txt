@@ -1,0 +1,1 @@
+Stock Options [["", "Number of options", "Weighted-Average Exercise Price"], ["", "(in thousands)", ""], ["Outstanding and Exercisable at December 31, 2018", "543", "$27.46"], ["Exercised", "(6)", "11.38"], ["Forfeited/Expired", "(68)", "24.78"], ["Outstanding and Exercisable at December 31, 2019", "469", "28.04"]]

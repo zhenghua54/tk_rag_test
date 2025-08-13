@@ -1,0 +1,1 @@
+6. Revenue continued [["", "31 March 2019", "1 April 2018"], ["", "\u00a3m", "\u00a3m"], ["Contract assets", "", ""], ["Current", "1,353", "1,417"], ["Non-current", "249", "198"], ["", "1,602", "1,615"], ["Contract liabilities", "", ""], ["Current", "1,225", "1,406"], ["Non-current", "200", "87"], ["", "1,425", "1,493"]]

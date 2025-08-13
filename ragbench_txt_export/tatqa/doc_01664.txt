@@ -1,0 +1,1 @@
+Cost of Revenue, Gross Profit and Gross Margin [["", "Years Ended December 31,", "", "Increase (Decrease)", ""], ["", "2019", "2018", "Amount", "Percent"], ["Cost of revenue:", "", "", "", ""], ["Products", "$29,816", "$34,066", "$(4,250)", "(12)%"], ["Services", "19,065", "17,830", "1,235", "7%"], ["Total cost of revenue", "$48,881", "$51,896", "$(3,015)", "(6)%"]]

@@ -1,0 +1,1 @@
+Years Ended December 31, 2019 and 2018: [["($ in thousands)", "2019", "% Change 2018 to 2019", "2018"], ["Services", "$59,545", "(8)%", "$64,476"], ["Software and other", "3,788", "(25)%", "5,073"], ["Total revenue ", "$63,333", "(9)%", "$69,549"]]

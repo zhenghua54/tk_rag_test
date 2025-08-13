@@ -1,0 +1,1 @@
+Note 10. Prepaid Expenses [["", "December 31,", ""], ["", "2019", "2018"], ["Prepaid maintenance", "$6,218", "$5,888"], ["Prepaid insurance", "5,321", "4,500"], ["Prepaid software", "4,236", "3,499"], ["Prepaid rent", "421", "3,471"], ["Prepaid other", "4,672", "6,396"], ["", "$20,868", "$23,754"]]

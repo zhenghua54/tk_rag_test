@@ -1,0 +1,3 @@
+Terminal value 
+
+The terminal value calculated after year four is determined using the perpetual growth model, having regard to the weighted average cost of capital (WACC) and terminal growth factor appropriate to each CGU. Terminal growth rates used in the financial projections was 2.0%.

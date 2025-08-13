@@ -1,0 +1,1 @@
+5. If you want to instantly save images, documents, HTML5 audio and videos to your Google Drive, you can do so by installing the Save to Google Drive Chrome extension. With the extension, whenever you right click on a link or image, you get the option to save the image or link directly to your Google Drive.

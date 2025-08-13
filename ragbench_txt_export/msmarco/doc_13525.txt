@@ -1,0 +1,1 @@
+At salinity level of 35 parts per thousand, depth 0 meters and temperature 0 degrees, speed of sound is 1449.3 m/s. Speed of sound in air is nominally 346m/s at 25 degrees, this speed drops to 331 at 0 degrees. The temperature dependency is second order given that other parameters are constant.

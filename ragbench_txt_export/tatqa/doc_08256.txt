@@ -1,0 +1,4 @@
+(2) Represents accelerated vesting of 15,000 unvested restricted stock units. Pursuant to Mr. Dooley’s restricted stock unit agreement
+(dated March 1, 2012), upon a “change in control” all non-vested units shall accelerate and be vested as of the date of the “change in
+control” and if Mr. Dooley’s employment is terminated without cause or for good reason, all non-vested units shall accelerate and be
+vested as of the date of termination

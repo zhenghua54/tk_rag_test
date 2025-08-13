@@ -1,0 +1,1 @@
+Contract Costs [["", "Year Ended December 31, 2019", ""], ["", "Acquisition Costs", "Fulfillment Costs"], ["", "(Dollars in millions)", ""], ["Beginning of period balance", "$322", "187"], ["Costs incurred", "208", "158"], ["Amortization", "(204)", "(124)"], ["End of period balance", "$326", "221"]]

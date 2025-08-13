@@ -1,0 +1,1 @@
+Vesting of Equity Awards During 2019 [["", "Stock Vested During 2019", ""], ["Name", "Number of Shares Acquired on Vesting(1)", "Value Realized on Vesting(2)"], ["Mr. Storey", "1,063,929", "$13,479,617"], ["Mr. Dev", "55,490", "749,737"], ["Mr. Goff", "114,167", "1,338,934"], ["Mr. Trezise", "71,576", "812,600"], ["Mr. Andrews", "16,678", "221,859"]]

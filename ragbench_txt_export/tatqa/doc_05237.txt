@@ -1,0 +1,2 @@
+The fair value of the option component of the ESPP shares was estimated at the grant date using the Black-Scholes option pricing model with the following weighted
+average assumptions: [["", "", "Year ended December 31", ""], ["", "2019", "2018", "2017"], ["Expected life (in years)", "0.5", "0.5", "0.5"], ["Volatility", "36% - 37%", "33% - 40%", "29% - 37%"], ["Risk-free interest rate", "1.58 - 2.43%", "1.76% - 2.50%", "0.76% - 1.16%"], ["Dividend yield", "- %", "- %", "- %"]]

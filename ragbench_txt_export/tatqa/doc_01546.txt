@@ -1,0 +1,1 @@
+The expected life input is based on historical exercise patterns and post-vesting termination behavior, the risk-free interest rate input is based on U.S. Treasury instruments, the annualized dividend yield input is based on the per share dividend declared by the Board, and the volatility input is calculated based on the implied volatility of our publicly traded options.

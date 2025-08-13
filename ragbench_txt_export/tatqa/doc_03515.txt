@@ -1,0 +1,1 @@
+15 Financial risk management (continued) [["", "30 June 2019", "30 June 2018"], ["", "$'000", "$'000"], ["CASH AT BANK", "", ""], ["AA rated", "398,999", "417,982"], ["SECURITY DEPOSITS", "", ""], ["AA rated", "8,822", "4,151"]]

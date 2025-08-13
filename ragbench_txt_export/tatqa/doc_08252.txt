@@ -1,0 +1,2 @@
+As a result of our adoption of IFRS 16 effective January 1, 2019, we
+have modified our definition of adjusted net debt such that it now includes the total of “current portion of lease liabilities” and “lease liabilities”. We believe adding total lease liabilities to adjusted net debt is appropriate as they reflect payments to which we are contractually committed and the related payments have been removed from our calculation of adjusted EBITDA due to the accounting change.

@@ -1,0 +1,1 @@
+Foreign Currency Analysis [["", "Fiscal Year Ended January 31, 2019", "", ""], ["", "Percent change compared to prior fiscal year (as reported)", "Constant currency percent change compared to prior fiscal year (1)", "Positive/negative/neutral impact from foreign exchange rate changes"], ["Revenue", "25%", "24%", "Positive"], ["Total spend", "1%", "1%", "Neutral"]]

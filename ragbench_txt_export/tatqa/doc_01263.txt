@@ -1,0 +1,1 @@
+Trade Receivables, Net [["", "December 31,", ""], ["", "2019", "2018"], ["Trade receivables \u2014 billed", "$136.6", "$136.6"], ["Trade receivables \u2014 unbilled", "39.8", "37.0"], ["Trade receivables", "176.4", "173.6"], ["Allowance for doubtful accounts", "(1.3)", "(1.3)"], ["Trade receivables, net", "$175.1", "$172.3"]]

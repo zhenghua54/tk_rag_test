@@ -1,0 +1,1 @@
+Vehicle Security Warning Light — If Equipped This light will flash at a fast rate for approximately 15 seconds when the vehicle security system is arming, and then will flash slowly until the vehicle is disarmed.

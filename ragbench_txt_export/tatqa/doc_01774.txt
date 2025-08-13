@@ -1,0 +1,1 @@
+Net Loss Per Ordinary Share [["", "", "Year Ended March 31,", ""], ["", "2019", "2018", "2017"], ["Share options outstanding", "6,209", "6,230", "8,681"], ["Unvested RSUs", "550", "33", "28"]]

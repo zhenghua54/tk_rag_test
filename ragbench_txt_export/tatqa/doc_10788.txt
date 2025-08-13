@@ -1,0 +1,1 @@
+Other Assets [["", "July 31, 2019 ", "July 31, 2018"], ["Prepaid expenses", "$2,640", "$2,476"], ["Contract costs", "23,375", "\u2014"], ["Deferred costs", "8,867", "9,377"], ["Strategic investments", "10,672", "10,672"], ["Other assets", "$45,554", "22,525"]]

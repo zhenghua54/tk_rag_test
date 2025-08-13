@@ -1,0 +1,1 @@
+These customer-scoring models assess a number of variables, including origination characteristics, customer account history and payment patterns. Based on the score derived from these models, accounts are grouped by risk category to determine the collection strategy to be applied to such accounts.

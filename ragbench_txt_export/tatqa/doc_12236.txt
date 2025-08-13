@@ -1,0 +1,1 @@
+Restricted Cash [["", "December 31,", ""], ["", "2019", "2018"], ["Cash and cash equivalents", "$172,960", "$172,704"], ["Restricted cash included in other long-term assets", "116", "114"], ["Total cash, cash equivalents and restricted cash reported on the Consolidated Statements of Cash Flows", "$173,076", "$172,818"]]

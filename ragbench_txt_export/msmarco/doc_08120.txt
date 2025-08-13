@@ -1,0 +1,1 @@
+A geodetic datum is an abstract coordinate system with a reference surface (such as sea level) that serves to provide known locations to begin surveys and create maps. In this way, datums act similar to starting points when you give someone directions.

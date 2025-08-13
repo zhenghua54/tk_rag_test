@@ -1,0 +1,1 @@
+Trading profit [["\u00a3m", "2018/19", "2017/18", "Change"], ["Divisional contribution2", "", "", ""], ["Grocery", "138.3", "130.0", "+6.3%"], ["Sweet Treats", "23.6", "25.8", "(8.4%)"], ["Total", "161.9", "155.8", "+3.9%"], ["Group & corporate costs", "(33.4)", "(32.8)", "(1.8%)"], ["Trading profit", "128.5", "123.0", "+4.5%"]]

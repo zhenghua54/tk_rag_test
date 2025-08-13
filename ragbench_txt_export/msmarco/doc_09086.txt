@@ -1,0 +1,1 @@
+Although transcription is performed by RNA Polymerase, the enzyme needs other proteins to produce the transcript. These factors are either associated directly with RNA Polymerase or add in building the actual transcription apparatus. The general term for these associated proteins is transcription factor.

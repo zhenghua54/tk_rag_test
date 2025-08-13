@@ -1,0 +1,1 @@
+Amounts may not sum and percentages may not recalculate due to rounding

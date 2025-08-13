@@ -1,0 +1,1 @@
+Subscription Revenue by Segment [["(dollars in millions)", "2019", "2018", "2017", "% Change 2019 - 2018"], ["Digital Media", "$7,208.3", "$5,857.7", "$4,480.8", "23%"], ["Digital Experience", "2,670.7", "1,949.3", "1,552.5", "37%"], ["Publishing", "115.5", "115.2", "100.6", "*"], ["Total subscription revenue", "$9,994.5", "$7,922.2", "$6,133.9", "26%"]]

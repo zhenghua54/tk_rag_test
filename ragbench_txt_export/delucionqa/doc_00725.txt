@@ -1,0 +1,1 @@
+Gross Axle Weight Rating (GAWR) The GAWR is the maximum capacity of the front and rear axles.  Distribute the load over the front and rear axles evenly.  Make sure that you do not exceed either front or rear GAWRWARNING: It is important that you do not exceed the maximum front or rear GAWR.  A dangerous driving condition can result if either rating is exceeded.

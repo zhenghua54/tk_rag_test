@@ -1,0 +1,1 @@
+1 Note that since the value of a S is usually larger for canard designs, C m0 has a greater impact on L than it does on aft-swept designs. 2  Induced drag / C Lmax incompatibility: Canard designs can achieve equal or better C Lmax values than conventional designs, and similar values of span efficiency.

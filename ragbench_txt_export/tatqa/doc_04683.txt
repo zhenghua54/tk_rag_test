@@ -1,0 +1,1 @@
+(1) Vessel Calendar Days is the total number of days the vessels were in our fleet.

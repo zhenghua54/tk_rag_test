@@ -1,0 +1,1 @@
+6 Segment Information continued [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018 Restated See note 2"], ["Revenue from external customers by country", "$M", "$M"], ["UK", "83.2", "73.5"], ["USA", "222.2", "199.0"], ["Germany", "143.5", "128.4"], ["Other countries", "261.7", "238.1"], ["Total revenue from external customers by country", "710.6", "639.0"]]

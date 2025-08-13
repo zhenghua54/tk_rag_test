@@ -1,0 +1,1 @@
+Non-marketable equity securities are measured at fair value using market data, such as publicly available financing round valuations. Financial information of private companies may not be available and consequently we will estimate the fair value based on the best available information at the measurement date.

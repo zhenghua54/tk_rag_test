@@ -1,0 +1,6 @@
+Cost of Hardware
+As discussed above, we adopted the new revenue recognition standard as of January 1, 2018. As a result, we now recognize our
+hardware revenue net of related costs which reduces both hardware revenue and cost of sales as compared to our accounting prior to
+2018. Had we presented the results for 2017 under ASC 606, cost of hardware would have been presented as zero as we would have
+recognized our hardware revenue net of related costs. In 2019, cost of hardware decreased $3.5 million compared to 2018 on
+decreased hardware sales, while in 2018, cost of hardware increased $3.7 million compared with 2017 on increased hardware sales

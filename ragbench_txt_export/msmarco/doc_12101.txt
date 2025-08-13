@@ -1,0 +1,1 @@
+Each neuron is composed of a cell body containing a nucleus and one or more long cytoplasmic extensions known as fibres. Highly branched fibres, called dendrites, bring impulses toward the cell body, while a single, unbranched fibre, the axon, carries information away from the cell body (Figure 17).

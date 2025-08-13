@@ -1,0 +1,1 @@
+Part A. Using the following data, calculate Delta G at 298 K. Delta G (NO2(g))=51.84 kJ/mol. Delta G (NO2O4(g))=98.28 kJ/mol. Part B. Calculate Delta G at 298K if the partial pressures of NO2 and N2O4 are 0.36atm and 1.63atm, respectively. Please answer both questions Delta G in kJ format

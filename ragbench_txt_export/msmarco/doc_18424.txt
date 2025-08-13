@@ -1,0 +1,1 @@
+I f need to calculate delta G using equation delta G =delta G not + R T ln Q. I am given partial pressure of the rxn as NO2 is 0.10 atm and N2O4 is 1 atm. I did Partial Pressure at 0,10 atm as 2.98 T for I mole NO2 and 298 K at STP for N2O4.

@@ -1,0 +1,1 @@
+13. Other investments [["", "2019", "2018"], ["", "\u20acm", "\u20acm"], ["Included within non-current assets:", "", ""], ["Equity securities1", "48", "47"], ["Debt securities2", "822", "3,157"], ["", "870", "3,204"]]

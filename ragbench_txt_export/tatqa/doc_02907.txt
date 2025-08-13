@@ -1,0 +1,1 @@
+Billings [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018 Restated See note 2"], ["", "$M", "$M"], ["Revenue", "710.6", "639.0"], ["Net deferral of revenue (see note 23)", "49.7", "129.6"], ["Billings", "760.3", "768.6"], ["Currency revaluation", "25.9", "18.7"], ["Constant currency billings", "786.2", "787.3"]]

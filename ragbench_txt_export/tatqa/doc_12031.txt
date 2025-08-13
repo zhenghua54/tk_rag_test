@@ -1,0 +1,1 @@
+The following table illustrates the weighted average inputs into the Black-Scholes model in the year:

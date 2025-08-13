@@ -1,0 +1,1 @@
+16. Earnings Per Share [["", "", "Fiscal", ""], ["", "2019", "2018", "2017"], ["", "", "(in millions)", ""], ["Basic", "338", "350", "355"], ["Dilutive impact of share-based compensation arrangements", "2", "3", "3"], ["Diluted", "340", "353", "358"]]

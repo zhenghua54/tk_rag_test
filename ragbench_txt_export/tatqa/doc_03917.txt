@@ -1,0 +1,1 @@
+Sales and Marketing Expenses [["", "", "Year Ended December 31,", "", "", ""], ["", "2019", "2018", "2017", "2018 to 2019 % change", "2017 to 2018 % change"], ["", "", "", "(In thousands, except percentages)", "", ""], ["Sales and Marketing", "$ 396,514", "$ 291,668", "$ 211,918", "36%", "38%"]]

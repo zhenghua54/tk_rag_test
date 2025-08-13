@@ -1,0 +1,1 @@
+Glide Slope Ratio The Glide Slope Ratio is a number that indicates how well your designed shoebox glider flies through the air in terms of its forward distance vs. its drop in altitude. Glide Ratio = Horizontal Distance divided by the Change in Altitude.

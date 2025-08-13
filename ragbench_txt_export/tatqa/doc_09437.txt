@@ -1,0 +1,1 @@
+Our net sales by market sector for the indicated fiscal years were as follows (in millions): [["Market Sector ", "2019", "2018"], ["Healthcare/Life Sciences ", "$1,220.0", "$1,039.9"], ["Industrial/Commercial ", "981.2", "917.7"], ["Aerospace/Defense ", "588.6", "445.1"], ["Communications ", "374.6", "470.8"], ["Total net sales", "3,164.4", "2,873.5"]]

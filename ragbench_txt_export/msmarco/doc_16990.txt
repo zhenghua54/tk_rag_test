@@ -1,0 +1,1 @@
+In this case, oscillation is a misnomer. As there is but one pulse, the wave travels through water at velocity v and that one wave's energy compresses and releases water as the wave travels through the water. So the only time we'd see the compression/rarefaction is when that one wave passed over our microphones

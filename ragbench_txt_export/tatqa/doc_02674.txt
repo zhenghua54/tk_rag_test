@@ -1,0 +1,1 @@
+Deferred Compensation Plans [["", "Fiscal year-end", ""], ["", "2019", "2018"], ["Total deferred compensation liability, included in:", "", ""], ["Other current liabilities", "$3,233", "$844"], ["Other long-term liabilities", "39,715", "40,895"], ["Total deferred compensation liability", "$42,948", "$41,739"]]

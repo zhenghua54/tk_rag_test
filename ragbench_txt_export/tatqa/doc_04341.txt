@@ -1,0 +1,1 @@
+IBM Working Capital [["($ in millions)", "", ""], ["At December 31:", "2019", "2018"], ["Current assets", "$38,420", "$49,146"], ["Current liabilities", "37,701", "38,227"], ["Working capital", "$   718", "$10,918"], ["Current ratio", "1.02:1", "1.29:1"]]

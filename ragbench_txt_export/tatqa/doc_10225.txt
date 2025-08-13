@@ -1,0 +1,1 @@
+Pro Forma Information [["", "For the Year Ended", ""], ["", "December 31, 2019", "December 31, 2018"], ["", "(in thousands, except per share amounts)", ""], ["Revenues", "$2,303,737", "$2,111,373"], ["Net income", "$464,602", "$442,082"], ["Net income per common share:", "", ""], ["Basic", "$2.73", "$2.36"], ["Diluted", "$2.59", "$2.30"]]

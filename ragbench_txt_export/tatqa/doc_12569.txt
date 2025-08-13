@@ -1,0 +1,1 @@
+Risk-Free Rate—The risk-free interest rate is estimated average interest rate based on U.S. Treasury zero-coupon notes with terms consistent with the expected term of the awards.

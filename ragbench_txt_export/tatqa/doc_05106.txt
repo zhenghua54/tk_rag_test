@@ -1,0 +1,1 @@
+SUPERVISORY BOARD [["", "Year ended  December 31", ""], ["", "2018", "2019"], ["Supervisory Board:", "", ""], ["J.C. Lobbezoo", "78.6", "83.5"], ["H.W. Kreutzer 1)", "21.4", "0.0"], ["M.C.J. van Pernis", "56.0", "58.5"], ["U.H.R. Schumacher", "53.5", "56.0"], ["S. Kahle-Galonske", "55.9", "60.0"], ["M.J.C. de Jong 2)", "34.0", "57.5"], ["TOTAL", "299.4", "315.5"]]

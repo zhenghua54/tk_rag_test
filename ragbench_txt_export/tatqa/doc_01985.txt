@@ -1,0 +1,1 @@
+Stock Options with Market-based Vesting Criteria [["", "", "Fiscal Years", ""], ["", "2019", "2018", "2017"], ["Risk-free interest rate", "2.8%", "2.3%", "1.9%"], ["Expected term (years)", "3.9", "3.4", "7.0"], ["Expected volatility", "51.9%", "45.8%", "32.3%"], ["Target price", "$53.87", "$98.99", "$67.39"]]

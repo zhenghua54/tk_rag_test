@@ -1,0 +1,1 @@
+(D.6) Non-Current Assets by Region [["\u20ac millions", "2019", "2018"], ["Germany", "4,486", "4,184"], ["Rest of EMEA", "5,386", "4,742"], ["EMEA", "9,872", "8,926"], ["United States", "29,744", "22,133"], ["Rest of Americas", "411", "258"], ["Americas", "30,154", "22,391"], ["APJ", "1,276", "922"], ["SAP Group", "41,302", "32,239"]]

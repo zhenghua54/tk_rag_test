@@ -1,0 +1,1 @@
+• Pri Voice Logger on asterisk. Voice Logger can be used at its best to monitor and control the business. Voice Logger is a software solution to record aII incoming and outgoing calls, which Iater on can be retrieved for analysis and many other purposes. Recordings start and stop automatically using either phone Iine voltage sensing or audio activation.

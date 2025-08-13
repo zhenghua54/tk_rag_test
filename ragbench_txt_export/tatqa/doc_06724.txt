@@ -1,0 +1,1 @@
+Cash used in investing activities [["", "", "Year Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Software", "$12.7", "$5.4", "$2.3"], ["Computer hardware", "1.2", "0.8", "0.8"], ["Leasehold improvements", "0.9", "0.2", "0.5"], ["Furniture", "0.6", "0.2", "0.5"], ["Purchases of property, equipment and software", "$15.4", "$6.6", "$4.1"]]

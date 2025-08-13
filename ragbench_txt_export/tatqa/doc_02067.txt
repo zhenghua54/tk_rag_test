@@ -1,0 +1,1 @@
+Operating Metrics [["", "For the Years Ended December 31,", "", ""], ["", "2019", "2018", "Increase (Decrease)"], ["Net bookings", "$6,388", "$7,262", "$(874)"], ["In-game net bookings", "$3,366", "$4,203", "$(837)"]]

@@ -1,0 +1,1 @@
+Churn is closely related to the concept of average customer life time. For example, an annual churn rate of 25% implies an average customer life of 4 years. For example, for a group of subscribers, an annual churn rate of 25% is the same as an annual survival rate of 75%. Both imply a customer life tim

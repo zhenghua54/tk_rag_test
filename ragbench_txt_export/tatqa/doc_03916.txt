@@ -1,0 +1,1 @@
+The Group monitors capital using a gearing ratio, which is total debt divided by total equity plus total debt. The gearing ratio is calculated as follows:

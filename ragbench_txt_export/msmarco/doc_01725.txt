@@ -1,0 +1,1 @@
+Open a browser and type in 192.168.0.1. You'll need the password to log in if you have that. If you don't then you'll need to do a factory reset of the router which will clear all passwords and set everything back to defaults which will have no passwords on the admin log in or the WiFi.

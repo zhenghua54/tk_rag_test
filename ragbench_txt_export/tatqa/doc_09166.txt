@@ -1,0 +1,1 @@
+The fair value of the Company’s market-based PRSUs granted during fiscal years 2019, 2018, and 2017 was calculated using a Monte Carlo simulation model at the date of the grant. This model requires the input of highly subjective assumptions, including expected stock price volatility and the estimated life of each award:

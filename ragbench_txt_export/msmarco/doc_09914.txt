@@ -1,0 +1,1 @@
+You can delete either a single page or a range of pages from your Microsoft Word document from wherever they are located in the document. This includes both pages with and without content, whether they are located midway through the document or at the end.

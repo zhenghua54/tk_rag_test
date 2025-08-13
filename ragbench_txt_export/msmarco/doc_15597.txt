@@ -1,0 +1,1 @@
+Amino acids are grouped according to what their side chains are like. The nine amino acids that have hydrophobic side chains are glycine (Gly), alanine (Ala), valine (Val), leucine (Leu), isoleucine (Ile), proline (Pro), phenylalanine (Phe), methionine (Met), and tryptophan (Trp).

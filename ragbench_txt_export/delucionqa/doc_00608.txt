@@ -1,0 +1,1 @@
+Rearming Of The System If something triggers the alarm and no action is taken to disarm it, the Vehicle Security system will turn the horn off after a 29 second cycle (with five seconds between cycles and up to eight cycles if the trigger remains active) and then rearm itself.

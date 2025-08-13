@@ -1,0 +1,1 @@
+Confirmatory factor analysis (CFA) is a statistical technique used to verify the factor structure of a measurement instrument. EFA, traditionally, is used to explore the possible underlying factor structure of a measurement instrument.

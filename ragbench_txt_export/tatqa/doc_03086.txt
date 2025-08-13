@@ -1,0 +1,1 @@
+Warranty Obligations [["", "", "Fiscal Year Ended", ""], ["", "December 28,\n2019", "December 29, 2018", "December 30, 2017"], ["Balance at beginning of year", "$2,102", "$ 3,662", "$2,972"], ["Accruals", "3,881", "3,181", "8,115"], ["Settlements", "(4,041)", "(4,741)", "(7,425)"], ["Balance at end of year", "$1,942", "$2,102", "$3,662"]]

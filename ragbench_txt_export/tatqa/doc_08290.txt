@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "As of December 31,", ""], ["", "2019", "2018"], ["Accounts receivable, gross", "$78,269", "$79,902"], ["Less: Allowance for doubtful accounts", "(261)", "(384)"], ["Accounts receivable, net", "$78,008", "$79,518"]]

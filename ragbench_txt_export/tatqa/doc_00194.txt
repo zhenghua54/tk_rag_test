@@ -1,0 +1,1 @@
+Cost of Net Revenue and Gross Profit [["", "Year Ended December 31,", "", "% Change"], ["", "2019", "2018", "2019"], ["", "", "(dollars in thousands)", ""], ["Cost of net revenue", "$149,495", "$176,223", "(15)%"], ["% of net revenue", "47%", "46%", ""], ["Gross profit", "167,685", "208,774", "(20)%"], ["% of net revenue", "53%", "54%", ""]]

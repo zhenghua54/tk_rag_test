@@ -1,0 +1,1 @@
+Gross Profit [["", "Fiscal Year", ""], ["($ in millions)", "2018", "2017"], ["Net sales", "$2,157.7", "$1,797.6"], ["Less: surcharge revenue", "365.4", "239.2"], ["Net sales excluding surcharge revenue", "$1,792.3", "$1,558.4"], ["Gross profit", "$382.3", "$300.8"], ["Gross margin", "17.7%", "16.7%"], ["Gross margin excluding surcharge revenue", "21.3%", "19.3%"]]

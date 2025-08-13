@@ -1,0 +1,1 @@
+17 Impairment of Goodwill and Intangibles [["", "31 March 2019", "31 March 2018"], ["", "$M", "$M"], ["Americas", "273.6", "288.2"], ["EMEA", "413.0", "434.2"], ["APJ", "98.7", "103.6"], ["", "785.3", "826.0"]]

@@ -1,0 +1,1 @@
+Citations & references. Thermo Scientific Exonuclease I (ExoI) degrades single-stranded DNA in a 3'→5' direction. It releases deoxyribonucleoside 5'-monophosphates in a stepwise manner and leaves 5'-terminal dinucleotides intact. It does not cleave DNA strands with terminal 3'-OH groups blocked by phosphoryl or acetyl groups. Highlights.

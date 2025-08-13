@@ -1,0 +1,1 @@
+Adjustable Chime Volume Settings The Front and Rear chime volume settings are programmable.  The settings may be programmed through the Uconnect systemThe chime volume settings include low, medium, and high.  The factory default volume setting is medium.  ParkSense will retain its last known configuration state through ignition cycles.

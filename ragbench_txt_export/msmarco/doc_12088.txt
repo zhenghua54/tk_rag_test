@@ -1,0 +1,1 @@
+CapillaryElectrophoresis The heart of capillary electrophoresis (CE) is electroosmotic flow (EOF). This is the mobile phase “pump” inCE. Unlike gas chromatography (GC), there is no pressurized gas acting as the mobile phase in CE.

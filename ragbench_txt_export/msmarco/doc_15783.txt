@@ -1,0 +1,1 @@
+Origins of replication. Every plasmid has one essential feature: the origin of replication. To make a circular, double stranded DNA replicate in E. coli, the origin of replication is the only thing you need. If that’s all you have, you’d call the thing a “cryptic” plasmid—which just means it replicates in the cell but has no selectable marker.

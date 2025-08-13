@@ -1,0 +1,1 @@
+Relative importance of the spend on pay [["", "2019", "2018", "Per cent"], ["", "$ million", "$ million", "change"], ["Employee remuneration costs1", "220.5", "208.9", "5.6"], ["Distributions to shareholders2", "28.6", "54.8", "(47.8)"], ["Adjusted operating profit3", "92.9", "77.1", "20.5"]]

@@ -1,0 +1,1 @@
+12. Restructuring [["", "Lease abandonment charges", "Severance & payroll related charges", "Total"], ["Balance at March 31, 2018", "$\u2014", "$\u2014", "$\u2014"], ["Restructuring charges", "1,034", "14,606", "15,640"], ["Payments", "(540)", "(12,642)", "(13,182)"], ["Accrual reversals", "\u2014", "(875)", "(875)"], ["Balance at March 31, 2019", "$494", "$1,089", "$1,583"]]

@@ -1,0 +1,1 @@
+Long-lived assets by geographic region were as follows (amounts in millions): [["", "", "At December 31,", ""], ["", "2019", "2018", "2017"], ["Long-lived assets* by geographic region:", "", "", ""], ["Americas", "$322", "$203", "$197"], ["EMEA", "142", "62", "75"], ["Asia Pacific", "21", "17", "22"], ["Total long-lived assets by geographic region", "$485", "$282", "$294"]]

@@ -1,0 +1,1 @@
+16. Segment, Geographic, and Significant Customer Information [["", "April 26, 2019", "April 27, 2018"], ["U.S.", "$ 159", "$ 853"], ["International", "3,740", "4,538"], ["Total", "$ 3,899", "$ 5,391"]]

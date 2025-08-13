@@ -1,0 +1,1 @@
+E. coli strain containing an overproducing clone of E. coli Exonuclease I. Description: Exonuclease I hydrolyzes single-stranded DNA in the 3'→5' direction, releasing. 5'-mononucleotides and leaving the terminal 5'-dinucleotide intact. Hydrolysis is processive and cannot proceed if the 3' terminus is phosphorylated.

@@ -1,0 +1,1 @@
+Income from Equity Investees [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "Increase / (Decrease)"], ["Construction", "$\u2014", "$ (0.2)", "$ 0.2"], ["Marine Services", "5.6", "19.7", "(14.1)"], ["Life Sciences", "(3.4)", "(4.0)", "0.6"], ["Other", "\u2014", "(0.1)", "0.1"], ["Income from equity investees", "$ 2.2", "$ 15.4", "$ (13.2)"]]

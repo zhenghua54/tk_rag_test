@@ -1,0 +1,1 @@
+You’re male and your average heart rate during a 37-minute exercise session was 133 bpm. Your calorie expenditure during this exercise session was [(32 x 0.2017) — (173 x 0.09036) + (133 x 0.6309) — 55.0969] x 37 / 4.184 = 174 calories.

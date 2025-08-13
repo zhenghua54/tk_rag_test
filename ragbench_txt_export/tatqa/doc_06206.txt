@@ -1,0 +1,1 @@
+Fees Paid to our Independent Auditor [["Fee Category", "2019 ($)", "2018 ($)"], ["Audit fees (1)", "1,196,000", "1,257,000"], ["Audit-related fees (2)", "0", "15,000"], ["Tax fees (3)", "0", "0"], ["All other fees (4)", "2,000", "2,000"], ["Total", "1,198,000", "1,274,000"]]

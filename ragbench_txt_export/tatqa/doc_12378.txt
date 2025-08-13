@@ -1,0 +1,1 @@
+Cash and Cash Equivalents [["", "For the Years Ended December 31,", ""], ["(in thousands) ", "2019", "2018"], ["Cash and cash equivalents", "$4,777", "$1,008"], ["Restricted cash", "72", "70"], ["Restricted cash included in other assets, noncurrent", "--   ", "70"], ["Total cash, cash equivalents, and restricted cash in the balance sheet ", "4,849", "$1,148"]]

@@ -1,0 +1,1 @@
+17. Personnel expenses [["\u20ac million", "2017/2018", "2018/2019"], ["Wages and salaries", "2,173", "2,264"], ["Social security expenses, expenses for post-employment benefits and related employee benefits", "552", "552"], ["thereof for post-employment benefits", "(43)", "(41)"], ["", "2,725", "2,816"]]

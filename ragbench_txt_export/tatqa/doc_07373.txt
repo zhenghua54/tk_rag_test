@@ -1,0 +1,1 @@
+O. Accrued Expenses and Other [["", "January 31, 2020", "February 1, 2019"], ["Accrued employee related expenses", "$845", "$780"], ["Accrued partner liabilities", "181", "207"], ["Customer deposits", "247", "239"], ["Other(1)", "878", "438"], ["Total", "$2,151", "$1,664"]]

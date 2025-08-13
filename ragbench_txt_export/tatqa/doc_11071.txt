@@ -1,0 +1,1 @@
+Stock-Based Compensation [["", "For the Years Ended December 31,", ""], ["", "2019", "2018"], ["Compensation and related benefits", "$3,247", "$949"], ["Professional and legal fees", "242", "545"], ["Totals ", "3,489", "$1,494"]]

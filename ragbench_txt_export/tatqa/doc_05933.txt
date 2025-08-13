@@ -1,0 +1,1 @@
+Long-lived assets by geographic area, which primarily include property and equipment, net, as of the periods presented were as follows (table in millions): [["", "January 1, 2020", "February 1, 2019"], ["United States", "$860", "$849"], ["International", "209", "113"], ["Total", "$1,069", "$962"]]

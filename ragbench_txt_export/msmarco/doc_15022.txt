@@ -1,0 +1,1 @@
+Multiply the furnace's input rating by its efficiency. For example, if your furnace had an input rating of 200,000 BTU's and an efficiency level of 90 percent. You would multiply 200,000 by 0.90 to get 180,000. This number would then be the number of BTU's at which your furnace is effectively operating.

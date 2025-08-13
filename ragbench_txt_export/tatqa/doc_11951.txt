@@ -1,0 +1,1 @@
+Contract Balances [["", "June 30, 2019", "June 30, 2018"], ["Receivables, net", "$310,080", "$297,271"], ["Contract Assets- Current", "21,446", "14,063"], ["Contract Assets- Non-current", "50,640", "35,630"], ["Contract Liabilities (Deferred Revenue)- Current", "339,752", "328,931"], ["Contract Liabilities (Deferred Revenue)- Non-current", "54,554", "40,984"]]

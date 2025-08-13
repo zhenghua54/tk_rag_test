@@ -1,0 +1,1 @@
+Any land area surrounded entirely by water is considered an island. The exception to this definition is a land area of continental size, such as Australia, which is considered a nation-continent.

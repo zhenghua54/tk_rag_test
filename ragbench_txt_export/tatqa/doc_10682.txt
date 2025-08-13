@@ -1,0 +1,1 @@
+Value-at-Risk (VaR) [["", "Fair Value Impact", ""], ["In Millions", "Average During the Fiscal Year Ended May 26, 2019", "Average During the Fiscal Year Ended May 27, 2018"], ["Processing Activities", "", ""], ["Energy commodities", "$0.4", "$0.2"], ["Agriculture commodities", "0.4", "0.4"], ["Other commodities", "0.1", "\u2014"], ["Foreign exchange", "0.7", "0.7"]]

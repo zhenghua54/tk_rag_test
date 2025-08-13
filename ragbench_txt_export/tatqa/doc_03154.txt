@@ -1,0 +1,1 @@
+Interest Expense [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["", "", "(Dollars in millions)", ""], ["Interest expense:", "", "", ""], ["Gross interest expense", "$2,093", "2,230", "1,559"], ["Capitalized interest", "(72)", "(53)", "(78)"], ["Total interest expense", "$2,021", "2,177", "1,481"]]

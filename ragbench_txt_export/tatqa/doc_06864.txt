@@ -1,0 +1,1 @@
+7. Employee numbers and costs [["", "2019", "2018"], ["", "Number", "Number"], ["Customer operations", "370", "380"], ["Product and technology", "317", "312"], ["Corporate", "115", "130"], ["Total", "802", "822"]]

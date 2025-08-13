@@ -1,0 +1,1 @@
+Nvidia has announced that the company skipped the GeForce 800 series for desktop graphics cards, most likely because the GTX 800M series consists of high-end Kepler and low-end Maxwell based components. Instead, Nvidia had announced that the newly renamed GeForce GTX 980 and GTX 970 will be introduced formally on September 19, 2014.

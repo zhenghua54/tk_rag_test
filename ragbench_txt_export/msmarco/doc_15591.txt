@@ -1,0 +1,1 @@
+Six amino acids have side chains that are polar but not charged. These are serine (Ser), threonine (Thr), cysteine (Cys), asparagine (Asn), glutamine (Gln), and tyrosine (Tyr). These amino acids are usually found at the surface of proteins, as discussed in the Proteins 2 module.

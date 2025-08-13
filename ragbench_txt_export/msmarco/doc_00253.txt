@@ -1,0 +1,1 @@
+In order to add an image to your signature in RoundCube you will be required to: 1. Log into Roundcube at http://www.yourdomain.com/webmail/ (replace yourdomain.com with your domain name). 1. Select ' Settings ' on the top right hand corner.

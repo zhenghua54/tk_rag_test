@@ -1,0 +1,1 @@
+How to add image signature to your RoundCube Webmail Client. In most cases, it is preferable to add your signature in a local mail client such as Mozilla Thunderbird. If, however, you wish to use it directly from the webmail, there is an easy way to do this. The signature itself is added again via the Settings section.

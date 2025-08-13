@@ -1,0 +1,1 @@
+What is most important about data mining is the quality and amount of the data, regardless of the format. With the amount of data being collected and stored today, data mining has taken on much greater significance for public and private organizations of all types.

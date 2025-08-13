@@ -1,0 +1,1 @@
+Part of the Mathematics glossary: The square meter, also called the meter squared, is the Standard International (SI) unit of area. The symbol for square meter is m 2. Less formally, square meter is sometimes abbreviated sq m. When calculating area, it is important to realize that area is proportional to the square of the linear dimension.

@@ -1,0 +1,1 @@
+Cost estimation methods are necessary only for costs that are identified as mixed costs. There is no need to apply an estimation method to break a cost into fixed and variable portions if you have already determined it is solely fixed or solely variable.

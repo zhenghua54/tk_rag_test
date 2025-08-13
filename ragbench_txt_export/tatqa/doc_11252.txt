@@ -1,0 +1,1 @@
+Disaggregation of Revenues [["", "", "For the Year Ended December 31,"], ["", "2019", "2018"], ["Cloud and related solutions", "$896,164", "$766,377"], ["Software and services", "52,364", "58,101"], ["Maintenance", "48,282", "50,581"], ["Total revenues", "$996,810", "$875,059"]]

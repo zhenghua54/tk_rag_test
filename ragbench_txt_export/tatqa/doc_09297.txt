@@ -1,0 +1,1 @@
+(1) New products include all products manufactured on 180 nanometer or smaller semiconductor processes, eFPGA IP license, QuickAI and SensiML AI software as a service (SaaS) revenues. Mature products include all products produced on semiconductor processes larger than 180 nanometer.

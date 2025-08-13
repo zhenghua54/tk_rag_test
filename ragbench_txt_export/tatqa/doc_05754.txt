@@ -1,0 +1,1 @@
+Item 16C. PRINCIPAL ACCOUNTANT FEES AND SERVICES [["", "2019", "2018"], ["", "(U.S. $ in thousands)", ""], ["Audit fees (1)", "$2,980", "$3,469"], ["Audit-related fees (2)", "648", "447"], ["Tax fees (3)", "220", "238"], ["Other fees (4)", "8", "3"], ["Total", "$3,856", "$4,157"]]

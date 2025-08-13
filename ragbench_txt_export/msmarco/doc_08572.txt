@@ -1,0 +1,1 @@
+BSC is short for BASIC. It is a numerical value used to describe the theoretical exact size, shape or location of a feature or datum target. It is the basis on which permissible variations are established by tolerances on other dimensions, in notes, or by feature control symbols.

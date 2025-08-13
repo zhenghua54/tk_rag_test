@@ -1,0 +1,1 @@
+Sales and Marketing [["", "Years Ended December 31,", "", "Change", ""], ["", "2019", "2018", "$", "%"], ["", "(dollars in thousands)", "", "", ""], ["Sales and marketing", "$15,836", "$23,425", "$(7,589)", "(32)%"], ["Percent of revenues, net", "32%", "40%", "", ""]]

@@ -1,0 +1,1 @@
+Summarized financial information of Hilli LLC [["(in thousands of $)", "2019", "2018"], ["Balance sheet", "", ""], ["Current assets", "64,507", "172,554"], ["Non-current assets", "1,300,065", "1,392,710"], ["Current liabilities", "(496,029)", "(278,728)"], ["Non-current liabilities", "(418,578)", "(842,786)"]]

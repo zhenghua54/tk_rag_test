@@ -1,0 +1,1 @@
+Horde. You may create or change a signature in the Horde WebMail using the steps below: 1  From the menu at the top of the page, hover your mouse over the gear icon, then Preferences, then click Mail 2  : Under General, click Personal Information 3  : From this page you may create and edit your signature.

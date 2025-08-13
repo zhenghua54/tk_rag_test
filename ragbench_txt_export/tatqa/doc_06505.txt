@@ -1,0 +1,1 @@
+14. Net Loss Per Share [["(In thousands, except per share amounts)", "Years ended December 31,", ""], ["", "2019", "2018"], ["BASIC AND DILUTED", "", ""], ["Weighted average number of common shares outstanding", "8,844", "5,884"], ["Net loss attributable to Neonode Inc.", "$(5,298)", "$(3,060)"], ["Net loss per share basic and diluted", "$(0.60)", "$(0.52)"]]

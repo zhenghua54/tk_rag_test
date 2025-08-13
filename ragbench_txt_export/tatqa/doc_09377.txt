@@ -1,0 +1,1 @@
+15. Product Warranties [["", "2019", "2018"], ["Balance at beginning of year", "$520", "$557"], ["Warranty costs incurred", "(398)", "(40)"], ["Product warranty accrual", "407", "3"], ["Balance at end of year", "$529", "$520"]]

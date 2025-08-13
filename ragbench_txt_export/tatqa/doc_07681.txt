@@ -1,0 +1,1 @@
+Other Income (Expense), Net [["", "Year Ended December 31,", "", "Change", ""], ["", "2019", "2018", "$", "%"], ["", "", "(dollars in thousands)", "", ""], ["Other expense, net", "$ 4,597", "$ 4,628", "$ (31)", "(0.7)%"], ["% of revenue", "2%", "3%", "", ""]]

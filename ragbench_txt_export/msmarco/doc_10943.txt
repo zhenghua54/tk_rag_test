@@ -1,0 +1,1 @@
+A single electron occupying an orbital. valence electron. Electrons that can be actively involved in chemical change; usually electrons in the shell with the highest value of n. For example, sodium's ground state electron configuration is 1s 2 2s 2 2p 6 3s 1; the 3s electron is the only valence electron in the atom.

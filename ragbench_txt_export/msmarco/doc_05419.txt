@@ -1,0 +1,1 @@
+1 AT&T-Dial *DATA# and press Send. 2  You will receive a text message showing how much data you've used versus your monthly limit. 3  You can also download the My AT&T app to check your data usage. 4  T-Mobile-Dial #WEB

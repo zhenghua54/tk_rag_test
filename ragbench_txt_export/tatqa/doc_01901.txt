@@ -1,0 +1,1 @@
+DSU plan [["Years ended August 31,", "2019", "2018"], ["Outstanding, beginning of the year", "42,607", "40,446"], ["Issued", "11,328", "6,662"], ["Redeemed", "(12,351)", "(5,549)"], ["Dividend equivalents", "1,095", "1,048"], ["Outstanding, end of the year", "42,679", "42,607"]]

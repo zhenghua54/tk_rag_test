@@ -1,0 +1,1 @@
+E. coli DH5α λpir strain. E. coli DH5α λpir strain contains the pir gene (lysogenized lpir phage lysogen) and is designed for cloning and propagation of plasmids with R6K origin of replication sequence (like pUTmini-Tn5 vectors).

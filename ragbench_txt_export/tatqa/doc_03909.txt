@@ -1,0 +1,1 @@
+Accrued Warranty [["", "Year Ended", ""], ["", "June 30,\n2019", "June 30,\n2018"], ["Balance beginning of period", "$12,807", "$10,584"], ["Warranties assumed due to acquisitions  ", "\u2014", "3,682"], ["New warranties issued", "22,919", "10,491"], ["Warranty expenditures", "(20,947)", "(11,950)"], ["Balance end of period ", "$14,779", "$12,807"]]

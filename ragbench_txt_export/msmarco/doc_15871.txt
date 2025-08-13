@@ -1,0 +1,1 @@
+1 This poses a problem for locating a vertical stabilizer and may result in very large vertical surfaces. ( 2 Note, however, that winglets may be used to advantage in this case.). 3  Wing twist distribution is strange and C L dependent: The wing additional load distribution is distorted by the canard wake.

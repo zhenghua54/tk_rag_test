@@ -1,0 +1,1 @@
+Goodwill [["", "Years Ended December 31,", ""], ["", "2019", "2018"], ["", "(in thousands)", ""], ["Beginning balance", "$238,330", "$237,992"], ["Adjustments", "\u2014", "338"], ["Ending balance", "$238,330", "$238,330"]]

@@ -1,0 +1,1 @@
+- Kelvin scale doesn’t have negative values but Fahrenheit scale has. - A unit of Fahrenheit is equal to a 1/180th of the difference between the boiling point and the melting point, while a unit of Kelvin is equal to 1/100th of the same difference.

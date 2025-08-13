@@ -1,0 +1,1 @@
+Open the presentation that you want to add a slide to. On the Home tab, in the Slides group, click New Slide, and then click Reuse Slides. In the Reuse Slides pane, in the Insert slide from box, do one of the following: Enter the location of the Slide Library, and then click the arrow to find the Slide Library.

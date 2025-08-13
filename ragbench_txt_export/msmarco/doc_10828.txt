@@ -1,0 +1,1 @@
+1 The more common definition is that accuracy is a level of measurement with no inherent limitation (ie. 2  free of systemic error, another form of observational error). In addition to accuracy and precision, measurements may also have a measurement resolution, which is the smallest change in the underlying physical quantity that produces a response in the measurement.

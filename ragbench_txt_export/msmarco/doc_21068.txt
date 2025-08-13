@@ -1,0 +1,1 @@
+In electromagnetism and electronics, inductance is the property of an electrical conductor by which a change in current flowing through it induces an electromotive force in both the conductor itself and in any nearby conductors by mutual inductance.

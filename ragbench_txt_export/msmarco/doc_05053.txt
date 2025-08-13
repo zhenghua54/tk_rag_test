@@ -1,0 +1,1 @@
+DNA polymerase III is the main replicative enzyme. DNA polymerase IV and V have large active sites that allow for more base misincorporation, and are therefore more error-prone. They also lack proofreading-exonuclease subunits to correct misincorporations (Nohmi 2006, and Hastings et al. 2010).

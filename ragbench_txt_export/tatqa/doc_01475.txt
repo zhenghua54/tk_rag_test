@@ -1,0 +1,1 @@
+The fair value of interest rate swaps is calculated as the present value of the estimated future cash flows based on observable yield curves; and

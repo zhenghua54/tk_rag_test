@@ -1,0 +1,1 @@
+The 2022 Notes consist of the following (in thousands): [["", "As of December 31,", ""], ["", "2019", "2018"], ["Liability component:", "", ""], ["Principal", "$92,000", "$115,000"], ["Less: debt discount, net of amortization", "(12,776)", "(20,903)"], ["Net carrying amount", "$79,224", "$94,097"], ["Equity component (1)", "(14,555)", "22,094"]]

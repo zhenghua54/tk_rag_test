@@ -1,0 +1,1 @@
+Laboratory, medication and contraceptive supply codes, as well as certain CPT-4 procedure codes, may be billed on the same date of service as an E&M CPT-4 office visit code. The following CPT-4 procedure codes will accommodate an E&M code with modifier 25 when a significant, separately identifiable E&M service is provided by the same clinician on the same date of the procedure.

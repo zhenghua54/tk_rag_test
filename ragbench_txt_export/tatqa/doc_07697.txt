@@ -1,0 +1,1 @@
+IMPAIRMENT TESTING [["", "ASSUMPTIONS USED", ""], ["GROUPS OF CGUs", "PERPETUITY GROWTH RATE", "DISCOUNT RATE"], ["Bell Wireless", "0.8%", "9.1%"], ["Bell Wireline", "1.0%", "6.0%"], ["Bell Media", "1.0%", "8.0%"]]

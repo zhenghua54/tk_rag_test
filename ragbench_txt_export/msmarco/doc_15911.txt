@@ -1,0 +1,1 @@
+It is provided by the network administrator or service provider. Using WEP/WPA/WPA2 on the wireless access point or router: Most wireless access points and routers today allow you to select during setup the security protocol to be used. Unfortunately, the default in many wireless devices is WEP--or, worse, nothing

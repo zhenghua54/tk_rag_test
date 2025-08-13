@@ -1,0 +1,1 @@
+14. DEFINED BENEFIT PLANS (Continued) [["", "Fiscal year-end", ""], ["", "2019", "2018"], ["Projected benefit obligation", "$60,437", "$51,499"], ["Accumulated benefit obligation", "55,941", "47,713"], ["Fair value of plan assets", "12,997", "12,486"]]

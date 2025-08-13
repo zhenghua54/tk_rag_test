@@ -1,0 +1,1 @@
+Payload The payload of a vehicle is defined as the allowable load weight a truck can carry, including the weight of the driver, all passengers, options and cargo.

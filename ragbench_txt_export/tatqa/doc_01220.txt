@@ -1,0 +1,1 @@
+Relative importance of spend on pay [["", "FY19", "FY18", "Change"], ["", "$M", "$M", "%"], ["Shareholder distributions \u2013 dividends1", "23.9", "21.8", "10%"], ["Total employee expenditure2", "370.1", "361.9", "2%"]]

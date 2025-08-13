@@ -1,0 +1,1 @@
+First, assume adult male heights are normally distributed with mean 70 inches and standard deviation 3 inches. Assume also that adult female heights are normally distributed with mean 64 inches and standard deviation 3 inches.

@@ -1,0 +1,1 @@
+Impairment test for goodwill [["", "2019", "(Restated) 2018"], ["", "\u00a3m", "\u00a3m"], ["Digital", "327.6", "342.6"], ["Webzone", "6.6", "6.9"], ["Total", "334.2", "349.5"]]

@@ -1,0 +1,1 @@
+Setting up a schedule recording start. Live TV Recordings Settings Start Recording Early : You can set the time to start the recording earlier than the broadcast start time in the program guide. Continue Recording After : You can set the time to end the recording later than the broadcast end time in the program guide.

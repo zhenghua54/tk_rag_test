@@ -1,0 +1,1 @@
+10 Taxation (continued) [["\u00a3m", "2019", "2018"], ["Revenue losses \u2013 UK", "398.4", "300.8"], ["Capital losses \u2013 UK", "34.5", "34.2"], ["Derivative financial instruments", "172.7", "184.9"], ["Other temporary differences", "20.1", "9.7"], ["Total unrecognised temporary differences", "625.7", "529.6"]]

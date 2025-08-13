@@ -1,0 +1,1 @@
+Segment operating results [["", "Fiscal Year", "", "Variance in", ""], ["(In millions, except for percentages)", "2018", "2017", "Dollars", "Percent"], ["Net revenues", "$2,554", "$2,355", "$199", "8%"], ["Percentage of total net revenues", "53%", "59%", "", ""], ["Operating income", "$473", "$187", "$286", "153%"], ["Operating margin", "19%", "8%", "", ""]]

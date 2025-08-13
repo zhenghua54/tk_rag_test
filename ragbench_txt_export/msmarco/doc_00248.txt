@@ -1,0 +1,1 @@
+8.4.2 VRA. _________________________________________________________________________________________________. Descriptive metadata is a resource for discovery and identification, used for the indexing, discovery, and identification of the digital resources, e.g., title, author, and keyword. 8.4.1 EAD

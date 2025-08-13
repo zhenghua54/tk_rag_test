@@ -1,0 +1,1 @@
+Confidence votes 5.0K. Strain energy is a form of potential energy. Work done to distort an elastic member is stored as strain energy. Some energy may be lost in plastic deformation of the member and some may be converted into heat instead of stored as strain energy, but the rest is recoverable. A spring is an example of a storage device for strain energy

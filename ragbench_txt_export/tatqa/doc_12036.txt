@@ -1,0 +1,1 @@
+Selling, general and administrative [["", "", "Year Ended", "", "Change", "", "", ""], ["(Dollars in thousands)", "2019", "2018", "2017", "2019 over 2018", "", "2018 over 2017", ""], ["Selling, general and administrative", "$205,471", "$176,857", "$202,699", "$28,614", "16%", "$(25,842)", "(13)%"], ["% of net sales .", "6.7%", "7.9%", "6.9%", "", "", "", ""]]

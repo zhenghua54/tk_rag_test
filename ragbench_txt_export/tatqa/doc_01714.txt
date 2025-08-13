@@ -1,0 +1,1 @@
+Average PUE (Power Usage Efficiency) is the annual average data of PUE of the Group’s data centres. PUE, an indicator of the power efficiency of a data centre, is the ratio of total facility energy over IT equipment energy.

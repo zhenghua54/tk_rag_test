@@ -1,0 +1,1 @@
+Derivative financial instruments are measured at fair value. Fair value of derivative financial instruments are calculated based on discounted cash flow analysis using appropriate market information for the duration of the instruments.

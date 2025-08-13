@@ -1,0 +1,1 @@
+IonSource-Monograph 0005 -IonSource.Com Carbamylation of Proteins and Peptides (the dangers of using urea in protein characterization) Urea is a common chaotrope used in the solublization and denaturation of proteins. Urea is sometimes used as a protein denaturant in S-carboxymethylation reactions.

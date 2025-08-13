@@ -1,0 +1,1 @@
+Segments [["", "", "Fiscal", ""], ["", "2019", "2018", "2017"], ["Transportation Solutions", "58 %", "59 %", "58 %"], ["Industrial Solutions", "30", "28", "29"], ["Communications Solutions", "12", "13", "13"], ["Total", "100 %", "100 %", "100 %"]]

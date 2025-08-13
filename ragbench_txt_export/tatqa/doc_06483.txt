@@ -1,0 +1,1 @@
+Revenue by geography is based on the billing address of the advertiser. Long-lived assets attributed to the U.S. and international geographies are based upon the country in which the asset is located or owned.

@@ -1,0 +1,6 @@
+Hardware
+Hardware sales, net decreased $1.5 million, or -10% in 2019 compared to 2018. We adopted the new ASC 606 standard as of
+January 1, 2018 and elected to use the modified retrospective method. Historical hardware sales prior to the adoption of ASC 606
+were recorded on a gross basis, as we were the principal in the transaction in accordance with the previous standard, ASC 605-45.
+Under the new standard, we are an agent in the transaction as we do not physically control the hardware which we sell. Accordingly, starting January 1, 2018, we recognize our hardware revenue net of related cost which reduces both hardware revenue and cost of sales as compared to our accounting prior to 2018. For comparison purposes only, had we implemented ASC 606 using the full
+retrospective method, we would have also presented hardware revenue net of cost for prior periods as shown below.

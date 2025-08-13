@@ -1,0 +1,1 @@
+4. Property and Equipment [["As of December 31,", "", ""], ["", "2019", "2018"], ["Computers, software, furniture and fixtures", "$1,406", "$1,407"], ["Equipment under capital lease  3,348", "3,348", "3,525"], ["Less accumulated depreciation and amortization", "(3,171)", "(2,448)"], ["Property and equipment, net", "$1,583", "$2,484"]]

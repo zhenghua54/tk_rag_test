@@ -1,0 +1,1 @@
+An improper fraction is a fraction with a larger top than bottom, like 5 / 2. Mixed numbers are a whole number and a fraction together, like 2 1 / 2. It's usually easier to imagine 2 1 / 2 pizzas than five halves of a pizza, so it's useful to be able to switch between them.

@@ -1,0 +1,1 @@
+1 If you have the My Verizon app installed, the app will open and you can see your current data usage versus your monthly limit. 2  AT&T-Dial *DATA# and press Send. 3  You will receive a text message showing how much data you've used versus your monthly limit. 4  You can also download the My AT&T app to check your data usage.

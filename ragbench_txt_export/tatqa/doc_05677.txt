@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "Post-Retirement Life Insurance Plan", ""], ["", "2019", "2018"], ["Accrued expenses and other liabilities", "$(393)", "$(407)"], ["Long-term pension obligations", "(4,373)", "(4,188)"], ["Total accrued cost", "$(4,766)", "$(4,595)"]]

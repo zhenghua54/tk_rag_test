@@ -1,0 +1,1 @@
+(g) Prepaid Expenses and Other Current Assets: [["", "September 2019", "September 2018"], ["Prepaid expenses", "$1.8", "$1.6"], ["Prepaid inventory", "5.3", "3.3"], ["", "$7.1", "$4.9"]]

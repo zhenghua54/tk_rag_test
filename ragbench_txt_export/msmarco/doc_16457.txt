@@ -1,0 +1,1 @@
+1 The period of a pendulum is the time it takes from one side to the other and back. 2  An electron moving in a helical orbit that has an axis at right angles to the magnetic field has a period given by T=2πm/qB, where m is the mass of the electron, q is the charge of the electron and B is the magnetic field in the region.

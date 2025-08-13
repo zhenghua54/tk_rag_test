@@ -1,0 +1,1 @@
+The recommended inverter to run 1200 Watt continuous and 4800 Watt peak surge microwave is 2500/5000 Watt inverter or larger. In general, induction motors require an initial surge of power to start up (starting load or peak load).

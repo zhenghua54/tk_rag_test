@@ -1,0 +1,1 @@
+Enable or Disable Predictive Text. 1  From the Home screen, tap Settings. 2  Scroll to and tap General. 3  Scroll to and tap Keyboard. 4  Tap the Auto-Correction switch to the ON or OFF position.

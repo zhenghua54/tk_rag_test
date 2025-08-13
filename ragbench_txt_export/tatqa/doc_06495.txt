@@ -1,0 +1,1 @@
+Fees Billed by Ernst & Young LLP [["", "Fiscal Year 2019 ($)", "Fiscal Year 2018 ($)"], ["AuditFees(1)", "4,703,830", "4,605,495"], ["Audit-RelatedFees(2)", "27,000", "90,500"], ["TaxFees(3)", "194,170", "34,888"], ["AllOtherFees", "\u2014", "\u2014"], ["TOTAL", "4,925,000", "4,730,883"]]

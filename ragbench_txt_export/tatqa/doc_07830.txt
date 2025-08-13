@@ -1,0 +1,1 @@
+7. Property, Plant and Equipment and Leases [["", "2019", "2018"], ["Buildings and building improvements", "$2,692", "$2,790"], ["Machinery, equipment and furniture", "57,157", "57,503"], ["", "59,849", "60,293"], ["Less, accumulated depreciation", "(46,811 )", "(46,166)"], ["", "$13,038", "$ 14,127"]]

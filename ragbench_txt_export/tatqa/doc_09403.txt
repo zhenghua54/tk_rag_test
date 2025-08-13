@@ -1,0 +1,1 @@
+8. Goodwill [["", "Activision", "Blizzard", "King", "Total"], ["Balance at December 31, 2017", "$6,898", "$190", "$2,675", "$9,763"], ["Other", "(1)", "\u2014", "\u2014", "(1)"], ["Balance at December 31, 2018", "$6,897", "$190", "$2,675", "$9,762"], ["Other", "1", "\u2014", "1", "2"], ["Balance at December 31, 2019", "$6,898", "$190", "$2,676", "$9,764"]]

@@ -1,0 +1,1 @@
+NOTE 8. INVENTORIES [["", "December 31,", ""], ["", "2018", "2019"], ["Balance at beginning of year", "(12,749)", "(13,364)"], ["Charged to cost of sales", "(2,958)", "(4,748)"], ["Reversals", "723", "915"], ["Utilization of the provision", "1,978", "4,994"], ["Foreign currency translation effect", "(358)", "(324)"], ["Balance at end of year", "(13,364)", "(12,527)"]]

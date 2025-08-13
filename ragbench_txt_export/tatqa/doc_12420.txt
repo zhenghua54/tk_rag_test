@@ -1,0 +1,1 @@
+Contract Balances [["", "As of June 30, 2019", "As of July 1, 2018"], ["Short-term contract assets", "$20,956", "$5,474"], ["Long-term contract assets", "$15,386", "$12,382"], ["Short-term deferred revenue", "$641,656", "$618,197"], ["Long-term deferred revenue", "$46,974", "$64,743"]]

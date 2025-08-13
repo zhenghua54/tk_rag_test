@@ -1,0 +1,1 @@
+In 628, the Indian mathematician Brahmagupta wrote "Brāhmasphuṭasiddhānta" which includes, among many other things, a study of equations of the form . In particular he considered what is now called Pell's equation, , and found a method for its solution. In Europe this problem was studied by Brouncker, Euler and Lagrange.

@@ -1,0 +1,1 @@
+Such a path is an equipotential surface. Since there is a potential and electric field value at every point in space, there is no limit to the number of field lines and equipotential surfaces. In this experiment you will work in two dimensions to acquire a family of lines spaced at convenient intervals.

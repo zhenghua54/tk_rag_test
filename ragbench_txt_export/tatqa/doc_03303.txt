@@ -1,0 +1,1 @@
+Short-Term Debt [["($ in millions)", "", ""], ["At December 31:", "2019", "2018"], ["Commercial paper", "$  304", "$ 2,995"], ["Short-term loans", "971", "161"], ["Long-term debt\u2014current maturities", "7,522", "7,051"], ["Total", "$8,797", "$10,207"]]

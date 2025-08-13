@@ -1,0 +1,1 @@
+Fluid Level Check Check the fluid level by removing the fill plug.  The fluid level should be between the bottom of the fill hole and a point not more than 3/16 of an inch (4.76 mm) below the bottom of the hole.  Add fluid, if necessary, to maintain the proper level.

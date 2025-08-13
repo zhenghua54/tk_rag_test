@@ -1,0 +1,1 @@
+Total Restructuring Reserves [["", "", "Fiscal Year End"], ["", "2019", "2018"], ["", "", "(in millions)"], ["Accrued and other current liabilities", "$  245", "$  141"], ["Other liabilities", "19", "26"], ["Restructuring reserves", "$  264", "$  167"]]

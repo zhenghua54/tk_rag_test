@@ -1,0 +1,1 @@
+Software Development Costs [["", "December 31,", ""], ["(In thousands)", "2019", "2018"], ["Software development costs", "$428,641", "$317,637"], ["Less: accumulated amortization", "(184,712)", "(107,977)"], ["Software development costs, net", "$243,929", "$209,660"]]

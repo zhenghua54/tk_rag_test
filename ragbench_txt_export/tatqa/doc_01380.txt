@@ -1,0 +1,1 @@
+Item 14. PRINCIPAL ACCOUNTING FEES AND SERVICES. [["", "", "December 31,"], ["", "2018", "2019"], ["Audit Fees (1)", "$58,000", "$55,000"], ["Audit-Related Fees", "$-", "$-"], ["Tax Fees (2)", "$28,000", "$11,000"], ["All Other Fees", "$-", "$-"], ["Total Fees", "$86,000", "$66,000"]]

@@ -1,0 +1,1 @@
+HARDNESS MEASUREMENTS. Water hardness is unfortunately, expressed in several different units and it is often necessary to convert from one unit to another when making calculations. Most commonly used units include grains per gallon (gpg), parts per million (ppm), and milligrams per liter (mg/L).

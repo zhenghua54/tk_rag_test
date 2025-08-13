@@ -1,0 +1,1 @@
+Stock Options [["", "", "Year Ended", ""], ["", "April 26, 2019", "April 27, 2018", "April 28, 2017"], ["Intrinsic value of exercises", "$ 31", "$ 37", "$ 26"], ["Proceeds received from exercises", "$ 25", "$ 88", "$ 60"], ["Fair value of options vested", "$ 2", "$ 8", "$ 15"]]

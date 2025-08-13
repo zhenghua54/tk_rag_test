@@ -1,0 +1,1 @@
+Deferred tax is calculated at the tax rates that are expected to apply in the period when the liability is settled or the asset realised, based on tax rates that have been enacted or substantively enacted by the reporting period date.

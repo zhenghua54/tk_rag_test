@@ -1,0 +1,1 @@
+Contributions and Direct Benefit Payments [["($ in millions)", "", ""], ["For the year ended December 31:", "2019", "2018"], ["Non-U.S. DB plans", "$  243", "$  325"], ["Non pension postretirement benefit plans", "304", "335"], ["Multi-employer plans", "32", "38"], ["DC plans", "1,040", "1,024"], ["Direct benefit payments", "559", "567"], ["Total", "$2,177", "$2,288"]]

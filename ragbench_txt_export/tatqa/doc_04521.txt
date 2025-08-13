@@ -1,0 +1,1 @@
+Contract Liabilities [["Year Ended December 31,", "", ""], ["", "2019", "2018"], ["Beginning of period balance", "$11,176", "$12,678"], ["Revenue deferred and acquired in current period", "6,127", "3,954"], ["Revenue recognized from amounts included in contract liabilities", "(6,805)", "(5,456)"], ["End of period balance", "$10,498", "$11,176"]]

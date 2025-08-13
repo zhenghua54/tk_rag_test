@@ -1,0 +1,1 @@
+A genomic library will contain all the exons, introns, and transcriptional factors that are not found in the cDNA library. **2/24/2011** cDNA library does contain exons, which is the protein coding regions. + 42 others found this useful. Preeti Shah. A cDNA library consists only of genes that are expressed, hence they do contain only exons. They contain no introns.

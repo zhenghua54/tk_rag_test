@@ -1,0 +1,1 @@
+Contract Balances [["", "December 31,", ""], ["", "2019", "2018"], ["Contract assets", "$3,208,206", "$2,759,315"], ["Contract liabilities", "(3,887,685)", "(2,486,111)"], ["   Net contract assets", "$(679,479)", "$273,204"]]

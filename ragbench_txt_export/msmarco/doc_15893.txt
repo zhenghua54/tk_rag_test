@@ -1,0 +1,1 @@
+A vehicle's manifold pressure sensor, or manifold absolute pressure sensor (MAP), is part of an engine's electronic control system. It's usually found in vehicles that use fuel injection.

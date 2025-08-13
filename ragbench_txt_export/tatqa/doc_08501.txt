@@ -1,0 +1,1 @@
+Disaggregated Revenue [["", "Years Ended December 31,", ""], ["", "2019", "2018"], ["Time and bareboat charter revenues", "$263,683", "$213,923"], ["Voyage charter revenues(1)", "33,275", "83,542"], ["Contracts of affreightment revenues", "58,589", "68,698"], ["Total shipping revenues", "$355,547", "$366,163"]]

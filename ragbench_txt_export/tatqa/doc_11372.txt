@@ -1,0 +1,1 @@
+NET DEBT [["", "2019", "2018"], ["Debt due within one year", "3,881", "4,645"], ["Long-term debt", "22,415", "19,760"], ["50% of outstanding preferred shares", "2,002", "2,002"], ["Cash and cash equivalents", "(145)", "(425)"], ["Net debt", "28,153", "25,982"]]

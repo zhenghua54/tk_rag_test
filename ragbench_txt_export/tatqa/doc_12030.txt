@@ -1,0 +1,1 @@
+The fair value of equity-settled share options granted is measured as at the date of grant using a Black-Scholes model, taking into account the terms and conditions upon which the options were granted.

@@ -1,0 +1,1 @@
+Frequency is the reciprocal of the period. The period is 5 seconds, so the frequency is 1/(5 s) = 0.20 Hz. 8. A common physics lab involves the study of the oscillations of a pendulum. If a pendulum makes 33 complete back-and-forth cycles of vibration in 11 seconds, then its period is ______.

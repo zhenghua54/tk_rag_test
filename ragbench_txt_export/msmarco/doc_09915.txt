@@ -1,0 +1,1 @@
+Click the Home tab at the top of the Word 2010 window, if the Home tab isn't already selected. Step 4. Click the small arrowhead next to Find in the Editing group at the top, and then select Go To from the drop-down menu to open the Find and Replace window. Step 5. Select Page in the Go To What section.

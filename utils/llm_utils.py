@@ -142,45 +142,155 @@ class RerankManager(ModelManager):
             if not os.path.exists(model_path):
                 raise FileNotFoundError(f"模型路径不存在: {model_path}")
             
+            # 设置PyTorch显存分配策略
+            if torch.cuda.is_available():
+                # 启用可扩展的显存段分配
+                os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+                # 清理显存缓存
+                torch.cuda.empty_cache()
+                torch.cuda.synchronize()
+                logger.info(f"[Rerank模型] 当前显存使用情况: {torch.cuda.memory_allocated() / 1024**3:.2f} GB / {torch.cuda.get_device_properties(0).total_memory / 1024**3:.2f} GB")
+            
+            # 根据配置选择数据类型
+            torch_dtype = torch.float16 if GlobalConfig.RERANK_CONFIG.get("use_fp16", True) else torch.float32
+            
             model = AutoModelForSequenceClassification.from_pretrained(
                 model_path,
                 trust_remote_code=True,  # 信任远程代码
                 local_files_only=True,  # 明确为本地模型路径
+                torch_dtype=torch_dtype,  # 根据配置使用半精度或全精度
+                device_map="auto",  # 自动设备映射
+                low_cpu_mem_usage=True,  # 降低CPU内存使用
             ).to(GlobalConfig.DEVICE)
+            
+            # 启用推理模式以节省显存
+            model.eval()
+            
             self._tokenizer = AutoTokenizer.from_pretrained(
                 model_path,
                 trust_remote_code=True,  # 信任远程代码
                 local_files_only=True,  # 明确为本地模型路径
             )
+            
+            if torch.cuda.is_available():
+                logger.info(f"[Rerank模型] 模型加载后显存使用: {torch.cuda.memory_allocated() / 1024**3:.2f} GB")
+            
             return model
         except Exception as e:
             logger.error(f"[Rerank模型失败] error_msg={str(e)}")
             raise
 
     def rerank(self, query: str, passages: list[str]) -> list[float]:
-        """重排序"""
+        """重排序 - 支持批量处理以避免显存不足"""
         model = self.get_model()
         try:
             if self._tokenizer is None:
                 raise ValueError("Tokenizer 未初始化")
 
-            # 构建输入
-            inputs = self._tokenizer(
-                [query] * len(passages), passages, padding=True, truncation=True, return_tensors="pt"
-            )
-
-            # 移动到正确的设备
-            inputs = {k: v.to(model.device) for k, v in inputs.items()}
-
-            # 计算分数
-            with torch.no_grad():
-                outputs = model(**inputs)
-                scores = outputs.logits.squeeze(-1)
-
-            return scores.cpu().numpy().tolist()
+            # 获取配置的批次大小
+            batch_size = GlobalConfig.RERANK_CONFIG.get("batch_size", 10)
+            
+            # 如果passages数量较少，直接处理
+            if len(passages) <= batch_size:
+                return self._rerank_batch(model, query, passages)
+            
+            # 对大批量数据进行分批处理，避免显存不足
+            all_scores = []
+            
+            logger.info(f"[重排序] 大批量数据分批处理，总数量: {len(passages)}, 批次大小: {batch_size}")
+            
+            for i in range(0, len(passages), batch_size):
+                batch_passages = passages[i:i + batch_size]
+                batch_scores = self._rerank_batch(model, query, batch_passages)
+                all_scores.extend(batch_scores)
+                
+                # 清理显存
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                
+                logger.debug(f"[重排序] 已处理批次 {i//batch_size + 1}/{(len(passages) + batch_size - 1)//batch_size}")
+            
+            return all_scores
+            
         except Exception as e:
             logger.error(f"[重排序失败] error_msg={str(e)}")
+            # 显存不足时尝试进一步减小批次大小
+            if "CUDA out of memory" in str(e) or "out of memory" in str(e):
+                logger.warning("[重排序] 检测到显存不足，尝试使用更小的批次大小")
+                return self._rerank_with_fallback(model, query, passages)
             raise
+
+    def _rerank_batch(self, model, query: str, passages: list[str]) -> list[float]:
+        """处理单个批次的重排序"""
+        # 构建输入
+        max_length = GlobalConfig.RERANK_CONFIG.get("max_length", 512)
+        inputs = self._tokenizer(
+            [query] * len(passages), passages, padding=True, truncation=True, return_tensors="pt", max_length=max_length
+        )
+
+        # 移动到正确的设备
+        inputs = {k: v.to(model.device) for k, v in inputs.items()}
+
+        # 计算分数
+        with torch.no_grad():
+            outputs = model(**inputs)
+            scores = outputs.logits.squeeze(-1)
+
+        return scores.cpu().numpy().tolist()
+
+    def _rerank_with_fallback(self, model, query: str, passages: list[str]) -> list[float]:
+        """显存不足时的降级处理方案"""
+        try:
+            # 尝试更小的批次大小
+            batch_size = GlobalConfig.RERANK_CONFIG.get("fallback_batch_size", 5)
+            all_scores = []
+            
+            logger.info(f"[重排序降级] 使用极小批次大小: {batch_size}")
+            
+            for i in range(0, len(passages), batch_size):
+                batch_passages = passages[i:i + batch_size]
+                batch_scores = self._rerank_batch(model, query, batch_passages)
+                all_scores.extend(batch_scores)
+                
+                # 强制清理显存
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    torch.cuda.synchronize()
+            
+            return all_scores
+            
+        except Exception as e:
+            logger.error(f"[重排序降级失败] error_msg={str(e)}")
+            # 最后的降级方案：逐个处理
+            if "CUDA out of memory" in str(e) or "out of memory" in str(e):
+                logger.warning("[重排序] 使用最终降级方案：逐个处理")
+                return self._rerank_one_by_one(model, query, passages)
+            raise
+
+    def _rerank_one_by_one(self, model, query: str, passages: list[str]) -> list[float]:
+        """逐个处理passages的最终降级方案"""
+        all_scores = []
+        
+        logger.info(f"[重排序逐个处理] 总数量: {len(passages)}")
+        
+        for i, passage in enumerate(passages):
+            try:
+                batch_scores = self._rerank_batch(model, query, [passage])
+                all_scores.extend(batch_scores)
+                
+                # 每次处理后清理显存
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                
+                if (i + 1) % 10 == 0:
+                    logger.debug(f"[重排序逐个处理] 已处理 {i + 1}/{len(passages)}")
+                    
+            except Exception as e:
+                logger.error(f"[重排序逐个处理] 处理第{i+1}个passage失败: {str(e)}")
+                # 如果单个也失败，给一个默认分数
+                all_scores.append(0.0)
+        
+        return all_scores
 
     def unload_model(self):  # 重写卸载方法，同时清理 tokenizer
         """重写卸载方法，同时清理 tokenizer"""

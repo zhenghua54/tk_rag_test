@@ -1,0 +1,1 @@
+OPERATING COSTS AND ADJUSTED EBITDA [["", "2019", "2018", "$ CHANGE", "% CHANGE"], ["Operating costs", "(6,942)", "(6,946)", "4", "0.1%"], ["Adjusted EBITDA", "5,414", "5,321", "93", "1.7%"], ["Adjusted EBITDA margin", "43.8%", "43.4%", "", "0.4 pts"]]

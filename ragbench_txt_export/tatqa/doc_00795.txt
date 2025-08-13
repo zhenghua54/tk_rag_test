@@ -1,0 +1,1 @@
+We use interest rate swaps to convert the revolving credit facility's variable rate of interest into a fixed rate on a portion of the debt as described more fully in Note 13 "Derivatives." These swaps are treated as cash flow hedges and consequently, the changes in fair value were recorded in other comprehensive earnings.

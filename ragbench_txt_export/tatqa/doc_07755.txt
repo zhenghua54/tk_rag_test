@@ -1,0 +1,1 @@
+Service contracts with consumers typically range from a month to 2 years, and contracts with enterprises typically range from 1 to 3 years.

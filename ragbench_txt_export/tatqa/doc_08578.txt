@@ -1,0 +1,1 @@
+Principal Accountant Fees and Services [["Fees Billed to NortonLifeLock", "FY19", "FY18"], ["Audit fees(1)", "$12,464,329", "$11,370,525"], ["Audit related fees(2)", "1,142,383", "753,689"], ["Tax fees(3)", "161,685", "469,449"], ["All other fees(4)", "0", "311,000"], ["Total fees", "$13,768,398", "$12,904,663"]]

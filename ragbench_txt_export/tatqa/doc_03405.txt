@@ -1,0 +1,1 @@
+(1) Excludes the amortization of deferred loan fees and includes the commitment fee.

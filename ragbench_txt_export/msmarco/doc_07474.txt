@@ -1,0 +1,1 @@
+Length, width, height, depth. FAQs. People often ask about the correct use of length, width, height, and depth. In the most common contexts in elementary school, mathematics does not have a formal definition for these terms, nor does it have rules about proper use. But natural usage does follow some conventions. (See below.).

@@ -1,0 +1,1 @@
+Using ACC On Hills ACC performance may be limited when driving on hills.  ACC may not detect a vehicle in your lane depending on the speed, vehicle load, traffic conditions, and the steepness of the hill.

@@ -1,0 +1,1 @@
+29 Employee Share Ownership Plan (ESOP) [["", "", "2019", "", "2018"], ["", "Shares million", "\u00a3m", "Shares million", "\u00a3m"], ["At 1 January", "11.2", "37.0", "11.6", "39.1"], ["Acquisitions", "0.2", "0.1", "0.6", "0.9"], ["Disposals", "(1.1)", "(3.5)", "(1.0)", "(3.0)"], ["At 31 December", "10.3", "33.6", "11.2", "37.0"]]

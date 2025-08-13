@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "As of December 31,", ""], ["", "2019", "2018"], ["Projected benefit obligation", "$3,778", "$3,848"], ["Accumulated benefit obligation", "$2,999", "$3,028"], ["Fair value of plan assets", "$1,418", "$1,426"]]

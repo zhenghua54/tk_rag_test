@@ -1,0 +1,1 @@
+RQWL: Remote Quota Wait List. This is used for intermediate stations on the train route... PQWL is Pooled Quota Wait List which is quotas of nearby stations pooled together to form this list, that is smaller stations having small quotas, one/two/three each are pooled together to form this waitlist.

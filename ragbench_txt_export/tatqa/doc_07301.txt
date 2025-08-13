@@ -1,0 +1,1 @@
+Fees Paid to the Independent Registered Public Accounting Firm [["", "2017", "2018"], ["", "(In Thousands)", "(In Thousands)"], ["Audit Fees (1)", "$3,747", "$4,476"], ["Audit-Related Fees (2)", "\u2014", "\u2014"], ["Tax Fees (3)", "\u2014", "\u2014"], ["All Other Fees (4)", "$3", "$3"], ["Total Fees", "$3,750", "$4,479"]]

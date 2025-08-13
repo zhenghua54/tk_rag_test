@@ -1,0 +1,1 @@
+If the fair value of a reporting unit exceeds the carrying amount, the goodwill of the reporting unit is considered not impaired and the second step of the impairment test is unnecessary. If the carrying amount of a reporting unit exceeds its fair value, the second step of the impairment test is performed to measure the amount of impairment loss, if any.

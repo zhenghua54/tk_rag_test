@@ -1,0 +1,1 @@
+Available Liquidity [["", "December 31,", ""], ["", "2019", "2018"], ["Cash and cash equivalents", "$121,398", "$148,502"], ["Availability under revolving credit facility", "261,000", "500,000"], ["Total liquidity", "$382,398", "$648,502"]]

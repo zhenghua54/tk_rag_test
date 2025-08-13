@@ -1,0 +1,1 @@
+dogs requirement of water (ml/day) = (70 (body weight in kg)0.75) x 1.6. As a general guideline, the daily water requirement of dogs and cats, expressed in ml/day, is roughly equivalent to the daily energy requirement (DER) in kcal/day (for dogs 1.6 x resting energy requirement [RER], for cats 1.2 x RER).

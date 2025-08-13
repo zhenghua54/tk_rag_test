@@ -1,0 +1,1 @@
+Catalase Test: A. Enterococcus faecalis-This organism is negative for catalase. B. Escherichia coli-The bubbles indicate E. coli is positive for catalase. Oxidase Test: A. Pseudomonas aeruginosa-Purple color indicates positive. B. Escherichia coli-Negative.

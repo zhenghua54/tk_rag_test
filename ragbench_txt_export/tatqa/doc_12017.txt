@@ -1,0 +1,1 @@
+NOTE 4 - ACCOUNTS PAYABLE AND ACCRUED EXPENSES [["", "December 31, 2019", "December 31, 2018"], ["Accounting", "$36,161", "$52,365"], ["Research and development", "650,584", "137,114"], ["Legal", "15,273", "32,161"], ["Other", "163,029", "10,048"], ["Total", "$865,047", "$231,688"]]

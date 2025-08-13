@@ -1,0 +1,1 @@
+Principal Accounting Fees and Services [["", "2019", "2018"], ["Audit fees (1)", "$3,454,348", "$3,589,147"], ["Tax fees (2)", "546,618", "931,017"], ["All other fees (3)", "1,895", "1,895"], ["Total", "$4,002,861", "$4,522,059"]]

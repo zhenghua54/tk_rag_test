@@ -1,0 +1,1 @@
+You have sampled a population in which you know that the percentage of the homozygous recessive genotype (aa) is 36%. Using that 36%, calculate the following: 1  The frequency of the aa genotype. 2  Answer: 36%, as given in the problem itself.

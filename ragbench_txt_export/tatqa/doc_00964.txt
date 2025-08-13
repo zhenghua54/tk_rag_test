@@ -1,0 +1,1 @@
+• Expected Dividend. The Company has not paid and does not anticipate paying any cash dividends in the foreseeable future and, therefore, uses an expected dividend yield of zero in the option pricing model.

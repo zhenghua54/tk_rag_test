@@ -1,0 +1,1 @@
+The speed of the clock is measured in Megahertz (MHz). Well, the frequency is essentially how fast something processes in a computer. In this case(memory), it determines how fast information is going to go to your memory and back. DDR, DDR2, DDR3 memories follow the DDRxxx/PCyyyy classification.

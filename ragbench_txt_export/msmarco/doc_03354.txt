@@ -1,0 +1,1 @@
+You should check the labels of foods to find out which ones are high and low in salt content. If the label has more than 1.5g of salt (or 0.6g of sodium) per 100g it is a high salt content food. If it has 0.3g of salt (0.1g of sodium) per 100g then it is a low salt content food.

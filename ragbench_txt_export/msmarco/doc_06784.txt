@@ -1,0 +1,1 @@
+Phenotype, Genotype, and Alleles. A phenotype is an observable trait that is the expression of a gene combination, or genotype. Eye color, blood group, and the symptoms of inherited diseases are examples of phenotypes. Chromosomes, and therefore genes, occur in pairs in a diploid organism, such as a human.

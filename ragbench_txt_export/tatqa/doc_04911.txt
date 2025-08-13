@@ -1,0 +1,1 @@
+It rewards executives subject to performance against three equally weighted measures over a three year performance period: [["", "rTSR", "SALES/SQM", "ROFE"], ["Entry", "16.66%", "6.66%", "6.66%"], ["Target", "n/a", "20%", "20%"], ["Stretch", "33.33%", "33.33%", "33.33%"]]

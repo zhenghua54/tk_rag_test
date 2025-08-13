@@ -1,0 +1,1 @@
+A subdirectory is a directory that is located within another directory. A similar term can be used to describe a folder beneath another folder in a graphical user interface (GUI) like Microsoft Windows. Below are some additional examples of subdirectories and subfolders.

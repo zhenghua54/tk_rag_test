@@ -1,0 +1,1 @@
+Remove/ Add Exchange account on IPhone / IPad 1. On the iPhone, go to Settings 2. go to Mail, Contacts, Calendars. Remove/ Add Exchange account on IPhone / IPad 3. Click on the Exchange account, Scroll towards the bottom and click on “Delete Account 4. Finally, you’ll get the Delete Account warning, click Delete Account to finish. 5

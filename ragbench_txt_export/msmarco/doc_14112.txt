@@ -1,0 +1,1 @@
+1 Tap on your Apple Watch. 2  Your device's name should appear on the watch face. 3  On your iPhone, tap the 5-digit name that matches the one you see on your Apple Watch. 4  A six-digit code will appear on your Apple Watch. 5  Enter that code on your iPhone to pair the two devices. 6  Then continue the steps to set up.

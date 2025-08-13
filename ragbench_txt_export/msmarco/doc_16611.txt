@@ -1,0 +1,1 @@
+You probably don't need a huge inverter. The fan will be your biggest draw, so look at that and see how many watts it says on the label, then add at least %50. If it says 200w, get a 300w inverter. If it says 500w, get a 750w inverter. Etc. Either way, an average car battery should run your furnace for 20 hours easily. You can also buy a pre-made battery pack to do the same job.

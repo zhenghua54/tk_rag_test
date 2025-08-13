@@ -1,0 +1,1 @@
+(2) Represents the reversal of previously billed finance charges associated with deferred payment loan principal balances that were repaid within the promotional period.

@@ -1,0 +1,1 @@
+Unbilled receivables are client committed amounts for which revenue recognition precedes billing, and billing is solely subject to the passage of time. [["(Dollars in thousands)", "December 31, 2019", ""], ["1 year or less", "$180,219", "60%"], ["1-2 years", "91,132", "30%"], ["2-5 years", "30,604", "10%"], ["", "$301,955", "100%"]]

@@ -1,0 +1,1 @@
+Deferred Revenue [["", "Years ended", ""], ["", "December 31, 2019", "December 31, 2018"], ["", "$", "$"], ["Current portion", "56,691", "39,180"], ["Long term portion", "5,969", "1,881"], ["", "62,660", "41,061"]]

@@ -1,0 +1,1 @@
+27 Financial risk management (continued) [["", "2019", "2018", "2019", "2018"], ["", "\u20acm", "\u20acm", "INRm", "INRm"], ["Net exposure", "468.9", "555.7", "5,072.4", "6,274.5"], ["Foreign exchange rate", "1.1825", "1.1126", "94.4586", "88.3432"]]

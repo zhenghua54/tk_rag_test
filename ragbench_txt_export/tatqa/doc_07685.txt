@@ -1,0 +1,1 @@
+(2) Linear interpolation is used when our Adjusted EBITDA Run Rate performance is between the threshold, target and maximum amounts to determine the corresponding percentage of target award earned.

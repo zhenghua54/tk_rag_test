@@ -1,0 +1,2 @@
+There are two conventions regarding the "standard boiling point of water": The "normal boiling point" is at a pressure of 1 atm (i.e., 101.325 kPa). The IUPAC recommended "standard boiling point of water" at a standard pressure of 100 kPa (1 bar) is . For comparison, on top of Mount Everest, at elevation, the pressure is about and the boiling point of water is .
+The Celsius temperature scale was defined until 1954 by two points: 0 °C being defined by the water freezing point and 100 °C being defined by the water boiling point at standard atmospheric pressure.

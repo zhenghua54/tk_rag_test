@@ -1,0 +1,1 @@
+General and Administrative Expenses [["", "", "Year Ended December 31", "", "", ""], ["", "2019", "2018", "", "2018 to 2019 % change", "2017 to 2018 % change"], ["", "", "", "(In thousands, except percentages)", "", ""], ["General and Administrative", "$ 141,076", "$ 103,491", "$ 81,680", "36%", "27%"]]

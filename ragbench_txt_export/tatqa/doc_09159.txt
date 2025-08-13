@@ -1,0 +1,1 @@
+The Company has used the Black-Scholes option pricing model to measure the grant date fair value of the options with the following assumptions applied to the model;

@@ -1,0 +1,1 @@
+NOTE 4 – REVENUE FROM CONTRACTS WITH CUSTOMERS [["", "", "For the Year Ended"], ["", "", "December 31,"], ["", "2019", "2018"], ["", "", "(in thousands)"], ["Zyla (Oxaydo)", "$351", "$386"], ["MainPointe (Nexafed)", "21", "24"], ["Royalty revenues", "372", "$410"]]

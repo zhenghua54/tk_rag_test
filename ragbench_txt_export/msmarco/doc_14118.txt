@@ -1,0 +1,1 @@
+If you need to pair your devices manually. After you put on your Apple Watch, choose a language, and tap Start Pairing on both devices, follow these steps: 1  Tap Pair Apple Watch Manually on your iPhone. 2  Tap on your Apple Watch. 3  Your device's name should appear on the watch face.

@@ -1,0 +1,1 @@
+Best Answer: A histogram is plotted with 'Frequency Density' again 'Class'. When the 'Class Width' is multiplied by the 'Frequency Density' then the Frequency is given. A skew is a measure of distribution. Depending on how the Histogram is, it would have a shape. If the axis of symmetry is in the middle, then this is a symmetric

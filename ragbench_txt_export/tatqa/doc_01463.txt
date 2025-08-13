@@ -1,0 +1,1 @@
+LTV describes the net debt ratio on the vessel, and is used by TORM to describe the financial situation, the liquidity risk as well as to express the future possibilities to raise new capital by new loan facilities.

@@ -1,0 +1,1 @@
+Posted November 8th, 2008 in HTML and CSS. The character symbols for copyright and registered trademark are part of the HTML specification (those are the C and R in the circle symbols) but the superscript TM symbol to denote trademark is not.

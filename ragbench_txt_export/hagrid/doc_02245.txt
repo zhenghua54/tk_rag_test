@@ -1,0 +1,1 @@
+Test units of force measurements are most commonly newtons or pounds. The peak force is the most common result in force testing applications. It is used to determine if a part is good or not. Some examples of force measurement: door latch, quality of spring, wire testing, strength ... but more complicated tests can be performed like peeling, friction, texture.

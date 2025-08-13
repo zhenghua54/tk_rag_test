@@ -1,0 +1,1 @@
+ALTERNATIVE PERFORMANCE MEASURES [["USDm", "2019", "2018", "2017"], ["Reconciliation to net profit/(loss) for the year", "", "", ""], ["Net profit/(loss) for the year", "166.0", "-34.8", "2.4"], ["Reversal of impairment losses on tangible assets", "-120.0", "-", "-"], ["Net profit/(loss) for the year excluding impairment", "46.0", "-34.8", "2.4"]]

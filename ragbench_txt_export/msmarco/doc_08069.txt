@@ -1,0 +1,1 @@
+Salaried nonexempt employees receive a salary rate for a fixed number of hours. However, when they exceed the fixed number of hours and work more than 40 hours in a week, they receive overtime compensation. The basis of the calculation of their overtime compensation is the equivalent hourly rate the employee earns.

@@ -1,0 +1,1 @@
+Equity Incentive Plan [["Year Ended December 31", "", ""], ["", "2019", "2018"], ["Common stock, vested at issuance and nonvested at issuance", "$721", "$555"], ["Stock options", "354", "132"], ["Restricted stock units", "225", "103"], ["Compensation expense related to common stock awards issued under equity incentive plan", "$          1,300", "$            790"]]

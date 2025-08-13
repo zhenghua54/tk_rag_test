@@ -1,0 +1,1 @@
+Unrecognized deferred tax assets [["", "2019", ""], ["", "Gross amount", "Tax effect"], ["Deductible temporary differences", "20,642", "4,842"], ["Credits 1)", "15,221", "15,221"], ["Unrecognized deferred tax assets", "35,863", "20,063"]]

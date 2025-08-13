@@ -1,0 +1,1 @@
+AI Focus / AF-A. This mode combines both the above-mentioned autofocus modes. In AI Focus (Canon) or AF-A (Nikon), the camera remains in Single Shot mode unless the subject moves, in which case it automatically switches to Continuous mode. The camera will emit a soft beep once the subject is focused.

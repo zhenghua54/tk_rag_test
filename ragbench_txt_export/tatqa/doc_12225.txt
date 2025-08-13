@@ -1,0 +1,1 @@
+5. Software Development and Intellectual Property Licenses [["", "At December 31,", ""], ["", "2019", "2018"], ["Internally-developed software costs", "$345", "$291"], ["Payments made to third-party software developers", "31", "38"], ["Total software development costs", "$376", "$329"]]

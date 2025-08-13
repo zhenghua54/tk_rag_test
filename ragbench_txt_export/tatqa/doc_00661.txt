@@ -1,0 +1,1 @@
+4. Earnings per Share [["For the years ended April 30,", "", ""], ["", "2019", "2018"], ["Basic EPS Shares outstanding (weighted average)", "8,916,250", "8,841,166"], ["Effect of Dilutive Securities", "**", "**"], ["Diluted EPS Shares outstanding", "9,159,124", "8,841,166"]]

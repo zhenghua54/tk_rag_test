@@ -1,0 +1,1 @@
+The minimal fragment of E. coli DNA active in the above assay is referred to as oriC, for the origin of the E. coli chromosome. It is approximately 245 bp long, and contains 3 copies of a 13-mer repeat, 4 copies of a 9-mer repeat, and 11 GATC motifs (Fig.

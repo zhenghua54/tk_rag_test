@@ -1,0 +1,1 @@
+Purchased Intangible Assets [["", "Weighted Average Useful Life", "April 4, 2016"], ["", "(in years)", "(in millions)"], ["Core and developed technology", "11", "$1,075.0"], ["In-process research and development", "\u2014", "140.7"], ["Customer-related", "6", "630.6"], ["Backlog", "1", "40.3"], ["Other", "5", "1.8"], ["Total purchased intangible assets", "", "$1,888.4"]]

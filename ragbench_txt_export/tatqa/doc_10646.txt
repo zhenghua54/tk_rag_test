@@ -1,0 +1,1 @@
+NantHealth, Inc [["Year Ended December 31,", "", ""], ["", "2019", "2018"], ["Net loss", "$(62,762)", "(192,152)"], ["Other comprehensive income (loss) from foreign currency translation", "129", "(203)"], ["Total other comprehensive income (loss)", "129", "(203)"], ["Comprehensive loss", "$(62,633)", "$(192,355)"]]

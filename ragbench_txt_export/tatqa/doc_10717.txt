@@ -1,0 +1,1 @@
+Restricted Share Awards [["", "Shares", "Weighted-Average Grant-Date Fair Value"], ["Nonvested at fiscal year end 2018", "1,631,470", "$  75.39"], ["Granted", "692,899", "77.77"], ["Vested", "(689,040)", "70.31"], ["Forfeited", "(232,910)", "78.80"], ["Nonvested at fiscal year end 2019", "1,402,419", "$  78.36"]]

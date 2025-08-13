@@ -1,0 +1,1 @@
+Synchronous Digital Hierarchy (SDH) Definition Synchronous digital hierarchy (SDH) and synchronous optical network (SONET) refer to a group of fiber-optic transmission rates that can transport digital signals with different capacities.

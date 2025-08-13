@@ -1,0 +1,1 @@
+4. Segmental information [["", "2019", "(Restated) 2018"], ["", "\u00a3m", "\u00a3m"], ["Total segment Revenue", "355.1", "330.1"], ["Total segment Operating profit", "243.7", "221.3"], ["Finance costs \u2013 net", "(10.2)", "(10.6)"], ["Profit on the sale of subsidiary", "8.7", "\u2013"], ["Profit before tax", "242.2", "210.7"]]

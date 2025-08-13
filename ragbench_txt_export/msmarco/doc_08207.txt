@@ -1,0 +1,1 @@
+(1) When spelled Mbps, short for megabits per second, a measure of data transfer speed (a megabit is equal to one million bits). Network transmissions, for example, are generally measured in Mbps. (2) When spelled MBps, short for megabytes per second.

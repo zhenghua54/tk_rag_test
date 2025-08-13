@@ -1,0 +1,1 @@
+1 Dendrites bring electrical signals to the cell body and axons take information away from the cell body. 2  Neurons communicate with each other through an electrochemical process. 3  Neurons contain some specialized structures (for example, synapses) and chemicals (for example, neurotransmitters).

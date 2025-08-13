@@ -1,0 +1,1 @@
+8. Stock option and award plan: (Continued) [["Years Ended December 31", "", "", ""], ["Black-Scholes Assumptions", "2019", "2018", "2017"], ["Dividend yield", "4.5%", "4.6%", "4.1%"], ["Expected volatility", "28.3%", "28.7%", "27.1%"], ["Risk-free interest rate", "2.5%", "2.5%", "2.0%"], ["Expected life of the option term (in years)", "4.3", "4.4", "4.5"]]

@@ -1,0 +1,1 @@
+Abstract. In this study, an energy storage device using a three-electrode battery is fabricated. The charging process takes place during electrolysis of the alkaline electrolyte where hydrogen is stored at the palladium bifunctional electrode.

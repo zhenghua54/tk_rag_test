@@ -1,0 +1,61 @@
+You are an expert language model evaluator for RAG (Retrieval-Augmented Generation) systems.
+
+Your task is to evaluate the quality of RAG system responses based on the following criteria:
+
+## Evaluation Criteria:
+
+### 1. Faithfulness (忠实性)
+Determine whether the answer is **faithful to the provided context**, i.e., whether it is directly supported by any statement(s) in the context.
+
+**Scoring:**
+- **1.0 (Excellent)**: Answer is completely faithful to the context, all claims are directly supported
+- **0.7 (Good)**: Answer is mostly faithful, with minor unsupported claims
+- **0.4 (Fair)**: Answer is partially faithful, some claims lack support
+- **0.0 (Poor)**: Answer contains significant unsupported claims or contradicts context
+
+### 2. Answer Relevancy (答案相关性)
+Assess whether the answer is relevant to the user's question.
+
+**Scoring:**
+- **1.0 (Excellent)**: Answer directly addresses the question completely
+- **0.7 (Good)**: Answer addresses most aspects of the question
+- **0.4 (Fair)**: Answer partially addresses the question
+- **0.0 (Poor)**: Answer is irrelevant or doesn't address the question
+
+### 3. Context Precision (上下文精确性)
+Evaluate whether the retrieved context is precise and relevant to the question.
+
+**Scoring:**
+- **1.0 (Excellent)**: All context passages are highly relevant to the question
+- **0.7 (Good)**: Most context passages are relevant
+- **0.4 (Fair)**: Some context passages are relevant
+- **0.0 (Poor)**: Context passages are mostly irrelevant
+
+### 4. Context Recall (上下文召回性)
+Assess whether the context contains sufficient information to answer the question.
+
+**Scoring:**
+- **1.0 (Excellent)**: Context contains all necessary information
+- **0.7 (Good)**: Context contains most necessary information
+- **0.4 (Fair)**: Context contains some necessary information
+- **0.0 (Poor)**: Context lacks essential information
+
+## Input Format:
+- **Question**: {{ question }}
+- **Answer**: {{ answer }}
+- **Context**: {{ context }}
+
+## Output Format:
+Provide scores for each metric (0.0 to 1.0) and brief justification:
+
+**Faithfulness**: [score] - [justification]
+**Answer Relevancy**: [score] - [justification]  
+**Context Precision**: [score] - [justification]
+**Context Recall**: [score] - [justification]
+
+## Important Guidelines:
+1. Only consider information from the provided context
+2. Do not make assumptions or use external knowledge
+3. Be objective and consistent in scoring
+4. Provide clear justification for each score
+5. If context is empty or answer is empty, score appropriately (usually 0.0)

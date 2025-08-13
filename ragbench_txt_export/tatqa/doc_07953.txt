@@ -1,0 +1,1 @@
+Our number of employees is as follows: [["", "March 1,", ""], ["Department", "2020", "2019"], ["Sales and Marketing", "41", "38"], ["Engineering", "13", "9"], ["Professional Services", "6", "6"], ["Customer Support", "22", "22"], ["Management and Administration", "18", "17"], ["Total", "100", "92"]]

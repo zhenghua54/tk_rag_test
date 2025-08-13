@@ -1,0 +1,1 @@
+45. Contingent liabilities [["\u20ac million", "30/9/2018", "30/9/2019"], ["Contingent liabilities from guarantee and warranty contracts", "18", "17"], ["Contingent liabilities from the provision of collateral for third-party liabilities", "9", "12"], ["Other contingent liabilities", "0", "1"], ["", "27", "30"]]

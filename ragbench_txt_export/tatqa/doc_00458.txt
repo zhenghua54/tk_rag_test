@@ -1,0 +1,1 @@
+Our internal credit risk ratings of 1 through 4 correspond to investment-grade ratings, while credit risk ratings of 5 and 6 correspond to non-investment grade ratings. Credit risk ratings of 7 and higher correspond to substandard ratings.

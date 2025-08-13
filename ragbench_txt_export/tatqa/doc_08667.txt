@@ -1,0 +1,1 @@
+Sales and Distribution [["", "", "Fiscal", ""], ["", "2019", "2018", "2017"], ["Europe/Middle East/Africa (\u201cEMEA\u201d)", "36 %", "38 %", "36 %"], ["Asia\u2013Pacific", "33", "34", "35"], ["Americas", "31", "28", "29"], ["Total", "100 %", "100 %", "100 %"]]

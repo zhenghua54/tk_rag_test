@@ -1,0 +1,1 @@
+In finance, a non-deliverable forward (NDF) is an outright forward or futures contract in which counterparties settle the difference between the contracted NDF price or rate and the prevailing spot price or rate on an agreed notional amount. It is used in various markets such as foreign exchange and commodities.

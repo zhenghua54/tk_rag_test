@@ -1,0 +1,1 @@
+7 Employee benefits [["", "Weighted-average assumptions used to define the benefit obligations", ""], ["", "2019", "2018"], ["", "%", "%"], ["Rate of increase in salaries", "2.4", "2.7"], ["Rate of increase in pensions", "2.8", "2.9"], ["Rate of price inflation", "2.9", "3.2"], ["Discount rate", "2.1", "2.7"]]

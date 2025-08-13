@@ -1,0 +1,1 @@
+Other assets consist of the following (in thousands): [["", "Fiscal year-end", ""], ["", "2019", "2018"], ["Assets related to deferred compensation arrangements (see Note 13)", "$35,842", "$37,370"], ["Deferred tax assets (see Note 16)", "87,011", "64,858"], ["Other assets(1)", "18,111", "9,521"], ["Total other assets", "$140,964", "$111,749"]]

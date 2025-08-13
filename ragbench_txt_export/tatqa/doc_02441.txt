@@ -1,0 +1,1 @@
+Strategic Investments [["", "December 31,", ""], ["", "2019", "2018"], ["Accounted for at cost, adjusted for observable price changes", "$1,750", "$1,250"], ["Accounted for using the equity method", "8,000", "\u2014"], ["Total non-marketable investments", "$9,750", "$1,250"]]

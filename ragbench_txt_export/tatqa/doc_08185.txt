@@ -1,0 +1,1 @@
+(*) including trade receivables classified as current asset based on operating cycle of two years.

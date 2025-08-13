@@ -1,0 +1,1 @@
+Confirmatory factor analysis (CFA) is a multivariate statistical procedure that is used to test how well the measured variables represent the number of constructs. Confirmatory factor analysis (CFA) is a tool that is used to confirm or reject the measurement theory. General Purpose-Procedure. 1  Defining individual construct: First, we have to define the individual

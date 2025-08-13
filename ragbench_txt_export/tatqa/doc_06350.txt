@@ -1,0 +1,1 @@
+Sales by Category [["", "", "", "2019"], ["(In thousands)", "Network Solutions", "Services & Support", "Total"], ["Access & Aggregation", "$289,980", "$58,894", "$348,874"], ["Subscriber Solutions & Experience (1)", "144,651", "8,269", "152,920"], ["Traditional & Other Products", "20,595", "7,672", "28,267"], ["Total", "$455,226", "$74,835", "$530,061"]]

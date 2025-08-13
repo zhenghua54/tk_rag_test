@@ -1,0 +1,1 @@
+The discount rates are applied to the cash flow projections and are derived from the weighted average cost of capital for each CGU or group of CGUs.

@@ -1,0 +1,1 @@
+1 Neurons have specialize cell parts called dendrites and axons. 2  Dendrites bring electrical signals to the cell body and axons take information away from the cell body. 3  Neurons communicate with each other through an electrochemical process.

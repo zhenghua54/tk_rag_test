@@ -1,0 +1,1 @@
+4WD Low Indicator Light — If Equipped This light alerts the driver that the vehicle is in the 4WD Low mode.  The front and rear driveshafts are mechanically locked together forcing the front and rear wheels to rotate at the same speed.  Low range provides a greater gear reduction ratio to provide increased torque at the wheels.

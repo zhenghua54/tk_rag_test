@@ -1,0 +1,1 @@
+Item 14. Principal Accountant Fees and Services [["", "Fiscal Year", "Fiscal Year"], ["", "2019", "2018"], ["Audit Fees(1)", "$1,925,000", "$1,956,000"], ["Audit-Related Fees(2)", "\u2014", "14,000"], ["Tax Fees(3)", "\u2014", "\u2014"], ["All Other Fees(4)", "222,000", "157,000"], ["Total Fees", "$2,147,000", "$2,127,000"]]

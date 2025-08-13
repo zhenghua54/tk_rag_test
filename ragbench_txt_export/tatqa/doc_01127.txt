@@ -1,0 +1,1 @@
+Noncurrent Assets and Liabilities [["($ in millions)", "", ""], ["At December 31:", "2019", "2018"], ["Noncurrent assets", "$113,767", "$74,236"], ["Long-term debt", "$ 54,102", "$35,605"], ["Noncurrent liabilities (excluding debt)", "$ 39,398", "$32,621"]]

@@ -1,0 +1,1 @@
+8. Asset Impairment Charges [["", "", "Year Ended December 31,", ""], ["(In thousands)", "2019", "2018", "2017"], ["Asset impairment charges", "$ 10,837", "$ 58,166", "$ 0"], ["Goodwill impairment charge", "$ 25,700", "$ 13,466", "$ 0"], ["Impairment of long-term investments", "$ 651", "$ 15,487", "$ 165,290"]]

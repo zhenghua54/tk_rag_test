@@ -1,0 +1,1 @@
+Meerkat is a mobile app that enables users to do live video streaming through their mobile device. Once signed up, Meerkat users have the option of connecting their Facebook and Twitter accounts, and stream directly to their followers as soon as they go live.

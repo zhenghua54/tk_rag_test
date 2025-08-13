@@ -1,0 +1,1 @@
+Comments. Outlook for Android is getting more people-friendly with some tweaks to the contacts section in a version 1.1 update. The email app (finally) syncs up with your phone's address book and displays additional details about each person. You can now touch a contact to email or start a phone call with them.

@@ -1,0 +1,1 @@
+Disaggregation of Revenue [["", "", "Year Ended September 30,", ""], ["", "2019", "2018", "2017"], ["United States", "$78,553,000", "$72,295,000", "$67,901,000"], ["All Other Countries", "6,481,000", "5,356,000", "6,047,000"], ["Total Net Sales", "85,034,000", "$77,651,000", "$73,948,000"]]

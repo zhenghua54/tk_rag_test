@@ -12,11 +12,12 @@ from utils.log_utils import log_exception, logger
 class HybridRetriever:
     """混合检索器，结合向量检索和全文检索"""
 
-    def __init__(self):
+    def __init__(self, collection_name: str | None = None):
         """初始化混合检索器"""
 
-        # 初始化 FLAT Collection 管理器
-        self._flat_manager = FlatCollectionManager(collection_name=GlobalConfig.MILVUS_CONFIG["collection_name"])
+        # 初始化 FLAT Collection 管理器（优先使用传入的集合名）
+        target_collection = collection_name or GlobalConfig.MILVUS_CONFIG["collection_name"]
+        self._flat_manager = FlatCollectionManager(collection_name=target_collection)
 
     def retrieve(
         self,
@@ -224,27 +225,36 @@ class HybridRetriever:
     def _get_all_doc_ids(self) -> list[str]:
         """
         获取所有文档ID（用于无权限检索）
+        从当前使用的Milvus集合中获取doc_id列表，而不是从MySQL获取
         
         Returns:
             list[str]: 所有文档ID列表
         """
         try:
-            # 从MySQL中获取所有可见的文档ID，并转换为Milvus中的格式
-            from databases.mysql.operations import file_op
-            
-            # 查询所有可见的文档ID
-            sql = f"SELECT DISTINCT doc_id FROM {file_op.table_name} WHERE is_visible = true"
-            results = file_op._execute_query(sql, ())
-            
-            # 转换为Milvus中存储的格式（添加_seg_0后缀）
-            doc_ids = [f"{row['doc_id']}_seg_0" for row in results if row.get("doc_id")]
-            logger.debug(f"[混合检索] 从MySQL获取到 {len(doc_ids)} 个文档ID，已转换为Milvus格式")
+            # 直接从当前使用的Milvus集合中获取所有doc_id
+            doc_ids = self._flat_manager.get_all_doc_ids()
+            logger.info(f"[混合检索] 从Milvus集合 {self._flat_manager.collection_name} 获取到 {len(doc_ids)} 个文档ID")
             
             return doc_ids
             
         except Exception as e:
             logger.error(f"[混合检索] 获取所有文档ID失败: {e}")
-            return []
+            # 如果Milvus获取失败，回退到MySQL方式（保持兼容性）
+            try:
+                from databases.mysql.operations import file_op
+                
+                # 查询所有可见的文档ID
+                sql = f"SELECT DISTINCT doc_id FROM {file_op.table_name} WHERE is_visible = true"
+                results = file_op._execute_query(sql, ())
+                
+                # 转换为Milvus中存储的格式（添加_seg_0后缀）
+                doc_ids = [f"{row['doc_id']}_seg_0" for row in results if row.get("doc_id")]
+                logger.warning(f"[混合检索] Milvus获取失败，从MySQL获取到 {len(doc_ids)} 个文档ID")
+                
+                return doc_ids
+            except Exception as e2:
+                logger.error(f"[混合检索] MySQL备用方案也失败: {e2}")
+                return []
 
 
 hybrid_retriever = HybridRetriever()
@@ -290,3 +300,5 @@ if __name__ == "__main__":
     if results:
         for result in results:
             print(result)
+
+

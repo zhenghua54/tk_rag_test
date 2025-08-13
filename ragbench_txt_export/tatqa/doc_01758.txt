@@ -1,0 +1,1 @@
+Stock Awards [["", "Number of Shares (thousands)", "", "Weighted-Average Remaining Vesting Term (years)"], ["Nonvested as of December 31, 2018", "5,974", "$6.51", ""], ["Granted", "3,288", "$6.74", ""], ["Released", "(1,774)", "$6.60", ""], ["Canceled", "(1,340)", "$6.57", ""], ["Nonvested as of December 31, 2019", "6,148", "$6.59", "1.81"]]

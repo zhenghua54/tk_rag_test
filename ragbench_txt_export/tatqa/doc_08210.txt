@@ -1,0 +1,1 @@
+- variable lease payments that are based on an index or a rate

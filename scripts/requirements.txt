@@ -1,0 +1,17 @@
+# RAGBench文档插入工具依赖包
+
+# HTTP请求库
+requests>=2.31.0
+
+# 数据处理库
+pandas>=2.0.0
+pyarrow>=12.0.0  # 用于读取parquet文件
+
+# 进度条显示
+tqdm>=4.65.0
+
+# 类型提示支持
+typing-extensions>=4.5.0
+
+# 可选：日志格式化
+colorlog>=6.7.0

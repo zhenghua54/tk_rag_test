@@ -1,0 +1,1 @@
+Surface Runoff If the amount of water falling on the ground is greater than the infiltration rate of the surface, runoff or overland flow will occur. Runoff specifically refers to the water leaving an area of drainage and flowing across the land surface to points of lower elevation.

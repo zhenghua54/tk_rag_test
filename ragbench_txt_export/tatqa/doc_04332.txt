@@ -1,0 +1,1 @@
+The compensation cost to be incurred on a granted RSU without a cash settlement option is the RSU’s fair value, which is the market price of our common stock on the date of grant, less its exercise cost. The compensation cost is amortized to expense and recorded to additional paid-in capital over the vesting period of the RSU award.

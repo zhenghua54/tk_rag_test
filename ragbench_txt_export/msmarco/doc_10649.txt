@@ -1,0 +1,1 @@
+With OS X, you can move all the information from your old PC to your new Mac. Built-in Windows-to-Mac migration in OS X automatically transfers your documents, music, contacts, calendars, and email accounts (Outlook and Windows Live Mail), and puts them in the appropriate folders and applications on your new Mac. Just like that.

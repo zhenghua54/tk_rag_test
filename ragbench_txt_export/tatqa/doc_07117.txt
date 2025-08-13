@@ -1,0 +1,1 @@
+Deferred Revenue [["", "June 30,\n2019", "June 30,\n2018"], ["Deferred maintenance", "$192,955", "$164,986"], ["Other deferred revenue  ", "10,287", "9,539"], ["Total deferred revenue, net  ", "203,242", "174,525"], ["Less: current portion  ", "144,230", "130,865"], ["Non-current deferred revenue, net", "$59,012", "$43,660"]]

@@ -1,0 +1,1 @@
+The majority of students admitted to UIC had an SAT score between 1000 to 1240, or got accepted with an ACT score in the range of 21 to 26. By applying sampled GPA data from over 150 schools, we are able to estimate that the UIC average GPA ranges from 3.13 to 3.38 for accepted students.

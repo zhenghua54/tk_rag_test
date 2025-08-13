@@ -1,0 +1,1 @@
+Note 21. Equity - dividends [["Consolidated", "", ""], ["", "2019", "2018"], ["", "US$\u2019000", "US$\u2019000"], ["Final dividend for the year ended 30 June 2018 of AU 14 cents (2017: AU 12 cents)", "13,327", "12,534"], ["Interim dividend for the half year ended 31 December 2018 of AU 16 cents (2017: AU 13 cents)", "14,801", "13,099"], ["", "28,128", "25,633"]]

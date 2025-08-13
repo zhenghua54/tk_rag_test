@@ -1,0 +1,1 @@
+13. INCOME TAXES [["", "2019", "2018"], ["Net taxable (loss) at effective tax rates", "$(2,508)", "$(1,567)"], ["Stock compensation expense", "119", "358"], ["Amortization of debt discount", "94", "10"], ["Impairment of goodwill", "-", "519"], ["Other", "(223)", "(153)"], ["Valuation allowance", "2,518", "833"], ["Income tax expense", "$-", "$-"]]

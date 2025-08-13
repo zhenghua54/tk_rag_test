@@ -1,0 +1,1 @@
+Boolean logic is a system of syllogistic logic invented by 19th-century British mathematician George Boole, which attempts to incorporate the "empty set", that is, a class of non-existent entities, such as round squares, without resorting to uncertain truth values.

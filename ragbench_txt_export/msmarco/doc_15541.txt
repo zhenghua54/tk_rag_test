@@ -1,0 +1,1 @@
+With that in mind, I’d like to introduce the Scaled Agile Framework (or SAFe), a framework that aims to synchronize vision, planning, interdependencies, across an organization and delivery teams. The target outcome is business agility.

@@ -1,0 +1,1 @@
+The enzyme you will be using, catechol oxidase, is found in plant tissues. As its name implies, catechol oxidase oxidizes (removes hydrogen from) the substrate catechol, also found in plants, and converts it to benzoquinone, which is brown in colour.

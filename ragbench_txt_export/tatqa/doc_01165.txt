@@ -1,0 +1,1 @@
+Medical Segment Results [["(Dollars in Millions)", "April 28, 2018", "April 29, 2017", "Net Change ($)", "Net Change (%)"], ["Net Sales", "$ 0.3", "$ 0.2", "$ 0.1", "50.0 %"], ["Gross Profit", "$ (3.5)", "$ (3.1)", "$ (0.4)", "(12.9)%"], ["Loss from Operations", "$ (11.4)", "$ (8.5)", "$ (2.9)", "(34.1)%"]]

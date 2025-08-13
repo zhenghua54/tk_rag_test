@@ -1,0 +1,1 @@
+NOTES PAYABLE (continued) [["", "Amount (USD\u2019Million)", "Interest Rate (per annum)", "Due"], ["2024 Notes", "1,250", "3.280%", "2024"], ["2024 Floating Rate Notes", "750", "3-month USD LIBOR + 0.910%", "2024"], ["2026 Notes", "500", "3.575%", "2026"], ["2029 Notes", "3,000", "3.975%", "2029"], ["2049 Notes", "500", "4.525%", "2049"], ["", "6,000", "", ""]]

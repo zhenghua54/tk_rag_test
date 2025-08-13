@@ -1,0 +1,1 @@
+(3) Does not take into account outstanding restricted stock units as these awards have no exercise price.

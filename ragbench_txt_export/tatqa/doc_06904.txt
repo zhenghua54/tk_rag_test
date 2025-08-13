@@ -1,0 +1,1 @@
+17. Income Taxes [["", "", "Years Ended June 30,", ""], ["($ in millions)", "2019", "2018", "2017"], ["Domestic", "$204.2", "$140.3", "$56.0"], ["Foreign", "11.8", "19.9", "14.2"], ["Income before income taxes", "$216.0", "$160.2", "$70.2"]]

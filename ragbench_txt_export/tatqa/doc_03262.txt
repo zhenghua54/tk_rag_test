@@ -1,0 +1,1 @@
+Issuer Purchases of Equity Securities [["", "Total Number of Shares Withheld for Taxes", "Average Price Paid Per Share"], ["Period", "", ""], ["October 2019", "16,585", "$11.57"], ["November 2019", "185,887", "13.15"], ["December 2019", "12,368", "13.70"], ["Total", "214,840", ""]]

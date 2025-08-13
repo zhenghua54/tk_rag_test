@@ -1,0 +1,1 @@
+Number of deaths for leading causes of death. 1  Heart disease: 611,105. 2  Cancer: 584,881. 3  Chronic lower respiratory diseases: 149,205. 4  Accidents (unintentional injuries): 130,557. 5  Stroke (cerebrovascular diseases): 128,978.

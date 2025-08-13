@@ -1,0 +1,1 @@
+7. ACCOUNTS RECEIVABLES ALLOWANCES [["", "", "Fiscal Year", ""], ["", "2019", "2018", "2017"], ["Balance - beginning of year", "$6,795", "$9,410", "$3,279"], ["Provision, net", "11,989", "15,465", "29,512"], ["Charge-offs", "(13,737)", "(18,080)", "(23,381)"], ["Balance - end of year", "$5,047", "6,795", "9,410"]]

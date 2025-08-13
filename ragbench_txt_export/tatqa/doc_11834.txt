@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["", "For the Years Ended December 31,", "", ""], ["", "2019", "2018", "Increase (Decrease)"], ["Cash and cash equivalents", "$5,794", "$4,225", "$1,569"], ["Short-term investments", "69", "155", "(86)"], ["", "$5,863", "$4,380", "$1,483"], ["Percentage of total assets", "30%", "24%", ""]]

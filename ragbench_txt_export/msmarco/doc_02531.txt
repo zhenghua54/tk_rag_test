@@ -1,0 +1,1 @@
+The early day’s data mining trends are as under. 2.1 Data Trends In initial days, data mining algorithms work best for numerical data collected from a single data base, and various data mining techniques have evolved for flat files, traditional and relational databases where the data is stored in tabular representation.

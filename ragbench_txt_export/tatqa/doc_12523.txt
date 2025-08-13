@@ -1,0 +1,1 @@
+Carryforward losses and credits expire between 2020 and 2038, except for the 2019 federal net operating loss of $43.9 million and $1 million of state credits, which both have unlimited carryforward periods.

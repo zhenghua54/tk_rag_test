@@ -1,0 +1,1 @@
+In a file path, folder and subfolder names are separated by a slash (/). For example, My Documents/Stories/Novel.txt shows a file called Novel.txt inside the Stories subfolder, which is inside the My Documents folder.

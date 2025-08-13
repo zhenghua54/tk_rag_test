@@ -1,0 +1,1 @@
+12 Directors’ Remuneration [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018"], ["", "$M", "$M"], ["Directors\u2019 emoluments", "2.3", "3.3"], ["Gains on exercise of share options", "3.6", "3.5"], ["Gains on vesting of LTIP awards", "14.5", "4.2"], ["Total Directors\u2019 remuneration", "20.4", "11.0"]]

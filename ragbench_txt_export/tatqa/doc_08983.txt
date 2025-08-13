@@ -1,0 +1,1 @@
+Note 7. Prepaid Expenses and Other Current Assets and Accrued and Other Current Liabilities [["December 31,", "", ""], ["", "2019", "2018"], ["Prepaid expenses", "$1,948", "$1,179"], ["Securities litigation insurance receivable", "16,627", "306"], ["Other current assets", "1,556", "2,865"], ["Prepaid expenses and other current assets", "$20,131", "$4,350"]]

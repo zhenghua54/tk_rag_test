@@ -1,0 +1,1 @@
+Interest in associates [["", "2019", "2018"], ["", "$'000", "$'000"], ["Opening balance at 1 July", "10,693", "8,611"], ["Capital contribution / acquisition of shareholding in associates", "-", "2,048"], ["Share of profit from associates*", "1,695", "1,282"], ["Distributions from associate", "-", "(1,248)"], ["Closing balance at 30 June", "12,388", "10,693"]]

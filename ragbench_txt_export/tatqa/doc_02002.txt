@@ -1,0 +1,1 @@
+2. CONCENTRATIONS OF CREDIT RISK [["", "", "Fiscal Year", ""], ["", "2019", "2018", "2017"], ["Apple Inc. (\u201cApple\u201d)", "32%", "36%", "34%"], ["Huawei Technologies Co., Ltd. (\u201cHuawei\u201d)", "13%", "8%", "11%"]]

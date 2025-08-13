@@ -1,0 +1,1 @@
+Exponentiation is a mathematical operation, written as , involving two numbers, the "base" and the "exponent" . When is a positive integer, exponentiation corresponds to repeated multiplication of the base: that is, is the product of multiplying bases:

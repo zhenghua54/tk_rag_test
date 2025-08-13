@@ -1,0 +1,1 @@
+Amounts recognised in the balance sheet are as follows: [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Present value of funded obligations", "20.0", "19.7"], ["Fair value of plan assets", "(22.2)", "(21.0)"], ["Effect of surplus cap", "2.2", "1.3"], ["Net asset recognised in the Consolidated balance sheet", "\u2013", "\u2013"]]

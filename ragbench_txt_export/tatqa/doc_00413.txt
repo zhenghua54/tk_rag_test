@@ -1,0 +1,1 @@
+Trade Accounts Receivable [["", "December 31,", ""], ["", "2019", "2018"], ["Trade accounts receivable, net, current (1)", "$375,136", "$335,377"], ["Trade accounts receivable, net, noncurrent (2)", "26,496", "15,948"], ["", "$401,632", "$351,325"]]

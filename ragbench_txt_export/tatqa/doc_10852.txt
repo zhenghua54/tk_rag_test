@@ -1,0 +1,1 @@
+Net revenues by geographical region [["", "Fiscal Year", ""], ["", "2019", "2018"], ["Americas", "64%", "63%"], ["EMEA", "21%", "22%"], ["APJ", "15%", "16%"]]

@@ -1,0 +1,1 @@
+We define GPV as the total dollar amount of all card payments processed by sellers using Square, net of refunds. Additionally, GPV includes Cash App activity related to peer-to-peer payments sent from a credit card and Cash for Business. As described above, GPV excludes card payments processed for Starbucks

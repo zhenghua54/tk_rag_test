@@ -1,0 +1,1 @@
+Indefinite-lived Intangible Assets [["Years Ended December 31,", "", ""], ["", "2019", "2018"], ["(in thousands)", "", ""], ["Beginning balance", "$4,400", "$4,400"], ["Transfers to developed technology from IPR&D", "(4,400)", "\u2014"], ["Ending balance", "$\u2014", "$4,400"]]

@@ -1,0 +1,1 @@
+9. BALANCE SHEET DETAILS [["", "Fiscal year-end", ""], ["", "2019", "2018"], ["Prepaid and refundable income taxes", "$44,096", "$37,884"], ["Other taxes receivable", "11,208", "16,930"], ["Prepaid expenses and other assets", "22,689", "30,266"], ["Total prepaid expenses and other assets", "$77,993", "$85,080"]]

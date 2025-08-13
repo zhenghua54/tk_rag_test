@@ -1,0 +1,1 @@
+The fair value of options granted was determined using a variation of a binomial option pricing model that takes into account factors specific to the share incentive plans, such as the vesting period. The following table shows the principal assumptions used in the valuation.

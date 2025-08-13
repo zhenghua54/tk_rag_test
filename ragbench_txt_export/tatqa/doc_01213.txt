@@ -1,0 +1,1 @@
+11. Reportable Segments, Geographic Information and Major Customers [["", "September 28,\n2019", "September 29,\n2018"], ["Total assets:", "", ""], ["AMER ", "$751,990", "$645,791"], ["APAC ", "958,744", "937,510"], ["EMEA ", "209,541", "193,797"], ["Corporate and eliminations", "80,608", "155,544"], ["", "$2,000,883", "$1,932,642"]]

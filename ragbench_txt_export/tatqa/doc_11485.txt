@@ -1,0 +1,1 @@
+Product warranty liabilities: [["", "Year Ended", ""], ["", "April 26, 2019", "April 27, 2018"], ["Balance at beginning of period", "$ 40", "$ 50"], ["Expense accrued during the period", "22", "16"], ["Warranty costs incurred", "(22)", "(26)"], ["Balance at end of period", "$ 40", "$ 40"], ["Total warranty liabilities", "$ 40", "$  40"]]

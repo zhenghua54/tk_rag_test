@@ -1,0 +1,1 @@
+10 Earnings per share [["", "2019", "2018"], ["Profit attributable to equity shareholders (\u00a3m)", "166.6", "223.1"], ["Weighted average shares (million)", "73.7", "73.6"], ["Dilution (million)", "0.2", "0.2"], ["Diluted weighted average shares (million)", "73.9", "73.8"], ["Basic earnings per share", "226.2p", "303.1p"], ["Diluted earnings per share", "225.5p", "302.0p"]]

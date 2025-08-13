@@ -1,0 +1,1 @@
+Cost of Revenue [["", "Year Ended December 31,", "", "Change", ""], ["", "2018", "2017", "$", "%"], ["", "", "(dollars in thousands)", "", ""], ["Cost of revenue", "$ 46,810", "$ 31,503", "$ 15,307", "48.6%"], ["Gross margin %", "68%", "70%", "", ""]]

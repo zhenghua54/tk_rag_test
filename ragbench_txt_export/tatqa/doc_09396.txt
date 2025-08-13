@@ -1,0 +1,1 @@
+Stock-based Compensation [["", "2019", "2018", "2017"], ["Cost of revenue", "$207", "$78", "$52"], ["Selling and marketing", "2,967", "2,656", "1,577"], ["Research and development", "2,013", "1,801", "1,028"], ["General and administrative", "4,450", "4,415", "2,821"], ["Stock-based compensation expense included in expenses", "$9,637", "$8,950", "$5,478"]]

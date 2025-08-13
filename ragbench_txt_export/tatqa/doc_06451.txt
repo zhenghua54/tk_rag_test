@@ -1,0 +1,1 @@
+4. INVENTORIES [["", "March 30, 2019", "March 31, 2018"], ["Raw materials", "$118,608", "$110,389"], ["Work in process", "272,469", "221,137"], ["Finished goods", "120,716", "140,766"], ["Total inventories", "$511,793", "$472,292"]]

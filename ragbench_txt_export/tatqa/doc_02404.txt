@@ -1,0 +1,1 @@
+FOURTH QUARTER HIGHLIGHTS [["OPERATING REVENUES", "Q4 2019", "Q4 2018", "$ CHANGE", "% CHANGE"], ["Bell Wireless", "2,493", "2,407", "86", "3.6%"], ["Bell Wireline", "3,138", "3,137", "1", "\u2013"], ["Bell Media", "879", "850", "29", "3.4%"], ["Inter-segment eliminations", "(194)", "(179)", "(15)", "(8.4%)"], ["Total BCE operating revenues", "6,316", "6,215", "101", "1.6%"]]

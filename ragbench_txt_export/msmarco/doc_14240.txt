@@ -1,0 +1,1 @@
+cmap = rgb2hsv(M) converts an RGB colormap M to an HSV colormap cmap. Both colormaps are m-by-3 matrices. RGB is an m-by-n-by-3 image array whose three planes contain the red, green, and blue components for the image. HSV is returned as an m-by-n-by-3 image array whose three planes contain the hue, saturation, and va

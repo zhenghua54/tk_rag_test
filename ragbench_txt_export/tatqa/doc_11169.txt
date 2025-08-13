@@ -1,0 +1,1 @@
+18. Commitments [["", "Operating Leases", "Other Contractual Commitments", "Total"], ["", "", "(U.S. $ in thousands)", ""], ["Fiscal Period:", "", "", ""], ["Year ending 2020", "$38,790", "$108,978", "$147,768"], ["Years ending 2021 - 2024", "148,021", "219,342", "367,363"], ["Thereafter", "144,037", "\u2014", "144,037"], ["Total commitments", "$330,848", "$328,320", "659,168"]]

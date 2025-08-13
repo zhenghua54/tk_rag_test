@@ -1,0 +1,1 @@
+Cash collaterals on swaps represent cash deposited for the Group’s interest rate swaps being the difference between their fair value and an agreed threshold.

@@ -1,0 +1,1 @@
+Expected realisation of remaining performance obligations at year end [["", "2019", "2018"], ["", "$ million", "$ million"], ["Within one year", "18.3", "15.5"], ["Greater than one year", "10.3", "12.7"], ["", "28.6", "28.2"]]

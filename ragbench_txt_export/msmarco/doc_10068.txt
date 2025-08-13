@@ -1,0 +1,1 @@
+1) Total Cholesterol: less than 200 mg/dL. 2) LDL: 100 mg/dL to 129 mg/dL. 3) HDL: more than 40 mg/dL. 4) Triglycerides: 100 mg/dL to 150 mg/dL. It should be taken into account that the mentioned normal ranges are rather unstable, because they are changing with age. If the normal level of LDL of a 25-year-old is 160 mg/dL, for a 75-year-old it would be too small.

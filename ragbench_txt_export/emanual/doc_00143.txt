@@ -1,0 +1,1 @@
+Supported internal subtitles. Advanced SubStation Alpha MKV TTML in smooth streaming MP4 Name Format MPEG-4 Timed text .ttxt SAMI .smi SubRip .srt SubViewer .sub Micro DVD .sub or .txt SubStation Alpha .ssa SMPTE-TT Text .xml Name Container Xsub AVI SubStation Alpha MKV SubRip MKV VobSub MKV MPEG-4 Timed text MP4 SMPTE-TT TEXT MP4 SMPTE-TT PNG MP4

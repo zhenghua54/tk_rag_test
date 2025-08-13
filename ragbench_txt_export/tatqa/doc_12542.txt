@@ -1,0 +1,1 @@
+ALTERNATIVE PERFORMANCE MEASURES [["USDm", "2019", "2018", "2017"], ["Reconciliation to revenue", "", "", ""], ["Revenue", "692.6", "635.4", "657.0"], ["Port expenses, bunkers and commissions", "-267.7", "-283.0", "-259.9"], ["Charter hire", "-", "-2.5", "-8.5"], ["Operating expenses", "-173.0", "-180.4", "-188.4"], ["Gross profit", "251.9", "169.5", "200.2"]]

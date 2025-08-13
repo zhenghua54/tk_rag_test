@@ -1,0 +1,1 @@
+Abbreviation for megahertz. One MHz represents one million cycles per second. The speed of microprocessors, called the clock speed, is measured in megahertz. For example, a microprocessor that runs at 200 MHz executes 200

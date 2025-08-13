@@ -1,0 +1,1 @@
+35 Related party transactions [["Key management1 compensation", "", ""], ["\u00a3m", "2019", "2018"], ["Salaries and short-term employee benefits", "4.7", "4.9"], ["Pensions and other post-employment benefits", "0.3", "0.8"], ["Share-based payments", "1.5", "1.7"], ["", "6.5", "7.4"]]

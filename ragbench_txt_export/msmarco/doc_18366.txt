@@ -1,0 +1,1 @@
+Genotypic frequency is the frequency of a genotype—homozygous recessive, homozygous dominant, or heterozygous—in a population. If you don't know the frequency of the recessive allele, you can calculate it if you know the frequency of individuals with the recessive phenotype (their genotype must be homozygous recessive).

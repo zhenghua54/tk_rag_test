@@ -1,0 +1,1 @@
+Komodo 10 day weather forecast, updated four times a day and shows the weather summary plus detailed sun, rain, snow, wind and temperature. The weather forecast extends out to 10 days showing information for morning, afternoon and overnight.

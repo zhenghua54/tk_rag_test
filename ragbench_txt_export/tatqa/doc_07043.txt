@@ -1,0 +1,1 @@
+NOTES TO CONSOLIDATED FINANCIAL STATEMENTS (in thousands, except for share and per share data) [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["U.S.", "$15,103", "$30,815", "$9,315"], ["Non-U.S.", "35,163", "27,288", "30,938"], ["Total", "$50,266", "$58,103", "$40,253"]]

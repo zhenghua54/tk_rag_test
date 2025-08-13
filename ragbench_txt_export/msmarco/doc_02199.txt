@@ -1,0 +1,1 @@
+A cell that can ingest bacteria, foreign particles, and other cells. Phagocytes ingest and kill microbes, present antigen to lymphocytes, scavenge degenerating material, and release mediators.

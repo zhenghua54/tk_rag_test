@@ -1,0 +1,1 @@
+DESCRIPTION OF THE PLANS [["NUMBER OF ESP SHARES", "2019", "2018"], ["Unvested contributions, January 1", "1,120,426", "1,039,030"], ["Contributions\u2009(1)", "623,705", "671,911"], ["Dividends credited", "57,083", "56,926"], ["Vested", "(523,359)", "(501,089)"], ["Forfeited", "(153,657)", "(146,352)"], ["Unvested contributions, December 31", "1,124,198", "1,120,426"]]

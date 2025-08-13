@@ -1,0 +1,1 @@
+The reCAPTCHA program originated with Guatemalan computer scientist Luis von Ahn, and was aided by a MacArthur Fellowship. An early CAPTCHA developer, he realized "he had unwittingly created a system that was frittering away, in ten-second increments, millions of hours of a most precious resource: human brain cycles".

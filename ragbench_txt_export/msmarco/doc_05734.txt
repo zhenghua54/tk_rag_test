@@ -1,0 +1,1 @@
+A point of presence (PoP) is an artificial demarcation point OR interface point between communicating entities.

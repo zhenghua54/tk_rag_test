@@ -1,0 +1,1 @@
+Note 11. Other Current Assets [["", "December 31,", ""], ["", "2019", "2018"], ["Investments held in rabbi trust", "$13,927", "$11,442"], ["Financial derivatives", "3,373", "1,078"], ["Deferred rent", "558", "1,867"], ["Other current assets", "2,667", "2,374"], ["", "$20,525", "$16,761"]]

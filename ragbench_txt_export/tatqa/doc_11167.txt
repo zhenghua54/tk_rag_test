@@ -1,0 +1,1 @@
+Backlog [["", "September 30,   ", "September 30,    "], ["", "2019", "2018"], ["", "", "(in millions)   "], ["Total backlog    ", "", ""], ["Cubic Transportation Systems", "$  2,953.3", "$  3,544.9"], ["Cubic Mission Solutions", "103.7", "77.0"], ["Cubic Global Defense", "344.0", "442.6"], ["Total  ", "$  3,401.0", "$  4,064.5"]]

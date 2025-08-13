@@ -1,0 +1,1 @@
+Oil Life Reset Without pushing the brake pedal, place the ignition in the ON/RUN mode (do not start the engine).  Navigate to "Oil Life" submenu in "Vehicle Info" in the instrument cluster display.  Push and hold the ok button until the gauge resets to 100%.

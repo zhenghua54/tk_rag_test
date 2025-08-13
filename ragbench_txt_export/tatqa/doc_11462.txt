@@ -1,0 +1,1 @@
+9. Income Taxes [["", "", "Fiscal years ended July 31,", ""], ["", "2019", "2018", "2017"], ["Domestic", "$(1,778)", "$(13,501)", "$21,723"], ["International", "14,230", "5,225", "6,803"], ["Income (loss) before provision for (benefit from) income taxes", "$12,452", "$(8,276)", "$28,526"]]

@@ -1,0 +1,1 @@
+ITEM 2. PROPERTIES [["Location", "Purpose", "Square footage ", "Termination calendar year", "Segment"], ["Aurora, IL", "Corporate headquarters, office, distribution and manufacturing", "83,000", "2020", ""], ["Dublin, OH", "Design center", "9,465", "2019", "ISM"], ["Manchester, NH", "IBW office", "2,287", "2020", "IBW"]]

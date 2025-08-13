@@ -1,0 +1,1 @@
+Note 18 – Restructuring [["(In thousands)", "2019", "2018"], ["Balance at beginning of period", "$185", "$205"], ["Plus: Amounts charged to cost and expense", "6,014", "7,261"], ["Less: Amounts paid", "(4,631)", "(7,281)"], ["Balance at end of period", "$1,568", "$185"]]

@@ -1,0 +1,1 @@
+4. Other Current Assets [["", "December 31,", ""], ["", "2019", "2018"], ["Indemnification receivable from SSL for pre-closing taxes (see Note 13)", "$598", "$2,410"], ["Due from affiliates", "186", "161"], ["Prepaid expenses", "164", "151"], ["Other", "374", "510"], ["", "$1,322", "$3,232"]]

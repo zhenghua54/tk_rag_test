@@ -1,0 +1,1 @@
+SEGMENT RESULTS [["", "Fiscal 2019", "Fiscal 2018", "% Change"], ["", "", "(in millions)", ""], ["Sales", "$  849.8", "$  670.7", "27 %"], ["Operating income", "77.2", "60.4", "28"], ["Adjusted EBITDA", "110.5", "73.3", "51"]]

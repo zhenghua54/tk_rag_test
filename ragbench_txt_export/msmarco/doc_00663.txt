@@ -1,0 +1,1 @@
+With discount computer stores selling disk drives for a dollar per gigabyte, how can enterprise storage systems cost many times that amount? Fry's electronics, for example, recently advertised the Buffalo TeraStation at $1699 for 2 TB of NAS. That's $1.17 per GB.

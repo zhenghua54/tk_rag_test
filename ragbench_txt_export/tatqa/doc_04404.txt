@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["", "December 31,", ""], ["", "2019", "2018"], ["", "", "(in thousands)"], ["Cash & cash equivalents", "$18,304", "$32,011"], ["Short term investments", "17,779", "11,303"], ["", "$36,083", "$43,314"]]

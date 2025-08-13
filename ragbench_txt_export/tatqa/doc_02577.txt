@@ -1,0 +1,1 @@
+Cash Flows [["", "", "Year Ended"], ["", "", "December 31,"], ["", "2019", "2018"], ["Net cash (used in) provided by:", "", ""], ["Operating activities", "$(618)", "$(3,908)"], ["Investing activities", "-", "-"], ["Financing activities", "1,389", "1,779"], ["Net increase (decrease) in cash and cash equivalents", "$771", "$(2,129)"]]

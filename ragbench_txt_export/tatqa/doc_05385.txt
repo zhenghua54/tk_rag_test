@@ -1,0 +1,1 @@
+Foreign Currency Risk [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018"], ["", "$M", "$M"], ["10% movement in sterling to US dollar value", "", ""], ["Profit or loss", "1.7", "5.1"], ["Equity", "33.8", "37.4"], ["10% movement in euro to US dollar value", "", ""], ["Profit or loss", "1.5", "7.5"], ["Equity", "(9.8)", "(10.8)"]]

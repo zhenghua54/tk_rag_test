@@ -1,0 +1,2 @@
+The Indian mathematician Brahmagupta (597–668 AD) explicitly described the quadratic formula in his treatise "Brāhmasphuṭasiddhānta" published in 628 AD, but written in words instead of symbols. His solution of the quadratic equation was as follows: "To the absolute number multiplied by four times the [coefficient of the] square, add the square of the [coefficient of the] middle term; the square root of the same, less the [coefficient of the] middle term, being divided by twice the [coefficient of the] square is the value."
+This is equivalent to:

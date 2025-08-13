@@ -1,0 +1,1 @@
+Other non-current assets [["", "As of June 30,", ""], ["", "2019", "2018"], ["", "(U.S. $ in thousands)", ""], ["", "", "*As Adjusted"], ["Marketable equity securities", "$58,932", "$\u2014"], ["Non-marketable equity securities", "3,000", "\u2014"], ["Security deposits", "5,010", "5,248"], ["Other", "9,703", "8,218"], ["", "$76,645", "$13,466"]]

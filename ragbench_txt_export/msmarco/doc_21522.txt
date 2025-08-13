@@ -1,0 +1,1 @@
+1 The cost of cholesterol test depends on where the test will be performed. 2  The location of the clinic will be considered as a factor for the price difference of the test. 3  Another factor that can affect the price of cholesterol test is the type of test that will be taken.

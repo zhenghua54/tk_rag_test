@@ -1,0 +1,1 @@
+Prepaid Expenses and Other Current Assets [["", "December 31,", ""], ["", "2019", "2018"], ["Prepaid expenses", "$37.1", "$43.9"], ["Contract assets", "19.5", "14.8"], ["Other current assets", "8.2", "8.6"], ["Prepaid expenses and other current assets", "$64.8", "$67.3"]]

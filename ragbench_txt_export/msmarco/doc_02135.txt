@@ -1,0 +1,1 @@
+13.000 Commercial Vehicle Definition. A commercial vehicle is a type of vehicle: 1  Used or maintained for the transportation of persons for hire, compensation, or profit (for example, a taxi or limousine). 2  Designed, used, or maintained primarily for the transportation of property.

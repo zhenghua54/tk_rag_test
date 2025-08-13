@@ -1,0 +1,1 @@
+Adoption of ASC 606 [["", "Balance at December 31, 2017", "Adjustments Due to ASC 606", "Balance at January 1, 2018"], ["Assets", "", "", ""], ["Voyage receivables", "$24,209", "$1,336", "$25,545"], ["Liabilities", "", "", ""], ["Deferred income taxes", "83,671", "(108)", "83,563"], ["Equity", "", "", ""], ["Accumulated deficit", "(265,758)", "(1,228)", "(266,986)"]]

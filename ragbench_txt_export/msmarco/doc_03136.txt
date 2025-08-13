@@ -1,0 +1,1 @@
+1 According to the most common definition, the beam divergence is the derivative of the beam radius with respect to the axial position in the far field, i.e., at a distance from the beam waist which is much larger than the Rayleigh length. Different quantitative definitions are used in the literature: 1

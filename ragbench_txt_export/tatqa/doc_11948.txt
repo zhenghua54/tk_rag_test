@@ -1,0 +1,1 @@
+Provision for income taxes [["", "Fiscal Year", ""], ["(In millions, except for percentages)", "2019", "2018"], ["Income from continuing operations before income taxes", "$108", "$437"], ["Provision for (benefit from) income taxes", "$92", "$(690)"], ["Effective tax rate on income from continuing operations", "85%", "(158)%"]]

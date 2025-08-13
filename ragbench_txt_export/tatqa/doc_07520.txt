@@ -1,0 +1,1 @@
+10 Auditor’s Remuneration [["", "Year-ended 31 March 2019", "Year-ended 31 March 2018"], ["", "$M", "$M"], ["Audit of the Financial Statements", "0.4", "0.4"], ["Subsidiary local statutory audits", "0.2", "0.3"], ["Total audit fees", "0.6", "0.7"], ["Other assurance services", "0.1", "0.1"], ["Total non-audit fees", "0.1", "0.1"]]

@@ -1,0 +1,1 @@
+Direct Tune Press the Tune button located at the bottom of the radio screen to directly tune to a desired radio station or channel.  Press the available number button on the touchscreen to begin selecting a desired station.  Once a number has been entered, any numbers that are no longer possible (stations that cannot be reached) will become deactivated/grayed out.

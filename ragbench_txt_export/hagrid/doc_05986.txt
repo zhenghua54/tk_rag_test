@@ -1,0 +1,2 @@
+There are currently 211 FIFA members, each one with its unique country code.
+The following codes refer to countries or dependent areas that are currently not affiliated with FIFA, but whose codes either appear in the FIFA results database, or are used regularly by confederation websites.

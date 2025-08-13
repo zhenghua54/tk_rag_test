@@ -1,0 +1,1 @@
+Asia Pacific [["Year Ended December 31,", "", ""], ["", "2019", "2018"], ["(In thousands)", "", ""], ["Revenues", "$6,490", "$7,859"], ["(Loss) from operations", "$(7,488)", "$(6,322)"], ["(Loss) from operations as a % of revenues", "(115)%", "(80)%"]]

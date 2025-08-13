@@ -1,0 +1,1 @@
+Marginal cost. Marginal cost is the derivative of the cost function, so take the derivative and evaluate it at x = 100. Thus, the marginal cost at x = 100 is $15 — this is the approximate cost of producing the 101st widget.

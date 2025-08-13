@@ -1,0 +1,1 @@
+Note 7 — Inventories, net [["", "December 31,", ""], ["", "(in thousands)", ""], ["", "2019", "2018"], ["Finished Goods", "$8,320", "$12,472"], ["Work in process", "\u2014", "67"], ["Component parts", "6,768", "4,716"], ["Service parts", "4,238", "5,482"], ["", "$19,326", "$22,737"]]

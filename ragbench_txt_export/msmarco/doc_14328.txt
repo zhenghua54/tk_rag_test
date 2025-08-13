@@ -1,0 +1,1 @@
+The SONET/SDH Digital Hierarchy. The basic foundation of SONET consists of groups of DS-0 signals (64Kbits/sec) that are multiplexed to create a 51.84Mbit/sec signal, which is also known as STS-1 (Synchronous Transport Signal). STS-1 is an electrical signal rate that corresponds to the Optical Carrier line rate of OC-1, SONET's building block

@@ -1,0 +1,1 @@
+Tweet. Before we go any farther, let's explain what the .htaccess file is. htaccess is short for Hypertext Access, and is a configuration file used by Apache-based web servers that controls the directory that it lives in--as well as all the subdirectories underneath that directory.

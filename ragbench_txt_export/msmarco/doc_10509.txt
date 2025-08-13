@@ -1,0 +1,1 @@
+For example, we have an article with only verbs that start with A, another page of verbs that begin with N, and posts for verbs starting with every other letter of the English alphabet. You can select the letter you’re interested in with the menu on the left hand side of the page.

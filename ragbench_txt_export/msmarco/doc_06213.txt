@@ -1,0 +1,1 @@
+1 The standardised mean effect size is basically computed as the difference score divided by the standard deviation of the scores. 2  In meta-analysis, effect sizes should also be reported with: 3  the number of studies and the number of effects used to create the estimate.

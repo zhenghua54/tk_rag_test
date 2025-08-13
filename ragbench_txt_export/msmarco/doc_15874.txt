@@ -1,0 +1,1 @@
+1 Directional stability: The distance from the aircraft c.g. to the most aft part of the airplane is usually smaller on canard aircraft. 2  This poses a problem for locating a vertical stabilizer and may result in very large vertical surfaces. ( 3 Note, however, that winglets may be used to advantage in this case.).

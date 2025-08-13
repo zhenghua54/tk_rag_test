@@ -1,0 +1,4 @@
+The restricted stock units provide that the recipients can elect, at their option, to receive either common stock in the
+Company, or a cash settlement based upon the closing price of the Company’s shares, at the time of vesting. Based on
+these award provisions, the compensation expense recorded in the Company’s Statement of Operations reflects the
+straight-line amortized fair value based on the liability method under “ASC 718 – Compensation – Stock Compensation”.

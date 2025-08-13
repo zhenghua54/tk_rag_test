@@ -1,0 +1,1 @@
+Turn data roaming on or off. You can limit your data usage when abroad by turning off data roaming. You'll then not be able to access the internet using the mobile network when abroad. You can still use Wi-Fi even though data roaming is turned off. Remember, you need to turn on mobile data.

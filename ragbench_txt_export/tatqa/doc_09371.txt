@@ -1,0 +1,1 @@
+Interest and Other [["", "2019", "2018", "2018-2019 Change"], ["", "", "(in millions)", ""], ["Interest income", "$(24.8)", "$(26.7)", "$1.9"], ["Interest expense", "23.1", "31.3", "(8.2)"], ["Other (income) expense, net", "29.5", "1.4", "28.1"]]

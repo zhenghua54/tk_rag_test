@@ -1,0 +1,1 @@
+ITEM 6. SELECTED FINANCIAL DATA [["", "", "", "Year Ended December 31,", "", ""], ["", "2019", "2018", "2017", "2016", "2015"], ["Other Financial and Operating Data:", "", "", "", "", ""], ["SaaS and license revenue renewal rate(3)", "94%", "93%", "93%", "94%", "93%"], ["Adjusted EBITDA(4)", "$108,307", "$93,081", "$71,628", "$49,034", "$34,370"]]

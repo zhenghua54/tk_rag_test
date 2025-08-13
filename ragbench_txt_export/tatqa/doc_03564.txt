@@ -1,0 +1,1 @@
+The line “Technologies in progress” in the table above also includes internally developed software under construction and software not ready for use.

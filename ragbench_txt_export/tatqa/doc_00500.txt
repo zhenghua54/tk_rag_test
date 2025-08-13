@@ -1,0 +1,1 @@
+Basic net income per share is computed by dividing net income by the weighted-average number of common shares outstanding during the period. Diluted net income per share is computed using the treasury stock method, for dilutive stock options, restricted stock units, and convertible notes.

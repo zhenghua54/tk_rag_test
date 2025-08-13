@@ -1,0 +1,1 @@
+Total energy consumption is calculated based on the data of purchased electricity and fuel with reference to the coefficients in the National Standards of the PRC “General Principles for Calculation of the Comprehensive Energy Consumption (GB/T 2589-2008)”.

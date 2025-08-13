@@ -1,0 +1,1 @@
+Property and equipment, net by geographic location consists of the following: [["", "As of March 31,", ""], ["", "2019", "2018"], ["United States (1) ", "$62,455", "$62,064"], ["United Kingdom (2)  ", "17,402", "46,664"], ["South Africa  ", "6,170", "6,512"], ["Australia  ", "3,481", "3,953"], ["Other  ", "4,694", "4,629"], ["Total ", "$94,202", "$123,822"]]

@@ -1,0 +1,1 @@
+Non-operating Corporate [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "Increase / (Decrease)"], ["Selling, general and administrative", "$24.9", "$33.5", "$(8.6)"], ["Depreciation and amortization", "0.1", "0.1", "\u2014"], ["Loss from operations", "$(25.0)", "$(33.6)", "$8.6"]]

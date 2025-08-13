@@ -1,0 +1,1 @@
+Resetting Smart Hub. Settings Support Self Diagnosis Reset Smart Hub Try Now You can reset the Smart Hub settings. To reset Smart Hub, enter the PIN. The default PIN is You can set the PIN in Settings General System Manager Change PIN

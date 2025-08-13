@@ -23,9 +23,12 @@ from utils.validators import validate_permission_ids
 class RAGGenerator:
     """RAG 生成器，处理用户查询并生成回答"""
 
-    # def __init__(self):
-    def __init__(self):
-        """初始化 RAG 生成器"""
+    def __init__(self, collection_name: str | None = None):
+        """初始化 RAG 生成器
+        
+        Args:
+            collection_name: 指定使用的Milvus集合名称。如果为 None 则使用全局默认配置
+        """
         # 初始化会话操作类
         self.session_op = chat_session_op
         self.message_op = chat_message_op
@@ -34,8 +37,16 @@ class RAGGenerator:
 
         # 初始化 embedding 模型
         self._embedding_manager = EmbeddingManager()
-        # 初始化混合检索对象
-        self._hybrid_search = HybridRetriever()
+        
+        # 初始化混合检索对象（直接传入集合名，避免修改全局配置）
+        self._hybrid_search = HybridRetriever(collection_name=collection_name)
+        
+        # Token使用统计
+        self._token_usage_stats = {
+            "total_requests": 0,
+            "total_tokens": 0,
+            "avg_tokens_per_request": 0
+        }
 
     def _get_history(self, session_id: str) -> list[BaseMessage]:
         """获取历史对话
@@ -301,7 +312,7 @@ class RAGGenerator:
 
             # 如果无文档可查，直接结束问答
             if not doc_ids:
-                logger.warning(f"[RAG对话] request_id={request_id}, 无文档可查, 直接返回")
+                logger.info(f"[RAG对话] request_id={request_id}, 无文档可查, 直接返回")
 
                 answer = "抱歉，知识库中没有找到相关信息"
 
@@ -339,7 +350,7 @@ class RAGGenerator:
 
             # 如果检索结果为空，直接返回
             if not reranked_results:
-                logger.warning(f"[RAG对话] request_id={request_id}, 检索结果为空, 直接返回")
+                logger.info(f"[RAG对话] request_id={request_id}, 检索结果为空, 直接返回")
 
                 answer = "抱歉，知识库中没有找到相关信息"
 
@@ -379,6 +390,9 @@ class RAGGenerator:
             # 模型调用生成回答
             response_text = llm_manager.invoke(messages=messages, temperature=0.1, invoke_type="RAG生成")
 
+            # 更新token使用统计
+            self._update_token_usage_stats(messages, response_text)
+
             # 提取引用编号, 清洗回答
             segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
 
@@ -390,7 +404,10 @@ class RAGGenerator:
             # 根据重排序结构构建元数据
             filtered_reranked_results = []
             if segment_idx:
-                filtered_reranked_results = [m for m in reranked_results if int(m.get("seg_idx")) in segment_idx]
+                filtered_reranked_results = [
+                    m for m in reranked_results 
+                    if m.get("seg_idx") is not None and int(m.get("seg_idx")) in segment_idx
+                ]
 
             metadata_info = self._build_metadata_from_reranked_results(
                 reranked_results=filtered_reranked_results, request_id=request_id
@@ -450,14 +467,14 @@ class RAGGenerator:
             if not query or not query.strip():
                 raise ValueError("问题不能为空")
 
-            # logger.info(f"[RAG对话-无权限] request_id={request_id}, 开始处理查询: {query[:100]}...")
+            logger.info(f"[RAG对话-无权限] request_id={request_id}, 开始处理查询: {query[:100]}...")
 
             # 获取当前 session 的历史对话
             raw_history: list[BaseMessage] = self._get_history(session_id)
 
             # 查询重写(根据历史对话)
             rewrite_query = self._rewrite_query_with_history(history=raw_history, question=query, session_id=session_id)
-            logger.info(f"[RAG对话-无权限] request_id={request_id}, 重写后的查询: {rewrite_query}")
+            # logger.info(f"[RAG对话-无权限] request_id={request_id}, 重写后的查询: {rewrite_query}")
             
             # 生成查询向量
             rewrite_query_vector = self._embedding_manager.embed_text(rewrite_query)
@@ -474,8 +491,7 @@ class RAGGenerator:
 
             # 如果检索结果为空，直接返回
             if not reranked_results:
-                logger.warning(f"[RAG对话-无权限] request_id={request_id}, 检索结果为空, 直接返回")
-
+                logger.info(f"---------[RAG对话-无权限] request_id={request_id}, 检索结果为空, 直接返回")
                 answer = "抱歉，知识库中没有找到相关信息"
 
                 # 保存历史对话到数据库
@@ -521,23 +537,29 @@ class RAGGenerator:
             # 构造上下文
             messages = self._get_messages_for_rag(history=raw_history, docs=docs, query=query)
 
-            logger.info(f"[RAG对话-无权限] request_id={request_id}, 构建好的上下文:\n {messages}")
+            # logger.info(f"****[RAG对话-无权限] request_id={request_id}, 构建好的上下文:\n {messages}")
 
             # 模型调用生成回答
             response_text = llm_manager.invoke(messages=messages, temperature=0.1, invoke_type="RAG生成")
+
+            # 更新token使用统计
+            self._update_token_usage_stats(messages, response_text)
 
             # 提取引用编号, 清洗回答
             segment_idx, cleaned_answer = self._extract_segment_and_clean_answer(response_text)
 
             # 调试
-            logger.debug(
-                f"[RAG对话-无权限] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}"
-            )
+            # logger.debug(
+            #     f"[RAG对话-无权限] request_id={request_id}, \n模型回答: {response_text}, \n\n清洗后的回答: {cleaned_answer}, \n\n提取到的编号: {segment_idx}"
+            # )
 
             # 根据重排序结构构建元数据
             filtered_reranked_results = []
             if segment_idx:
-                filtered_reranked_results = [m for m in reranked_results if int(m.get("seg_idx")) in segment_idx]
+                filtered_reranked_results = [
+                    m for m in reranked_results 
+                    if m.get("seg_idx") is not None and int(m.get("seg_idx")) in segment_idx
+                ]
 
             metadata_info = self._build_metadata_from_reranked_results(
                 reranked_results=filtered_reranked_results, request_id=request_id
@@ -727,7 +749,7 @@ class RAGGenerator:
                     segment_tokens = llm_count_tokens(seg_content)
                     # 超限切割
                     if total_tokens + segment_tokens > context_max_len:
-                        logger.debug("[消息构建] 知识库内容token数达到限制，裁剪后续内容")
+                        logger.debug(f"[消息构建] 知识库内容token数达到限制({context_max_len})，裁剪后续内容")
                         break
 
                     docs_content += f"[段{seg_idx}]{seg_content}\n\n"
@@ -740,6 +762,9 @@ class RAGGenerator:
             logger.debug(
                 f"[消息构建] 知识库处理完成, 处理文档数={processed_docs}/{len(docs)}, context段数={len(context_lines)}, token数={total_tokens}"
             )
+            # 添加token使用警告
+            if total_tokens > 8000:
+                logger.warning(f"[Token使用警告] 知识库上下文token数({total_tokens})较高，建议优化文档长度或减少检索数量")
         else:
             # 当docs为空时，添加无相关信息提示
             docs_content += "知识库中无相关信息"
@@ -782,6 +807,11 @@ class RAGGenerator:
         messages.append({"role": "user", "content": query.strip()})
         logger.debug("[上下文构建] 最新问题拼接完成")
 
+        # 添加token使用监控
+        if total_tokens > 15000:
+            logger.warning(f"[Token使用警告] 总token数({total_tokens})较高，可能影响响应速度和成本")
+            logger.warning(f"[Token使用详情] 系统提示词: {prompt_tokens}, 历史对话: {history_tokens}, 用户查询: {query_tokens}")
+        
         return messages, total_tokens
 
     def _get_messages_for_rag(self, history: list[BaseMessage], docs: list[Document], query: str) -> list[dict]:
@@ -893,9 +923,42 @@ class RAGGenerator:
 
     # 在会话结束时调用
     def end_session(self, session_id: str) -> None:
-        """结束会话，清理相关资源"""
-        self.clear_cache(session_id)
-        logger.info(f"会话结束，已清理缓存, session_id: {session_id}")
+        """结束会话，清理缓存"""
+        if session_id in self._cache:
+            del self._cache[session_id]
+            logger.debug(f"[会话结束] session_id={session_id}, 缓存已清理")
+
+    def _update_token_usage_stats(self, messages: list[dict], response_text: str) -> None:
+        """更新token使用统计"""
+        try:
+            # 计算输入token数
+            input_tokens = 0
+            for message in messages:
+                content = message.get("content", "")
+                input_tokens += llm_count_tokens(content)
+            
+            # 计算输出token数
+            output_tokens = llm_count_tokens(response_text)
+            total_tokens = input_tokens + output_tokens
+            
+            # 更新统计
+            self._token_usage_stats["total_requests"] += 1
+            self._token_usage_stats["total_tokens"] += total_tokens
+            self._token_usage_stats["avg_tokens_per_request"] = (
+                self._token_usage_stats["total_tokens"] / self._token_usage_stats["total_requests"]
+            )
+            
+            # 记录详细的token使用情况
+            logger.info(f"[Token统计] 请求#{self._token_usage_stats['total_requests']}: "
+                       f"输入{input_tokens}, 输出{output_tokens}, 总计{total_tokens}, "
+                       f"平均{self._token_usage_stats['avg_tokens_per_request']:.1f}")
+            
+        except Exception as e:
+            logger.warning(f"[Token统计失败] {e}")
+
+    def get_token_usage_stats(self) -> dict:
+        """获取token使用统计"""
+        return self._token_usage_stats.copy()
 
 
 if __name__ == "__main__":

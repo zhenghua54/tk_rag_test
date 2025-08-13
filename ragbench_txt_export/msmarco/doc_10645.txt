@@ -1,0 +1,1 @@
+If you're on Windows, need to use OS X, but don't want to buy or build a new computer, reader Bobby Patton shows us how to run Snow Leopard in a virtual machine on Windows with just a few tweaks. UPDATE: This guide is now out of date. If you want to run OS X inside VirtualBox on Windows, check out our new guide here.

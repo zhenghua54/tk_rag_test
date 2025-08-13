@@ -1,0 +1,1 @@
+Net Income Per Share: Basic and diluted net income per share is computed by dividing net income by the weighted average number of common shares outstanding and the weighted average number of dilutive shares outstanding, respectively.

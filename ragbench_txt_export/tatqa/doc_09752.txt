@@ -1,0 +1,1 @@
+Contract Assets and Liabilities [["", "Year Ended December 31,", ""], ["(In thousands)", "2019", "2018"], ["Accounts receivable, net", "$120,016", "$133,136"], ["Contract assets", "18,804", "12,128"], ["Contract liabilities", "50,974", "52,966"]]

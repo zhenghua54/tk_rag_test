@@ -1,0 +1,1 @@
+4.3 Operating revenues [["", "2019", "2018", "$ CHANGE", "% CHANGE"], ["Bell Wireless", "9,142", "8,818", "324", "3.7%"], ["Bell Wireline", "12,356", "12,267", "89", "0.7%"], ["Bell Media", "3,217", "3,121", "96", "3.1%"], ["Inter-segment eliminations", "(751)", "(738)", "(13)", "(1.8%)"], ["Total BCE operating revenues", "23,964", "23,468", "496", "2.1%"]]

@@ -1,0 +1,1 @@
+• Risk-Free Interest Rate. The Company bases the risk-free interest rate used in the Black-Scholes valuation model on the yield available on U.S. Treasury zero-coupon issues with an equivalent remaining term of the stock options for each stock option group.

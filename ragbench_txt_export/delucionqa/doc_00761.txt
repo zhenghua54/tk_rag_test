@@ -1,0 +1,1 @@
+To Start The Engine While In Autostop Mode While in a forward gear, the engine will start when the brake pedal is released or the throttle pedal is pressed.  The transmission will automatically re-engage upon engine restart.

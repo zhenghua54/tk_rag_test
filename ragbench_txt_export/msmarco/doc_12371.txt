@@ -1,0 +1,1 @@
+All you're deleting is the data from iCloud's backup. At the bottom of the screen, you'll see how much space you have available. Apple gives you 5GB of iCloud storage free. Of course, if you want to back up more, you can pay Apple for extra storage space, starting at $20 a year for an additional 10GB. 9.

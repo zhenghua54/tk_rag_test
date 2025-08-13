@@ -1,0 +1,1 @@
+3. MARKETABLE SECURITIES [["", "", "December 31, 2018", "", ""], ["(in thousands)", "Amortized Cost", "Unrealized Gains", "Unrealized Losses", "Fair Value"], ["Municipal bonds", "$44,802", "$13", "$(110)", "$44,705"], ["Corporate bonds", "48,499", "23", "(226)", "48,296"], ["", "$93,301", "$36", "$(336)", "$93,001"]]

@@ -1,0 +1,1 @@
+A nanosecond is equal to 1000 picoseconds or  microsecond. Time units ranging between 10 and 10 seconds are typically expressed as tens or hundreds of nanoseconds.

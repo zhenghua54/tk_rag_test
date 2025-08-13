@@ -1,0 +1,1 @@
+An inductor is a passive electronic component that storesenergy in the form of a magnetic field. In its simplest form, an inductor consistsof a wire loop or coil. The inductance is directly proportional to the number ofturns in the coil. Inductance also depends on the radius of the coil and on the type of material around which the coil is wound.

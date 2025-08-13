@@ -1,0 +1,1 @@
+Cash Flow Information [["", "Years ended December 31,", ""], ["", "2019", "2018"], ["Swedish Krona", "9.46", "8.70"], ["Japanese Yen", "109.01", "110.43"], ["South Korean Won", "1,165.70", "1,100.50"], ["Taiwan Dollar", "30.90", "30.15"]]

@@ -1,0 +1,1 @@
+2. Double-click on Display icon, then click on Settings tab. 3. Click on the Advanced button, then click on On-Screen Display tab. 4. Under Indicator settings for NumLock and CapsLock section, look for While the numeric lock or caps lock is ON section, choose the Show the indicator for a few seconds option. 5. Click Apply, then click OK, and click OK to close the window.

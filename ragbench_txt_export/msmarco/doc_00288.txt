@@ -1,0 +1,1 @@
+Save the file as .htaccess and upload it the root directory or the folder itself that has the WordPress files.. I don't know why to do this, or how to do it. stvwlf. You need to upload it using FTP. The easiest way to do one file, one time, is to use the file management utility in your website hosting control panel.

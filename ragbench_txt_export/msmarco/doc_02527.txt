@@ -1,0 +1,1 @@
+Data mining concepts are still evolving and here are the latest trends that we get to see in this field 1  −. Application Exploration. 2  Scalable and interactive data mining methods. 3  Integration of data mining with database systems, data warehouse systems and web database systems.

@@ -1,0 +1,5 @@
+Revenue increased $4.8 billion or 18%.
+
+• Server products and cloud services revenue increased $4.5 billion or 21%, driven by Azure and server products licensed on-premises revenue growth. Azure revenue grew 91%, due to higher infrastructure-as-a-service and platform-as-a-service consumption-based and per user-based services. Server products licensed on-premises revenue increased 5%, mainly due to a higher mix of premium licenses for Windows Server and Microsoft SQL Server.
+
+• Enterprise Services revenue increased $304 million or 5%, driven by higher revenue from Premier Support Services and Microsoft Consulting Services, offset in part by a decline in revenue from custom support agreements.

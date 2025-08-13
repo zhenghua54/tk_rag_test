@@ -1,0 +1,1 @@
+Stock-based Compensation Expense [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Research, development and other related costs", "$14,643", "$13,168", "$13,277"], ["Selling, general and administrative", "16,911", "17,843", "20,185"], ["Total stock-based compensation expense", "$31,554", "$31,011", "$33,462"]]

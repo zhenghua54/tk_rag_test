@@ -1,0 +1,1 @@
+Liquidity and Capital Resources [["", "June 30,\n2019", "June 30,\n2018"], ["Cash ", "$169,607", "$121,139"], ["Marketable securities  ", "\u2014", "1,459"], ["Total cash and marketable securities", "$169,607", "$122,598"]]

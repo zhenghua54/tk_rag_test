@@ -1,0 +1,1 @@
+The period of the object's motion is defined as the time for the object to complete one full cycle. Being a time, the period is measured in units such as seconds, milliseconds, days or even years. The standard metric unit for period is the second. An object in periodic motion can have a long period or a short period.

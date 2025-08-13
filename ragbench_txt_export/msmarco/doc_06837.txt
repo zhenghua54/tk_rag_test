@@ -1,0 +1,1 @@
+Deposit money via EFT. You can deposit money into your M-Pesa account via EFT using your internet banking. Search for M-Pesa on your Internet banking website and select load 'M-Pesa Customer Payments' as a beneficiary from the pre-defined list. Remember to use your M-Pesa cellphone number as a reference.

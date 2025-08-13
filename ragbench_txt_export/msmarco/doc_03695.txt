@@ -1,0 +1,1 @@
+by David Wise | Jan 31, 2013 | Call Center Software | 0 comments. Voice logging, also known as call recording, is the practice of listening to, recording, and assessing interactions between call center agents and callers. Many business VoIP providers offer voice logging of some sort as a free feature with their call center solution, although storage space or time may be limited.

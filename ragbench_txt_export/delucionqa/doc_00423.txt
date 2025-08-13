@@ -1,0 +1,1 @@
+When the Key Off Options/Engine Off Options button is pressed on the touchscreen, the system displays the options related to vehicle shutoff.  These settings will only activate when the ignition is set to OFF.  Note: depending on the vehicle’s options, feature settings may vary.

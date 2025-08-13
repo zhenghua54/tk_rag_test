@@ -1,0 +1,1 @@
+4.4 Financial instruments and risk management (continued) [["", "CONSOLIDATED", ""], ["", "2019 $\u2019000", "2018 $\u2019000"], ["Cash and cash equivalents", "21,956", "33,045"], ["Trade receivables and contract assets", "22,989", "28,710"], ["Trail commission asset", "114,078", "102,920"]]

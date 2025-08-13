@@ -1,0 +1,1 @@
+Liability for Warranty [["Year Ended December 31,", "2019", "2018", "2017"], ["Balance at beginning of period", "$8,623", "$9,724", "$8,548"], ["Plus: Amounts charged to cost and expenses", "4,569", "7,392", "6,951"], ["Less: Deductions", "(4,798)", "(8,493)", "(5,775)"], ["Balance at end of period", "$8,394", "$8,623", "$9,724"]]

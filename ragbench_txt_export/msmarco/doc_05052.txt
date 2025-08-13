@@ -1,0 +1,1 @@
+In DNA replication in bacteria, the enzyme DNA polymerase III (abbreviated DNA pol III) adds nucleotides to a template strand of DNA. But DNA pol III cannot start a new strand from scratch.

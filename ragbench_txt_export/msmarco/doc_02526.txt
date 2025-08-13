@@ -1,0 +1,1 @@
+Current Trends in Data Mining. Data mining is based on complex algorithms that allow for the segmentation of data to identify patterns and trends, detect anomalies, and predict the probability of various situational outcomes. The raw data being mined may come in both digital and analog formats depending on the data sources.

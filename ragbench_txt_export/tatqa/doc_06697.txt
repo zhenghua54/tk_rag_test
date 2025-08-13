@@ -1,0 +1,1 @@
+Senior Notes [["", "Remaining Amortization period", "Fair Value of Notes (Level2)"], ["", "(years)", "(in thousands)"], ["2020 Notes", "0.7", "$500,855"], ["2021 Notes", "2.0", "$806,232"], ["2025 Notes", "5.7", "$528,895"], ["2026 Notes", "6.7", "$786,915"], ["2029 Notes", "9.7", "$1,063,670"], ["2049 Notes", "29.7", "$828,188"]]

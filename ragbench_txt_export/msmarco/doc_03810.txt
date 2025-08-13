@@ -1,0 +1,1 @@
+1 Each time you have a new listing or buyer, create a subfolder within the appropriate folder. 2  You only really need to place the main index sitemap in the root, the rest you can just place in a subfolder. 3  Scroll the list, if necessary, until you find the subfolder containing the records of the user you want to delete.

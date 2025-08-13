@@ -1,0 +1,1 @@
+Net Income (Loss) Per Share [["", "2019", "2018", "2017"], ["Stock options", "1,687", "2,806", "569"], ["RSUs", "2,352", "2,580", "83"], ["ESPP common stock equivalents", "74", "71", "\u2014"], ["ID Checker earnout shares", "\u2014", "\u2014", "24"], ["Total potentially dilutive common shares outstanding", "4,113", "5,457", "676"]]

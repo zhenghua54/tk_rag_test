@@ -1,0 +1,2 @@
+The z15 mainframe’s capabilities extend the platform’s differentiation with encryption everywhere, cloud-native development and instant recovery. In October, we announced OpenShift for IBM Z, bringing together the industry’s most comprehensive enterprise container and Kubernetes platform with the enterprise server
+platforms of IBM Z and LinuxONE. IBM Z continues to deliver a high-value, secure and scalable platform for our clients.

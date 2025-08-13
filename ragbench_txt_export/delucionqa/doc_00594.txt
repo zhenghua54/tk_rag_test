@@ -1,0 +1,1 @@
+AutoPark will be disabled when operating the vehicle in 4WD LOW.  The message “ autopark disabled ” will be displayed in the instrument cluster.

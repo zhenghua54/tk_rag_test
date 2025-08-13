@@ -1,0 +1,1 @@
+The first step to sync the iPhone to computer is very simple: plug the cable that came with the iPhone into a USB port on your computer and the other end into the dock connector on the bottom of the iPhone. When you plug the cable in, your phone will begin to sync. The rest of the iPhone sync process happens in iTunes.

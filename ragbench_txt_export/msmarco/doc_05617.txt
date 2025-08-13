@@ -1,0 +1,1 @@
+For SnAgCu reflow soldering, a commonly accepted minimum peak temperature of 230°C is necessary to achieve acceptable solder joints. The maximum temperature, on the other hand, depends on the board size, board thickness, component configuration, material thermal mass, oven capability, and etc.

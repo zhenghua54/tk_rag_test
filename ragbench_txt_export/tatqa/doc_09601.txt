@@ -1,0 +1,1 @@
+The following table summarizes activity for the interest rate swap: [["", "Fair Value at December 31,", ""], ["", "2019", "2018"], ["", "(in thousands)", ""], ["Interest rate swap", "", ""], ["Beginning balance", "$1,623", "$734"], ["Unrealized gain (loss) recognized in other comprehensive income (loss)", "(1,660)", "889"], ["Ending balance", "$(37)", "1,623"]]

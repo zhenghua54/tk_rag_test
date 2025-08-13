@@ -1,0 +1,5 @@
+Revenue increased $6.8 billion or 21%.
+
+• Server products and cloud services revenue, including GitHub, increased $6.5 billion or 25%, driven by Azure. Azure revenue growth was 72%, due to higher infrastructure-as-a-service and platform-as-a-service consumption-based and per user-based services. Server products revenue increased 6%, due to continued demand for premium versions and hybrid solutions, GitHub, and demand ahead of end-of-support for SQL Server 2008 and Windows Server 2008.
+
+• Enterprise Services revenue increased $278 million or 5%, driven by growth in Premier Support Services and Microsoft Consulting Services.

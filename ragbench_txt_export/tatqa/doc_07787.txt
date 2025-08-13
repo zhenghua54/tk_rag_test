@@ -1,0 +1,1 @@
+18. Other taxes [["\u20ac million", "2017/2018", "2018/2019"], ["Other taxes", "79", "79"], ["thereof from cost of sales", "(1)", "(1)"], ["thereof from selling expenses", "(65)", "(62)"], ["thereof from general administrative expenses", "(13)", "(16)"]]

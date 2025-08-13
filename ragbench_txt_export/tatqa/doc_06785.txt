@@ -1,0 +1,1 @@
+Accounts Receivable [["", "2019", "2018"], ["Beginning balance", "$65,542", "$22,173"], ["Provision charged to expense", "29,849", "55,152"], ["Deductions", "(40,352)", "(11,783)"], ["Ending balance", "55,039", "$65,542"]]

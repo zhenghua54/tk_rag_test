@@ -1,0 +1,1 @@
+Click on the Settings tab (if not already selected by default), and under the Unlink OneDrive sub-section, click the Unlink OneDrive button. Here’s a screenshot: And we’re all set folks. You’ve successfully de-linked OneDrive from the Microsoft Account currently used to sign-in to Windows 10.

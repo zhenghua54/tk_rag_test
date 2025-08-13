@@ -1,0 +1,1 @@
+Interest income (expense), net consisted of the following: [["", "Year ended December 31, 2019", "Year ended December 31, 2018", "Year ended December 31, 2017"], ["Income", "55", "47", "30"], ["Expense", "(54)", "(54)", "(52)"], ["Total", "1", "(7)", "(22)"]]

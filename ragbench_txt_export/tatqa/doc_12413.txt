@@ -1,0 +1,1 @@
+Disaggregation of revenue [["", "", "Year ended December 31,", ""], ["", "2019", "2018", "2017"], ["Primary geographical markets", "", "", ""], ["North America", "93%", "95%", "96%"], ["Others", "7%", "5%", "4%"], ["Total revenues", "100%", "100%", "100%"]]

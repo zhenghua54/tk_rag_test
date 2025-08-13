@@ -1,0 +1,1 @@
+The hydrophobicity index is a measure of the relative hydrophobicity, or how soluble an amino acid is in water. In a protein, hydrophobic amino acids are likely to be found in the interior, whereas hydrophilic amino acids are likely to be in contact with the aqueous environment.

@@ -1,0 +1,1 @@
+Accounts receivable and contract balances [["", "At December 31, 2019", "At December 31, 2018", "At January 1, 2018"], ["Receivables (1)", "$ 5,752", "$ 5,448", "$ 5,555"], ["Device payment plan agreement receivables (2)", "15,313", "12,272", "2,073"], ["Contract assets", "761", "772", "858"], ["Contract liabilities", "4,721", "4,521", "3,445"]]

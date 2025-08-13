@@ -1,0 +1,1 @@
+Set the transitions for your slides. You will first want to select a slide. The best way to do this is from the slide sorter view. To get there, click on the icon in the bottom left corner of the screen. This will allow you to see all of your slides at once. Click once on the first slide to select it.

@@ -1,0 +1,1 @@
+5 Staff costs and numbers [["", "2019", "2018"], ["", "\u00a3m", "\u00a3m"], ["Wages and salaries", "345.6", "325.9"], ["Social security costs", "71.6", "58.7"], ["Pension costs", "21.5", "19.3"], ["Total payroll costs", "438.7", "403.9"]]

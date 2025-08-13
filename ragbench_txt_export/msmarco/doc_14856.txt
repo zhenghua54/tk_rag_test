@@ -1,0 +1,1 @@
+If your PC opens the RUI file, but it's the wrong application, you'll need to change your Windows registry file association settings. In other words, Windows is associating RUI file extensions with the wrong software program.

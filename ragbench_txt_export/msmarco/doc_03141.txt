@@ -1,0 +1,1 @@
+Light energy in the form of photons is collected by the photovoltaic module. Crystalline silicon cells collect these photons from a range of light frequencies. However, difficulties with the infrared and ultraviolet spectrum limits the processes efficiency. The photons impact the silicon cells and stimulate the electrons.

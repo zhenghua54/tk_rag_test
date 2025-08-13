@@ -1,0 +1,1 @@
+Restricted Stock Units [["", "Shares", "Weighted- Average Grant-Date Fair Value"], ["Outstanding as of August 31, 2018", "8,352,307", "$24.34"], ["Changes during the period", "", ""], ["Shares granted(1)", "3,144,205", "$25.25"], ["Shares vested", "(1,983,411)", "$25.07"], ["Shares forfeited", "(2,347,628)", "$24.78"], ["Outstanding as of August 31, 2019", "7,165,473", "$26.27"]]

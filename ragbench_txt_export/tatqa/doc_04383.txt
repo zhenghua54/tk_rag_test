@@ -1,0 +1,1 @@
+The Group’s treasury function centrally manages the Group’s funding requirement, net foreign exchange exposure, interest rate management exposures and counterparty risk arising from investments and derivatives.

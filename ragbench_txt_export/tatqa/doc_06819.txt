@@ -1,0 +1,1 @@
+Revenue by segment [["Revenue by segment", "", "Fiscal Year Ended March 31, ", "Increase (Decrease)"], ["(in thousands)", "2019", "2018", "2019 vs. 2018"], ["IBW", "$12,474", "$23,265", "$(10,791)"], ["ISM", "17,263", "19,350", "(2,087)"], ["CNS", "13,833", "15,962", "(2,129)"], ["Consolidated revenue", "$43,570", "$58,577", "$(15,007)"]]

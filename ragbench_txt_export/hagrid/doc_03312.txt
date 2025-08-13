@@ -1,0 +1,1 @@
+When it is a positive integer, the exponent indicates how many copies of the base are multiplied together. For example, . The base appears times in the repeated multiplication, because the exponent is . Here, is the "base", is the "exponent", and is the "power" or, more specifically, "3 raised to the 5th power".

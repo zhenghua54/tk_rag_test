@@ -1,0 +1,1 @@
+We use a Black-Scholes-Merton option pricing model to estimate the fair value of SSARs. The following table summarizes the principal assumptions utilized in valuing SSARs granted in fiscal 2019, 2018 and 2017:

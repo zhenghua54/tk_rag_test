@@ -1,0 +1,1 @@
+When it comes to network security, AAA is a requirement. Here is what each of these are used for and why you should care: 1  Authentication: Identifies users by login and password using challenge and response methodology before the user even gains access to the network. 2  Depending on your security options, it can also support encryption.

@@ -1,0 +1,1 @@
+Each electron can either have a +1/2 spin or a -1/2 spin, which indicates its direction of motion. There is never a 0 spin. When filling orbitals, electrons spin in pairs, one + and one -. The electrons with an up (+) spin fill first, and the electrons with a down (-) spin fill second.

@@ -1,0 +1,2 @@
+The realized losses relate to amounts we actually realized for settlements related to these derivative instruments in normal course and amounts
+paid to terminate interest rate swap agreement terminations.

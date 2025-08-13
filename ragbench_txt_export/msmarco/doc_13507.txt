@@ -1,0 +1,1 @@
+Define resources with Microsoft Project. Defining project resources is the most important part of a project plan. It's tricky, but Microsoft Project can help. Here's a look at the basic fields in Project that are involved in defining a resource and its costs.

@@ -1,0 +1,1 @@
+If you are told that the frequency of a recessive allele in a population is 10%, you are directly given q, since by definition q is the frequency of the recessive allele.

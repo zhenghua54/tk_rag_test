@@ -1,0 +1,1 @@
+Foreign Currency Translation Impact on Consolidated Financial Results [["(In millions)", "2019 vs. 2018", "2018 vs. 2017"], ["Net sales", "$ (137.2)", "$ (43.4)"], ["Cost of sales", "98.4", "31.7"], ["Selling, general and administrative expenses", "16.3", "1.0"], ["Net earnings", "(15.7)", "(8.2)"], ["Non-U.S. GAAP Adjusted EBITDA", "(25.3)", "(11.1)"]]

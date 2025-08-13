@@ -1,0 +1,1 @@
+Assumptions [["", "", "Fiscal Year Ended January 31,", ""], ["", "2019", "2018", "2017"], ["Discount rate", "2.5%", "2.4%", "3.2%"], ["Expected long-term rate of return on plan assets", "3.3%", "3.3%", "4.3%"], ["Rate of compensation increase", "2.3%", "2.3%", "2.2%"]]

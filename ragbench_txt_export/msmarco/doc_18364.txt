@@ -1,0 +1,1 @@
+1 The frequency of the recessive allele. 2  Answer: Since we believe that the homozygous recessive for this gene (q 2) represents 4% (i.e. = 0.04), the square root (q) is 0.2 (20%). 3  The frequency of the dominant allele. 4  Answer: Since q = 0.2, and p + q = 1, then p = 0.8 (80%).

@@ -1,0 +1,1 @@
+EDI is a standard format for exchanging business data between organisations by electronic means. It is used to transfer electronic documents or business data from one computer system to another as an electronic equivalent for paper-based orders, confirmation and invoices between trading partners. Some of the key advantages of EDI include:

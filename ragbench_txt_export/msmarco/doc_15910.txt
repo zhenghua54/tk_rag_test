@@ -1,0 +1,1 @@
+Wireless Encryption basically means to encrypt the messages that are sent between your computer’s wireless network adapter and the wireless router. Wireless Encryption is one of the important steps to help in Preventing Unknown computers from gaining access to your network.

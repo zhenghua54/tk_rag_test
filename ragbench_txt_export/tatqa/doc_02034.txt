@@ -1,0 +1,1 @@
+Other non-current assets [["", "December 31, 2019", "December 31, 2018"], ["Right of use assets", "$33,014", "$\u2014"], ["Deferred contract acquisition costs", "3,297", "3,184"], ["Deposits", "2,338", "1,975"], ["Other", "3,197", "3,461"], ["Total other non-current assets", "41,846", "$8,620"]]

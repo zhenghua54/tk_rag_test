@@ -1,0 +1,1 @@
+Rockwell hardness scales. A scale indicating the hardness of materials, first used in 1919, when it was invented by Stanley P. Rockwell. The measurement has no units. The symbol is HR followed by a letter indicating one of a number of possible scales, described in the table below. For example, “HRC 96” means 96 on the Rockwell C scale.

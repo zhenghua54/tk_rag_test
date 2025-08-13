@@ -1,0 +1,1 @@
+There are many factors to glide ratio of an airplane, but a good indication is the aspect ratio (see more here: Wikipedia). The aspect ratio tells us how slim the wing is. The slimmer a wing, the less induced drag it will create. The downside is that the longer a wing is, the more parasitic drag it creates.

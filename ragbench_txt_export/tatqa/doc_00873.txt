@@ -1,0 +1,3 @@
+Past due but not impaired
+Customers with balances past due but without provision for impairment of receivables amount to US$9,319,000 as at 30 June 2019 (2018:
+US$6,890,000). [["", "Consolidated", ""], ["", "2019", "2018"], ["", "US$000", "US$000"], ["0 to 1 month overdue", "5,139", "2,935"], ["1 to 2 months overdue", "1,424", "1,275"], ["Over 2 months overdue", "2,756", "2,680"], ["", "9,319", "6,890"]]

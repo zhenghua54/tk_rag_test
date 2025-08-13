@@ -1,0 +1,1 @@
+Note 3 – Net Income per Share [["Fiscal Year Ended", "", "", ""], ["", "December 27, 2019", "December 28, 2018", "December 29, 2017"], ["Restricted Share Awards (\u201cRSAs\u201d)", "132,861", "42", "84,511"], ["Stock options", "\u2014", "\u2014", "201,799"], ["Convertible notes", "76,384", "\u2014", "\u2014"]]

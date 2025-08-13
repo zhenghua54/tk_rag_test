@@ -1,0 +1,1 @@
+Definition. The term Mbps is a unit of measurement that expresses broadband speed, or how fast data is transferred across a network. More specifically, it stands for megabits per second and should not be confused with megabytes per second, or MBps, a similar but completely separate measurement unit.

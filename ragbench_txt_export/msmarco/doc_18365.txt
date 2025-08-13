@@ -1,0 +1,1 @@
+In this equation, p is the predicted frequency of homozygous dominant (AA) people in a population, 2pq is the predicted frequency of heterozygous (Aa) people, and q is the predicted frequency of homozygous recessive (aa) ones.

@@ -1,0 +1,1 @@
+Operating Expense [["", "Years ended December 31,", "", "", "2019 vs 2018", "2018 vs 2017"], ["", "2019", "2018", "2017", "% Change", "% Change"], ["", "(in thousands, except percentages)", "", "", "", ""], ["Sales and marketing", "$ 472,841", "$ 350,069", "$ 225,694", "35.1 %", "55.1 %"], ["Percentage of total revenues", "30.0 %", "32.6 %", "33.5 %", "", ""]]

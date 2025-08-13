@@ -1,0 +1,1 @@
+Accounts Receivable, Net [["(in million)", "2019", "2018"], ["Trade accounts receivable", "$526.6", "$469.2"], ["Less: Allowance for doubtful accounts", "(2.2)", "(2.3)"], ["Product returns reserve", "(0.3)", "(0.2)"], ["Partner programs and other obligations", "(49.8)", "(28.5)"], ["Accounts receivable, net (1)", "$474.3", "$438.2"]]

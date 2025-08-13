@@ -1,0 +1,1 @@
+Introduction ¶. Computer Hardware is the physical part of a computer, as distinguished from the that executes or runs on the hardware. The hardware of a computer is infrequently changed, while software and data are modified frequently. The term soft refers to readily created, modified, or erased

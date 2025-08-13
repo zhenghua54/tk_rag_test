@@ -1,0 +1,1 @@
+The hedging reserve is used to record gains or losses on derivatives that are designated as cash flow hedges and recognised in other comprehensive income, as described in note 2(m). Amounts are reclassified to profit or loss in the period when the associated hedged transaction takes place.

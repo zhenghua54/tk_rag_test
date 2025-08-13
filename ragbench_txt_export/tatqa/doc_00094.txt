@@ -1,0 +1,1 @@
+9. DEBT AND OTHER FINANCING ARRANGEMENTS [["", "December 31, 2019", "December 31, 2018"], ["Principal amount", "$300,000", "$300,000"], ["Unamortized debt discount", "(2,691)", "(4,348)"], ["Net carrying amount before unamortized debt issuance costs", "297,309", "295,652"], ["Unamortized debt issuance costs", "(4,135)", "(6,685)"], ["Net carrying value", "$293,174", "$288,967"]]

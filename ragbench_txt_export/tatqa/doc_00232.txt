@@ -1,0 +1,1 @@
+Film and Electrolytic [["", "For the Fiscal Years Ended", "", "", ""], ["", "March 31, 2018", "", "March 31, 2017", ""], ["", "Amount", "% to Net Sales", "Amount", "% to Net Sales"], ["Net sales (1)", "$201,977", "", "$182,228", ""], ["Segment operating income (loss) (1)", "3,622", "1.8%", "(9,028)", "(5.0)%"]]

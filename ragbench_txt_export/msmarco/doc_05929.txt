@@ -1,0 +1,1 @@
+For females, the average food cost per month for 1 person is $283.28 For males, the average food cost per month for 1 person is $319.28. You can view the raw data at USDA. If you want to perform your own calculations, remember that the data shown is for individuals in a four-person family.

@@ -1,0 +1,1 @@
+These codes were developed by the federal government and are used by the U.S. Office of Management and Budget (OMB) as well as many other U.S. statistical agencies. In 1997, OMB adopted NAICS as its new industry classification system. Every registered Washington firm is assigned a SIC or NAICS code.

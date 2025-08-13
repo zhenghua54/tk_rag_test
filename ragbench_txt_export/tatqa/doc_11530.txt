@@ -1,0 +1,1 @@
+20. Geographic Information [["", "Fiscal Year Ended June 30,", ""], ["", "2019", "2018"], ["", "(U.S. $ in thousands)", ""], ["Non-current operating assets", "", ""], ["United States", "$819,227", "$412,112"], ["Australia", "18,842", "16,730"], ["India", "9,286", "\u2014"], ["", "$847,355", "$428,842"]]

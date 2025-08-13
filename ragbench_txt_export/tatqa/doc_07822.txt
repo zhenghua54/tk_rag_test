@@ -1,0 +1,1 @@
+Cogeco Communications is a subsidiary of Cogeco, which holds 31.8% of the Corporation's equity shares, representing 82.3% of the Corporation's voting shares. [["Years ended August 31,", "2019", "2018"], ["(In thousands of Canadian dollars)", "$", "$"], ["Stock options", "1,046", "915"], ["ISUs", "61", "1"], ["PSUs", "981", "990"], ["DSUs", "631", "\u2014"]]

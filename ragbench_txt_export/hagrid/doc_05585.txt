@@ -1,0 +1,1 @@
+A real number that is not rational is called irrational. Irrational numbers include , , , and . The decimal expansion of an irrational number continues without repeating. Since the set of rational numbers is countable, and the set of real numbers is uncountable, almost all real numbers are irrational.

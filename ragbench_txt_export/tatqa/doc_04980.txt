@@ -1,0 +1,1 @@
+Total Deferred Revenue [["", "January 31, 2019", "", "January 31, 2018"], ["(in millions)", "ASC 606", "ASC 605", "ASC 605"], ["Deferred revenue", "$2,091.4", "$2,269.2", "$1,955.1"], ["Unbilled deferred revenue", "591.0", "491.6", "326.4"], ["Total deferred revenue", "$2,682.4", "$2,760.8", "$2,281.5"]]

@@ -1,0 +1,1 @@
+Gross Profit [["", "Years ended December 31", "", "", "2019 vs 2018", "2018 vs 2017"], ["", "2019", "2018", "2017", "% Change", "% Change"], ["", "(in thousands, except percentages)", "", "", "", ""], ["Gross profit", "$ 865,643", "$ 596,267", "$ 380,253", "45.2 %", "56.8 %"], ["Percentage of total revenues", "54.9 %", "55.6 %", "56.5 %", "", ""]]

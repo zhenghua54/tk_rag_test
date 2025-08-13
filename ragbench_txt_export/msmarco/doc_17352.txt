@@ -1,0 +1,1 @@
+Hi AhmadulHoq, You want to open a program using command prompt. I will help you with this issue. You need to type the exact location of the file location and then the program will launch. When you are in cmd, you need to get to the C root directory and then type the location of the file. Once you have reached the file location, type the exact file name.

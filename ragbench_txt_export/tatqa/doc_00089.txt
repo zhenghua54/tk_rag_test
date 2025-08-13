@@ -1,0 +1,1 @@
+A discussion of operating income by reportable segment is presented below (in millions): [["", "2019", "2018"], ["Operating income (loss):", "", ""], ["AMER ", "$57.8", "$38.6"], ["APAC ", "208.2", "213.9"], ["EMEA ", "4.5", "1.5"], ["Corporate and other costs ", "(128.4)", "(135.7)"], ["Total operating income", "$142.1", "$118.3"]]

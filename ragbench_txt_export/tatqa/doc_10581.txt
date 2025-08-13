@@ -1,0 +1,1 @@
+Australian taxes paid summary [["", "CONSOLIDATED", "2018"], ["", "2019 $'000", "2018 $\u2019000"], ["Income tax (net of refund)", "(2,327)", "172"], ["Payroll tax", "2,657", "3,035"], ["Fringe benefits tax", "205", "247"], ["Total taxes paid", "535", "3,454"]]

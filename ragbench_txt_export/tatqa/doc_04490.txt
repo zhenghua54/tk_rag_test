@@ -1,0 +1,1 @@
+DSUs [["NUMBER OF DSUs", "2019", "2018"], ["Outstanding, January 1", "4,391,997", "4,309,528"], ["Issued\u2009(1)", "84,588", "94,580"], ["Settlement of RSUs/PSUs", "146,960", "112,675"], ["Dividends credited", "236,079", "240,879"], ["Settled", "(236,525)", "(365,665)"], ["Outstanding, December 31", "4,623,099", "4,391,997"]]

@@ -1,0 +1,1 @@
+Back up automatically in iCloud. After you've turned on iCloud Backup, iCloud can automatically back up your device each day. iCloud makes these daily automatic backups only if: 1  Your device is connected to a power source. 2  Your device is connected to a Wi-Fi network. 3  Your device's screen is locked. 4  You have enough available space in iCloud for the backup.

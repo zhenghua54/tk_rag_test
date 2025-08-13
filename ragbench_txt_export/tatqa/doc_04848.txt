@@ -1,0 +1,1 @@
+iSelect applies the simplified approach and records lifetime expected losses on all trade receivables and contract assets. As a consequence, we do not track changes in credit risk, but recognise a loss allowance based on lifetime expected credit loss at each reporting date.

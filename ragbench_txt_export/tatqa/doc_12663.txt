@@ -1,0 +1,1 @@
+Unaudited Pro Forma Financial Information [["", "Year Ended May 31,", ""], ["(in millions, except per share data)", "2019", "2018"], ["Total revenues", "$39,512", "$39,546"], ["Net income", "$11,076", "$3,500"], ["Basic earnings per share", "$3.05", "$0.85"], ["Diluted earnings per share", "$2.97", "$0.83"]]

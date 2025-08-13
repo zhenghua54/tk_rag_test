@@ -1,0 +1,1 @@
+1 These are removed by the 5' to 3' exonuclease action of Polymerase I. 2  5. 3  The final product does not have any gaps in the DNA that result from the removal of the RNA primer. 4  These are filled in by the action of DNA

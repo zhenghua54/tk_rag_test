@@ -1,0 +1,1 @@
+Start Scheduled Payroll. 2. Enter your employees’ hours (not their pay rates), even for salaried employees. Tip: QuickBooks lists all the employees assigned to this payroll schedule. If there are employees you do not plan to pay in this payroll run, clear the check in front of those employees’ names.

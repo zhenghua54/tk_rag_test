@@ -1,0 +1,1 @@
+The pol III HE is itself composed of 10 subunits (8). α, the catalytic polymerase subunit (9), ε, the 3′ → 5′ proofreading exonuclease (10), and θ, a subunit of unknown function, associate to form the polymerase core (11). α binds ε but not θ, whereas θ binds ε but not α (12), suggesting a linear array of αεθ.

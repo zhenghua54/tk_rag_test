@@ -1,0 +1,1 @@
+Inch, foot, yard, and mile are units for measuring area, perimeter, and volume. Length: 12 inches (in) = 1 foot (ft) 3 feet = 1 yard (yd) 5280 feet = 1 mile (mi). The area of a figure is the number of square units needed to cover it.

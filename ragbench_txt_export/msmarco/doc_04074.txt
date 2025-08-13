@@ -1,0 +1,1 @@
+WL means Waiting List. RAC means Reservation against Cancellation. Any of indian railway Ticket is Shows these terms. When the train journey has booked full tickets, the first 50 waiting tickets are booked on RAC, then next WL, afterwards PQWL and finally RLWL/RQWL.

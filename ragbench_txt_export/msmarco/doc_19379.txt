@@ -1,0 +1,1 @@
+Windows XP stores all of your iPhone backup files in this location: C:\Documents and Settings\user\Application Data\Apple Computer\MobileSync\Backup. Obviously if your main drive is not C: then you’ll have to change that, same goes for ‘user’, be sure to replace with the username of your login in Windows.

@@ -1,0 +1,1 @@
+Free Cash Flow [["", "Fiscal years ended July 31,", ""], ["", "2019", "2018"], ["Net cash provided by operating activities", "$116,126", "$140,459"], ["Net cash used for capital expenditures", "(48,857)", "(12,011)"], ["Free cash flow", "$67,269", "$128,448"]]

@@ -1,0 +1,1 @@
+To summarize: D EFINITION 2.2. The limit of a function. We say that a function f(x) approaches a limit L as x approaches c if the sequence of values of x, both from the left and from the right, causes the sequence of values of f(x) to satisfy the definition of approaches a limit L: Definition 2.1.

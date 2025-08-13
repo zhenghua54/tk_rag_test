@@ -1,0 +1,1 @@
+SquirrelMail. To have a signature on all of your outgoing emails, you can add one in SquirrelMail in the Personal Information section. 1  First, log into your SquirrelMail. 2  Click on Options at the top of the screen. 3  Click on Personal Information.. 4  On the next screen you will be able to insert your signature.

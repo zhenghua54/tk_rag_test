@@ -1,0 +1,1 @@
+STRAIN ENERGY 1. INTRODUCTION When an elastic body is deformed, work is done. The energy used up is stored in the body as strain energy and it may be regained by allowing the body to relax. The best example of this is a clockwork device which stores strain energy and then gives it up.

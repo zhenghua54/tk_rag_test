@@ -1,0 +1,1 @@
+13. Income Taxes [["", "2019", "2018"], ["Current:", "", ""], ["Federal", "$8", "$ (869)"], ["Foreign", "196", "-"], ["State", "99", "(124)"], ["Current provision", "303", "(993)"], ["Deferred:", "", ""], ["Federal", "-", "10,702"], ["Foreign", "(247 )", "267"], ["State", "-", "1,200"], ["Deferred (benefit) tax", "(247 )", "12,169"], ["Total provision", "$56", "$11,176"]]

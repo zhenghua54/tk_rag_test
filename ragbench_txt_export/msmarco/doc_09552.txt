@@ -1,0 +1,1 @@
+Units of Temperature from fahrenheit to celsius to kelvin and back Degrees Fahrenheit, (developed in the early 1700's by G. Daniel Fahrenheit), are used to record surface temperature measurements by meteorologists in the United States.

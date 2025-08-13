@@ -1,0 +1,1 @@
+Market Information [["", "Fiscal Year Ending December 31, 2018", ""], ["Quarter Ended", "High $", "Low $"], ["March 31, 2018  ", "4.98", "3.36"], ["June 30, 2018  ", "11.00", "4.29"], ["September 30, 2018  ", "18.39", "9.32"], ["December 31, 2018  ", "18.00", "8.92"]]

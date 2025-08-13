@@ -1,0 +1,1 @@
+Tolerance for time at peak profile temperature (t p) is defined as a supplier minimum and a user maximum.3. All temperatures refer to the center of the package, measured on the package body surface that is facing upduring assembly reflow (e.g., live-bug).

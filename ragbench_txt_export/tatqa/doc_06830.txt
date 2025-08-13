@@ -1,0 +1,1 @@
+Audit and Non-Audit Fees [["", "Fiscal 2019", "Fiscal 2018"], ["Audit Fees (1)", "$3,631,575", "$3,784,488"], ["Audit-Related Fees (2)", "0", "359,000"], ["Tax Fees (3)", "169,776", "61,592"], ["All Other Fees (4)", "4,500", "3,600"], ["Total", "$3,805,851", "$4,208,680"]]

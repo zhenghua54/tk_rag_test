@@ -1,0 +1,1 @@
+(1) Net revenues by geographical region of shipment are classified by location of customer invoiced or reclassified by shipment destination in line with customer demand. For example, products ordered by U.S.-based companies to be invoiced to Asia Pacific affiliates are classified as Asia Pacific revenues.

@@ -1,0 +1,1 @@
+9. Debt [["", "Years ended December 31,", ""], ["", "2019", "2018"], ["Interest expense on Term Loans", "$8,073", "$101,087"], ["Amortization of debt issuance costs", "5,685", "16,308"], ["Other interest expense ", "2,120", "6,949"], ["Total interest expense, net", "$15,878", "$124,344"]]

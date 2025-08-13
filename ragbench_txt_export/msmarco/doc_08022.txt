@@ -1,0 +1,1 @@
+Note: • The first period, called ones period, is formed with the first three digits of the number. • The second period, called thousands period, is formed with the next two digits of the number. • The third period, called lakhs period, is formed with the next two digits of the number. • The fourth period, called crores period, is formed with the digits that come after lakhs. 2.

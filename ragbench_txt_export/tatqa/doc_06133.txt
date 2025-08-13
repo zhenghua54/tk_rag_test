@@ -1,0 +1,1 @@
+Unearned Revenue [["", "January 31, 2020", "February 1,2019"], ["Unearned license revenue", "$19", "$15"], ["Unearned subscription and SaaS revenue", "1,534", "916"], ["Unearned software maintenance revenue", "6,700", "5,741"], ["Unearned professional services revenue", "1,015", "767"], ["Total unearned revenue", "$9,268", "$7,439"]]

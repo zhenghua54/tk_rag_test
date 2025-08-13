@@ -1,0 +1,1 @@
+Frameshift mutation (illustration). This type of mutation occurs when the addition or loss of DNA bases changes a gene’s reading frame. A reading frame consists of groups of 3 bases that each code for one amino acid. A frameshift mutation shifts the grouping of these bases and changes the code for amino acids.

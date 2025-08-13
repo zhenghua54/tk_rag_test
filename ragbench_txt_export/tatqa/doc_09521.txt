@@ -1,0 +1,1 @@
+Restricted Cash [["", "January 31, 2020", "February 1, 2019"], ["Cash and cash equivalents", "$2,915", "$3,532"], ["Restricted cash within other current assets", "83", "35"], ["Restricted cash within other assets", "33", "29"], ["Total cash, cash equivalents and restricted cash", "$3,031", "$3,596"]]

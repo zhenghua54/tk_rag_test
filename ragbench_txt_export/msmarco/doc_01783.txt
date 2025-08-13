@@ -1,0 +1,1 @@
+The forward price (or sometimes forward rate) is the agreed upon price of an asset in a forward contract. Using the rational pricing assumption, for a forward contract on an underlying asset that is tradeable, we can express the forward price in terms of the spot price and any dividends etc. For forwards on non-tradeables, pricing the forward may be a complex task.

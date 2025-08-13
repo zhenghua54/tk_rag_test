@@ -1,0 +1,1 @@
+Stock-Based Compensation Expense [["", "Years ended", ""], ["", "December 31, 2019", "December 31, 2018"], ["Expected volatility", "50.7%", "54.2%"], ["Risk-free interest rate", "2.25%", "2.72%"], ["Dividend yield", "Nil", "Nil"], ["Average expected life", "4.77", "5.31"]]

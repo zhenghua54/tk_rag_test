@@ -1,0 +1,1 @@
+The three levels are described below: [["", "", "Fair Value Measurement Using", "", "", ""], ["", "Carrying Value", "Level 1", "Level 2", "Level 3", "Total"], ["Marketable securities", "0", "0", "0", "0", "0"], ["Derivative warrants liabilities", "$(332,222)", "$-", "$-", "$(332,222)", "$(332,222)"]]

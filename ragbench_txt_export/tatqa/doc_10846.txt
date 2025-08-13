@@ -1,0 +1,1 @@
+NOTE 11 – OTHER RECEIVABLES [["USDm", "2019", "2018"], ["Partners and commercial managements", "1.9", "-"], ["Derivative financial instruments", "0.5", "3.7"], ["Tax receivables", "1.5", "1.2"], ["Other", "2.3", "2.6"], ["Balance as of 31 December", "6.2", "7.5"]]

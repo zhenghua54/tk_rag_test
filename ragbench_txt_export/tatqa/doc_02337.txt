@@ -1,0 +1,1 @@
+ITEM 5 MARKET FOR REGISTRANT’S COMMON EQUITY, RELATED STOCKHOLDER MATTERS AND ISSUER PURCHASES OF EQUITY SECURITIES [["", "", "Common Stock Price Range 2018"], ["", "Low", "High"], ["First Quarter", "$ 5.99", "$ 8.40"], ["Second Quarter", "$ 4.79", "$ 6.48"], ["Third Quarter", "$ 2.66", "$ 4.63"], ["Fourth Quarter", "$ 1.88", "$ 3.39"]]

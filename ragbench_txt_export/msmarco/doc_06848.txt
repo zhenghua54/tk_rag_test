@@ -1,0 +1,1 @@
+Glowstone is found on the underside of blocks in The Nether. It emits light like a Torch but unlike Torches it can be placed underwater. Glowstone drops 3 Glowstone Dust when broken.

@@ -1,0 +1,1 @@
+Stock Repurchase Program [["", "", "Year Ended", ""], ["", "April 26, 2019", "April 27, 2018", "April 28, 2017"], ["Number of shares repurchased", "29", "15", "22"], ["Average price per share", "$ 72.87", "$ 51.57", "$ 32.72"], ["Aggregate purchase price", "$ 2,111", "$ 794", "$ 705"], ["Remaining authorization at end of period", "$ 1,889", "$ 4,000", "$ 794"]]

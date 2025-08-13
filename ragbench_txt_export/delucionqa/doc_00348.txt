@@ -1,0 +1,1 @@
+ParkSense Warning Display The ParkSense Warning screen is located within the instrument cluster displayIt provides visual warnings to indicate the distance between the rear fascia/bumper and/or front fascia/bumper and the detected obstacle.

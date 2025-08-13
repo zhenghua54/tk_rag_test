@@ -1,0 +1,1 @@
+Volatility: The Company calculates the expected volatility of the stock price based on the corresponding volatility of the Company’s peer group stock price for a period consistent with the warrants’ expected term.

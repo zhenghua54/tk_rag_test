@@ -1,0 +1,1 @@
+add a comment |. up vote 116 down vote. If sudo make uninstall is unavailable: In a debian based system, instead of doing make install you can run sudo checkinstall (or .rpm etc. equivalent) to make a .deb that is also automatically installed. You can then remove it using synaptic.

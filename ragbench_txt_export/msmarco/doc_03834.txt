@@ -1,0 +1,1 @@
+The voltage between two points is equal to the work done per unit of charge against a static electric field to move the charge between two points and is measured in units of volts (a joule per coulomb).

@@ -1,0 +1,1 @@
+A discussion of net sales by reportable segment is presented below for the indicated fiscal years (in millions): [["", "2019", "2018"], ["Net sales:    ", "", ""], ["AMER ", "$1,429.3", "$1,218.9"], ["APAC ", "1,557.2", "1,498.0"], ["EMEA ", "309.9", "281.5"], ["Elimination of inter-segment sales", "(132.0)", "(124.9)"], ["Total net sales", "3,164.4", "2,873.5"]]

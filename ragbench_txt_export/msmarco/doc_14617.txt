@@ -1,0 +1,1 @@
+A Reverse transcriptase (RT) is an enzyme used to generate complementary DNA (cDNA) from an RNA template, a process termed reverse transcription. It is mainly associated with retroviruses. Telomerase is another reverse transcriptase found in many eukaryotes, including humans, which carries its own RNA template; this RNA is used as a template for DNA replication.

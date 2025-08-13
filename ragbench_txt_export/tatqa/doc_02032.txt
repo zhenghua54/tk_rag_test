@@ -1,0 +1,1 @@
+North America [["", "Year Ended December 31,", ""], ["", "2019", "2018"], ["(In thousands)", "", ""], ["Revenues", "$68,024", "$67,314"], ["Income from operations", "$12,491", "$9,587"], ["Income from operations as a % of revenues", "18%", "14%"]]

@@ -1,0 +1,1 @@
+Fiscal 2017 acquisitions [["(In millions)", "Blue Coat", "LifeLock", "Total"], ["Goodwill", "$4,084", "$1,397", "$5,481"], ["Intangible assets", "1,608", "1,247", "2,855"], ["Net liabilities assumed", "(1,019)", "(361)", "(1,380)"], ["Total purchase price", "$4,673", "$2,283", "$6,956"]]

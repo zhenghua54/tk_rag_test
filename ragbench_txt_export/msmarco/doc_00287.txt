@@ -1,0 +1,1 @@
+In this tutorial: Htaccess files are hidden plain text files that are on the server to help control how your visitors interact with your website. The htaccess file is also used to block specific traffic from being able to view your website. If you look for your .htaccess file you'll see that there's no filename.

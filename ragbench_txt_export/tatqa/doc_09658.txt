@@ -1,0 +1,1 @@
+Share Repurchase [["", "", "Years Ended December 31,", ""], ["(in thousands, except per share amounts)", "2019", "2018", "2017"], ["Amount paid to repurchase shares", "$  \u2014", "$95,125", "$29,993"], ["Number of shares repurchased", "\u2014", "1,696", "422"], ["Average repurchase price per share", "$  \u2014", "$56.07", "$71.07"]]

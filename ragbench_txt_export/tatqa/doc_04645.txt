@@ -1,0 +1,1 @@
+NOTE 6 – OTHER LIABILITIES [["As of December 31,", "", ""], ["", "2019", "2018"], ["", "(In thousands)", ""], ["Other liabilities, current", "$2,000", "$1,500"], ["Other liabilities, non-current", "1,799", "3,463"], ["", "$3,799", "$4,963"]]

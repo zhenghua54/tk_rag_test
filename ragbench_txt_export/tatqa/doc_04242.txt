@@ -1,0 +1,1 @@
+Note 12. Current liabilities - trade and other payables [["Consolidated", "", ""], ["", "2019", "2018"], ["", "US$\u2019000", "US$\u2019000"], ["Trade payables", "3,492", "2,016"], ["Deferred consideration", "888", "643"], ["Other payables", "11,898", "9,488"], ["", "16,278", "12,147"]]

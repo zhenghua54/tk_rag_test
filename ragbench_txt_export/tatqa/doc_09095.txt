@@ -1,0 +1,1 @@
+CREDIT RISK [["AT DECEMBER 31", "2019", "2018"], ["Trade receivables not past due", "2,082", "2,091"], ["Trade receivables past due, net of allowance for doubtful accounts", "", ""], ["Under 60 days", "541", "508"], ["60 to 120 days", "232", "304"], ["Over 120 days", "64", "72"], ["Trade receivables, net of allowance for doubtful accounts", "2,919", "2,975"]]

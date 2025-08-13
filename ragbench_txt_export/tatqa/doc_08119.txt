@@ -1,0 +1,1 @@
+Employee Stock Purchase Plan [["", "Fiscal Year Ended August 31,", "", ""], ["", "2019", "2018", "2017"], ["Expected dividend yield", "0.6%", "0.6%", "0.8%"], ["Risk-free interest rate", "2.3%", "1.4%", "0.5%"], ["Expected volatility(1)", "28.6%", "23.0%", "33.0%"], ["Expected life", "0.5 years", "0.5 years", "0.5 years"]]

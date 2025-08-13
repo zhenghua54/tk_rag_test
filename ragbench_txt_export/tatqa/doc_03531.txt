@@ -1,0 +1,1 @@
+Interest and Other Income (Loss), Net [["", "", "Years Ended", "", "2019 vs. 2018"], ["", "July 27, 2019", "July 28, 2018", "July 29, 2017", "Variance in Dollars"], ["Interest income", "$1,308", "$1,508", "$1,338", "$(200)"], ["Interest expense", "(859)", "(943)", "(861)", "84"], ["Interest income (expense), net", "$449", "$565", "$477", "$(116)"]]

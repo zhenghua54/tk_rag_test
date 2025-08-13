@@ -1,0 +1,1 @@
+Note 9 - Software Development Costs [["", "As of December 31,", ""], ["", "2019", "2018"], ["Capitalized software development costs", "$6,029", "$5,102"], ["Accumulated amortization", "(4,485)", "(3,412)"], ["Software development costs, net", "1,544", "$1,690"]]

@@ -1,0 +1,1 @@
+A segment-level summary of the goodwill allocation is presented below. [["", "Consolidated", ""], ["", "2019", "2018"], ["", "US$000", "US$000"], ["Goodwill", "", ""], ["Board & Systems - Americas", "10,672", "8,324"], ["Board & Systems - EMEA", "5,383", "5,383"], ["Parts Analytics and Search", "13,444", "13,444"], ["Total", "29,499", "27,151"]]

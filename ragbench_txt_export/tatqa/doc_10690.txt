@@ -1,0 +1,1 @@
+b) Liquefaction services revenue: [["", "Year Ended December 31,", ""], ["(in thousands of $)", "2019", "2018"], ["Base tolling fee (1)", "204,501", "119,677"], ["Amortization of deferred commissioning period revenue (2)", "4,220", "2,467"], ["Amortization of Day 1 gain (3)", "9,950", "5,817"], ["Other", "(575)", "(336)"], ["Total", "218,096", "127,625"]]

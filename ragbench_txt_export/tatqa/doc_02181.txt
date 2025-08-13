@@ -1,0 +1,1 @@
+NOTE 11 - STOCK CAPITAL (Cont.) [["", "Outstanding as of December 31,", "Exercise", "Exercisable"], ["Issuance Date", "2019", "price", "Through"], ["Aug 2007- Jan 2011", "2,016,666", "3 - 4.35", "Nov-2022"], ["Jun-2018", "458,202", "9", "Dec-2020"], ["Jun-2018", "1,158,000", "7", "Dec-2021"], ["Aug - 2019", "842,000", "7", "Dec-2021"], ["Total", "4,474,868", "", ""]]

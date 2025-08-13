@@ -1,0 +1,1 @@
+Class A [["", "Years Ended December 31,", ""], ["", "2019", "2018"], ["Net income", "$8,675", "$13,489"], ["Weighted average common shares outstanding:", "", ""], ["Class A common stock - basic", "89,251,818", "88,394,580"], ["Class A common stock - diluted", "89,658,938", "89,045,734"]]

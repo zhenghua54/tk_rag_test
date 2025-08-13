@@ -1,0 +1,1 @@
+Save/Export each image as a JPG. In Photoshop or PaintShop Pro, click File and select Save As. Select JPG as the file type. You can then choose the quality that you would like to save the JPG as. For GIMP, click File and select Export. Choose JPG from the dropdown menu of formats.

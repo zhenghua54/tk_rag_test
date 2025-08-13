@@ -1,0 +1,1 @@
+5. Balance Sheet Components [["", "", "December 31,", ""], ["", "2019", "2018", "2017"], ["Beginning balances", "$36,836", "$42,432", "$49,904"], ["Deferral of revenue", "45,040", "40,003", "46,193"], ["Recognition of deferred revenue", "(41,034)", "(45,599)", "(53,665)"], ["Ending balances", "$40,842", "$36,836", "$42,432"]]

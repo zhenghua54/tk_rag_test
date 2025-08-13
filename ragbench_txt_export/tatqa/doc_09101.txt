@@ -1,0 +1,1 @@
+Seasonality and Backlog [["", "", "Fiscal Year End"], ["", "2019", "2018"], ["", "", "(in millions)"], ["Transportation Solutions", "$ 1,639", "$ 1,779"], ["Industrial Solutions", "1,315", "1,245"], ["Communications Solutions", "361", "441"], ["Total", "$ 3,315", "$ 3,465"]]

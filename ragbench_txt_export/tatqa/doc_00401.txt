@@ -1,0 +1,1 @@
+Consolidated Statements of Earnings and Comprehensive Earnings [["", "", "Year ended December 31,", ""], ["", "2019 (1)", "2018", "2017"], ["Software services", "$40.2", "$35.9", "$32.8"], ["Data and analytics services", "19.3", "21.7", "24.0"], ["Total related party revenues", "$59.5", "$57.6", "$56.8"]]

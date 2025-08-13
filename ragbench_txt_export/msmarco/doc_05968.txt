@@ -1,0 +1,1 @@
+Summary. Total Hydrocarbons is a requirement for most specifications. This term is defined by the analytical method which can only detect volatiles and some semi-volatiles. It is therefore, a test of Total Volatile Hydrocarbons (TVHC), and does not determine hydrocarbons that are condensable (Oil Mist)

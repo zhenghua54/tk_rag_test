@@ -1,0 +1,2 @@
+A well-known example of a positive azeotrope is 95.63% ethanol and 4.37% water (by mass) boils at 78.2 °C.
+Ethanol boils at 78.4 °C, water boils at 100 °C, but the azeotrope boils at 78.2 °C, which is lower than either of its constituents. Indeed, 78.2 °C is the minimum temperature at which any ethanol/water solution can boil at atmospheric pressure. In general, a positive azeotrope boils at a lower temperature than any other ratio of its constituents. Positive azeotropes are also called "minimum boiling mixtures" or "pressure maximum" azeotropes.

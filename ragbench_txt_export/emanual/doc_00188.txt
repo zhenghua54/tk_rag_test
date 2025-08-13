@@ -1,0 +1,1 @@
+Using Anynet+ (HDMI-CEC). Control an external device connected via Anynet+ (HDMI-CEC) with the remote control. You can use the TV's remote control to control external devices that are connected to the TV by an HDMI cable and that support Anynet+ (HDMI-CEC). Note that you can only set up and operate Anynet+ (HDMI-CEC) with the remote control.

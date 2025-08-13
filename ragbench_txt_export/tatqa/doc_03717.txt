@@ -1,0 +1,1 @@
+Remuneration of key management personnel [["", "2019", "2018"], ["", "$000", "$000"], ["Short-term employee benefits", "3,540.9", "3,842.1"], ["Share-based payment", "1,982.7", "664.6"], ["", "5,523.6", "4,506.7"]]

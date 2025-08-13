@@ -1,0 +1,1 @@
+Interest Expense and Interest Income and Other Expense, net [["", "Fiscal Years", "", "Year-Over-Year Change", ""], ["", "2019", "2018", "Amount", "Percentage"], ["Interest expense", "$(350)", "$(108)", "$(242)", "224%"], ["Interest income and other expense, net", "189", "77", "112", "145%"], ["", "$(161)", "$(31)", "$(130)", "419%"]]

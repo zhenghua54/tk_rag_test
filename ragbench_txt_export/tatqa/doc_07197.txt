@@ -1,0 +1,1 @@
+ISU plan [["Years ended August 31,", "2019", "2018"], ["Outstanding, beginning of the year", "105,475", "101,538"], ["Granted", "37,600", "47,900"], ["Distributed", "(44,470)", "(35,892)"], ["Cancelled", "(26,780)", "(8,071)"], ["Outstanding, end of the year", "71,825", "105,475"]]

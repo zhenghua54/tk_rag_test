@@ -1,0 +1,1 @@
+Note 13. Investments Held in Rabbi Trust [["", "", "Years Ended December 31,", ""], ["", "2019", "2018", "2017"], ["Net realized gains (losses) from sales of trading securities", "$143", "$10", "$195"], ["Dividend and interest income", "419", "635", "422"], ["Net unrealized holding gains (losses)", "1,817", "(1,512)", "1,002"], ["", "$2,379", "$(867)", "$1,619"]]

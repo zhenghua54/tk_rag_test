@@ -1,0 +1,1 @@
+This makes the cost per terabyte $3182. Then you add some free software and lots of do-it-yourself labor. Seems to me that puts it in the same price band as the Integrated Big Data Platform. But the software on that machine is the same Teradata Database running on the Active Enterprise Data Warehouse.

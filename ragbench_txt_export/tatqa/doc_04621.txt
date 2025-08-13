@@ -1,0 +1,1 @@
+3.3 DEPRECIATION AND AMORTIZATION [["Years ended August 31,", "2019", "2018 (1)", "Change"], ["(in thousands of dollars, except percentages)", "$", "$", "%"], ["Depreciation of property, plant and equipment", "423,432", "387,726", "9.2"], ["Amortization of intangible assets", "57,293", "45,928", "24.7"], ["", "480,725", "433,654", "10.9"]]

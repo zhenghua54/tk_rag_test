@@ -1,0 +1,1 @@
+EVENT DATA RECORDER (EDR) This vehicle is equipped with an event data recorder (EDR).  The main purpose of an edr is to record data that will assist in understanding how a vehicle’s systems performed under certain crash or near crash-like situations, such as an air bag deployment or hitting a road obstacle "⇨event data recorder (edr)" .

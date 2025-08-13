@@ -1,0 +1,1 @@
+Accounts Receivable [["", "June 30,\n2019", "June 30,\n2018"], ["Accounts receivable ", "$201,365", "$225,167"], ["Allowance for doubtful accounts", "(1,054)", "(1,478)"], ["Allowance for product returns", "(25,897)", "(11,266)"], ["Accounts receivable, net ", "$174,414", "$212,423"]]

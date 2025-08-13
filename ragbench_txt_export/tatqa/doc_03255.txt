@@ -1,0 +1,1 @@
+Dividends [["", "", "Year Ended", ""], ["", "April 26, 2019", "April 27, 2018", "April 28, 2017"], ["Dividends per share declared", "$ 1.60", "$ 0.80", "$ 0.76"], ["Dividend payments allocated to additional paid-in capital", "$ 403", "$ 106", "$ 88"], ["Dividend payments allocated to retained earnings (accumulated deficit)", "$ \u2014", "$ 108", "$ 120"]]
